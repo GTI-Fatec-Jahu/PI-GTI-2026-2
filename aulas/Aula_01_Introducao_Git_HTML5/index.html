@@ -1,0 +1,4019 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Material da disciplina Programação para Internet (Fatec Jahu, 2º Semestre/2026)">
+      
+      
+        <meta name="author" content="Ronan Adriel Zenatti">
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../Aula_03_Templates_Jinja2_e_Rotas/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Aula 01 — Introdução, Git e HTML5 - Programação para Internet — ILP951</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#aula-01-introducao-git-e-html5" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Programação para Internet — ILP951" class="md-header__button md-logo" aria-label="Programação para Internet — ILP951" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Programação para Internet — ILP951
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Aula 01 — Introdução, Git e HTML5
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Programação para Internet — ILP951" class="md-nav__button md-logo" aria-label="Programação para Internet — ILP951" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Programação para Internet — ILP951
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aulas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Aulas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bloco 1
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bloco 1
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aula 01 — Introdução, Git e HTML5
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aula 01 — Introdução, Git e HTML5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-voce-vai-aprender-nesta-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ O que você vai aprender nesta aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objetivos-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 Objetivos da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapa-mental-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ Mapa Mental da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-1-entendendo-o-que-vamos-construir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 1 — Entendendo o que vamos construir
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 1 — Entendendo o que vamos construir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-uma-aplicacao-web" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é uma aplicação web?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que Python?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-2-instalando-o-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 2 — Instalando o Python
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 2 — Instalando o Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-um-interpretador-e-por-que-precisamos-instala-lo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é um interpretador e por que precisamos instalá-lo?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacao-no-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalação no Windows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificando-se-a-instalacao-funcionou" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificando se a instalação funcionou
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-3-instalando-o-visual-studio-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 3 — Instalando o Visual Studio Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 3 — Instalando o Visual Studio Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extensoes-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensões essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-4-criando-a-pasta-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 4 — Criando a pasta do projeto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 4 — Criando a pasta do projeto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-organizacao-de-pastas-importa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a organização de pastas importa?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criando-a-pasta-via-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Criando a pasta via terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-5-ambiente-virtual-venv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 5 — Ambiente Virtual (venv)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 5 — Ambiente Virtual (venv)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-problema-que-o-ambiente-virtual-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que o ambiente virtual resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criando-e-ativando-o-ambiente-virtual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Criando e ativando o ambiente virtual
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-6-git-e-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 6 — Git e GitHub
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 6 — Git e GitHub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-versionamento-e-por-que-voce-precisa-disso" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é versionamento e por que você precisa disso?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-vs-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git vs. GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalando-o-git-e-configurando" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalando o Git e configurando
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-arquivo-gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O arquivo .gitignore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-trabalho-do-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de trabalho do Git
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-7-html5-a-linguagem-da-web" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 7 — HTML5: a linguagem da web
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 7 — HTML5: a linguagem da web">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-html-e-como-ele-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é HTML e como ele funciona?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tags-a-unidade-fundamental-do-html" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tags: a unidade fundamental do HTML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-estrutura-obrigatoria-de-um-documento-html5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A estrutura obrigatória de um documento HTML5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-1-pagina-de-apresentacao-pessoal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 1 — Página de apresentação pessoal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-2-pagina-com-tabela-de-horarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 2 — Página com tabela de horários
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-3-pagina-com-imagem-e-formulario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 3 — Página com imagem e formulário
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-8-atividade-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 8 — Atividade da Aula
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 8 — Atividade da Aula">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-fazer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que fazer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flashcards-de-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🃏 Flashcards de Revisão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quiz-de-fixacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Quiz de Fixação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resumo-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Resumo da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias-e-leitura-complementar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências e Leitura Complementar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conquista-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏆 Conquista da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 Navegação
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Aula_03_Templates_Jinja2_e_Rotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aula 03 — Templates Jinja2 e Rotas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-voce-vai-aprender-nesta-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ O que você vai aprender nesta aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#objetivos-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 Objetivos da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapa-mental-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ Mapa Mental da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-1-entendendo-o-que-vamos-construir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 1 — Entendendo o que vamos construir
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 1 — Entendendo o que vamos construir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-uma-aplicacao-web" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é uma aplicação web?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que Python?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-2-instalando-o-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 2 — Instalando o Python
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 2 — Instalando o Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-um-interpretador-e-por-que-precisamos-instala-lo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é um interpretador e por que precisamos instalá-lo?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalacao-no-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalação no Windows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificando-se-a-instalacao-funcionou" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificando se a instalação funcionou
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-3-instalando-o-visual-studio-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 3 — Instalando o Visual Studio Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 3 — Instalando o Visual Studio Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extensoes-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensões essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-4-criando-a-pasta-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 4 — Criando a pasta do projeto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 4 — Criando a pasta do projeto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-organizacao-de-pastas-importa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a organização de pastas importa?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criando-a-pasta-via-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Criando a pasta via terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-5-ambiente-virtual-venv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 5 — Ambiente Virtual (venv)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 5 — Ambiente Virtual (venv)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-problema-que-o-ambiente-virtual-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que o ambiente virtual resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#criando-e-ativando-o-ambiente-virtual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Criando e ativando o ambiente virtual
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-6-git-e-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 6 — Git e GitHub
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 6 — Git e GitHub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-versionamento-e-por-que-voce-precisa-disso" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é versionamento e por que você precisa disso?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-vs-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git vs. GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instalando-o-git-e-configurando" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalando o Git e configurando
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-arquivo-gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O arquivo .gitignore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-trabalho-do-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de trabalho do Git
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-7-html5-a-linguagem-da-web" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 7 — HTML5: a linguagem da web
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 7 — HTML5: a linguagem da web">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-e-html-e-como-ele-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é HTML e como ele funciona?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tags-a-unidade-fundamental-do-html" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tags: a unidade fundamental do HTML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-estrutura-obrigatoria-de-um-documento-html5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A estrutura obrigatória de um documento HTML5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-1-pagina-de-apresentacao-pessoal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 1 — Página de apresentação pessoal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-2-pagina-com-tabela-de-horarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 2 — Página com tabela de horários
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-pratico-3-pagina-com-imagem-e-formulario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático 3 — Página com imagem e formulário
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-8-atividade-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte 8 — Atividade da Aula
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte 8 — Atividade da Aula">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-que-fazer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que fazer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flashcards-de-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🃏 Flashcards de Revisão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quiz-de-fixacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Quiz de Fixação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resumo-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Resumo da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias-e-leitura-complementar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências e Leitura Complementar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conquista-da-aula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏆 Conquista da Aula
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 Navegação
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="aula-01-introducao-git-e-html5">Aula 01 — Introdução, Git e HTML5<a class="headerlink" href="#aula-01-introducao-git-e-html5" title="Permanent link">&para;</a></h1>
+<p><strong>Disciplina:</strong> Programação para Internet (ILP951)
+<strong>Professor:</strong> Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
+<strong>Fatec Jahu — 2º Semestre/2026</strong>
+<strong>Pré-requisitos:</strong> Nenhum — esta é a aula zero, o ponto de partida absoluto.</p>
+<hr />
+<h2 id="o-que-voce-vai-aprender-nesta-aula">🗺️ O que você vai aprender nesta aula<a class="headerlink" href="#o-que-voce-vai-aprender-nesta-aula" title="Permanent link">&para;</a></h2>
+<p>Nesta primeira aula você vai configurar todo o ambiente de desenvolvimento que usaremos durante o semestre inteiro. Ao final, você terá instalado Python, criado a pasta do projeto, configurado um ambiente virtual, feito seu primeiro commit no GitHub e escrito um arquivo HTML5 válido. Parece muito, mas cada passo é simples quando feito um de cada vez — e é exatamente assim que vamos fazer.</p>
+<hr />
+<h2 id="objetivos-da-aula">🎯 Objetivos da Aula<a class="headerlink" href="#objetivos-da-aula" title="Permanent link">&para;</a></h2>
+<p>Ao final desta aula você deverá ser capaz de:</p>
+<ul>
+<li>Instalar e configurar o ambiente de desenvolvimento do semestre (Python, VS Code e extensões essenciais)</li>
+<li>Criar a estrutura de pastas de um projeto e isolar suas dependências com um ambiente virtual (<code>venv</code>)</li>
+<li>Versionar um projeto com Git e publicá-lo em um repositório remoto no GitHub</li>
+<li>Escrever documentos HTML5 válidos, aplicando a estrutura obrigatória e as tags fundamentais (parágrafos, títulos, links, listas, tabelas, imagens e formulários)</li>
+</ul>
+<hr />
+<h2 id="mapa-mental-da-aula">🗺️ Mapa Mental da Aula<a class="headerlink" href="#mapa-mental-da-aula" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    ROOT(("Aula 01&lt;br/&gt;Ambiente e Fundamentos"))
+
+    ROOT --&gt; AMB
+    subgraph AMB["🐍 Ambiente de Desenvolvimento"]
+        direction TB
+        AMB1["Python (interpretador)"]
+        AMB2["VS Code + extensões"]
+    end
+
+    ROOT --&gt; PROJ
+    subgraph PROJ["📁 Estrutura do Projeto"]
+        direction TB
+        PROJ1["Pasta do projeto"]
+        PROJ2["venv (ambiente virtual)"]
+    end
+
+    ROOT --&gt; GIT
+    subgraph GIT["🔧 Versionamento"]
+        direction TB
+        GIT1["Git (local)"]
+        GIT2["GitHub (nuvem)"]
+        GIT3[".gitignore"]
+    end
+
+    ROOT --&gt; HTML
+    subgraph HTML["🌐 HTML5"]
+        direction TB
+        HTML1["Estrutura obrigatória"]
+        HTML2["Tags: p, h1-h6, a, ul/li"]
+        HTML3["Tabelas e formulários"]
+    end</code></pre>
+<hr />
+<h2 id="parte-1-entendendo-o-que-vamos-construir">Parte 1 — Entendendo o que vamos construir<a class="headerlink" href="#parte-1-entendendo-o-que-vamos-construir" title="Permanent link">&para;</a></h2>
+<p>Antes de instalar qualquer coisa, vale a pena ter uma imagem clara do que é uma aplicação web e quais peças a compõem. Isso vai ajudar você a entender <em>por que</em> cada ferramenta existe e qual papel ela desempenha no conjunto.</p>
+<h3 id="o-que-e-uma-aplicacao-web">O que é uma aplicação web?<a class="headerlink" href="#o-que-e-uma-aplicacao-web" title="Permanent link">&para;</a></h3>
+<p>Quando você abre o Google no navegador e digita uma pesquisa, uma sequência de eventos acontece: o navegador envia uma pergunta para um computador que está em algum servidor no mundo, esse computador processa a pergunta, busca as respostas em um banco de dados e devolve uma página HTML para o seu navegador mostrar na tela.</p>
+<p>Nessa história existem três personagens principais. O <strong>front-end</strong> é tudo que você vê e clica — os botões, as cores, o texto, o layout. Ele vive no seu navegador e é feito de HTML, CSS e JavaScript. O <strong>back-end</strong> é o "cérebro" da aplicação — o código que roda no servidor, processa as informações, valida os dados e decide o que mostrar. É aqui que entra o Python com Flask. O <strong>banco de dados</strong> é onde as informações são guardadas de forma permanente — usuários cadastrados, produtos, pedidos, tudo fica salvo aqui.</p>
+<p><img alt="Arquitetura de uma aplicação web: front-end, back-end e banco de dados" src="../../imgs/Aula_01_img_01.png" /></p>
+<p>Nesta disciplina você vai aprender a construir as três camadas. Nesta primeira aula, vamos montar a estrutura base e entender o HTML — a fundação de tudo que aparece na tela.</p>
+<h3 id="por-que-python">Por que Python?<a class="headerlink" href="#por-que-python" title="Permanent link">&para;</a></h3>
+<p>Python é atualmente uma das linguagens de programação mais usadas no mundo, tanto em empresas iniciantes quanto em gigantes como Google, Netflix e Instagram. Ela foi escolhida para esta disciplina por três razões concretas: sua sintaxe é muito próxima da linguagem humana (você vai conseguir ler o código e entender o que ele faz antes mesmo de aprender as regras formais), ela tem uma biblioteca chamada Flask que simplifica a criação de aplicações web, e ela é a mesma linguagem usada em áreas de grande crescimento como Inteligência Artificial e Ciência de Dados — o que você aprende aqui abre portas bem além desta disciplina.</p>
+<hr />
+<h2 id="parte-2-instalando-o-python">Parte 2 — Instalando o Python<a class="headerlink" href="#parte-2-instalando-o-python" title="Permanent link">&para;</a></h2>
+<h3 id="o-que-e-um-interpretador-e-por-que-precisamos-instala-lo">O que é um interpretador e por que precisamos instalá-lo?<a class="headerlink" href="#o-que-e-um-interpretador-e-por-que-precisamos-instala-lo" title="Permanent link">&para;</a></h3>
+<p>Uma linguagem de programação como Python é, em essência, um conjunto de regras e palavras que os humanos podem escrever e entender. O problema é que o computador não entende Python — ele só entende sequências de zeros e uns. O <strong>interpretador Python</strong> é o programa responsável por traduzir o que você escreve em Python para instruções que o processador consegue executar. Instalar o Python significa instalar esse tradutor no seu computador.</p>
+<p><img alt="O interpretador Python converte seu código em instruções que o computador entende" src="../../imgs/Aula_01_img_02.png" /></p>
+<h3 id="instalacao-no-windows">Instalação no Windows<a class="headerlink" href="#instalacao-no-windows" title="Permanent link">&para;</a></h3>
+<p>Acesse o site oficial em <strong>python.org</strong> e clique em "Download Python 3.x.x" (a versão mais recente da série 3). Baixe o instalador <code>.exe</code> e execute-o.</p>
+<p><strong>Atenção crucial:</strong> Na primeira tela do instalador, antes de clicar em qualquer botão, você verá uma caixa de seleção no rodapé com o texto <strong>"Add Python to PATH"</strong>. Marque essa opção. Se você não marcar ela agora, o Windows não vai saber onde encontrar o Python quando você digitar comandos no terminal, e você terá que configurar manualmente mais tarde. Após marcar, clique em "Install Now".</p>
+<p><img alt="Marque &quot;Add Python to PATH&quot; antes de qualquer coisa — é o passo mais importante da instalação" src="../../imgs/Aula_01_img_03.png" /></p>
+<h3 id="verificando-se-a-instalacao-funcionou">Verificando se a instalação funcionou<a class="headerlink" href="#verificando-se-a-instalacao-funcionou" title="Permanent link">&para;</a></h3>
+<p>Após a instalação, abra o <strong>Prompt de Comando</strong> (pressione <code>Windows + R</code>, digite <code>cmd</code> e pressione Enter). Digite o seguinte e pressione Enter:</p>
+<div class="highlight"><pre><span></span><code>python --version
+</code></pre></div>
+<p>Se a instalação funcionou corretamente, você verá algo como <code>Python 3.12.0</code>. Isso confirma que o interpretador está instalado e o Windows consegue encontrá-lo.</p>
+<blockquote>
+<p>💡 <strong>Por que testamos no terminal?</strong> Ao longo do semestre, você vai usar o terminal com frequência. Cada comando será explicado quando aparecer pela primeira vez — não se preocupe com o que ainda não foi apresentado.</p>
+</blockquote>
+<hr />
+<h2 id="parte-3-instalando-o-visual-studio-code">Parte 3 — Instalando o Visual Studio Code<a class="headerlink" href="#parte-3-instalando-o-visual-studio-code" title="Permanent link">&para;</a></h2>
+<p>O <strong>VS Code</strong> é o editor de código que usaremos. Você poderia escrever código Python em qualquer editor de texto, até no bloco de notas, mas um editor especializado oferece recursos que aceleram muito o trabalho: coloração sintática (cada tipo de elemento fica com uma cor diferente, facilitando a leitura), autocompletar (o editor sugere o resto do que você está digitando) e integração direta com o terminal.</p>
+<p>Acesse <strong>code.visualstudio.com</strong> e baixe a versão para Windows. A instalação é padrão — avance as telas com as opções padrão.</p>
+<h3 id="extensoes-essenciais">Extensões essenciais<a class="headerlink" href="#extensoes-essenciais" title="Permanent link">&para;</a></h3>
+<p>Após instalar o VS Code, você precisa adicionar duas extensões. Clique no ícone de blocos no painel lateral esquerdo (ou pressione <code>Ctrl + Shift + X</code>) para abrir o marketplace de extensões. Busque e instale a extensão <strong>Python</strong> (publicada pela Microsoft) e a extensão <strong>Prettier - Code formatter</strong>.</p>
+<p><img alt="Três passos para instalar a extensão Python no VS Code" src="../../imgs/Aula_01_img_04.png" /></p>
+<hr />
+<h2 id="parte-4-criando-a-pasta-do-projeto">Parte 4 — Criando a pasta do projeto<a class="headerlink" href="#parte-4-criando-a-pasta-do-projeto" title="Permanent link">&para;</a></h2>
+<h3 id="por-que-a-organizacao-de-pastas-importa">Por que a organização de pastas importa?<a class="headerlink" href="#por-que-a-organizacao-de-pastas-importa" title="Permanent link">&para;</a></h3>
+<p>Imagine uma gaveta onde você joga tudo junto: documentos, ferramentas, roupas e comida. Encontrar qualquer coisa seria um pesadelo. Um projeto de software é igual — se os arquivos não estiverem organizados de forma lógica, o projeto vira um caos rapidamente. A estrutura de pastas que vamos criar segue um padrão que você encontrará em projetos Flask reais no mercado de trabalho.</p>
+<h3 id="criando-a-pasta-via-terminal">Criando a pasta via terminal<a class="headerlink" href="#criando-a-pasta-via-terminal" title="Permanent link">&para;</a></h3>
+<p>Abra o terminal e navegue até onde você quer criar o projeto. Para criar na área de trabalho:</p>
+<div class="highlight"><pre><span></span><code>cd Desktop
+mkdir projeto-web
+cd projeto-web
+</code></pre></div>
+<p>O comando <code>mkdir</code> cria uma pasta (de "make directory"). O comando <code>cd</code> navega para dentro de uma pasta (de "change directory"). Agora abra o VS Code diretamente nesta pasta:</p>
+<div class="highlight"><pre><span></span><code>code .
+</code></pre></div>
+<p>O ponto (<code>.</code>) significa "aqui" — ou seja, "abra o VS Code na pasta em que estou agora".</p>
+<p><img alt="Sequência de três comandos para criar a pasta e abrir no VS Code" src="../../imgs/Aula_01_img_05.png" /></p>
+<hr />
+<h2 id="parte-5-ambiente-virtual-venv">Parte 5 — Ambiente Virtual (venv)<a class="headerlink" href="#parte-5-ambiente-virtual-venv" title="Permanent link">&para;</a></h2>
+<h3 id="o-problema-que-o-ambiente-virtual-resolve">O problema que o ambiente virtual resolve<a class="headerlink" href="#o-problema-que-o-ambiente-virtual-resolve" title="Permanent link">&para;</a></h3>
+<p>Imagine que você está trabalhando em dois projetos diferentes ao mesmo tempo. O Projeto A precisa da versão 1.0 de uma biblioteca chamada Flask. O Projeto B precisa da versão 3.0 da mesma biblioteca, que tem mudanças incompatíveis. Se você instalar as bibliotecas direto no Python global do seu computador, você só pode ter uma versão — e os dois projetos entrarão em conflito.</p>
+<p>O <strong>ambiente virtual</strong> (ou <code>venv</code>, de "virtual environment") resolve isso criando um Python isolado para cada projeto. É como se cada projeto tivesse seu próprio aquário particular: os peixes (bibliotecas) de um aquário não interferem nos peixes do outro, mesmo que vivam no mesmo armário.</p>
+<p><img alt="Cada projeto tem seu próprio aquário de bibliotecas — os ambientes virtuais evitam conflitos" src="../../imgs/Aula_01_img_06.png" /></p>
+<h3 id="criando-e-ativando-o-ambiente-virtual">Criando e ativando o ambiente virtual<a class="headerlink" href="#criando-e-ativando-o-ambiente-virtual" title="Permanent link">&para;</a></h3>
+<p>Com o terminal aberto dentro da pasta <code>projeto-web</code>, crie o ambiente virtual com:</p>
+<div class="highlight"><pre><span></span><code>python -m venv venv
+</code></pre></div>
+<p>Você está dizendo ao Python: "execute o módulo <code>venv</code> e crie um ambiente virtual chamado <code>venv</code> aqui dentro." Uma pasta chamada <code>venv</code> aparecerá no projeto. Em seguida, ative-o:</p>
+<div class="highlight"><pre><span></span><code>venv\Scripts\activate
+</code></pre></div>
+<p>Após esse comando, o início da linha do terminal muda, ganhando o prefixo <code>(venv)</code>:</p>
+<div class="highlight"><pre><span></span><code>(venv) C:\Users\SeuNome\Desktop\projeto-web&gt;
+</code></pre></div>
+<p><img alt="Antes e depois de ativar o ambiente virtual — o prefixo (venv) confirma que está ativo" src="../../imgs/Aula_01_img_07.png" /></p>
+<p>Esse <code>(venv)</code> é o sinal visual de que o ambiente virtual está ativo. Toda biblioteca instalada a partir deste momento vai para dentro da pasta <code>venv</code>, sem tocar no resto do computador.</p>
+<blockquote>
+<p>⚠️ <strong>Regra de ouro:</strong> Sempre que abrir um novo terminal para trabalhar no projeto, o primeiro comando deve ser ativar o ambiente virtual. Se você esquecer, as bibliotecas não serão encontradas e o projeto não funcionará.</p>
+</blockquote>
+<hr />
+<h2 id="parte-6-git-e-github">Parte 6 — Git e GitHub<a class="headerlink" href="#parte-6-git-e-github" title="Permanent link">&para;</a></h2>
+<h3 id="o-que-e-versionamento-e-por-que-voce-precisa-disso">O que é versionamento e por que você precisa disso?<a class="headerlink" href="#o-que-e-versionamento-e-por-que-voce-precisa-disso" title="Permanent link">&para;</a></h3>
+<p>Imagine que você está escrevendo um trabalho de faculdade em Word. Você salva como <code>trabalho_v1.docx</code>. Faz mudanças: <code>trabalho_v2.docx</code>. Mais mudanças: <code>trabalho_v3_final.docx</code>. Depois: <code>trabalho_v3_final_MESMO.docx</code>. Todo programador que trabalhou sem versionamento já chegou nesse caos — e o Git existe para acabar com ele.</p>
+<p>O <strong>Git</strong> registra cada mudança que você faz no código, com uma descrição do que foi alterado, quando e por quem. Você pode voltar para qualquer ponto da história do projeto com um único comando. Mais do que isso: ele permite que múltiplas pessoas trabalhem no mesmo projeto ao mesmo tempo sem sobrescrever o trabalho umas das outras, o que é fundamental em qualquer ambiente profissional real.</p>
+<p><img alt="O Git guarda cada versão do projeto como um ponto na linha do tempo — você pode voltar a qualquer um" src="../../imgs/Aula_01_img_08.png" /></p>
+<h3 id="git-vs-github">Git vs. GitHub<a class="headerlink" href="#git-vs-github" title="Permanent link">&para;</a></h3>
+<p><strong>Git</strong> é o programa instalado no seu computador que controla o versionamento localmente. <strong>GitHub</strong> é o serviço online que armazena o histórico do seu projeto na nuvem. O Git é seu diário pessoal; o GitHub é o cofre seguro na nuvem onde você guarda uma cópia.</p>
+<p><img alt="Git (local) e GitHub (nuvem) se complementam: o Git versiona, o GitHub armazena e compartilha" src="../../imgs/Aula_01_img_09.png" /></p>
+<h3 id="instalando-o-git-e-configurando">Instalando o Git e configurando<a class="headerlink" href="#instalando-o-git-e-configurando" title="Permanent link">&para;</a></h3>
+<p>Acesse <strong>git-scm.com</strong> e instale o Git com as opções padrão. Após a instalação, configure sua identidade — esse nome aparecerá em cada registro que você criar:</p>
+<div class="highlight"><pre><span></span><code>git config --global user.name "Seu Nome Completo"
+git config --global user.email "seu.email@example.com"
+</code></pre></div>
+<h3 id="o-arquivo-gitignore">O arquivo .gitignore<a class="headerlink" href="#o-arquivo-gitignore" title="Permanent link">&para;</a></h3>
+<p>A pasta <code>venv</code> contém milhares de arquivos do Python que <strong>nunca devem ser enviados ao GitHub</strong> — eles podem ser recriados a qualquer momento. O arquivo <code>.gitignore</code> diz ao Git o que ignorar. Crie-o na raiz do projeto com este conteúdo:</p>
+<div class="highlight"><pre><span></span><code># Ambiente virtual — nunca versionar
+venv/
+
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+
+# Configurações locais do VS Code
+.vscode/
+
+# Variáveis de ambiente sensíveis (senhas, chaves)
+.env
+</code></pre></div>
+<h3 id="o-fluxo-de-trabalho-do-git">O fluxo de trabalho do Git<a class="headerlink" href="#o-fluxo-de-trabalho-do-git" title="Permanent link">&para;</a></h3>
+<p>Todo commit passa por três estágios: você edita arquivos no seu projeto, adiciona as mudanças ao "stage" (uma área de preparação onde você escolhe o que vai entrar no commit), e então confirma o commit com uma mensagem descritiva.</p>
+<p><img alt="O fluxo completo do Git: editar → adicionar ao stage → commit → push para o GitHub" src="../../imgs/Aula_01_img_10.png" /></p>
+<div class="highlight"><pre><span></span><code>git init
+git add .
+git commit -m "Aula 01: configuração inicial do projeto"
+</code></pre></div>
+<p>Depois de criar o repositório no GitHub (em github.com, clique em "New repository"), conecte e envie:</p>
+<div class="highlight"><pre><span></span><code>git remote add origin https://github.com/SEU-USUARIO/projeto-web-fatec.git
+git push -u origin main
+</code></pre></div>
+<p>Acesse o endereço do repositório no navegador e você verá seus arquivos lá. Seu portfólio online acabou de começar.</p>
+<hr />
+<h2 id="parte-7-html5-a-linguagem-da-web">Parte 7 — HTML5: a linguagem da web<a class="headerlink" href="#parte-7-html5-a-linguagem-da-web" title="Permanent link">&para;</a></h2>
+<h3 id="o-que-e-html-e-como-ele-funciona">O que é HTML e como ele funciona?<a class="headerlink" href="#o-que-e-html-e-como-ele-funciona" title="Permanent link">&para;</a></h3>
+<p><strong>HTML</strong> (HyperText Markup Language) é a linguagem que define a <strong>estrutura e o conteúdo</strong> de uma página web. Quando o navegador recebe uma página, ele lê o arquivo HTML e decide o que mostrar na tela com base nas marcações que encontra. A palavra "marcação" é essencial aqui: HTML não é uma linguagem de programação — você não cria lógica nem repetições com HTML puro. Você está simplesmente <strong>rotulando</strong> pedaços de conteúdo para dizer o que eles são: "este é um título", "este é um parágrafo", "este é um link".</p>
+<h3 id="tags-a-unidade-fundamental-do-html">Tags: a unidade fundamental do HTML<a class="headerlink" href="#tags-a-unidade-fundamental-do-html" title="Permanent link">&para;</a></h3>
+<p>A unidade básica do HTML é a <strong>tag</strong> — um rótulo entre os sinais <code>&lt;</code> e <code>&gt;</code>. A grande maioria das tags vem em par: uma tag de abertura e uma de fechamento. A de fechamento é idêntica à de abertura, mas com uma barra <code>/</code> antes do nome.</p>
+<p>Antes de ver um código completo, veja três exemplos conceituais de tags na prática:</p>
+<p><strong>Exemplo conceitual 1 — Parágrafos:</strong> A tag <code>&lt;p&gt;</code> marca um bloco de texto como parágrafo. O navegador automaticamente adiciona espaçamento antes e depois. <code>&lt;p&gt;Texto aqui.&lt;/p&gt;</code> é suficiente para criar um parágrafo bem formado.</p>
+<p><strong>Exemplo conceitual 2 — Títulos hierárquicos:</strong> HTML tem seis níveis de título, de <code>&lt;h1&gt;</code> (mais importante, maior) a <code>&lt;h6&gt;</code> (menos importante, menor). O <code>&lt;h1&gt;</code> deve ser o título principal da página e deve existir apenas um por página — assim como um livro tem apenas um título principal.</p>
+<p><strong>Exemplo conceitual 3 — Links:</strong> A tag <code>&lt;a&gt;</code> (de "anchor", âncora) cria links. O atributo <code>href</code> indica o destino: <code>&lt;a href="https://fatec.sp.gov.br"&gt;Visitar FATEC&lt;/a&gt;</code>. O texto entre as tags é o texto clicável que o usuário vê.</p>
+<h3 id="a-estrutura-obrigatoria-de-um-documento-html5">A estrutura obrigatória de um documento HTML5<a class="headerlink" href="#a-estrutura-obrigatoria-de-um-documento-html5" title="Permanent link">&para;</a></h3>
+<p>Todo arquivo HTML5 válido precisa de uma estrutura mínima — o esqueleto que todo documento precisa antes de receber qualquer conteúdo.</p>
+<p><img alt="A estrutura em árvore do HTML5: DOCTYPE, html, head e body" src="../../imgs/Aula_01_img_12.png" /></p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="cm">&lt;!-- Declara que este é um documento HTML5. Deve ser sempre a primeira linha. --&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="cm">&lt;!-- Envolve todo o documento. lang="pt-BR" informa o idioma para navegadores</span>
+<span class="cm">     e leitores de tela (importante para acessibilidade). --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Contém informações SOBRE o documento — o usuário não vê o que está aqui,</span>
+<span class="cm">         mas o navegador usa para configurar a exibição da página. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Define a codificação de caracteres. Sem isso, acentos e cedilhas</span>
+<span class="cm">         como ã, é, ç aparecem como símbolos estranhos e ilegíveis. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Essencial para responsividade: diz ao navegador em celulares</span>
+<span class="cm">         para não reduzir o zoom automaticamente. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Minha Primeira Página<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Aparece na aba do navegador e nos resultados de busca do Google.</span>
+<span class="cm">         Não aparece no corpo da página. --&gt;</span>
+
+  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Contém TUDO que aparece visualmente:</span>
+<span class="cm">         textos, imagens, botões, tabelas, formulários... --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Olá, mundo!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Este é meu primeiro parágrafo em HTML5.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Observe a <strong>indentação</strong> — os espaços no início de cada linha. O navegador ignora esses espaços, mas eles são essenciais para que humanos consigam ler e entender a hierarquia do código. Use sempre 2 espaços para cada nível de aninhamento, e adote esse hábito desde hoje.</p>
+<hr />
+<h3 id="exemplo-pratico-1-pagina-de-apresentacao-pessoal">Exemplo prático 1 — Página de apresentação pessoal<a class="headerlink" href="#exemplo-pratico-1-pagina-de-apresentacao-pessoal" title="Permanent link">&para;</a></h3>
+<p>Crie um arquivo chamado <code>pagina_pessoal.html</code> na pasta <code>projeto-web</code>. Em vez de digitar a página inteira de uma vez, vamos construí-la em pequenos passos, salvando e recarregando o navegador a cada trecho novo — assim você vê exatamente o que cada tag adiciona à página.</p>
+<p><strong>Passo 1 — o esqueleto e o título principal.</strong> Comece com a estrutura obrigatória que você acabou de ver, e adicione um único <code>&lt;h1&gt;</code> dentro do <code>&lt;body&gt;</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Sobre Mim<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>João Silva<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- h1 = título principal da página: maior, negrito, único por página --&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve o arquivo, abra-o no navegador (clique duas vezes no explorador de arquivos) e observe: a aba do navegador mostra "Sobre Mim" (o <code>&lt;title&gt;</code>), enquanto o corpo da página mostra "João Silva" em destaque (o <code>&lt;h1&gt;</code>) — são coisas diferentes.</p>
+<p><strong>Passo 2 — uma seção "Sobre mim".</strong> Logo depois do <code>&lt;h1&gt;</code>, adicione um subtítulo e um parágrafo:</p>
+<div class="highlight"><pre><span></span><code>  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Sobre mim<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- h2 = subtítulo: menor que h1, usado para organizar seções --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+    Olá! Meu nome é João, tenho 22 anos e estou cursando Gestão da Tecnologia
+    da Informação na FATEC Jahu. Tenho interesse em desenvolvimento web e
+    banco de dados.
+  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- p = parágrafo de texto: o navegador adiciona espaço antes e depois --&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue a página. Note como o <code>&lt;h2&gt;</code> aparece menor que o <code>&lt;h1&gt;</code>, e como o navegador insere espaçamento automático antes e depois do parágrafo, sem você precisar pedir isso explicitamente.</p>
+<p><strong>Passo 3 — a lista de habilidades.</strong> Depois do parágrafo, adicione mais uma seção, desta vez com uma lista:</p>
+<div class="highlight"><pre><span></span><code>  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Minhas habilidades<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- ul = "unordered list" = lista com marcadores (bolinhas).</span>
+<span class="cm">         Use quando a ORDEM dos itens não importa. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>HTML e CSS<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- li = "list item" = cada item da lista --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Python (em aprendizado)<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>MySQL<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Git e GitHub<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue novamente. Observe a lista com marcadores (bolinhas) aparecendo — cada <code>&lt;li&gt;</code> virou um item independente, indentado automaticamente pelo navegador.</p>
+<p><strong>Passo 4 — a seção de contato.</strong> Por fim, adicione uma seção com um link clicável:</p>
+<div class="highlight"><pre><span></span><code>  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Contato<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+    Me encontre no GitHub:
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">"https://github.com/joaosilva"</span><span class="p">&gt;</span>github.com/joaosilva<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- a = link (âncora). href = endereço de destino.</span>
+<span class="cm">         O texto entre as tags é o texto clicável que o usuário vê. --&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue uma última vez. Note que o texto do link aparece sublinhado e em azul (o estilo padrão do navegador para links) e que clicar nele abre o endereço do <code>href</code>.</p>
+<p><strong>Bloco completo consolidado</strong> — depois de passar pelos quatro passos, seu arquivo <code>pagina_pessoal.html</code> deve estar assim:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Sobre Mim<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>João Silva<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- h1 = título principal da página: maior, negrito, único por página --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Sobre mim<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- h2 = subtítulo: menor que h1, usado para organizar seções --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+    Olá! Meu nome é João, tenho 22 anos e estou cursando Gestão da Tecnologia
+    da Informação na FATEC Jahu. Tenho interesse em desenvolvimento web e
+    banco de dados.
+  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- p = parágrafo de texto: o navegador adiciona espaço antes e depois --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Minhas habilidades<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- ul = "unordered list" = lista com marcadores (bolinhas).</span>
+<span class="cm">         Use quando a ORDEM dos itens não importa. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>HTML e CSS<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- li = "list item" = cada item da lista --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Python (em aprendizado)<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>MySQL<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Git e GitHub<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Contato<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+    Me encontre no GitHub:
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">"https://github.com/joaosilva"</span><span class="p">&gt;</span>github.com/joaosilva<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- a = link (âncora). href = endereço de destino.</span>
+<span class="cm">         O texto entre as tags é o texto clicável que o usuário vê. --&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<hr />
+<h3 id="exemplo-pratico-2-pagina-com-tabela-de-horarios">Exemplo prático 2 — Página com tabela de horários<a class="headerlink" href="#exemplo-pratico-2-pagina-com-tabela-de-horarios" title="Permanent link">&para;</a></h3>
+<p>Tabelas em HTML organizam dados em linhas e colunas. A estrutura usa quatro tags principais que trabalham juntas. Crie um arquivo chamado <code>horarios.html</code> e, de novo, vamos construí-lo em partes.</p>
+<p><strong>Passo 1 — título e cabeçalho da tabela.</strong> Comece com o esqueleto, um <code>&lt;h1&gt;</code>, e a linha de cabeçalho da tabela:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Grade de Horários<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Grade de Horários — 1º Semestre 2026<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">table</span> <span class="na">border</span><span class="o">=</span><span class="s">"1"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- table = contêiner da tabela inteira.</span>
+<span class="cm">         border="1" adiciona bordas visíveis para visualizarmos a estrutura.</span>
+<span class="cm">         Nas próximas aulas usaremos Bootstrap para estilizar com elegância. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">thead</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- thead = agrupa a linha de cabeçalho: visualmente separada do corpo --&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- tr = "table row" = uma linha da tabela (horizontal) --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Dia<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- th = "table header" = célula de cabeçalho: negrito e centralizado --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Horário<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Disciplina<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Professor<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">thead</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;/</span><span class="nt">table</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue a página. Você verá apenas a linha de cabeçalho, com as células em negrito e centralizadas — o <code>&lt;thead&gt;</code> ainda não tem nenhuma linha de dados abaixo dele.</p>
+<p><strong>Passo 2 — a primeira linha de dados.</strong> Dentro da <code>&lt;/thead&gt;</code> e antes do <code>&lt;/table&gt;</code>, adicione um <code>&lt;tbody&gt;</code> com a primeira linha:</p>
+<div class="highlight"><pre><span></span><code>    <span class="p">&lt;</span><span class="nt">tbody</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- tbody = agrupa todas as linhas de dados da tabela --&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Segunda-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- td = "table data" = célula de dado comum --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Programação para Internet<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Ronan Zenatti<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">tbody</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue. Agora aparece uma linha de dados abaixo do cabeçalho — repare que o texto das células <code>&lt;td&gt;</code> não vem em negrito, ao contrário das células <code>&lt;th&gt;</code> do cabeçalho.</p>
+<p><strong>Passo 3 — as linhas restantes.</strong> Dentro do mesmo <code>&lt;tbody&gt;</code>, logo depois da primeira <code>&lt;/tr&gt;</code>, adicione mais duas linhas:</p>
+<div class="highlight"><pre><span></span><code>      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Quarta-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Programação para Internet<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Ronan Zenatti<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Quinta-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Redes de Computadores<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Professor X<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue uma última vez. A tabela agora tem três linhas de dados completas, formando a grade de horários inteira.</p>
+<p><strong>Bloco completo consolidado</strong> — seu arquivo <code>horarios.html</code> final deve estar assim:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Grade de Horários<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Grade de Horários — 1º Semestre 2026<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">table</span> <span class="na">border</span><span class="o">=</span><span class="s">"1"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- table = contêiner da tabela inteira.</span>
+<span class="cm">         border="1" adiciona bordas visíveis para visualizarmos a estrutura.</span>
+<span class="cm">         Nas próximas aulas usaremos Bootstrap para estilizar com elegância. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">thead</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- thead = agrupa a linha de cabeçalho: visualmente separada do corpo --&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- tr = "table row" = uma linha da tabela (horizontal) --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Dia<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- th = "table header" = célula de cabeçalho: negrito e centralizado --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Horário<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Disciplina<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Professor<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">thead</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">tbody</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- tbody = agrupa todas as linhas de dados da tabela --&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Segunda-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- td = "table data" = célula de dado comum --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Programação para Internet<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Ronan Zenatti<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Quarta-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Programação para Internet<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Ronan Zenatti<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Quinta-feira<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>19h00 — 20h40<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Redes de Computadores<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Professor X<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">tbody</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;/</span><span class="nt">table</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<hr />
+<h3 id="exemplo-pratico-3-pagina-com-imagem-e-formulario">Exemplo prático 3 — Página com imagem e formulário<a class="headerlink" href="#exemplo-pratico-3-pagina-com-imagem-e-formulario" title="Permanent link">&para;</a></h3>
+<p>Este exemplo introduz <code>&lt;img&gt;</code> e a estrutura básica de um formulário. Os formulários serão estudados em profundidade na Aula 04 — por ora, foque em observar a estrutura e o propósito de cada tag. Crie um arquivo chamado <code>contato.html</code>, novamente em passos.</p>
+<p><strong>Passo 1 — título e imagem.</strong> Comece com o esqueleto, um <code>&lt;h1&gt;</code> e uma imagem:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Contato<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Entre em Contato<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://via.placeholder.com/150"</span> <span class="na">alt</span><span class="o">=</span><span class="s">"Foto de perfil"</span> <span class="na">width</span><span class="o">=</span><span class="s">"150"</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- img = exibe uma imagem.</span>
+<span class="cm">       src = caminho ou URL da imagem (source = fonte).</span>
+<span class="cm">       alt = texto alternativo: aparece se a imagem não carregar e é</span>
+<span class="cm">             lido por leitores de tela. NUNCA omita o alt — é acessibilidade.</span>
+<span class="cm">       Importante: &lt;img&gt; não tem tag de fechamento. É uma "void element" —</span>
+<span class="cm">       elementos que não têm conteúdo entre abertura e fechamento. --&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue a página. A imagem de placeholder aparece com 150 pixels de largura, logo abaixo do título.</p>
+<p><strong>Passo 2 — abrindo o formulário com o campo de nome.</strong> Depois da imagem, adicione um subtítulo, a abertura do <code>&lt;form&gt;</code> e o primeiro campo:</p>
+<div class="highlight"><pre><span></span><code>  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Envie uma mensagem<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- form = formulário. Agrupa campos de entrada de dados.</span>
+<span class="cm">         Voltaremos a ele com muito mais detalhe na Aula 04. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"nome"</span><span class="p">&gt;</span>Seu nome:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- label = rótulo descritivo de um campo.</span>
+<span class="cm">         O atributo "for" deve ser idêntico ao "id" do input que descreve.</span>
+<span class="cm">         Com isso, clicar no rótulo move o foco para o campo — acessibilidade. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"text"</span> <span class="na">id</span><span class="o">=</span><span class="s">"nome"</span> <span class="na">name</span><span class="o">=</span><span class="s">"nome"</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">"Digite seu nome"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- input = campo de entrada. Não tem tag de fechamento (void element).</span>
+<span class="cm">         type="text" = texto de uma linha.</span>
+<span class="cm">         placeholder = texto de dica que desaparece ao digitar. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue. Repare que clicar no texto "Seu nome:" move o cursor direto para o campo de digitação — é o efeito do <code>for</code>/<code>id</code> combinados.</p>
+<p><strong>Passo 3 — o campo de e-mail.</strong> Dentro do <code>&lt;form&gt;</code>, logo depois do campo de nome (antes do <code>&lt;/form&gt;</code>), adicione:</p>
+<div class="highlight"><pre><span></span><code>    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"email"</span><span class="p">&gt;</span>Seu e-mail:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"email"</span> <span class="na">id</span><span class="o">=</span><span class="s">"email"</span> <span class="na">name</span><span class="o">=</span><span class="s">"email"</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">"seu@email.com"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- type="email" = o navegador valida se o formato é de e-mail válido</span>
+<span class="cm">         antes de permitir o envio do formulário. Validação automática! --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue. Tente digitar um texto sem "@" nesse campo e clicar fora — dependendo do navegador, você já percebe uma dica visual de que o formato esperado é um e-mail.</p>
+<p><strong>Passo 4 — o campo de mensagem.</strong> Ainda dentro do <code>&lt;form&gt;</code>, depois do campo de e-mail, adicione:</p>
+<div class="highlight"><pre><span></span><code>    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"mensagem"</span><span class="p">&gt;</span>Mensagem:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">"mensagem"</span> <span class="na">name</span><span class="o">=</span><span class="s">"mensagem"</span> <span class="na">rows</span><span class="o">=</span><span class="s">"4"</span> <span class="na">cols</span><span class="o">=</span><span class="s">"40"</span>
+              <span class="na">placeholder</span><span class="o">=</span><span class="s">"Escreva aqui..."</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- textarea = área de texto de múltiplas linhas.</span>
+<span class="cm">         Diferente do input, textarea TEM tag de fechamento.</span>
+<span class="cm">         rows e cols definem o tamanho visual inicial. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue. Note que a <code>&lt;textarea&gt;</code> aparece como uma caixa maior, com várias linhas — diferente do <code>&lt;input type="text"&gt;</code>, que é sempre uma única linha.</p>
+<p><strong>Passo 5 — o botão de envio.</strong> Por fim, feche o formulário com um botão de envio:</p>
+<div class="highlight"><pre><span></span><code>    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">"submit"</span><span class="p">&gt;</span>Enviar Mensagem<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- button type="submit" = envia o formulário ao servidor.</span>
+<span class="cm">         Ainda não temos back-end para receber os dados (isso vem na Aula 04),</span>
+<span class="cm">         mas a estrutura já está correta. --&gt;</span>
+</code></pre></div>
+<p>Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final do formulário — clicar nele ainda não faz nada de útil, porque não existe back-end recebendo esses dados ainda (isso muda na Aula 04).</p>
+<p><strong>Bloco completo consolidado</strong> — seu arquivo <code>contato.html</code> final deve estar assim:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"pt-BR"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">"viewport"</span> <span class="na">content</span><span class="o">=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Contato<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Entre em Contato<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://via.placeholder.com/150"</span> <span class="na">alt</span><span class="o">=</span><span class="s">"Foto de perfil"</span> <span class="na">width</span><span class="o">=</span><span class="s">"150"</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- img = exibe uma imagem.</span>
+<span class="cm">       src = caminho ou URL da imagem (source = fonte).</span>
+<span class="cm">       alt = texto alternativo: aparece se a imagem não carregar e é</span>
+<span class="cm">             lido por leitores de tela. NUNCA omita o alt — é acessibilidade.</span>
+<span class="cm">       Importante: &lt;img&gt; não tem tag de fechamento. É uma "void element" —</span>
+<span class="cm">       elementos que não têm conteúdo entre abertura e fechamento. --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Envie uma mensagem<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- form = formulário. Agrupa campos de entrada de dados.</span>
+<span class="cm">         Voltaremos a ele com muito mais detalhe na Aula 04. --&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"nome"</span><span class="p">&gt;</span>Seu nome:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- label = rótulo descritivo de um campo.</span>
+<span class="cm">         O atributo "for" deve ser idêntico ao "id" do input que descreve.</span>
+<span class="cm">         Com isso, clicar no rótulo move o foco para o campo — acessibilidade. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"text"</span> <span class="na">id</span><span class="o">=</span><span class="s">"nome"</span> <span class="na">name</span><span class="o">=</span><span class="s">"nome"</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">"Digite seu nome"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- input = campo de entrada. Não tem tag de fechamento (void element).</span>
+<span class="cm">         type="text" = texto de uma linha.</span>
+<span class="cm">         placeholder = texto de dica que desaparece ao digitar. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"email"</span><span class="p">&gt;</span>Seu e-mail:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"email"</span> <span class="na">id</span><span class="o">=</span><span class="s">"email"</span> <span class="na">name</span><span class="o">=</span><span class="s">"email"</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">"seu@email.com"</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- type="email" = o navegador valida se o formato é de e-mail válido</span>
+<span class="cm">         antes de permitir o envio do formulário. Validação automática! --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">"mensagem"</span><span class="p">&gt;</span>Mensagem:<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">"mensagem"</span> <span class="na">name</span><span class="o">=</span><span class="s">"mensagem"</span> <span class="na">rows</span><span class="o">=</span><span class="s">"4"</span> <span class="na">cols</span><span class="o">=</span><span class="s">"40"</span>
+              <span class="na">placeholder</span><span class="o">=</span><span class="s">"Escreva aqui..."</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- textarea = área de texto de múltiplas linhas.</span>
+<span class="cm">         Diferente do input, textarea TEM tag de fechamento.</span>
+<span class="cm">         rows e cols definem o tamanho visual inicial. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">"submit"</span><span class="p">&gt;</span>Enviar Mensagem<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- button type="submit" = envia o formulário ao servidor.</span>
+<span class="cm">         Ainda não temos back-end para receber os dados (isso vem na Aula 04),</span>
+<span class="cm">         mas a estrutura já está correta. --&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+<hr />
+<h2 id="parte-8-atividade-da-aula">Parte 8 — Atividade da Aula<a class="headerlink" href="#parte-8-atividade-da-aula" title="Permanent link">&para;</a></h2>
+<h3 id="o-que-fazer">O que fazer<a class="headerlink" href="#o-que-fazer" title="Permanent link">&para;</a></h3>
+<p>Dentro da pasta <code>projeto-web</code>, crie um arquivo chamado <code>index.html</code> que será a <strong>página inicial do seu projeto</strong> para o semestre. Esta página deve ter a estrutura HTML5 obrigatória e válida. Inclua um <code>&lt;h1&gt;</code> com o nome do sistema que você pretende construir (você escolhe o tema: estoque, agenda, biblioteca, clínica, loja — o que preferir). Adicione uma seção <code>&lt;h2&gt;</code> descrevendo o que o sistema fará, seguida de um parágrafo. Crie uma lista <code>&lt;ul&gt;</code> com pelo menos 4 funcionalidades planejadas. Construa uma tabela com as tecnologias que serão usadas (Python, Flask, MySQL, Bootstrap) com colunas "Tecnologia" e "Para que serve". E finalize com um link de rodapé "Repositório no GitHub" apontando para o seu repositório.</p>
+<p>Após criar e salvar, registre no Git:</p>
+<div class="highlight"><pre><span></span><code>git add .
+git commit -m "Aula 01: página inicial do projeto"
+git push
+</code></pre></div>
+<hr />
+<h2 id="flashcards-de-revisao">🃏 Flashcards de Revisão<a class="headerlink" href="#flashcards-de-revisao" title="Permanent link">&para;</a></h2>
+<details class="question">
+<summary>Para que serve o interpretador Python e por que ele precisa ser instalado?</summary>
+<p>O interpretador traduz o código Python (que humanos escrevem e leem) para instruções que o processador consegue executar. Sem ele, o computador não entende Python.</p>
+</details>
+<details class="question">
+<summary>Qual problema o ambiente virtual (venv) resolve?</summary>
+<p>Ele isola as bibliotecas de cada projeto, evitando que versões diferentes da mesma biblioteca usadas em projetos distintos entrem em conflito.</p>
+</details>
+<details class="question">
+<summary>Como você confirma que o ambiente virtual está ativo?</summary>
+<p>O início da linha do terminal ganha o prefixo <code>(venv)</code>. Sem esse prefixo, qualquer biblioteca instalada vai para o Python global, não para o projeto.</p>
+</details>
+<details class="question">
+<summary>Qual a diferença entre Git e GitHub?</summary>
+<p>Git é o programa instalado localmente que controla o versionamento; GitHub é o serviço na nuvem que armazena e compartilha esse histórico. Git é o diário, GitHub é o cofre na nuvem.</p>
+</details>
+<details class="question">
+<summary>Por que a pasta <code>venv/</code> deve estar no <code>.gitignore</code>?</summary>
+<p>Ela contém milhares de arquivos gerados automaticamente pelo Python que podem ser recriados a qualquer momento com <code>python -m venv venv</code>; versioná-los é desnecessário e polui o repositório.</p>
+</details>
+<details class="question">
+<summary>Por que a tag <code>&lt;img&gt;</code> não tem tag de fechamento?</summary>
+<p>Porque é um "void element" — uma tag que não envolve conteúdo entre abertura e fechamento (assim como <code>&lt;input&gt;</code>). Ela só carrega atributos como <code>src</code> e <code>alt</code>.</p>
+</details>
+<hr />
+<h2 id="quiz-de-fixacao">✅ Quiz de Fixação<a class="headerlink" href="#quiz-de-fixacao" title="Permanent link">&para;</a></h2>
+<!-- mkdocs-quiz-source
+<quiz>
+Qual é a função do ambiente virtual (venv) em um projeto Python?
+- [ ] Acelerar a execução do código Python
+- [x] Isolar as bibliotecas de cada projeto, evitando conflitos de versão
+- [ ] Substituir a necessidade de instalar o Python
+- [ ] Conectar o projeto ao GitHub automaticamente
+
+O venv cria um Python isolado para cada projeto, como um "aquário" próprio de bibliotecas — não acelera a execução nem substitui a instalação do Python, e não tem relação direta com o GitHub.
+</quiz>
+-->
+<div class="quiz" data-show-correct="true" data-auto-submit="true" data-disable-after-submit="true" id="quiz-0">
+    <a href="#quiz-0" class="quiz-header-link">#</a>
+
+    <div class="quiz-question" id="quiz-0-question">
+        <p>Qual é a função do ambiente virtual (venv) em um projeto Python?</p>
+    </div>
+    <form action="javascript:void(0);" onsubmit="return false;">
+        <fieldset aria-labelledby="quiz-0-question"><div><input type="radio" name="answer" value="0" id="quiz-0-0" ><label for="quiz-0-0">Acelerar a execução do código Python</label></div><div><input type="radio" name="answer" value="1" id="quiz-0-1" data-correct="true"><label for="quiz-0-1">Isolar as bibliotecas de cada projeto, evitando conflitos de versão</label></div><div><input type="radio" name="answer" value="2" id="quiz-0-2" ><label for="quiz-0-2">Substituir a necessidade de instalar o Python</label></div><div><input type="radio" name="answer" value="3" id="quiz-0-3" ><label for="quiz-0-3">Conectar o projeto ao GitHub automaticamente</label></div></fieldset>
+        <div class="quiz-feedback hidden"></div>
+
+    </form>
+    <section class="content hidden"><p>O venv cria um Python isolado para cada projeto, como um "aquário" próprio de bibliotecas — não acelera a execução nem substitui a instalação do Python, e não tem relação direta com o GitHub.</p></section>
+</div>
+
+<!-- mkdocs-quiz-source
+<quiz>
+O que acontece se você esquecer de marcar "Add Python to PATH" durante a instalação no Windows?
+- [ ] O Python é instalado sem nenhuma biblioteca
+- [ ] O VS Code para de funcionar
+- [x] O terminal não encontra o comando `python` até que o PATH seja configurado manualmente
+- [ ] O ambiente virtual não pode mais ser criado
+
+Marcar "Add Python to PATH" é o que permite ao Windows localizar o interpretador quando você digita `python` no terminal. Sem isso, o comando não é reconhecido até uma configuração manual do PATH.
+</quiz>
+-->
+<div class="quiz" data-show-correct="true" data-auto-submit="true" data-disable-after-submit="true" id="quiz-1">
+    <a href="#quiz-1" class="quiz-header-link">#</a>
+
+    <div class="quiz-question" id="quiz-1-question">
+        <p>O que acontece se você esquecer de marcar "Add Python to PATH" durante a instalação no Windows?</p>
+    </div>
+    <form action="javascript:void(0);" onsubmit="return false;">
+        <fieldset aria-labelledby="quiz-1-question"><div><input type="radio" name="answer" value="0" id="quiz-1-0" ><label for="quiz-1-0">O Python é instalado sem nenhuma biblioteca</label></div><div><input type="radio" name="answer" value="1" id="quiz-1-1" ><label for="quiz-1-1">O VS Code para de funcionar</label></div><div><input type="radio" name="answer" value="2" id="quiz-1-2" data-correct="true"><label for="quiz-1-2">O terminal não encontra o comando <code>python</code> até que o PATH seja configurado manualmente</label></div><div><input type="radio" name="answer" value="3" id="quiz-1-3" ><label for="quiz-1-3">O ambiente virtual não pode mais ser criado</label></div></fieldset>
+        <div class="quiz-feedback hidden"></div>
+
+    </form>
+    <section class="content hidden"><p>Marcar "Add Python to PATH" é o que permite ao Windows localizar o interpretador quando você digita <code>python</code> no terminal. Sem isso, o comando não é reconhecido até uma configuração manual do PATH.</p></section>
+</div>
+
+<!-- mkdocs-quiz-source
+<quiz>
+Quais das afirmações abaixo sobre Git e GitHub estão corretas? (selecione todas que se aplicam)
+- [x] O Git registra o histórico de mudanças localmente, no seu computador
+- [x] O GitHub armazena uma cópia do histórico do projeto na nuvem
+- [ ] O Git só funciona se o projeto estiver conectado ao GitHub
+- [ ] O arquivo `.gitignore` é enviado ao GitHub, mas o Git ignora seu conteúdo
+
+Git e GitHub são complementares, mas independentes: o Git versiona localmente mesmo sem nenhum repositório remoto configurado. O `.gitignore` é sim versionado normalmente — o que ele faz é dizer ao Git quais *outros* arquivos ignorar.
+</quiz>
+-->
+<div class="quiz" data-show-correct="true" data-auto-submit="true" data-disable-after-submit="true" id="quiz-2">
+    <a href="#quiz-2" class="quiz-header-link">#</a>
+
+    <div class="quiz-question" id="quiz-2-question">
+        <p>Quais das afirmações abaixo sobre Git e GitHub estão corretas? (selecione todas que se aplicam)</p>
+    </div>
+    <form action="javascript:void(0);" onsubmit="return false;">
+        <fieldset aria-labelledby="quiz-2-question"><div><input type="checkbox" name="answer" value="0" id="quiz-2-0" data-correct="true"><label for="quiz-2-0">O Git registra o histórico de mudanças localmente, no seu computador</label></div><div><input type="checkbox" name="answer" value="1" id="quiz-2-1" data-correct="true"><label for="quiz-2-1">O GitHub armazena uma cópia do histórico do projeto na nuvem</label></div><div><input type="checkbox" name="answer" value="2" id="quiz-2-2" ><label for="quiz-2-2">O Git só funciona se o projeto estiver conectado ao GitHub</label></div><div><input type="checkbox" name="answer" value="3" id="quiz-2-3" ><label for="quiz-2-3">O arquivo <code>.gitignore</code> é enviado ao GitHub, mas o Git ignora seu conteúdo</label></div></fieldset>
+        <div class="quiz-feedback hidden"></div>
+        <button type="submit" class="quiz-button">Enviar</button>
+    </form>
+    <section class="content hidden"><p>Git e GitHub são complementares, mas independentes: o Git versiona localmente mesmo sem nenhum repositório remoto configurado. O <code>.gitignore</code> é sim versionado normalmente — o que ele faz é dizer ao Git quais <em>outros</em> arquivos ignorar.</p></section>
+</div>
+
+<!-- mkdocs-quiz-source
+<quiz>
+Qual tag HTML deve ser usada para o título principal da página, e quantas vezes ela deve aparecer em uma página bem formada?
+- [ ] `<h6>`, várias vezes
+- [x] `<h1>`, apenas uma vez
+- [ ] `<title>`, várias vezes
+- [ ] `<head>`, apenas uma vez
+
+`<h1>` é o título principal e mais importante da página — deve existir apenas um por página, assim como um livro tem um único título principal. `<title>` é diferente: aparece na aba do navegador, não no corpo da página.
+</quiz>
+-->
+<div class="quiz" data-show-correct="true" data-auto-submit="true" data-disable-after-submit="true" id="quiz-3">
+    <a href="#quiz-3" class="quiz-header-link">#</a>
+
+    <div class="quiz-question" id="quiz-3-question">
+        <p>Qual tag HTML deve ser usada para o título principal da página, e quantas vezes ela deve aparecer em uma página bem formada?</p>
+    </div>
+    <form action="javascript:void(0);" onsubmit="return false;">
+        <fieldset aria-labelledby="quiz-3-question"><div><input type="radio" name="answer" value="0" id="quiz-3-0" ><label for="quiz-3-0"><code>&lt;h6&gt;</code>, várias vezes</label></div><div><input type="radio" name="answer" value="1" id="quiz-3-1" data-correct="true"><label for="quiz-3-1"><code>&lt;h1&gt;</code>, apenas uma vez</label></div><div><input type="radio" name="answer" value="2" id="quiz-3-2" ><label for="quiz-3-2"><code>&lt;title&gt;</code>, várias vezes</label></div><div><input type="radio" name="answer" value="3" id="quiz-3-3" ><label for="quiz-3-3"><code>&lt;head&gt;</code>, apenas uma vez</label></div></fieldset>
+        <div class="quiz-feedback hidden"></div>
+
+    </form>
+    <section class="content hidden"><p><code>&lt;h1&gt;</code> é o título principal e mais importante da página — deve existir apenas um por página, assim como um livro tem um único título principal. <code>&lt;title&gt;</code> é diferente: aparece na aba do navegador, não no corpo da página.</p></section>
+</div>
+
+<!-- mkdocs-quiz-source
+<quiz>
+No formulário do exemplo `contato.html`, o que acontece quando o atributo `for` de um `<label>` é idêntico ao `id` de um `<input>`?
+- [ ] Nada muda visualmente ou funcionalmente
+- [x] Clicar no texto do rótulo move o foco automaticamente para o campo correspondente
+- [ ] O navegador impede o envio do formulário
+- [ ] O campo passa a ser obrigatório automaticamente
+
+Essa associação entre `for` e `id` é um recurso de acessibilidade: ao clicar no rótulo, o foco vai direto para o campo, o que ajuda inclusive usuários de leitores de tela e quem tem dificuldade de clicar exatamente no campo pequeno.
+</quiz>
+-->
+<div class="quiz" data-show-correct="true" data-auto-submit="true" data-disable-after-submit="true" id="quiz-4">
+    <a href="#quiz-4" class="quiz-header-link">#</a>
+
+    <div class="quiz-question" id="quiz-4-question">
+        <p>No formulário do exemplo <code>contato.html</code>, o que acontece quando o atributo <code>for</code> de um <code>&lt;label&gt;</code> é idêntico ao <code>id</code> de um <code>&lt;input&gt;</code>?</p>
+    </div>
+    <form action="javascript:void(0);" onsubmit="return false;">
+        <fieldset aria-labelledby="quiz-4-question"><div><input type="radio" name="answer" value="0" id="quiz-4-0" ><label for="quiz-4-0">Nada muda visualmente ou funcionalmente</label></div><div><input type="radio" name="answer" value="1" id="quiz-4-1" data-correct="true"><label for="quiz-4-1">Clicar no texto do rótulo move o foco automaticamente para o campo correspondente</label></div><div><input type="radio" name="answer" value="2" id="quiz-4-2" ><label for="quiz-4-2">O navegador impede o envio do formulário</label></div><div><input type="radio" name="answer" value="3" id="quiz-4-3" ><label for="quiz-4-3">O campo passa a ser obrigatório automaticamente</label></div></fieldset>
+        <div class="quiz-feedback hidden"></div>
+
+    </form>
+    <section class="content hidden"><p>Essa associação entre <code>for</code> e <code>id</code> é um recurso de acessibilidade: ao clicar no rótulo, o foco vai direto para o campo, o que ajuda inclusive usuários de leitores de tela e quem tem dificuldade de clicar exatamente no campo pequeno.</p></section>
+</div>
+
+<hr />
+<h2 id="resumo-da-aula">📝 Resumo da Aula<a class="headerlink" href="#resumo-da-aula" title="Permanent link">&para;</a></h2>
+<p>Hoje você configurou todo o ambiente que usará no semestre e deu os primeiros passos práticos como desenvolvedor: Python e VS Code instalados, projeto criado com ambiente virtual isolado, repositório Git iniciado com primeiro commit e push para o GitHub, e três arquivos HTML5 escritos e visualizados no navegador.</p>
+<p><img alt="Mapa mental da Aula 01: os quatro pilares aprendidos hoje" src="../../imgs/Aula_01_img_16.png" /></p>
+<p>Na próxima aula, você vai instalar o Flask e ver pela primeira vez o Python respondendo requisições do navegador. O <code>index.html</code> que você criou hoje vai evoluir para um template dinâmico gerado pelo back-end — e essa será a primeira vez que você verá as três camadas da aplicação web trabalhando juntas.</p>
+<hr />
+<h2 id="referencias-e-leitura-complementar">Referências e Leitura Complementar<a class="headerlink" href="#referencias-e-leitura-complementar" title="Permanent link">&para;</a></h2>
+<p>O <strong>MDN Web Docs</strong> em <code>developer.mozilla.org</code> é a referência oficial para HTML, CSS e JavaScript — gratuito, excelente e com boa cobertura em português. Para Git, o livro <strong>Pro Git</strong> está disponível gratuitamente em <code>git-scm.com/book/pt-br</code> e cobre desde o básico até usos avançados, também em português.</p>
+<hr />
+<h2 id="conquista-da-aula">🏆 Conquista da Aula<a class="headerlink" href="#conquista-da-aula" title="Permanent link">&para;</a></h2>
+<div class="admonition success">
+<p class="admonition-title">Selo desbloqueado: 🧭 Explorador(a) da Web</p>
+<p>Você configurou seu primeiro ambiente de desenvolvimento completo, fez seu primeiro commit no Git e escreveu suas primeiras páginas HTML5 válidas. Na próxima aula, o <code>index.html</code> que você criou vai ganhar vida: o Flask vai gerar essa página dinamicamente, e você vai ver o back-end e o front-end conversando pela primeira vez.</p>
+</div>
+<hr />
+<h2 id="navegacao">🔗 Navegação<a class="headerlink" href="#navegacao" title="Permanent link">&para;</a></h2>
+<p>➡️ <a href="../Aula_02_Flask_e_Bootstrap/">Próxima Aula: Flask e Bootstrap</a></p>
+<hr />
+<p><em>Fatec Jahu · ILP951 · Prof. Ronan Adriel Zenatti · 2026</em></p><div id="quiz-progress-sidebar" aria-label="Progresso do quiz" style="display: none;">
+  <!-- mkdocs-quiz progress sidebar (desktop) -->
+  <label class="md-nav__title">
+    <span class="md-nav__icon md-icon"></span>
+    Progresso do quiz
+  </label>
+  <ul class="md-nav__list" data-md-component="quiz-progress">
+    <li class="md-nav__item">
+      <div class="md-nav__link">
+        <span class="md-ellipsis">
+          Respondido: <span class="quiz-progress-answered">0</span> / <span class="quiz-progress-total">0</span> (<span class="quiz-progress-answered-percentage">0%</span>)
+        </span>
+      </div>
+    </li>
+    <li class="md-nav__item">
+      <div class="md-nav__link">
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-bar-incorrect" style="width: 0%"></div>
+          <div class="quiz-progress-bar-correct" style="width: 0%"></div>
+        </div>
+      </div>
+    </li>
+    <li class="md-nav__item">
+      <div class="md-nav__link quiz-correct-reset">
+        <span class="md-ellipsis">
+          Correto: <span class="quiz-progress-score">0</span> / <span class="quiz-progress-score-total">0</span> (<span class="quiz-progress-score-percentage">0%</span>)
+        </span>
+        <a href="#" class="quiz-reset-all-link" style="color: var(--md-primary-fg-color); text-decoration: none;">
+          Reiniciar
+        </a>
+      </div>
+    </li>
+  </ul>
+</div>
+<nav id="quiz-progress-mobile" class="quiz-progress-mobile md-nav" aria-label="Progresso do quiz" style="display: none;">
+  <!-- mkdocs-quiz progress sidebar (mobile) -->
+  <div class="quiz-progress-bar">
+    <div class="quiz-progress-bar-incorrect" style="width: 0%"></div>
+    <div class="quiz-progress-bar-correct" style="width: 0%"></div>
+  </div>
+  <div data-md-component="quiz-progress">
+    <div class="quiz-correct-reset">
+      <span class="md-ellipsis">
+        Respondido: <span class="quiz-progress-answered">0</span> / <span class="quiz-progress-total">0</span>
+      </span>
+      <span class="md-ellipsis">
+        Correto: <span class="quiz-progress-score">0</span> / <span class="quiz-progress-score-total">0</span>
+      </span>
+      <a href="#" class="quiz-reset-all-link" style="color: var(--md-primary-fg-color); text-decoration: none;">
+        Reiniciar
+      </a>
+    </div>
+  </div>
+</nav><style type="text/css">.quiz {
+  border: 1px solid black;
+  padding: 1rem;
+  margin: 1rem 0;
+  position: relative;
+}
+/* Set margin-top of first quiz child (skip the header link) */
+.quiz > .quiz-question:first-of-type {
+  margin-top: 0;
+}
+/* Remove top margin from first element inside quiz-question */
+.quiz-question > *:first-child {
+  margin-top: 0;
+}
+.quiz .hidden {
+  display: none;
+}
+
+.quiz form button {
+  background-color: var(--md-primary-fg-color);
+  border: none;
+  color: var(--md-primary-bg-color);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
+}
+
+.quiz form button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.quiz form button:disabled {
+  background-color: var(--md-default-fg-color--lighter, #ccc);
+  color: var(--md-default-fg-color--light, #666);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wrong label,
+.wrong label * {
+  color: #dc3545;
+  text-decoration: line-through;
+}
+.correct label,
+.correct label * {
+  color: #198754;
+  font-weight: bold;
+}
+
+fieldset {
+  border: none;
+  display: flex;
+  flex-direction: column;
+}
+fieldset input {
+  margin: 0 10px;
+}
+fieldset label {
+  margin: 0 10px;
+}
+
+input[type="radio"].correct {
+  accent-color: #198754;
+}
+input[type="radio"].wrong {
+  accent-color: #dc3545;
+}
+.content {
+  margin: 10px;
+}
+
+/* Quiz feedback container */
+.quiz-feedback {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Individual feedback box (one per answer) */
+.quiz-feedback-item {
+  position: relative;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.quiz-feedback-item.correct {
+  background-color: #d1e7dd;
+  border: 1px solid #a3cfbb;
+  color: #198754;
+}
+
+.quiz-feedback-item.incorrect {
+  background-color: #f8d7da;
+  border: 1px solid #f1aeb5;
+  color: #dc3545;
+}
+
+[data-md-color-scheme="slate"] .quiz-feedback-item.correct {
+  background-color: #051b11;
+  border: 1px solid #0f5132;
+}
+
+[data-md-color-scheme="slate"] .quiz-feedback-item.incorrect {
+  background-color: #2c0b0e;
+  border: 1px solid #842029;
+}
+
+/* Answer label badge overlapping top-left of feedback box */
+.quiz-feedback-badge {
+  position: absolute;
+  top: -0.55rem;
+  left: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-feedback-item.correct .quiz-feedback-badge {
+  background-color: #a3cfbb;
+  color: #0f5132;
+}
+
+.quiz-feedback-item.incorrect .quiz-feedback-badge {
+  background-color: #f1aeb5;
+  color: #842029;
+}
+
+[data-md-color-scheme="slate"] .quiz-feedback-item.correct .quiz-feedback-badge {
+  background-color: #0f5132;
+  color: #a3cfbb;
+}
+
+[data-md-color-scheme="slate"] .quiz-feedback-item.incorrect .quiz-feedback-badge {
+  background-color: #842029;
+  color: #f1aeb5;
+}
+
+/* When badge is present, add top padding to prevent content overlap */
+.quiz-feedback-badge + .quiz-feedback-item-content {
+  margin-top: 0.25rem;
+}
+
+/* Quiz header link styling - positioned in top right corner */
+.quiz-header-link {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  font-size: 1rem;
+  text-decoration: none;
+  color: var(--md-default-fg-color--light, #888);
+  transition: opacity 0.2s;
+  padding: 0.25rem 0.5rem;
+}
+.quiz:hover .quiz-header-link,
+.quiz-header-link:focus-visible {
+  opacity: 1;
+}
+
+/* Focus indicators for keyboard navigation */
+.quiz input:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color, #448aff);
+  outline-offset: 2px;
+}
+
+/* Quiz number header styling */
+.quiz-number {
+  margin-top: 0 !important;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+/* Quiz Progress Sidebar - Progress bar styling */
+/* Most styling comes from Material's .md-nav classes */
+#quiz-progress-sidebar {
+  margin-top: 1.5rem;
+}
+/* if config progress_sidebar_position is top, need top padding instead of bottom */
+.md-nav--secondary > #quiz-progress-sidebar:first-child {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+@media screen and (min-width: 59.9375em) {
+  #quiz-progress-sidebar .md-nav__list {
+    border-left: 3px solid var(--md-default-fg-color--lightest);
+  }
+}
+
+.quiz-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--md-default-fg-color--lightest, rgba(0, 0, 0, 0.07));
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.2rem 0;
+  display: flex;
+}
+
+.quiz-progress-bar-incorrect {
+  height: 100%;
+  background: rgba(244, 67, 54, 0.8);
+  transition: width 0.3s ease;
+}
+
+.quiz-progress-bar-correct {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s ease;
+}
+
+.quiz-correct-reset {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Mobile Quiz Progress Tracker */
+/* Shows under navbar on mobile, hidden on desktop */
+.quiz-progress-mobile {
+  display: none; /* Hidden by default on desktop */
+  background-color: var(--md-default-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest, rgba(0, 0, 0, 0.07));
+  padding: 0.8rem;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  position: sticky;
+  top: 48px;
+  z-index: 3; /* Below Material header (z-index: 4) but above page content */
+}
+
+/* Show the mobile tracker only when the secondary sidebar (and its progress
+   widget) is hidden. Material reveals .md-sidebar--secondary at min-width: 60em,
+   so the mobile tracker must stop at 60em - 1px to avoid showing both at once. */
+@media screen and (max-width: 59.9375em) {
+  .quiz-progress-mobile {
+    display: block;
+  }
+}
+
+/* Mobile tracker styling adjustments */
+.quiz-progress-mobile .md-nav__list {
+  padding: 0;
+  margin: 0;
+  max-width: 61rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+}
+
+.quiz-progress-mobile .md-nav__item {
+  margin: 0.3rem 0;
+}
+
+.quiz-progress-mobile .md-nav__link {
+  padding: 0.2rem 0;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quiz-progress-mobile .quiz-progress-bar {
+  margin: 0.3rem 0;
+}
+
+.quiz-progress-mobile .md-ellipsis {
+  flex: 1;
+}
+
+/* Quiz Intro */
+.quiz-intro {
+  margin: 1rem 0;
+}
+
+.quiz-intro p {
+  margin: 0 0 0.5rem 0;
+}
+
+/* Quiz Results End Screen */
+.quiz-results {
+  border: 1px solid black;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  background-color: var(--md-default-bg-color);
+  transition: all 0.3s ease;
+}
+
+/* Progress state - subtle styling */
+.quiz-results-progress {
+  text-align: center;
+  color: var(--md-default-fg-color--light);
+}
+
+.quiz-results-progress h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--md-default-fg-color);
+}
+
+.quiz-results-stats,
+.quiz-results-correct-stats {
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+}
+
+.quiz-results-answered,
+.quiz-results-correct,
+.quiz-results-total,
+.quiz-results-percentage {
+  font-weight: 600;
+  color: var(--md-default-fg-color);
+}
+
+/* Complete state - bold and prominent styling */
+.quiz-results-complete {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.quiz-results-complete.hidden {
+  display: none;
+}
+
+.quiz-results-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: var(--md-default-fg-color);
+}
+
+.quiz-results-score-display {
+  margin: 1.5rem 0;
+}
+
+.quiz-results-score-value {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Score color coding */
+.quiz-results-score-excellent {
+  color: #198754;
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.quiz-results-score-good {
+  color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.quiz-results-score-average {
+  color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.quiz-results-score-poor {
+  color: #fd7e14;
+  background-color: rgba(253, 126, 20, 0.1);
+}
+
+.quiz-results-score-fail {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.quiz-results-message {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 1rem 0 2rem 0;
+  color: var(--md-default-fg-color);
+}
+
+/* Dark mode adjustments */
+[data-md-color-scheme="slate"] .quiz-results-score-excellent {
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.15);
+}
+
+[data-md-color-scheme="slate"] .quiz-results-score-good {
+  color: #66bb6a;
+  background-color: rgba(102, 187, 106, 0.15);
+}
+
+[data-md-color-scheme="slate"] .quiz-results-score-average {
+  color: #ffeb3b;
+  background-color: rgba(255, 235, 59, 0.15);
+}
+
+[data-md-color-scheme="slate"] .quiz-results-score-poor {
+  color: #ff9800;
+  background-color: rgba(255, 152, 0, 0.15);
+}
+
+[data-md-color-scheme="slate"] .quiz-results-score-fail {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.15);
+}
+
+/* Fill-in-the-blank quiz styles */
+.quiz-blank-input {
+  border: none;
+  border-bottom: 2px solid var(--md-default-fg-color--light, #999);
+  background-color: transparent;
+  padding: 0.2rem 0.5rem;
+  font-size: inherit;
+  font-family: inherit;
+  color: var(--md-default-fg-color);
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+  /* min-width is set via inline style based on answer length */
+}
+
+.quiz-blank-input:focus {
+  border-bottom-color: var(--md-primary-fg-color, #1976d2);
+  background-color: var(--md-default-bg-color--light, rgba(0, 0, 0, 0.02));
+}
+
+.quiz-blank-input.correct {
+  border-bottom-color: #198754;
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.quiz-blank-input.wrong {
+  border-bottom-color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.quiz-blank-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Dark mode adjustments for fill-in-the-blank */
+[data-md-color-scheme="slate"] .quiz-blank-input {
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-md-color-scheme="slate"] .quiz-blank-input:focus {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-md-color-scheme="slate"] .quiz-blank-input.correct {
+  border-bottom-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+[data-md-color-scheme="slate"] .quiz-blank-input.wrong {
+  border-bottom-color: #f44336;
+  background-color: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+</style><script type="text/javascript">var JSConfetti=function(){"use strict";function t(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function e(t,e){for(var i=0;i<e.length;i++){var n=e[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(t,n.key,n)}}function i(t,i,n){return i&&e(t.prototype,i),n&&e(t,n),t}function n(t){return+t.replace(/px/,"")}function s(t,e){var i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:0,n=Math.random()*(e-t)+t;return Math.floor(n*Math.pow(10,i))/Math.pow(10,i)}function o(t){return t[s(0,t.length)]}var a=["#fcf403","#62fc03","#f4fc03","#03e7fc","#03fca5","#a503fc","#fc03ad","#fc03c2"];function r(t){return Math.log(t)/Math.log(1920)}var h=function(){function e(i){t(this,e);var n=i.initialPosition,a=i.direction,h=i.confettiRadius,c=i.confettiColors,u=i.emojis,l=i.emojiSize,d=i.canvasWidth,f=s(.9,1.7,3)*r(d);this.confettiSpeed={x:f,y:f},this.finalConfettiSpeedX=s(.2,.6,3),this.rotationSpeed=u.length?.01:s(.03,.07,3)*r(d),this.dragForceCoefficient=s(5e-4,9e-4,6),this.radius={x:h,y:h},this.initialRadius=h,this.rotationAngle="left"===a?s(0,.2,3):s(-.2,0,3),this.emojiSize=l,this.emojiRotationAngle=s(0,2*Math.PI),this.radiusYUpdateDirection="down";var m="left"===a?s(82,15)*Math.PI/180:s(-15,-82)*Math.PI/180;this.absCos=Math.abs(Math.cos(m)),this.absSin=Math.abs(Math.sin(m));var v=s(-150,0),p={x:n.x+("left"===a?-v:v)*this.absCos,y:n.y-v*this.absSin};this.currentPosition=Object.assign({},p),this.initialPosition=Object.assign({},p),this.color=u.length?null:o(c),this.emoji=u.length?o(u):null,this.createdAt=(new Date).getTime(),this.direction=a}return i(e,[{key:"draw",value:function(t){var e=this.currentPosition,i=this.radius,n=this.color,s=this.emoji,o=this.rotationAngle,a=this.emojiRotationAngle,r=this.emojiSize,h=window.devicePixelRatio;n?(t.fillStyle=n,t.beginPath(),t.ellipse(e.x*h,e.y*h,i.x*h,i.y*h,o,0,2*Math.PI),t.fill()):s&&(t.font="".concat(r,"px serif"),t.save(),t.translate(h*e.x,h*e.y),t.rotate(a),t.textAlign="center",t.fillText(s,0,0),t.restore())}},{key:"updatePosition",value:function(t,e){var i=this.confettiSpeed,n=this.dragForceCoefficient,s=this.finalConfettiSpeedX,o=this.radiusYUpdateDirection,a=this.rotationSpeed,r=this.createdAt,h=this.direction,c=e-r;i.x>s&&(this.confettiSpeed.x-=n*t),this.currentPosition.x+=i.x*("left"===h?-this.absCos:this.absCos)*t,this.currentPosition.y=this.initialPosition.y-i.y*this.absSin*c+.00125*Math.pow(c,2)/2,this.rotationSpeed-=this.emoji?1e-4:1e-5*t,this.rotationSpeed<0&&(this.rotationSpeed=0),this.emoji?this.emojiRotationAngle+=this.rotationSpeed*t%(2*Math.PI):"down"===o?(this.radius.y-=t*a,this.radius.y<=0&&(this.radius.y=0,this.radiusYUpdateDirection="up")):(this.radius.y+=t*a,this.radius.y>=this.initialRadius&&(this.radius.y=this.initialRadius,this.radiusYUpdateDirection="down"))}},{key:"getIsVisibleOnCanvas",value:function(t){return this.currentPosition.y<t+100}}]),e}();function c(){var t=document.createElement("canvas");return t.style.position="fixed",t.style.width="100%",t.style.height="100%",t.style.top="0",t.style.left="0",t.style.zIndex="1000",t.style.pointerEvents="none",document.body.appendChild(t),t}function u(t){var e=t.confettiRadius,i=void 0===e?6:e,n=t.confettiNumber,s=void 0===n?t.confettiesNumber||(t.emojis?40:250):n,o=t.confettiColors,r=void 0===o?a:o,h=t.emojis,c=void 0===h?t.emojies||[]:h,u=t.emojiSize,l=void 0===u?80:u;return t.emojies&&console.error("emojies argument is deprecated, please use emojis instead"),t.confettiesNumber&&console.error("confettiesNumber argument is deprecated, please use confettiNumber instead"),{confettiRadius:i,confettiNumber:s,confettiColors:r,emojis:c,emojiSize:l}}var l=function(){function e(i){var n=this;t(this,e),this.canvasContext=i,this.shapes=[],this.promise=new Promise((function(t){return n.resolvePromise=t}))}return i(e,[{key:"getBatchCompletePromise",value:function(){return this.promise}},{key:"addShapes",value:function(){var t;(t=this.shapes).push.apply(t,arguments)}},{key:"complete",value:function(){var t;return!this.shapes.length&&(null===(t=this.resolvePromise)||void 0===t||t.call(this),!0)}},{key:"processShapes",value:function(t,e,i){var n=this,s=t.timeDelta,o=t.currentTime;this.shapes=this.shapes.filter((function(t){return t.updatePosition(s,o),t.draw(n.canvasContext),!i||t.getIsVisibleOnCanvas(e)}))}}]),e}();return function(){function e(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};t(this,e),this.activeConfettiBatches=[],this.canvas=i.canvas||c(),this.canvasContext=this.canvas.getContext("2d"),this.requestAnimationFrameRequested=!1,this.lastUpdated=(new Date).getTime(),this.iterationIndex=0,this.loop=this.loop.bind(this),requestAnimationFrame(this.loop)}return i(e,[{key:"loop",value:function(){var t,e,i,s,o;this.requestAnimationFrameRequested=!1,t=this.canvas,e=window.devicePixelRatio,i=getComputedStyle(t),s=n(i.getPropertyValue("width")),o=n(i.getPropertyValue("height")),t.setAttribute("width",(s*e).toString()),t.setAttribute("height",(o*e).toString());var a=(new Date).getTime(),r=a-this.lastUpdated,h=this.canvas.offsetHeight,c=this.iterationIndex%10==0;this.activeConfettiBatches=this.activeConfettiBatches.filter((function(t){return t.processShapes({timeDelta:r,currentTime:a},h,c),!c||!t.complete()})),this.iterationIndex++,this.queueAnimationFrameIfNeeded(a)}},{key:"queueAnimationFrameIfNeeded",value:function(t){this.requestAnimationFrameRequested||this.activeConfettiBatches.length<1||(this.requestAnimationFrameRequested=!0,this.lastUpdated=t||(new Date).getTime(),requestAnimationFrame(this.loop))}},{key:"addConfetti",value:function(){for(var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=u(t),i=e.confettiRadius,n=e.confettiNumber,s=e.confettiColors,o=e.emojis,a=e.emojiSize,r=this.canvas.getBoundingClientRect(),c=r.width,d=r.height,f=5*d/7,m={x:0,y:f},v={x:c,y:f},p=new l(this.canvasContext),y=0;y<n/2;y++){var g=new h({initialPosition:m,direction:"right",confettiRadius:i,confettiColors:s,confettiNumber:n,emojis:o,emojiSize:a,canvasWidth:c}),C=new h({initialPosition:v,direction:"left",confettiRadius:i,confettiColors:s,confettiNumber:n,emojis:o,emojiSize:a,canvasWidth:c});p.addShapes(g,C)}return this.activeConfettiBatches.push(p),this.queueAnimationFrameIfNeeded(),p.getBatchCompletePromise()}},{key:"clearCanvas",value:function(){this.activeConfettiBatches=[]}},{key:"destroyCanvas",value:function(){this.canvas.remove()}}]),e}()}();
+</script><script type="text/javascript">
+window.mkdocsQuizTranslations = {"Submit": "Enviar", "Answer": "Resposta", "Question {n}": "Questão {n}", "Quiz Progress": "Progresso do quiz", "questions answered": "questões respondidas", "correct": "correto", "Quiz Complete!": "Quiz completo!", "Reset quiz": "Reiniciar quiz", "Quiz results are saved to your browser's local storage and will persist between sessions.": "Os resultados do quiz são salvos no local storage do seu browser e serão persistidos entre as sessões.", "Outstanding! You aced it!": "Excelente! Você arrasou!", "Great job! You really know your stuff!": "Excelente trabalho! Você realmente entende do assunto!", "Good effort! Keep learning!": "Bom trabalho! Continue aprendendo!", "Not bad, but there's room for improvement!": "Nada mal, mas há espaço para melhorias!", "Better luck next time! Keep trying!": "Boa sorte na próxima vez! Continue tentando!", "Are you sure you want to reset the quiz? This will clear your progress.": "Tem certeza de que deseja reiniciar o teste? Isso apagará seu progresso.", "Try Again": "Tente novamente", "Correct answer!": "Resposta correta!", "Incorrect answer. Please try again.": "Resposta incorreta. Tente de novo.", "Incorrect answer.": "Resposta incorreta.", "Answered:": "Respondido:", "Correct:": "Correto:", "Reset": "Reiniciar", "(empty)": "(vazio)"};
+</script><script type="text/javascript">
+window.mkdocsQuizConfig = {
+  confetti: true,
+  showProgress: true,
+  progressSidebarPosition: "top"
+};
+</script><script type="text/javascript" defer>// Wrap everything in an IIFE to avoid variable redeclaration issues
+// when Material theme instant navigation reloads the page
+(function () {
+  // Constants
+  const STORAGE_KEY_PREFIX = "quiz_progress_";
+
+  // Translation helper function
+  function t(key, params = {}) {
+    let text = window.mkdocsQuizTranslations?.[key] || key;
+    // Simple template replacement for {n} and {key} style placeholders
+    return text.replace(/{(\w+)}/g, (_, k) => (params[k] !== undefined ? params[k] : `{${k}}`));
+  }
+
+  // Confetti instance (will be initialized if enabled)
+  let jsConfetti = null;
+
+  // Store event listeners for cleanup
+  let eventListeners = [];
+
+  // Initialize confetti if enabled
+  if (window.mkdocsQuizConfig && window.mkdocsQuizConfig.confetti) {
+    if (typeof JSConfetti !== "undefined") {
+      jsConfetti = new JSConfetti();
+    }
+  }
+
+  // Function to move quiz progress sidebar into TOC sidebar
+  // This needs to run on every page load for Material instant navigation
+  function repositionSidebar() {
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      const sidebar = document.getElementById("quiz-progress-sidebar");
+      const tocSidebar = document.querySelector(".md-sidebar--secondary .md-sidebar__inner .md-nav--secondary");
+
+      if (sidebar && tocSidebar) {
+        // Check if sidebar is already in the correct position
+        // by seeing if it's already a child of tocSidebar
+        if (!tocSidebar.contains(sidebar)) {
+          // Get position from config (default: "top")
+          const position =
+            window.mkdocsQuizConfig && window.mkdocsQuizConfig.progressSidebarPosition
+              ? window.mkdocsQuizConfig.progressSidebarPosition
+              : "top";
+
+          // Move sidebar based on configured position
+          if (position === "bottom") {
+            // Append to the end (below TOC)
+            tocSidebar.appendChild(sidebar);
+          } else {
+            // Default: insert at the top (above TOC)
+            if (tocSidebar.firstChild) {
+              tocSidebar.insertBefore(sidebar, tocSidebar.firstChild);
+            } else {
+              tocSidebar.appendChild(sidebar);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Cleanup function to remove event listeners and prevent memory leaks
+  function cleanup() {
+    eventListeners.forEach(({ element, event, handler }) => {
+      element.removeEventListener(event, handler);
+    });
+    eventListeners = [];
+  }
+
+  // Helper function to add tracked event listeners
+  function addTrackedEventListener(element, event, handler) {
+    element.addEventListener(event, handler);
+    eventListeners.push({ element, event, handler });
+  }
+
+  // Global quiz tracker
+  const quizTracker = {
+    quizzes: {},
+    totalQuizzes: 0,
+    answeredQuizzes: 0,
+    correctQuizzes: 0,
+
+    init: function () {
+      this.totalQuizzes = document.querySelectorAll(".quiz").length;
+      this.loadFromStorage();
+      // Initialize wasCompleted based on restored state to prevent confetti on page load
+      // Only fire confetti when completing quizzes in the current session, not from localStorage
+      const progress = this.getProgress();
+      this.wasCompleted = progress.answered === progress.total && progress.total > 0;
+      this.updateDisplay();
+    },
+
+    markQuiz: function (quizId, isCorrect, selectedValues = []) {
+      const wasAnswered = !!this.quizzes[quizId];
+      const wasCorrect = this.wasPreviouslyCorrect(quizId);
+
+      if (!wasAnswered) {
+        this.answeredQuizzes++;
+      }
+
+      this.quizzes[quizId] = {
+        answered: true,
+        correct: isCorrect,
+        selectedValues: selectedValues,
+      };
+
+      if (isCorrect && !wasCorrect) {
+        this.correctQuizzes++;
+      } else if (!isCorrect && wasCorrect) {
+        this.correctQuizzes--;
+      }
+
+      this.saveToStorage();
+      this.updateDisplay();
+    },
+
+    wasPreviouslyCorrect: function (quizId) {
+      return this.quizzes[quizId] && this.quizzes[quizId].correct;
+    },
+
+    resetQuiz: function (quizId) {
+      if (this.quizzes[quizId]) {
+        if (this.quizzes[quizId].correct) {
+          this.correctQuizzes--;
+        }
+        this.answeredQuizzes--;
+        delete this.quizzes[quizId];
+        this.saveToStorage();
+        this.updateDisplay();
+      }
+    },
+
+    resetAllQuiz: function () {
+      this.quizzes = {};
+      this.answeredQuizzes = 0;
+      this.correctQuizzes = 0;
+      this.saveToStorage();
+      this.updateDisplay();
+
+      // Reset all quiz forms on the page
+      document.querySelectorAll(".quiz").forEach((quiz) => {
+        const form = quiz.querySelector("form");
+        const fieldset = form.querySelector("fieldset");
+        const submitButton = form.querySelector('button[type="submit"]');
+        const resetButton = form.querySelector(".quiz-reset-button");
+        const feedbackDiv = form.querySelector(".quiz-feedback");
+        const section = quiz.querySelector("section");
+
+        // Clear all selections
+        const allInputs = fieldset.querySelectorAll('input[name="answer"]');
+        allInputs.forEach((input) => {
+          input.checked = false;
+          input.disabled = false;
+        });
+
+        // Reset colors
+        resetFieldset(fieldset);
+
+        // Hide content section
+        if (section) {
+          section.classList.add("hidden");
+        }
+
+        // Hide feedback container
+        feedbackDiv.classList.add("hidden");
+        feedbackDiv.innerHTML = "";
+
+        // Show submit button, hide reset button
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.classList.remove("hidden");
+        }
+        if (resetButton) {
+          resetButton.classList.add("hidden");
+        }
+      });
+    },
+
+    getProgress: function () {
+      return {
+        total: this.totalQuizzes,
+        answered: this.answeredQuizzes,
+        correct: this.correctQuizzes,
+        percentage: this.totalQuizzes > 0 ? Math.round((this.answeredQuizzes / this.totalQuizzes) * 100) : 0,
+        score: this.totalQuizzes > 0 ? Math.round((this.correctQuizzes / this.totalQuizzes) * 100) : 0,
+      };
+    },
+
+    saveToStorage: function () {
+      try {
+        const pageKey = STORAGE_KEY_PREFIX + window.location.pathname;
+        const data = JSON.stringify(this.quizzes);
+
+        // Check size limit (50KB max to prevent quota issues)
+        if (data.length > 50000) {
+          console.warn("Quiz progress data exceeds size limit, not saving to localStorage");
+          this.showStorageWarning("Quiz progress is too large to save");
+          return;
+        }
+
+        localStorage.setItem(pageKey, data);
+      } catch (e) {
+        // Handle quota exceeded or localStorage disabled
+        console.error("Failed to save quiz progress:", e);
+        this.showStorageWarning(
+          "Unable to save quiz progress. Your browser may have storage disabled or quota exceeded.",
+        );
+      }
+    },
+
+    loadFromStorage: function () {
+      try {
+        const pageKey = STORAGE_KEY_PREFIX + window.location.pathname;
+        const stored = localStorage.getItem(pageKey);
+
+        if (stored) {
+          // Validate size before parsing (50KB max)
+          if (stored.length > 50000) {
+            console.warn("Stored quiz data exceeds size limit, clearing corrupted data");
+            localStorage.removeItem(pageKey);
+            return;
+          }
+
+          const parsed = JSON.parse(stored);
+
+          // Validate structure: should be an object
+          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+            console.warn("Invalid quiz data structure, clearing corrupted data");
+            localStorage.removeItem(pageKey);
+            return;
+          }
+
+          this.quizzes = parsed;
+
+          // Recalculate counts and validate quiz data structure
+          this.answeredQuizzes = 0;
+          this.correctQuizzes = 0;
+          for (let key in this.quizzes) {
+            const quiz = this.quizzes[key];
+            // Validate each quiz entry has expected structure
+            if (typeof quiz !== "object" || typeof quiz.answered !== "boolean" || typeof quiz.correct !== "boolean") {
+              console.warn("Invalid quiz entry structure, clearing corrupted data");
+              this.quizzes = {};
+              localStorage.removeItem(pageKey);
+              return;
+            }
+
+            if (quiz.answered) {
+              this.answeredQuizzes++;
+            }
+            if (quiz.correct) {
+              this.correctQuizzes++;
+            }
+          }
+        }
+      } catch (e) {
+        // Handle parsing errors or localStorage unavailable
+        console.error("Failed to load quiz progress:", e);
+        const pageKey = STORAGE_KEY_PREFIX + window.location.pathname;
+        try {
+          localStorage.removeItem(pageKey); // Clear corrupted data
+        } catch (cleanupError) {
+          // localStorage might be completely unavailable
+        }
+      }
+    },
+
+    updateDisplay: function () {
+      const progress = this.getProgress();
+      const wasComplete = this.wasCompleted;
+      const isComplete = progress.answered === progress.total && progress.total > 0;
+
+      // Dispatch custom event for sidebar/other UI components
+      window.dispatchEvent(
+        new CustomEvent("quizProgressUpdate", {
+          detail: progress,
+        }),
+      );
+      // Update sidebar if it exists
+      this.updateSidebar();
+      // Update results div if it exists
+      this.updateResultsDiv(progress, isComplete, wasComplete);
+
+      // Track completion state
+      this.wasCompleted = isComplete;
+    },
+
+    updateResultsDiv: function (progress, isComplete, wasComplete) {
+      const resultsDiv = document.getElementById("quiz-results");
+      if (!resultsDiv) return;
+
+      // Update progress section
+      const answeredEl = resultsDiv.querySelector(".quiz-results-answered");
+      const totalEl = resultsDiv.querySelector(".quiz-results-total");
+      const percentageEl = resultsDiv.querySelector(".quiz-results-percentage");
+      const correctEl = resultsDiv.querySelector(".quiz-results-correct");
+
+      if (answeredEl) answeredEl.textContent = progress.answered;
+      if (totalEl) totalEl.textContent = progress.total;
+      if (percentageEl) percentageEl.textContent = progress.percentage + "%";
+      if (correctEl) correctEl.textContent = progress.correct;
+
+      // Handle completion state
+      const progressSection = resultsDiv.querySelector(".quiz-results-progress");
+      const completeSection = resultsDiv.querySelector(".quiz-results-complete");
+
+      if (isComplete) {
+        // Hide progress, show complete
+        if (progressSection) progressSection.classList.add("hidden");
+        if (completeSection) {
+          completeSection.classList.remove("hidden");
+
+          // Update score display
+          const scoreValue = resultsDiv.querySelector(".quiz-results-score-value");
+          const scoreMessage = resultsDiv.querySelector(".quiz-results-message");
+
+          if (scoreValue) {
+            scoreValue.textContent = progress.score + "%";
+
+            // Remove all score classes
+            scoreValue.classList.remove(
+              "quiz-results-score-excellent",
+              "quiz-results-score-good",
+              "quiz-results-score-average",
+              "quiz-results-score-poor",
+              "quiz-results-score-fail",
+            );
+
+            // Add appropriate score class and message
+            let message = "";
+            if (progress.score >= 90) {
+              scoreValue.classList.add("quiz-results-score-excellent");
+              message = t("Outstanding! You aced it!");
+            } else if (progress.score >= 75) {
+              scoreValue.classList.add("quiz-results-score-good");
+              message = t("Great job! You really know your stuff!");
+            } else if (progress.score >= 60) {
+              scoreValue.classList.add("quiz-results-score-average");
+              message = t("Good effort! Keep learning!");
+            } else if (progress.score >= 40) {
+              scoreValue.classList.add("quiz-results-score-poor");
+              message = t("Not bad, but there's room for improvement!");
+            } else {
+              scoreValue.classList.add("quiz-results-score-fail");
+              message = t("Better luck next time! Keep trying!");
+            }
+
+            if (scoreMessage) scoreMessage.textContent = message;
+          }
+
+          // Trigger confetti and scroll on first completion
+          if (!wasComplete) {
+            // Scroll to results div
+            resultsDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            // Fire confetti if enabled and score is good
+            if (jsConfetti && progress.score >= 10) {
+              setTimeout(() => {
+                jsConfetti.addConfetti();
+              }, 500);
+            }
+          }
+        }
+      } else {
+        // Show progress, hide complete
+        if (progressSection) progressSection.classList.remove("hidden");
+        if (completeSection) completeSection.classList.add("hidden");
+      }
+    },
+
+    updateSidebar: function () {
+      // Update both desktop and mobile sidebars
+      const sidebars = [
+        document.getElementById("quiz-progress-sidebar"),
+        document.getElementById("quiz-progress-mobile"),
+      ];
+
+      sidebars.forEach((sidebar) => {
+        if (sidebar) {
+          const progress = this.getProgress();
+
+          // Update answered count
+          const answeredEl = sidebar.querySelector(".quiz-progress-answered");
+          if (answeredEl) {
+            answeredEl.textContent = progress.answered;
+          }
+
+          // Update answered percentage - desktop only
+          const answeredPercentageEl = sidebar.querySelector(".quiz-progress-answered-percentage");
+          if (answeredPercentageEl && sidebar.id == "quiz-progress-sidebar") {
+            answeredPercentageEl.textContent = progress.percentage + "%";
+          }
+
+          // Update all .quiz-progress-total elements
+          const totalElements = sidebar.querySelectorAll(".quiz-progress-total");
+          totalElements.forEach((el) => {
+            el.textContent = progress.total;
+          });
+
+          // Update correct count
+          const scoreEl = sidebar.querySelector(".quiz-progress-score");
+          if (scoreEl) {
+            scoreEl.textContent = progress.correct;
+          }
+
+          // Update correct denominator (answered count)
+          const scoreTotalEl = sidebar.querySelector(".quiz-progress-score-total");
+          if (scoreTotalEl) {
+            scoreTotalEl.textContent = progress.answered;
+          }
+
+          // Update correct percentage (based on answered quizzes, not total) - desktop only
+          const scorePercentageEl = sidebar.querySelector(".quiz-progress-score-percentage");
+          if (scorePercentageEl && sidebar.id == "quiz-progress-sidebar") {
+            const scorePercentage =
+              progress.answered > 0 ? Math.round((progress.correct / progress.answered) * 100) : 0;
+            scorePercentageEl.textContent = scorePercentage + "%";
+          }
+
+          // Update progress bars (incorrect and correct)
+          const correctBar = sidebar.querySelector(".quiz-progress-bar-correct");
+          const incorrectBar = sidebar.querySelector(".quiz-progress-bar-incorrect");
+
+          if (correctBar && incorrectBar) {
+            const incorrectCount = progress.answered - progress.correct;
+            const correctPercentage = progress.total > 0 ? (progress.correct / progress.total) * 100 : 0;
+            const incorrectPercentage = progress.total > 0 ? (incorrectCount / progress.total) * 100 : 0;
+
+            incorrectBar.style.width = incorrectPercentage + "%";
+            correctBar.style.width = correctPercentage + "%";
+          }
+        }
+      });
+    },
+
+    createSidebar: function () {
+      // Check if progress tracking is enabled
+      const showProgress = window.mkdocsQuizConfig && window.mkdocsQuizConfig.showProgress !== false;
+
+      // Only show sidebar if progress tracking is enabled and there are quizzes
+      if (!showProgress || this.totalQuizzes === 0) {
+        return;
+      }
+
+      // Show both desktop and mobile sidebars
+      const desktopSidebar = document.getElementById("quiz-progress-sidebar");
+      const mobileSidebar = document.getElementById("quiz-progress-mobile");
+
+      if (desktopSidebar) {
+        desktopSidebar.style.display = "";
+      }
+      if (mobileSidebar) {
+        mobileSidebar.style.display = "";
+      }
+
+      // Initialize reset button event listeners
+      const resetLinks = document.querySelectorAll(".quiz-reset-all-link");
+      resetLinks.forEach((resetLink) => {
+        const handler = (e) => {
+          e.preventDefault();
+          if (confirm(t("Are you sure you want to reset the quiz? This will clear your progress."))) {
+            quizTracker.resetAllQuiz();
+          }
+        };
+        addTrackedEventListener(resetLink, "click", handler);
+      });
+
+      // Update the sidebar with initial values
+      this.updateSidebar();
+    },
+
+    showStorageWarning: function (message) {
+      // Show a warning banner in the progress tracker if it exists
+      const progressSidebar = document.getElementById("quiz-progress-sidebar");
+      if (progressSidebar) {
+        // Check if warning already exists
+        let warningEl = progressSidebar.querySelector(".quiz-storage-warning");
+        if (!warningEl) {
+          warningEl = document.createElement("div");
+          warningEl.className = "quiz-storage-warning";
+          warningEl.style.cssText =
+            "background: #fff3cd; color: #856404; padding: 8px; margin: 8px 0; border-radius: 4px; font-size: 12px; border: 1px solid #ffeaa7;";
+          progressSidebar.insertBefore(warningEl, progressSidebar.firstChild);
+        }
+        warningEl.textContent = message;
+      }
+    },
+  };
+
+  // Truncate text to a maximum length, adding ellipsis if needed
+  function truncateText(text, maxLength) {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trimEnd() + "\u2026";
+  }
+
+  // Collect feedback HTML from a NodeList of input elements.
+  // Returns an array of {label, html} objects (one per answer that has feedback).
+  function collectFeedbackFromNodeList(nodeList) {
+    var items = [];
+    nodeList.forEach(function (input) {
+      var fb = input.parentElement.querySelector(".answer-feedback");
+      if (fb && fb.innerHTML.trim()) {
+        var label = input.parentElement.querySelector("label");
+        var labelText = label ? label.textContent.trim() : "";
+        items.push({ label: labelText, html: fb.innerHTML });
+      }
+    });
+    return items;
+  }
+
+  // Try to collect feedback from selected inputs, falling back to correct inputs if configured.
+  // Returns an array of {label, html} objects.
+  function collectFeedbackForSelectedOrCorrect(fieldset, quiz) {
+    var items = collectFeedbackFromNodeList(fieldset.querySelectorAll('input[name="answer"]:checked'));
+    if (!items.length && quiz.hasAttribute("data-show-correct")) {
+      items = collectFeedbackFromNodeList(fieldset.querySelectorAll('input[name="answer"][data-correct="true"]'));
+    }
+    return items;
+  }
+
+  // Build feedback container HTML from an array of {label, html} items.
+  // Each item becomes its own styled feedback box with a badge showing the answer label.
+  function buildFeedbackHTML(items, cssClass) {
+    if (!items.length) return "";
+    var maxBadgeLen = 30;
+    var result = "";
+    items.forEach(function (item) {
+      var badge = "";
+      if (item.label) {
+        var escaped = item.label
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+        badge =
+          '<span class="quiz-feedback-badge" title="' + escaped + '">' + truncateText(escaped, maxBadgeLen) + "</span>";
+      }
+      result +=
+        '<div class="quiz-feedback-item ' +
+        cssClass +
+        '">' +
+        badge +
+        '<div class="quiz-feedback-item-content">' +
+        item.html +
+        "</div></div>";
+    });
+    return result;
+  }
+
+  // Wrap content in a single feedback item div with the given CSS class
+  function wrapFeedbackItem(cssClass, content) {
+    return (
+      '<div class="quiz-feedback-item ' +
+      cssClass +
+      '"><div class="quiz-feedback-item-content">' +
+      content +
+      "</div></div>"
+    );
+  }
+
+  // Get default feedback message based on submission correctness and retry status
+  function getDefaultFeedbackMessage(isCorrect, canRetry) {
+    if (isCorrect) return t("Correct answer!");
+    return canRetry ? t("Incorrect answer. Please try again.") : t("Incorrect answer.");
+  }
+
+  // Mark answer elements with correct/wrong classes based on selection and correctness
+  function markAnswers(selectedAnswers, correctAnswers, quiz, isCorrect) {
+    selectedAnswers.forEach((answer) => {
+      if (isCorrect) {
+        // All selected answers are correct (since it's multiple correct)
+        answer.parentElement.classList.add("correct");
+      } else {
+        // Mark selected wrong answers, keep correct ones highlighted
+        const isAnswerCorrect = answer.hasAttribute("data-correct");
+        answer.parentElement.classList.toggle("wrong", !isAnswerCorrect);
+        answer.parentElement.classList.toggle("correct", isAnswerCorrect);
+      }
+    });
+
+    // If show-correct is enabled, also highlight unselected correct answers on incorrect submission
+    if (!isCorrect && quiz.hasAttribute("data-show-correct")) {
+      correctAnswers.forEach((a) => a.parentElement.classList.add("correct"));
+    }
+  }
+
+  // Display feedback message and styling after quiz submission
+  function showFeedback(feedbackDiv, isCorrect, selectedAnswers, correctAnswers, fieldset, quiz) {
+    feedbackDiv.classList.remove("hidden");
+
+    // Collect per-answer feedback items
+    var cssClass = isCorrect ? "correct" : "incorrect";
+    var items = isCorrect
+      ? collectFeedbackForSelectedOrCorrect(fieldset, quiz)
+      : collectFeedbackFromNodeList(selectedAnswers);
+
+    var html = buildFeedbackHTML(items, cssClass);
+    if (html) {
+      feedbackDiv.innerHTML = html;
+    } else {
+      // No per-answer feedback — show a single default message box
+      var canRetry = !quiz.hasAttribute("data-disable-after-submit");
+      feedbackDiv.innerHTML = wrapFeedbackItem(cssClass, getDefaultFeedbackMessage(isCorrect, canRetry));
+    }
+  }
+
+  // Initialize results div reset button
+  function initializeResultsDiv() {
+    const resultsDiv = document.getElementById("quiz-results");
+    if (!resultsDiv) return;
+
+    const resetButton = resultsDiv.querySelector(".quiz-results-reset");
+    if (resetButton) {
+      const handler = () => {
+        if (confirm(t("Are you sure you want to reset the quiz? This will clear your progress."))) {
+          quizTracker.resetAllQuiz();
+        }
+      };
+      addTrackedEventListener(resetButton, "click", handler);
+    }
+  }
+
+  // Initialize intro reset buttons
+  function initializeIntroResetButtons() {
+    const introResetButtons = document.querySelectorAll(".quiz-intro-reset");
+    introResetButtons.forEach((button) => {
+      const handler = () => {
+        if (confirm(t("Are you sure you want to reset the quiz? This will clear your progress."))) {
+          quizTracker.resetAllQuiz();
+        }
+      };
+      addTrackedEventListener(button, "click", handler);
+    });
+  }
+
+  // Shuffle an array using Fisher-Yates algorithm
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Shuffle the answer elements in a fieldset
+  function shuffleAnswers(fieldset) {
+    const answerDivs = Array.from(fieldset.querySelectorAll(":scope > div"));
+    if (answerDivs.length <= 1) return;
+
+    // Shuffle the array of elements
+    shuffleArray(answerDivs);
+
+    // Re-append elements in shuffled order
+    answerDivs.forEach((div) => fieldset.appendChild(div));
+  }
+
+  // Initialize all quiz elements on the page
+  function initializeQuizzes() {
+    document.querySelectorAll(".quiz").forEach((quiz) => {
+      let form = quiz.querySelector("form");
+      let fieldset = form.querySelector("fieldset");
+      let submitButton = form.querySelector('button[type="submit"]');
+      let feedbackDiv = form.querySelector(".quiz-feedback");
+
+      // Shuffle answers if enabled (before any state restoration)
+      if (quiz.hasAttribute("data-shuffle-answers")) {
+        shuffleAnswers(fieldset);
+      }
+
+      // Get quiz ID from the quiz div itself
+      const quizId = quiz.id;
+
+      // Check if this is a fill-in-the-blank quiz
+      const isFillBlank = quiz.hasAttribute("data-quiz-type") && quiz.getAttribute("data-quiz-type") === "fill-blank";
+
+      // Prevent anchor link from triggering page navigation/reload
+      const headerLink = quiz.querySelector(".quiz-header-link");
+      if (headerLink) {
+        const handler = (e) => {
+          // Let the browser handle the anchor navigation normally
+          // This prevents Material themes from intercepting it as a page navigation
+          e.stopPropagation();
+        };
+        addTrackedEventListener(headerLink, "click", handler);
+      }
+
+      // Create reset button (initially hidden)
+      let resetButton = document.createElement("button");
+      resetButton.type = "button";
+      resetButton.className = "quiz-button quiz-reset-button hidden";
+      resetButton.textContent = t("Try Again");
+      if (submitButton) {
+        submitButton.parentNode.insertBefore(resetButton, submitButton.nextSibling);
+      } else {
+        form.appendChild(resetButton);
+      }
+
+      // Helper function to normalize answers (trim whitespace, case-insensitive)
+      function normalizeAnswer(answer) {
+        return answer.trim().toLowerCase();
+      }
+
+      // Restore quiz state from localStorage if available
+      if (quizId && quizTracker.quizzes[quizId]) {
+        const savedState = quizTracker.quizzes[quizId];
+        const section = quiz.querySelector("section");
+
+        if (isFillBlank) {
+          // Restore fill-in-the-blank quiz state
+          const blankInputs = quiz.querySelectorAll(".quiz-blank-input");
+
+          if (savedState.answered) {
+            // Restore input values based on saved values
+            if (savedState.selectedValues && savedState.selectedValues.length > 0) {
+              blankInputs.forEach((input, index) => {
+                if (savedState.selectedValues[index] !== undefined) {
+                  input.value = savedState.selectedValues[index];
+                }
+              });
+            }
+
+            if (savedState.correct) {
+              // Show correct feedback
+              if (section) {
+                section.classList.remove("hidden");
+              }
+              feedbackDiv.classList.remove("hidden");
+              feedbackDiv.innerHTML = wrapFeedbackItem("correct", getDefaultFeedbackMessage(true, false));
+
+              // Mark all inputs as correct
+              blankInputs.forEach((input) => {
+                input.classList.add("correct");
+              });
+
+              // Disable inputs if disable-after-submit is enabled
+              if (quiz.hasAttribute("data-disable-after-submit")) {
+                blankInputs.forEach((input) => {
+                  input.disabled = true;
+                });
+                if (submitButton) {
+                  submitButton.disabled = true;
+                }
+                resetButton.classList.add("hidden");
+              } else {
+                resetButton.classList.remove("hidden");
+                if (submitButton) {
+                  submitButton.classList.add("hidden");
+                }
+              }
+            } else {
+              // Restore incorrect answer state
+              if (section) {
+                section.classList.remove("hidden");
+              }
+
+              // Mark wrong/correct inputs
+              blankInputs.forEach((input) => {
+                const userAnswer = normalizeAnswer(input.value);
+                const correctAnswer = normalizeAnswer(input.getAttribute("data-answer"));
+
+                if (userAnswer === correctAnswer) {
+                  input.classList.add("correct");
+                } else {
+                  input.classList.add("wrong");
+                }
+              });
+
+              // Show incorrect feedback with detailed list
+              feedbackDiv.classList.remove("hidden");
+              var canRetryRestore = !quiz.hasAttribute("data-disable-after-submit");
+              var feedbackTextRestore = getDefaultFeedbackMessage(false, canRetryRestore);
+
+              // Show correct answers if show-correct is enabled
+              if (quiz.hasAttribute("data-show-correct")) {
+                var fillRestoreHTML = feedbackTextRestore + "<ul>";
+                blankInputs.forEach(function (input) {
+                  if (!input.classList.contains("correct")) {
+                    var userAnswer = input.value.trim();
+                    var correctAnswer = input.getAttribute("data-answer");
+                    fillRestoreHTML +=
+                      "<li><del>" + (userAnswer || t("(empty)")) + "</del> \u2192 " + correctAnswer + "</li>";
+                    // Also show in placeholder
+                    input.placeholder = correctAnswer;
+                  }
+                });
+                fillRestoreHTML += "</ul>";
+                feedbackDiv.innerHTML = wrapFeedbackItem("incorrect", fillRestoreHTML);
+              } else {
+                feedbackDiv.innerHTML = wrapFeedbackItem("incorrect", feedbackTextRestore);
+              }
+
+              // Disable inputs if disable-after-submit is enabled
+              if (quiz.hasAttribute("data-disable-after-submit")) {
+                blankInputs.forEach((input) => {
+                  input.disabled = true;
+                });
+                if (submitButton) {
+                  submitButton.disabled = true;
+                }
+                resetButton.classList.add("hidden");
+              } else {
+                // Keep submit button visible for editing and resubmission
+                resetButton.classList.remove("hidden");
+              }
+            }
+          }
+        } else {
+          // Restore multiple-choice quiz state (existing code)
+          const allAnswers = fieldset.querySelectorAll('input[name="answer"]');
+          const correctAnswers = fieldset.querySelectorAll('input[name="answer"][data-correct="true"]');
+
+          if (savedState.answered) {
+            // Restore selected answers based on saved values
+            if (savedState.selectedValues && savedState.selectedValues.length > 0) {
+              allAnswers.forEach((input) => {
+                if (savedState.selectedValues.includes(input.value)) {
+                  input.checked = true;
+                }
+              });
+            }
+
+            if (savedState.correct) {
+              // Show the content section
+              if (section) {
+                section.classList.remove("hidden");
+              }
+
+              // Only mark the correct answers in green (don't highlight wrong answers)
+              allAnswers.forEach((input) => {
+                if (input.hasAttribute("data-correct")) {
+                  input.parentElement.classList.add("correct");
+                }
+              });
+
+              // Show correct feedback - prefer per-answer feedback if present
+              feedbackDiv.classList.remove("hidden");
+              var correctItems = collectFeedbackForSelectedOrCorrect(fieldset, quiz);
+              var correctFeedbackHTML = buildFeedbackHTML(correctItems, "correct");
+              feedbackDiv.innerHTML =
+                correctFeedbackHTML || wrapFeedbackItem("correct", getDefaultFeedbackMessage(true, false));
+
+              // Disable inputs if disable-after-submit is enabled
+              if (quiz.hasAttribute("data-disable-after-submit")) {
+                allAnswers.forEach((input) => {
+                  input.disabled = true;
+                });
+                if (submitButton) {
+                  submitButton.disabled = true;
+                }
+                resetButton.classList.add("hidden");
+              } else {
+                // Show reset button, hide submit button
+                resetButton.classList.remove("hidden");
+                if (submitButton) {
+                  submitButton.classList.add("hidden");
+                }
+              }
+            } else {
+              // Restore incorrect answer state
+              const selectedAnswers = Array.from(allAnswers).filter((input) =>
+                savedState.selectedValues.includes(input.value),
+              );
+
+              // Show the content section for incorrect answers too
+              if (section) {
+                section.classList.remove("hidden");
+              }
+
+              // Mark selected answers
+              selectedAnswers.forEach((input) => {
+                if (input.hasAttribute("data-correct")) {
+                  input.parentElement.classList.add("correct");
+                } else {
+                  input.parentElement.classList.add("wrong");
+                }
+              });
+
+              // Show correct answers if show-correct is enabled
+              if (quiz.hasAttribute("data-show-correct")) {
+                correctAnswers.forEach((input) => {
+                  input.parentElement.classList.add("correct");
+                });
+              }
+
+              // Show incorrect feedback - prefer per-answer feedback for selected answers
+              feedbackDiv.classList.remove("hidden");
+              var canRetry = !quiz.hasAttribute("data-disable-after-submit");
+              var incorrectItems = collectFeedbackFromNodeList(
+                fieldset.querySelectorAll('input[name="answer"]:checked'),
+              );
+              var incorrectFeedbackHTML = buildFeedbackHTML(incorrectItems, "incorrect");
+              feedbackDiv.innerHTML =
+                incorrectFeedbackHTML || wrapFeedbackItem("incorrect", getDefaultFeedbackMessage(false, canRetry));
+
+              // Disable inputs if disable-after-submit is enabled
+              if (quiz.hasAttribute("data-disable-after-submit")) {
+                allAnswers.forEach((input) => {
+                  input.disabled = true;
+                });
+                if (submitButton) {
+                  submitButton.disabled = true;
+                }
+                resetButton.classList.add("hidden");
+              } else {
+                // Show reset button, hide submit button
+                resetButton.classList.remove("hidden");
+                if (submitButton) {
+                  submitButton.classList.add("hidden");
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Auto-submit on radio button change if enabled (not for fill-in-blank)
+      if (!isFillBlank && quiz.hasAttribute("data-auto-submit")) {
+        let radioButtons = fieldset.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach((radio) => {
+          const handler = (e) => {
+            e.preventDefault(); // Prevent page scroll to top
+            // Trigger form submission with proper event options
+            form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+          };
+          addTrackedEventListener(radio, "change", handler);
+        });
+      }
+
+      // Reset button handler
+      const resetHandler = () => {
+        if (isFillBlank) {
+          // Clear fill-in-the-blank inputs
+          const blankInputs = quiz.querySelectorAll(".quiz-blank-input");
+          blankInputs.forEach((input) => {
+            input.value = "";
+            input.disabled = false;
+            input.classList.remove("correct", "wrong");
+            input.placeholder = "";
+          });
+        } else {
+          // Clear all selections
+          const allInputs = fieldset.querySelectorAll('input[name="answer"]');
+          allInputs.forEach((input) => {
+            input.checked = false;
+            input.disabled = false;
+          });
+          // Reset colors
+          resetFieldset(fieldset);
+        }
+        // Hide content section
+        let section = quiz.querySelector("section");
+        if (section) {
+          section.classList.add("hidden");
+        }
+        // Hide feedback container
+        feedbackDiv.classList.add("hidden");
+        feedbackDiv.innerHTML = "";
+        // Show submit button, hide reset button
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.classList.remove("hidden");
+        }
+        resetButton.classList.add("hidden");
+        // Update tracker
+        if (quizId) {
+          quizTracker.resetQuiz(quizId);
+        }
+      };
+      addTrackedEventListener(resetButton, "click", resetHandler);
+
+      const submitHandler = (event) => {
+        event.preventDefault();
+        event.stopPropagation(); // Prevent Material themes from intercepting form submission
+        let is_correct = false;
+        let selectedValues = [];
+        let section = quiz.querySelector("section");
+
+        if (isFillBlank) {
+          // Handle fill-in-the-blank quiz
+          const blankInputs = quiz.querySelectorAll(".quiz-blank-input");
+          is_correct = true;
+
+          // Collect user answers and validate
+          blankInputs.forEach((input) => {
+            const userAnswer = normalizeAnswer(input.value);
+            const correctAnswer = normalizeAnswer(input.getAttribute("data-answer"));
+            selectedValues.push(input.value); // Save original value, not normalized
+
+            // Remove previous classes
+            input.classList.remove("correct", "wrong");
+
+            if (userAnswer === correctAnswer) {
+              input.classList.add("correct");
+            } else {
+              input.classList.add("wrong");
+              is_correct = false;
+            }
+          });
+
+          // Always show the content section after submission
+          if (section) {
+            section.classList.remove("hidden");
+          }
+
+          if (is_correct) {
+            // Show correct feedback
+            feedbackDiv.classList.remove("hidden");
+            feedbackDiv.innerHTML = wrapFeedbackItem("correct", getDefaultFeedbackMessage(true, false));
+          } else {
+            // Show incorrect feedback with detailed list
+            feedbackDiv.classList.remove("hidden");
+            var canRetryFill = !quiz.hasAttribute("data-disable-after-submit");
+            var feedbackTextFill = getDefaultFeedbackMessage(false, canRetryFill);
+
+            // Show correct answers if show-correct is enabled
+            if (quiz.hasAttribute("data-show-correct")) {
+              var fillHTML = feedbackTextFill + "<ul>";
+              blankInputs.forEach(function (input) {
+                if (!input.classList.contains("correct")) {
+                  var userAnswer = input.value.trim();
+                  var correctAnswer = input.getAttribute("data-answer");
+                  fillHTML += "<li><del>" + (userAnswer || "(empty)") + "</del> \u2192 " + correctAnswer + "</li>";
+                  // Also show in placeholder
+                  input.placeholder = correctAnswer;
+                }
+              });
+              fillHTML += "</ul>";
+              feedbackDiv.innerHTML = wrapFeedbackItem("incorrect", fillHTML);
+            } else {
+              feedbackDiv.innerHTML = wrapFeedbackItem("incorrect", feedbackTextFill);
+            }
+          }
+
+          // Disable quiz after submission if option is enabled
+          if (quiz.hasAttribute("data-disable-after-submit")) {
+            blankInputs.forEach((input) => {
+              input.disabled = true;
+            });
+            if (submitButton) {
+              submitButton.disabled = true;
+            }
+            resetButton.classList.add("hidden");
+          } else {
+            // For fill-in-blank, keep submit button visible so users can edit and resubmit
+            // Only show reset button as an alternative
+            resetButton.classList.remove("hidden");
+          }
+        } else {
+          // Handle multiple-choice quiz (existing code)
+          let selectedAnswers = form.querySelectorAll('input[name="answer"]:checked');
+          let correctAnswers = fieldset.querySelectorAll('input[name="answer"][data-correct="true"]');
+          // Check if all correct answers are selected
+          is_correct = selectedAnswers.length === correctAnswers.length;
+          Array.from(selectedAnswers).forEach((answer) => {
+            if (!answer.hasAttribute("data-correct")) {
+              is_correct = false;
+            }
+          });
+
+          // Always show the content section after submission
+          if (section) {
+            section.classList.remove("hidden");
+          }
+
+          if (is_correct) {
+            resetFieldset(fieldset);
+            markAnswers(selectedAnswers, correctAnswers, quiz, true);
+            showFeedback(feedbackDiv, true, selectedAnswers, correctAnswers, fieldset, quiz);
+          } else {
+            resetFieldset(fieldset);
+            markAnswers(selectedAnswers, correctAnswers, quiz, false);
+            showFeedback(feedbackDiv, false, selectedAnswers, correctAnswers, fieldset, quiz);
+          }
+
+          // Get selected values to save
+          selectedValues = Array.from(selectedAnswers).map((input) => input.value);
+
+          // Disable quiz after submission if option is enabled
+          if (quiz.hasAttribute("data-disable-after-submit")) {
+            const allInputs = fieldset.querySelectorAll('input[name="answer"]');
+            allInputs.forEach((input) => {
+              input.disabled = true;
+            });
+            if (submitButton) {
+              submitButton.disabled = true;
+            }
+            // Hide reset button if disable-after-submit is enabled
+            resetButton.classList.add("hidden");
+          } else {
+            // Show reset button and hide submit button
+            resetButton.classList.remove("hidden");
+            if (submitButton) {
+              submitButton.classList.add("hidden");
+            }
+          }
+        }
+
+        // Move focus to feedback div for screen readers and keyboard users
+        if (feedbackDiv) {
+          feedbackDiv.setAttribute("tabindex", "-1");
+          feedbackDiv.focus();
+        }
+
+        // Update tracker
+        if (quizId) {
+          quizTracker.markQuiz(quizId, is_correct, selectedValues);
+        }
+      };
+      addTrackedEventListener(form, "submit", submitHandler);
+    });
+  }
+
+  function resetFieldset(fieldset) {
+    Array.from(fieldset.children).forEach((child) => {
+      child.classList.remove("wrong", "correct");
+    });
+  }
+
+  // Main initialization function that sets up everything on a page
+  function initializePage() {
+    // Initialize tracker
+    quizTracker.init();
+
+    // Reposition sidebar for Material theme TOC integration
+    repositionSidebar();
+
+    // Create sidebar
+    quizTracker.createSidebar();
+
+    // Initialize results div and intro buttons
+    initializeResultsDiv();
+    initializeIntroResetButtons();
+
+    // Initialize all quiz elements
+    initializeQuizzes();
+  }
+
+  // Run initialization when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializePage);
+  } else {
+    initializePage();
+  }
+
+  // Material theme instant navigation support
+  // Cleanup and reinitialize when navigating between pages
+  if (typeof document$ !== "undefined") {
+    // Unsubscribe from any previous subscription to prevent duplicate handlers
+    // This is needed because the script re-runs on each page navigation,
+    // which would otherwise accumulate subscriptions
+    if (window._mkdocsQuizSubscription) {
+      window._mkdocsQuizSubscription.unsubscribe();
+    }
+
+    // A Material theme with instant navigation is active
+    window._mkdocsQuizSubscription = document$.subscribe(() => {
+      cleanup(); // Remove old event listeners to prevent memory leaks
+      // Reinitialize everything for the new page
+      initializePage();
+    });
+  }
+})(); // End of IIFE
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
