@@ -45,7 +45,7 @@ markdown_extensions:
 
 plugins:
   - search
-  - quiz
+  - mkdocs_quiz
 
 # O nav é EXPLÍCITO (ver CLAUDE.md). Cada aula remodelada precisa ser adicionada aqui
 # manualmente na Fase 2 do pipeline, um arquivo novo em docs/aulas/ não aparece
@@ -53,5 +53,6 @@ plugins:
 nav:
   - Início: index.md
   - Aulas:
-      - Bloco 1 (em construção): index.md
+      - Bloco 1:
+          - Aula 01 — Introdução, Git e HTML5: aulas/Aula_01_Introducao_Git_HTML5.md
       - Bloco 2 (em construção): index.md

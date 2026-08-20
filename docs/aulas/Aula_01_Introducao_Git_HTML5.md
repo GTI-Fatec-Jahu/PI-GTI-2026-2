@@ -1,14 +1,65 @@
 # Aula 01 — Introdução, Git e HTML5
 
-> **Disciplina:** Programação para Internet (ILP951)  
-> **Professor:** Ronan Adriel Zenatti  
-> **Pré-requisitos:** Nenhum — esta é a aula zero, o ponto de partida absoluto.
+**Disciplina:** Programação para Internet (ILP951)
+**Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
+**Fatec Jahu — 2º Semestre/2026**
+**Pré-requisitos:** Nenhum — esta é a aula zero, o ponto de partida absoluto.
 
 ---
 
 ## 🗺️ O que você vai aprender nesta aula
 
 Nesta primeira aula você vai configurar todo o ambiente de desenvolvimento que usaremos durante o semestre inteiro. Ao final, você terá instalado Python, criado a pasta do projeto, configurado um ambiente virtual, feito seu primeiro commit no GitHub e escrito um arquivo HTML5 válido. Parece muito, mas cada passo é simples quando feito um de cada vez — e é exatamente assim que vamos fazer.
+
+---
+
+## 🎯 Objetivos da Aula
+
+Ao final desta aula você deverá ser capaz de:
+
+- Instalar e configurar o ambiente de desenvolvimento do semestre (Python, VS Code e extensões essenciais)
+- Criar a estrutura de pastas de um projeto e isolar suas dependências com um ambiente virtual (`venv`)
+- Versionar um projeto com Git e publicá-lo em um repositório remoto no GitHub
+- Escrever documentos HTML5 válidos, aplicando a estrutura obrigatória e as tags fundamentais (parágrafos, títulos, links, listas, tabelas, imagens e formulários)
+
+---
+
+## 🗺️ Mapa Mental da Aula
+
+```mermaid
+flowchart LR
+    ROOT(("Aula 01<br/>Ambiente e Fundamentos"))
+
+    ROOT --> AMB
+    subgraph AMB["🐍 Ambiente de Desenvolvimento"]
+        direction TB
+        AMB1["Python (interpretador)"]
+        AMB2["VS Code + extensões"]
+    end
+
+    ROOT --> PROJ
+    subgraph PROJ["📁 Estrutura do Projeto"]
+        direction TB
+        PROJ1["Pasta do projeto"]
+        PROJ2["venv (ambiente virtual)"]
+    end
+
+    ROOT --> GIT
+    subgraph GIT["🔧 Versionamento"]
+        direction TB
+        GIT1["Git (local)"]
+        GIT2["GitHub (nuvem)"]
+        GIT3[".gitignore"]
+    end
+
+    ROOT --> HTML
+    subgraph HTML["🌐 HTML5"]
+        direction TB
+        HTML1["Estrutura obrigatória"]
+        HTML2["Tags: p, h1-h6, a, ul/li"]
+        HTML3["Tabelas e formulários"]
+    end
+```
 
 ---
 
@@ -277,7 +328,79 @@ Observe a **indentação** — os espaços no início de cada linha. O navegador
 
 ### Exemplo prático 1 — Página de apresentação pessoal
 
-Crie um arquivo chamado `pagina_pessoal.html` na pasta `projeto-web` e **digite** o código abaixo (não copie — digitar treina o reconhecimento visual das tags):
+Crie um arquivo chamado `pagina_pessoal.html` na pasta `projeto-web`. Em vez de digitar a página inteira de uma vez, vamos construí-la em pequenos passos, salvando e recarregando o navegador a cada trecho novo — assim você vê exatamente o que cada tag adiciona à página.
+
+**Passo 1 — o esqueleto e o título principal.** Comece com a estrutura obrigatória que você acabou de ver, e adicione um único `<h1>` dentro do `<body>`:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre Mim</title>
+</head>
+<body>
+
+  <h1>João Silva</h1>
+  <!-- h1 = título principal da página: maior, negrito, único por página -->
+
+</body>
+</html>
+```
+
+Salve o arquivo, abra-o no navegador (clique duas vezes no explorador de arquivos) e observe: a aba do navegador mostra "Sobre Mim" (o `<title>`), enquanto o corpo da página mostra "João Silva" em destaque (o `<h1>`) — são coisas diferentes.
+
+**Passo 2 — uma seção "Sobre mim".** Logo depois do `<h1>`, adicione um subtítulo e um parágrafo:
+
+```html
+  <h2>Sobre mim</h2>
+  <!-- h2 = subtítulo: menor que h1, usado para organizar seções -->
+
+  <p>
+    Olá! Meu nome é João, tenho 22 anos e estou cursando Gestão da Tecnologia
+    da Informação na FATEC Jahu. Tenho interesse em desenvolvimento web e
+    banco de dados.
+  </p>
+  <!-- p = parágrafo de texto: o navegador adiciona espaço antes e depois -->
+```
+
+Salve e recarregue a página. Note como o `<h2>` aparece menor que o `<h1>`, e como o navegador insere espaçamento automático antes e depois do parágrafo, sem você precisar pedir isso explicitamente.
+
+**Passo 3 — a lista de habilidades.** Depois do parágrafo, adicione mais uma seção, desta vez com uma lista:
+
+```html
+  <h2>Minhas habilidades</h2>
+
+  <ul>
+    <!-- ul = "unordered list" = lista com marcadores (bolinhas).
+         Use quando a ORDEM dos itens não importa. -->
+    <li>HTML e CSS</li>
+    <!-- li = "list item" = cada item da lista -->
+    <li>Python (em aprendizado)</li>
+    <li>MySQL</li>
+    <li>Git e GitHub</li>
+  </ul>
+```
+
+Salve e recarregue novamente. Observe a lista com marcadores (bolinhas) aparecendo — cada `<li>` virou um item independente, indentado automaticamente pelo navegador.
+
+**Passo 4 — a seção de contato.** Por fim, adicione uma seção com um link clicável:
+
+```html
+  <h2>Contato</h2>
+
+  <p>
+    Me encontre no GitHub:
+    <a href="https://github.com/joaosilva">github.com/joaosilva</a>
+    <!-- a = link (âncora). href = endereço de destino.
+         O texto entre as tags é o texto clicável que o usuário vê. -->
+  </p>
+```
+
+Salve e recarregue uma última vez. Note que o texto do link aparece sublinhado e em azul (o estilo padrão do navegador para links) e que clicar nele abre o endereço do `href`.
+
+**Bloco completo consolidado** — depois de passar pelos quatro passos, seu arquivo `pagina_pessoal.html` deve estar assim:
 
 ```html
 <!DOCTYPE html>
@@ -327,13 +450,88 @@ Crie um arquivo chamado `pagina_pessoal.html` na pasta `projeto-web` e **digite*
 </html>
 ```
 
-Abra o arquivo no navegador (clique duas vezes no explorador de arquivos) e veja o resultado.
-
 ---
 
 ### Exemplo prático 2 — Página com tabela de horários
 
-Tabelas em HTML organizam dados em linhas e colunas. A estrutura usa quatro tags principais que trabalham juntas. Crie um arquivo chamado `horarios.html`:
+Tabelas em HTML organizam dados em linhas e colunas. A estrutura usa quatro tags principais que trabalham juntas. Crie um arquivo chamado `horarios.html` e, de novo, vamos construí-lo em partes.
+
+**Passo 1 — título e cabeçalho da tabela.** Comece com o esqueleto, um `<h1>`, e a linha de cabeçalho da tabela:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade de Horários</title>
+</head>
+<body>
+
+  <h1>Grade de Horários — 1º Semestre 2026</h1>
+
+  <table border="1">
+    <!-- table = contêiner da tabela inteira.
+         border="1" adiciona bordas visíveis para visualizarmos a estrutura.
+         Nas próximas aulas usaremos Bootstrap para estilizar com elegância. -->
+
+    <thead>
+      <!-- thead = agrupa a linha de cabeçalho: visualmente separada do corpo -->
+      <tr>
+        <!-- tr = "table row" = uma linha da tabela (horizontal) -->
+        <th>Dia</th>
+        <!-- th = "table header" = célula de cabeçalho: negrito e centralizado -->
+        <th>Horário</th>
+        <th>Disciplina</th>
+        <th>Professor</th>
+      </tr>
+    </thead>
+
+  </table>
+
+</body>
+</html>
+```
+
+Salve e recarregue a página. Você verá apenas a linha de cabeçalho, com as células em negrito e centralizadas — o `<thead>` ainda não tem nenhuma linha de dados abaixo dele.
+
+**Passo 2 — a primeira linha de dados.** Dentro da `</thead>` e antes do `</table>`, adicione um `<tbody>` com a primeira linha:
+
+```html
+    <tbody>
+      <!-- tbody = agrupa todas as linhas de dados da tabela -->
+      <tr>
+        <td>Segunda-feira</td>
+        <!-- td = "table data" = célula de dado comum -->
+        <td>19h00 — 20h40</td>
+        <td>Programação para Internet</td>
+        <td>Ronan Zenatti</td>
+      </tr>
+    </tbody>
+```
+
+Salve e recarregue. Agora aparece uma linha de dados abaixo do cabeçalho — repare que o texto das células `<td>` não vem em negrito, ao contrário das células `<th>` do cabeçalho.
+
+**Passo 3 — as linhas restantes.** Dentro do mesmo `<tbody>`, logo depois da primeira `</tr>`, adicione mais duas linhas:
+
+```html
+      <tr>
+        <td>Quarta-feira</td>
+        <td>19h00 — 20h40</td>
+        <td>Programação para Internet</td>
+        <td>Ronan Zenatti</td>
+      </tr>
+      <tr>
+        <td>Quinta-feira</td>
+        <td>19h00 — 20h40</td>
+        <td>Redes de Computadores</td>
+        <td>Professor X</td>
+      </tr>
+```
+
+Salve e recarregue uma última vez. A tabela agora tem três linhas de dados completas, formando a grade de horários inteira.
+
+**Bloco completo consolidado** — seu arquivo `horarios.html` final deve estar assim:
 
 ```html
 <!DOCTYPE html>
@@ -397,7 +595,101 @@ Tabelas em HTML organizam dados em linhas e colunas. A estrutura usa quatro tags
 
 ### Exemplo prático 3 — Página com imagem e formulário
 
-Este exemplo introduz `<img>` e a estrutura básica de um formulário. Os formulários serão estudados em profundidade na Aula 04 — por ora, foque em observar a estrutura e o propósito de cada tag. Crie um arquivo chamado `contato.html`:
+Este exemplo introduz `<img>` e a estrutura básica de um formulário. Os formulários serão estudados em profundidade na Aula 04 — por ora, foque em observar a estrutura e o propósito de cada tag. Crie um arquivo chamado `contato.html`, novamente em passos.
+
+**Passo 1 — título e imagem.** Comece com o esqueleto, um `<h1>` e uma imagem:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato</title>
+</head>
+<body>
+
+  <h1>Entre em Contato</h1>
+
+  <img src="https://via.placeholder.com/150" alt="Foto de perfil" width="150">
+  <!-- img = exibe uma imagem.
+       src = caminho ou URL da imagem (source = fonte).
+       alt = texto alternativo: aparece se a imagem não carregar e é
+             lido por leitores de tela. NUNCA omita o alt — é acessibilidade.
+       Importante: <img> não tem tag de fechamento. É uma "void element" —
+       elementos que não têm conteúdo entre abertura e fechamento. -->
+
+</body>
+</html>
+```
+
+Salve e recarregue a página. A imagem de placeholder aparece com 150 pixels de largura, logo abaixo do título.
+
+**Passo 2 — abrindo o formulário com o campo de nome.** Depois da imagem, adicione um subtítulo, a abertura do `<form>` e o primeiro campo:
+
+```html
+  <h2>Envie uma mensagem</h2>
+
+  <form>
+    <!-- form = formulário. Agrupa campos de entrada de dados.
+         Voltaremos a ele com muito mais detalhe na Aula 04. -->
+
+    <label for="nome">Seu nome:</label>
+    <!-- label = rótulo descritivo de um campo.
+         O atributo "for" deve ser idêntico ao "id" do input que descreve.
+         Com isso, clicar no rótulo move o foco para o campo — acessibilidade. -->
+    <br>
+    <input type="text" id="nome" name="nome" placeholder="Digite seu nome">
+    <!-- input = campo de entrada. Não tem tag de fechamento (void element).
+         type="text" = texto de uma linha.
+         placeholder = texto de dica que desaparece ao digitar. -->
+    <br><br>
+
+  </form>
+```
+
+Salve e recarregue. Repare que clicar no texto "Seu nome:" move o cursor direto para o campo de digitação — é o efeito do `for`/`id` combinados.
+
+**Passo 3 — o campo de e-mail.** Dentro do `<form>`, logo depois do campo de nome (antes do `</form>`), adicione:
+
+```html
+    <label for="email">Seu e-mail:</label>
+    <br>
+    <input type="email" id="email" name="email" placeholder="seu@email.com">
+    <!-- type="email" = o navegador valida se o formato é de e-mail válido
+         antes de permitir o envio do formulário. Validação automática! -->
+    <br><br>
+```
+
+Salve e recarregue. Tente digitar um texto sem "@" nesse campo e clicar fora — dependendo do navegador, você já percebe uma dica visual de que o formato esperado é um e-mail.
+
+**Passo 4 — o campo de mensagem.** Ainda dentro do `<form>`, depois do campo de e-mail, adicione:
+
+```html
+    <label for="mensagem">Mensagem:</label>
+    <br>
+    <textarea id="mensagem" name="mensagem" rows="4" cols="40"
+              placeholder="Escreva aqui..."></textarea>
+    <!-- textarea = área de texto de múltiplas linhas.
+         Diferente do input, textarea TEM tag de fechamento.
+         rows e cols definem o tamanho visual inicial. -->
+    <br><br>
+```
+
+Salve e recarregue. Note que a `<textarea>` aparece como uma caixa maior, com várias linhas — diferente do `<input type="text">`, que é sempre uma única linha.
+
+**Passo 5 — o botão de envio.** Por fim, feche o formulário com um botão de envio:
+
+```html
+    <button type="submit">Enviar Mensagem</button>
+    <!-- button type="submit" = envia o formulário ao servidor.
+         Ainda não temos back-end para receber os dados (isso vem na Aula 04),
+         mas a estrutura já está correta. -->
+```
+
+Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final do formulário — clicar nele ainda não faz nada de útil, porque não existe back-end recebendo esses dados ainda (isso muda na Aula 04).
+
+**Bloco completo consolidado** — seu arquivo `contato.html` final deve estar assim:
 
 ```html
 <!DOCTYPE html>
@@ -461,6 +753,7 @@ Este exemplo introduz `<img>` e a estrutura básica de um formulário. Os formul
 </body>
 </html>
 ```
+
 ---
 
 ## Parte 8 — Atividade da Aula
@@ -479,7 +772,83 @@ git push
 
 ---
 
-## Resumo da Aula
+## 🃏 Flashcards de Revisão
+
+??? question "Para que serve o interpretador Python e por que ele precisa ser instalado?"
+    O interpretador traduz o código Python (que humanos escrevem e leem) para instruções que o processador consegue executar. Sem ele, o computador não entende Python.
+
+??? question "Qual problema o ambiente virtual (venv) resolve?"
+    Ele isola as bibliotecas de cada projeto, evitando que versões diferentes da mesma biblioteca usadas em projetos distintos entrem em conflito.
+
+??? question "Como você confirma que o ambiente virtual está ativo?"
+    O início da linha do terminal ganha o prefixo `(venv)`. Sem esse prefixo, qualquer biblioteca instalada vai para o Python global, não para o projeto.
+
+??? question "Qual a diferença entre Git e GitHub?"
+    Git é o programa instalado localmente que controla o versionamento; GitHub é o serviço na nuvem que armazena e compartilha esse histórico. Git é o diário, GitHub é o cofre na nuvem.
+
+??? question "Por que a pasta `venv/` deve estar no `.gitignore`?"
+    Ela contém milhares de arquivos gerados automaticamente pelo Python que podem ser recriados a qualquer momento com `python -m venv venv`; versioná-los é desnecessário e polui o repositório.
+
+??? question "Por que a tag `<img>` não tem tag de fechamento?"
+    Porque é um "void element" — uma tag que não envolve conteúdo entre abertura e fechamento (assim como `<input>`). Ela só carrega atributos como `src` e `alt`.
+
+---
+
+## ✅ Quiz de Fixação
+
+<quiz>
+Qual é a função do ambiente virtual (venv) em um projeto Python?
+- [ ] Acelerar a execução do código Python
+- [x] Isolar as bibliotecas de cada projeto, evitando conflitos de versão
+- [ ] Substituir a necessidade de instalar o Python
+- [ ] Conectar o projeto ao GitHub automaticamente
+
+O venv cria um Python isolado para cada projeto, como um "aquário" próprio de bibliotecas — não acelera a execução nem substitui a instalação do Python, e não tem relação direta com o GitHub.
+</quiz>
+
+<quiz>
+O que acontece se você esquecer de marcar "Add Python to PATH" durante a instalação no Windows?
+- [ ] O Python é instalado sem nenhuma biblioteca
+- [ ] O VS Code para de funcionar
+- [x] O terminal não encontra o comando `python` até que o PATH seja configurado manualmente
+- [ ] O ambiente virtual não pode mais ser criado
+
+Marcar "Add Python to PATH" é o que permite ao Windows localizar o interpretador quando você digita `python` no terminal. Sem isso, o comando não é reconhecido até uma configuração manual do PATH.
+</quiz>
+
+<quiz>
+Quais das afirmações abaixo sobre Git e GitHub estão corretas? (selecione todas que se aplicam)
+- [x] O Git registra o histórico de mudanças localmente, no seu computador
+- [x] O GitHub armazena uma cópia do histórico do projeto na nuvem
+- [ ] O Git só funciona se o projeto estiver conectado ao GitHub
+- [ ] O arquivo `.gitignore` é enviado ao GitHub, mas o Git ignora seu conteúdo
+
+Git e GitHub são complementares, mas independentes: o Git versiona localmente mesmo sem nenhum repositório remoto configurado. O `.gitignore` é sim versionado normalmente — o que ele faz é dizer ao Git quais *outros* arquivos ignorar.
+</quiz>
+
+<quiz>
+Qual tag HTML deve ser usada para o título principal da página, e quantas vezes ela deve aparecer em uma página bem formada?
+- [ ] `<h6>`, várias vezes
+- [x] `<h1>`, apenas uma vez
+- [ ] `<title>`, várias vezes
+- [ ] `<head>`, apenas uma vez
+
+`<h1>` é o título principal e mais importante da página — deve existir apenas um por página, assim como um livro tem um único título principal. `<title>` é diferente: aparece na aba do navegador, não no corpo da página.
+</quiz>
+
+<quiz>
+No formulário do exemplo `contato.html`, o que acontece quando o atributo `for` de um `<label>` é idêntico ao `id` de um `<input>`?
+- [ ] Nada muda visualmente ou funcionalmente
+- [x] Clicar no texto do rótulo move o foco automaticamente para o campo correspondente
+- [ ] O navegador impede o envio do formulário
+- [ ] O campo passa a ser obrigatório automaticamente
+
+Essa associação entre `for` e `id` é um recurso de acessibilidade: ao clicar no rótulo, o foco vai direto para o campo, o que ajuda inclusive usuários de leitores de tela e quem tem dificuldade de clicar exatamente no campo pequeno.
+</quiz>
+
+---
+
+## 📝 Resumo da Aula
 
 Hoje você configurou todo o ambiente que usará no semestre e deu os primeiros passos práticos como desenvolvedor: Python e VS Code instalados, projeto criado com ambiente virtual isolado, repositório Git iniciado com primeiro commit e push para o GitHub, e três arquivos HTML5 escritos e visualizados no navegador.
 
@@ -495,4 +864,17 @@ O **MDN Web Docs** em `developer.mozilla.org` é a referência oficial para HTML
 
 ---
 
-> ⬅️ [Voltar ao README](../README.md) | ➡️ [Próxima Aula: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md)
+## 🏆 Conquista da Aula
+
+!!! success "Selo desbloqueado: 🧭 Explorador(a) da Web"
+    Você configurou seu primeiro ambiente de desenvolvimento completo, fez seu primeiro commit no Git e escreveu suas primeiras páginas HTML5 válidas. Na próxima aula, o `index.html` que você criou vai ganhar vida: o Flask vai gerar essa página dinamicamente, e você vai ver o back-end e o front-end conversando pela primeira vez.
+
+---
+
+## 🔗 Navegação
+
+➡️ [Próxima Aula: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md)
+
+---
+
+*Fatec Jahu · ILP951 · Prof. Ronan Adriel Zenatti · 2026*
