@@ -1,0 +1,57 @@
+site_name: Programação para Internet — ILP951
+site_description: Material da disciplina Programação para Internet (Fatec Jahu, 2º Semestre/2026)
+site_author: Ronan Adriel Zenatti
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Modo escuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - quiz
+
+# O nav é EXPLÍCITO (ver CLAUDE.md). Cada aula remodelada precisa ser adicionada aqui
+# manualmente na Fase 2 do pipeline, um arquivo novo em docs/aulas/ não aparece
+# sozinho no site.
+nav:
+  - Início: index.md
+  - Aulas:
+      - Bloco 1 (em construção): index.md
+      - Bloco 2 (em construção): index.md
