@@ -1,14 +1,81 @@
 # Aula 03 — Templates Jinja2 e Rotas
 
-> **Disciplina:** Programação para Internet (ILP951)  
-> **Professor:** Ronan Adriel Zenatti  
+**Disciplina:** Programação para Internet (ILP951)
+**Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
+**Fatec Jahu — 2º Semestre/2026**
+
 > **Pré-requisitos:** Aula 02 concluída — Flask instalado, `app.py` com rotas básicas funcionando, Bootstrap aplicado nos templates.
 
 ---
 
-## 🗺️ O que você vai aprender nesta aula
+## 🎯 Objetivos da Aula
+
+Ao final desta aula você deverá ser capaz de:
+
+- Passar variáveis do Python para os templates com `render_template` e exibi-las com `{{ }}`.
+- Formatar dados diretamente no template usando **filtros** Jinja2 (`upper`, `default`, `length`, `round`…).
+- Controlar o que aparece na página com `{% if %}` e gerar HTML repetitivo com `{% for %}`.
+- Eliminar a repetição de código criando um **template base** com `{% block %}` e páginas filhas com `{% extends %}`.
+- Gerar URLs com segurança usando `url_for` em vez de escrevê-las manualmente.
+- Criar rotas com **conversores de tipo** (`int`, `float`, `path`) e ler a **query string** com `request.args`.
+- Comunicar o resultado de uma ação ao usuário com **flash messages**.
 
 Na Aula 02 você criou rotas Flask e usou `render_template` para servir arquivos HTML. Mas os templates que criamos até agora são puramente estáticos — o mesmo HTML é entregue para qualquer pessoa que acesse a página. Hoje isso muda completamente. Você vai aprender a **passar variáveis do Python para o HTML**, criar **estruturas condicionais e loops dentro dos templates**, construir um **template base** que todas as páginas herdam — eliminando de vez a repetição de código — e dominar as **rotas com parâmetros** de forma aprofundada. Ao final desta aula, sua aplicação vai gerar páginas verdadeiramente dinâmicas, com conteúdo diferente dependendo dos dados recebidos.
+
+---
+
+## 🗺️ Mapa Mental da Aula
+
+Antes de entrar no detalhe, veja o mapa dos conceitos de hoje. Toda página que geramos agora segue o mesmo fluxo: uma **requisição** chega a uma **rota**, a rota monta os **dados** em Python e entrega ao **template** Jinja2, que aplica marcações, controle de fluxo e herança para produzir o **HTML final** que volta ao navegador.
+
+```mermaid
+flowchart LR
+    ROOT(("Templates Jinja2<br/>e Rotas"))
+
+    ROOT --> T1
+    subgraph T1["🏷️ Marcacoes Jinja2"]
+        direction TB
+        T1A["Expressao: exibe valor"]
+        T1B["Controle: if / for"]
+        T1C["Comentario: ignorado"]
+    end
+
+    ROOT --> T2
+    subgraph T2["📤 Dados no template"]
+        direction TB
+        T2A["render_template(**dados)"]
+        T2B["Filtros: upper, default, length"]
+    end
+
+    ROOT --> T3
+    subgraph T3["🔀 Controle de fluxo"]
+        direction TB
+        T3A["if / elif / else"]
+        T3B["for + variavel loop"]
+    end
+
+    ROOT --> T4
+    subgraph T4["🧬 Heranca de templates"]
+        direction TB
+        T4A["base.html define block"]
+        T4B["Pagina filha usa extends"]
+    end
+
+    ROOT --> T5
+    subgraph T5["🧭 Rotas e URLs"]
+        direction TB
+        T5A["Conversores int/float/path"]
+        T5B["url_for gera a URL"]
+        T5C["request.args: query string"]
+    end
+
+    ROOT --> T6
+    subgraph T6["💬 Flash messages"]
+        direction TB
+        T6A["flash() cria"]
+        T6B["get_flashed_messages() exibe"]
+    end
+```
 
 ---
 
@@ -56,7 +123,49 @@ Dentro do template, `{{ nome }}` exibe `João`, `{{ idade }}` exibe `22`, e `{{ 
 
 ### Exemplo prático 1 — Exibindo variáveis simples
 
-Vamos criar uma rota que passa informações sobre o sistema para a página inicial. No `app.py`:
+Vamos construir esse exemplo em pequenos passos. Comece adicionando **uma única variável** à rota inicial do seu `app.py` e veja ela aparecer na página antes de crescer o resto.
+
+**Passo 1 — passe uma variável.** No `app.py`, ajuste a rota inicial para enviar um título:
+
+```python
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def pagina_inicial():
+    # Um único dado, para começar
+    return render_template('index.html', titulo='Sistema de Gestão')
+```
+
+No `templates/index.html`, use esse título dentro do `<title>` e em um `<h1>`:
+
+```html
+<title>{{ titulo }}</title>
+...
+<h1 class="display-4">{{ titulo }}</h1>
+```
+
+Salve os dois arquivos e recarregue `http://localhost:5000`. Observe que a aba do navegador e o título grande da página agora mostram exatamente o texto que está no Python — mude `'Sistema de Gestão'` para outra coisa, salve e recarregue: a página acompanha, sem você tocar no HTML.
+
+**Passo 2 — envie vários dados de uma vez.** Digitar `titulo=..., subtitulo=..., versao=...` fica cansativo quando são muitos valores. A forma organizada é montar um **dicionário** e desempacotá-lo com `**`:
+
+```python
+@app.route('/')
+def pagina_inicial():
+    dados = {
+        'titulo': 'Sistema de Gestão',
+        'subtitulo': 'Desenvolvido com Python e Flask',
+        'versao': '1.0.0',
+    }
+    # O ** "desempacota" o dicionário em argumentos nomeados
+    return render_template('index.html', **dados)
+```
+
+Acrescente `{{ subtitulo }}` e `{{ versao }}` em algum ponto do `index.html`, salve e recarregue. Note que cada chave do dicionário virou uma variável no template — `dados['versao']` está disponível como `{{ versao }}`.
+
+**Consolidação — o `app.py` completo desta etapa.** Agora junte tudo. Este é o `app.py` da rota inicial com todos os dados que vamos exibir:
 
 ```python
 from flask import Flask, render_template
@@ -87,7 +196,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-Agora atualize o `templates/index.html` para usar as variáveis:
+E o `templates/index.html` completo que consome todas essas variáveis:
 
 ```html
 <!DOCTYPE html>
@@ -169,6 +278,22 @@ A sintaxe é `{{ variavel | filtro }}`. Você pode encadear múltiplos filtros: 
 
 Os filtros mais usados no dia a dia são: `upper` (converte para maiúsculas), `lower` (minúsculas), `capitalize` (primeira letra maiúscula), `title` (primeira letra de cada palavra maiúscula), `truncate(n)` (corta o texto em n caracteres adicionando "..."), `default('valor')` (exibe um valor padrão se a variável for vazia ou indefinida), `length` (retorna o tamanho de uma lista ou string), e `round(n)` (arredonda números).
 
+Experimente **um filtro por vez** no seu `index.html`. Comece só com o `upper`:
+
+```html
+{# upper: tudo em maiúsculas #}
+<p>{{ titulo | upper }}</p>
+```
+
+Salve e recarregue: o título aparece todo em maiúsculas, mas a variável `titulo` no Python continua intacta — o filtro só muda a exibição. Agora adicione o `default`, que é o mais útil para evitar espaços em branco na tela quando um dado não veio:
+
+```html
+{# default: se 'apelido' não existir ou for vazio, exibe "Sem apelido" #}
+<p>{{ apelido | default('Sem apelido') }}</p>
+```
+
+Como você ainda não passou `apelido` pela rota, recarregue e observe que aparece "Sem apelido" em vez de um erro ou de um espaço vazio. Com a ideia entendida, veja os demais filtros reunidos:
+
 ```html
 {# Exemplos de filtros em uso #}
 
@@ -201,6 +326,8 @@ Um dos recursos mais valiosos do Jinja2 é o `{% if %}`, que permite mostrar ou 
 
 Antes de ver código, pense em três situações reais onde você precisaria disso: mostrar um botão "Editar" apenas para administradores; exibir uma mensagem "Nenhum resultado encontrado" quando uma lista está vazia; colorir um item em vermelho se o estoque estiver abaixo do mínimo. Todas essas situações são resolvidas com `{% if %}` no template.
 
+Lembra da variável `sistema_ativo` que exibimos como `True`/`False` na Parte 2? Vamos usá-la para mostrar ou esconder conteúdo. Substitua a linha do badge de status por este bloco:
+
 ```html
 {# Sintaxe básica do if no Jinja2 #}
 
@@ -217,6 +344,8 @@ Antes de ver código, pense em três situações reais onde você precisaria dis
 {% endif %}
 {# IMPORTANTE: todo {% if %} DEVE ter um {% endif %} correspondente #}
 ```
+
+Salve e recarregue. Como `sistema_ativo` é `True`, aparece o alerta verde. Volte ao `app.py`, troque para `'sistema_ativo': False`, salve e recarregue: agora o alerta vermelho toma o lugar — o mesmo template, dois resultados diferentes conforme o dado.
 
 O Jinja2 também suporta `{% elif %}` para múltiplas condições:
 
@@ -272,7 +401,19 @@ def perfil(nome):
     return render_template('perfil.html', usuario=usuario, nome_buscado=nome)
 ```
 
-Crie o arquivo `templates/perfil.html`:
+Antes de escrever a página inteira, entenda o esqueleto do template: a primeira decisão é **se o usuário foi encontrado**. Comece o `templates/perfil.html` só com essa casca condicional:
+
+```html
+{# 'usuario' será None se o nome da URL não existir no dicionário #}
+{% if usuario %}
+  <h2>{{ usuario.nome }}</h2>
+  {# Acesso a chaves do dicionário usa ponto (.) no Jinja2 — mais limpo que ['chaves'] #}
+{% else %}
+  <div class="alert alert-danger">Usuário não encontrado.</div>
+{% endif %}
+```
+
+Salve e teste `http://localhost:5000/perfil/admin` e depois `http://localhost:5000/perfil/naoexiste`. Observe: o primeiro mostra o nome, o segundo cai no `{% else %}`. A partir dessa base, vamos preencher cada ramo com o conteúdo real — badges de nível, badge de status e o painel de admin condicional. Crie o `templates/perfil.html` completo:
 
 ```html
 <!DOCTYPE html>
@@ -423,7 +564,32 @@ def lista_produtos():
     return render_template('produtos.html', produtos=produtos, total=len(produtos))
 ```
 
-Crie o arquivo `templates/produtos.html`:
+Vamos montar o `templates/produtos.html` por partes. Primeiro, só o **coração do loop** — uma linha de tabela que se repete para cada produto:
+
+```html
+{% for produto in produtos %}
+<tr>
+  {# loop.index começa em 1 — número da linha na tabela #}
+  <td>{{ loop.index }}</td>
+  <td>{{ produto.nome }}</td>
+  <td>R$ {{ produto.preco }}</td>
+</tr>
+{% endfor %}
+```
+
+Coloque isso dentro de um `<table class="table"><tbody> ... </tbody></table>` mínimo, salve e recarregue `http://localhost:5000/produtos`. Você já vê uma linha por produto, numeradas de 1 a 5 pelo `loop.index`. Agora vamos **colorir a célula de estoque** conforme o nível, com um `{% if %}` dentro do `{% for %}`:
+
+```html
+{% if produto.estoque == 0 %}
+  <td class="table-danger text-center"><strong>Esgotado</strong></td>
+{% elif produto.estoque <= 5 %}
+  <td class="table-warning text-center">{{ produto.estoque }} ⚠️</td>
+{% else %}
+  <td class="table-success text-center">{{ produto.estoque }}</td>
+{% endif %}
+```
+
+Salve e recarregue: o Monitor (estoque 0) fica vermelho com "Esgotado", o Teclado (estoque 3) fica amarelo com o aviso, e os demais ficam verdes. Repare como a lógica de cor está **dentro** do loop, aplicada a cada item automaticamente. Com as peças entendidas, veja o `templates/produtos.html` completo:
 
 ```html
 <!DOCTYPE html>
@@ -549,7 +715,26 @@ A solução do Jinja2 é a **herança de templates** (template inheritance). Voc
 
 ### Criando o template base
 
-Crie o arquivo `templates/base.html`. Este será o esqueleto de toda a aplicação:
+Antes do arquivo completo, entenda a peça central da herança: o `{% block %}`. Um bloco é um "buraco" nomeado no template base que as páginas filhas vão preencher. Crie o `templates/base.html` começando com apenas o essencial e **um** bloco de conteúdo:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block titulo %}Sistema de Gestão{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+</head>
+<body>
+  <main class="container mt-4">
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>
+```
+
+Repare em dois blocos: `titulo` (com um valor padrão entre as tags, usado se a filha não redefinir) e `conteudo` (vazio, sempre preenchido pela filha). Guarde esse arquivo — ele ainda não aparece sozinho no navegador, porque um template base não é acessado diretamente; ele é herdado. Agora vamos crescê-lo até o esqueleto real da aplicação, com navbar, rodapé e blocos extras para estilos e scripts. Este é o `templates/base.html` completo:
 
 ```html
 <!DOCTYPE html>
@@ -698,6 +883,8 @@ Com o template base pronto, cada página filha precisa apenas de duas coisas: de
 {% endblock %}
 ```
 
+Salve e recarregue `http://localhost:5000`. A navbar e o rodapé aparecem — mas eles não estão escritos neste arquivo! Vieram do `base.html`, através do `{% extends %}`. Esse é o ponto central da herança: o comum mora num lugar só.
+
 Agora atualize o `templates/produtos.html` para herdar do base — observe o quanto o arquivo encolhe:
 
 ```html
@@ -758,6 +945,8 @@ Agora atualize o `templates/produtos.html` para herdar do base — observe o qua
 {% endblock %}
 ```
 
+Compare este `produtos.html` com a versão da Parte 4: todo o `<!DOCTYPE>`, `<head>`, navbar, `<script>` sumiram — ficaram só no `base.html`. Salve, recarregue `http://localhost:5000/produtos` e confirme que a página continua idêntica, mas o arquivo tem menos da metade das linhas.
+
 ![Com herança de templates, cada página filha contém apenas seu conteúdo único — sem repetição](../imgs/Aula_03_img_07.png)
 
 ---
@@ -787,7 +976,15 @@ A sintaxe no Jinja2 é: `{{ url_for('nome_da_funcao') }}`. Para rotas com parâm
 <img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="Logo">
 ```
 
-Atualize o `templates/base.html` para usar `url_for` em todos os links da navbar:
+Vamos aplicar isso **um link por vez** no `base.html`. Comece só pelo `navbar-brand`, trocando o `href="/"` fixo pela função da rota inicial:
+
+```html
+<a class="navbar-brand fw-bold" href="{{ url_for('pagina_inicial') }}">
+  🖥️ SistemaGestão
+</a>
+```
+
+Salve e recarregue: visualmente nada muda — e é esse o ponto. Passe o mouse sobre o "SistemaGestão" e veja no rodapé do navegador que a URL gerada é a mesma `/`. A diferença é que agora ela vem do **nome da função**, não de um texto fixo. Terminado o brand, atualize os demais links da navbar:
 
 ```html
 {# Dentro da navbar do base.html, substitua os hrefs fixos por url_for #}
@@ -810,6 +1007,19 @@ Atualize o `templates/base.html` para usar `url_for` em todos os links da navbar
 ### Tipos de dados nos parâmetros de rota
 
 Na Aula 02, vimos que `<nome>` na URL captura qualquer string. O Flask permite especificar o tipo do parâmetro, o que além de garantir o tipo correto, faz com que URLs com o tipo errado retornem automaticamente um erro 404. Os conversores disponíveis são `string` (padrão), `int` (número inteiro), `float` (número decimal) e `path` (string que aceita barras `/`).
+
+Adicione **um conversor por vez** ao seu `app.py` e teste o comportamento na URL antes de seguir. Comece com o `int`:
+
+```python
+# Com conversor int: só aceita números inteiros
+# /produto/42 → funciona | /produto/abc → 404 automaticamente
+@app.route('/produto/<int:id>')
+def produto_por_id(id):
+    # 'id' já chega como inteiro Python, não como string
+    return f'Produto ID: {id} — Tipo: {type(id).__name__}'
+```
+
+Salve e acesse `http://localhost:5000/produto/42` — funciona e mostra `Tipo: int`. Agora acesse `http://localhost:5000/produto/abc`: o Flask devolve um **404 automático**, porque `abc` não é inteiro. Foi o conversor `<int:...>` que barrou a URL antes mesmo de a função rodar. Com essa ideia clara, veja os quatro conversores lado a lado:
 
 ```python
 # Sem conversor: aceita qualquer texto (comportamento padrão)
@@ -936,6 +1146,104 @@ No `templates/base.html`, adicione o bloco de flash messages logo após a navbar
 {% endwith %}
 ```
 
+Salve tudo e acesse `http://localhost:5000/acao`. Observe que a rota não renderiza uma página própria — ela chama `flash()` duas vezes e faz `redirect` para a inicial. Ao chegar na página inicial, os dois alertas (verde e amarelo) aparecem logo abaixo da navbar. Recarregue a página: os alertas somem, porque uma flash message é exibida **uma única vez** e depois é descartada.
+
+---
+
+## 🃏 Flashcards de Revisão
+
+Tente responder mentalmente antes de clicar para revelar.
+
+??? question "Quais são os três tipos de marcação do Jinja2 e para que serve cada um?"
+    `{{ }}` **expressão** — exibe um valor na página. `{% %}` **bloco de controle** — executa `if`, `for`, `block` (não exibe nada por si só). `{# #}` **comentário** — é ignorado e nunca aparece no HTML final.
+
+??? question "Qual a diferença entre `{% extends %}` e `{% block %}` na herança de templates?"
+    `{% extends 'base.html' %}` (primeira linha da página filha) declara **de quem** o template herda. `{% block nome %}...{% endblock %}` define, no base, os **espaços reservados** que as filhas preenchem — e, na filha, o **conteúdo** que vai nesses espaços.
+
+??? question "Por que usar `url_for('lista_produtos')` em vez de escrever `href=\"/produtos\"`?"
+    Porque `url_for` referencia o **nome da função** da rota, não a URL literal. Se a URL mudar (ex.: `/produtos` → `/catalogo`), todos os links se ajustam sozinhos. Escrever a URL na mão exige caçar e trocar cada `href` manualmente.
+
+??? question "O que o conversor `<int:id>` faz numa rota, além de converter o tipo?"
+    Ele também **valida** a URL: `/produto/42` funciona e `id` chega como inteiro Python; `/produto/abc` retorna **404 automático**, porque `abc` não é inteiro. A validação acontece antes de a função rodar.
+
+??? question "Qual erro típico acontece ao escrever um `{% if %}` ou `{% for %}` no Jinja2?"
+    Esquecer a tag de fechamento. Todo `{% if %}` precisa de `{% endif %}` e todo `{% for %}` precisa de `{% endfor %}` — ao contrário do Python, o Jinja2 não usa indentação para saber onde o bloco termina.
+
+??? question "Qual a diferença entre um parâmetro de rota (`/produto/42`) e a query string (`?q=mouse`)?"
+    O parâmetro de rota faz parte do caminho e é capturado pela função (`<int:id>`). A query string vem depois do `?`, é opcional e é lida com `request.args.get('q', '')`. Use rota para identificar um recurso; query string para filtros/opções.
+
+---
+
+## ✅ Quiz de Fixação
+
+<quiz>
+Qual marcação Jinja2 você usa para **exibir o valor** de uma variável na página?
+- [ ] `{% variavel %}`
+> Não. `{% %}` é bloco de controle (if, for), não exibe valor.
+- [x] `{{ variavel }}`
+> Correto. `{{ }}` é a marcação de **expressão**, usada para exibir valores na página.
+- [ ] `{# variavel #}`
+> Não. `{# #}` é comentário — é ignorado e nunca aparece na página.
+- [ ] `<< variavel >>`
+> Essa sintaxe não existe no Jinja2.
+</quiz>
+
+<quiz>
+Sobre **herança de templates**, marque TODAS as afirmações corretas:
+- [x] `{% extends 'base.html' %}` deve ser a primeira linha do template filho
+> Sim — o `extends` precisa ser a primeira coisa do arquivo.
+- [x] Um `{% block %}` no base pode ter conteúdo padrão, usado se a filha não o redefinir
+> Sim — o texto entre `{% block %}` e `{% endblock %}` no base é o valor padrão.
+- [x] A herança elimina a repetição da navbar, cabeçalho e rodapé em cada página
+> Sim — esse é justamente o objetivo do template base.
+- [ ] O template base é acessado diretamente pelo navegador por uma rota própria
+> Não. O base **não** tem rota nem é acessado diretamente — ele é herdado pelas filhas via `{% extends %}`.
+</quiz>
+
+<quiz>
+Qual rota aceita `http://localhost:5000/produto/42` mas retorna **404** para `http://localhost:5000/produto/abc`?
+- [ ] `@app.route('/produto/<nome>')`
+> Não. Sem conversor, `<nome>` aceita qualquer texto, inclusive `abc`.
+- [x] `@app.route('/produto/<int:id>')`
+> Correto. O conversor `<int:id>` só aceita inteiros; qualquer texto não numérico gera 404 automático.
+- [ ] `@app.route('/produto/<path:id>')`
+> Não. `path` aceita até barras — `abc` passaria.
+- [ ] `@app.route('/produto/42')`
+> Não. Essa é uma rota fixa que só responde exatamente a `/produto/42`.
+</quiz>
+
+<quiz>
+Dentro de um `{% for produto in produtos %}`, o que a variável `loop.index` fornece?
+- [ ] A lista completa de produtos
+> Não — a lista é a própria `produtos`.
+- [ ] O total de itens da lista
+> Esse é o `loop.length`.
+- [x] O número da iteração atual, começando em 1
+> Correto. `loop.index` começa em **1** (útil para numerar linhas).
+- [ ] O índice atual começando em 0
+> Esse é o `loop.index0`.
+</quiz>
+
+<quiz>
+Para que serve a `app.secret_key` no contexto desta aula?
+- [ ] Para criptografar o banco de dados MySQL
+> Não — nesta aula ainda não há banco de dados.
+- [x] Para o Flask conseguir usar sessões e, com isso, as flash messages
+> Correto. As flash messages ficam guardadas na **sessão**, e o Flask só usa sessões com uma `secret_key` definida.
+- [ ] Para definir a senha de login do administrador
+> Não — não tem relação com login de usuário.
+- [ ] Para conectar o Flask ao Bootstrap via CDN
+> Não — o Bootstrap vem por um `<link>` no HTML, sem relação com a secret_key.
+</quiz>
+
+---
+
+## 📝 Resumo
+
+Hoje a sua aplicação Flask ganhou inteligência real. Você aprendeu a passar variáveis do Python para os templates usando `render_template`, a usar filtros Jinja2 para formatar dados, a criar estruturas condicionais com `{% if %}` e loops com `{% for %}` diretamente no HTML. Construiu um template base com `{% block %}` que eliminou toda a repetição de código, e converteu as páginas para usar `{% extends %}`. Aprendeu a usar `url_for` para gerar URLs com segurança, a criar rotas com conversores de tipo, a acessar query string com `request.args` e a implementar flash messages para comunicar o resultado de ações ao usuário. O fio condutor é sempre o mesmo: a requisição chega à rota, a rota monta os dados, o Jinja2 transforma dados em HTML.
+
+![Mapa mental da Aula 03: variáveis, controle de fluxo, herança de templates, rotas avançadas e flash messages](../imgs/Aula_03_img_09.png)
+
 ---
 
 ## Parte 9 — Atividade da Aula
@@ -960,13 +1268,16 @@ git push
 
 ---
 
-## Resumo da Aula
+## 🏆 Conquista da Aula
 
-Hoje a sua aplicação Flask ganhou inteligência real. Você aprendeu a passar variáveis do Python para os templates usando `render_template`, a usar filtros Jinja2 para formatar dados, a criar estruturas condicionais com `{% if %}` e loops com `{% for %}` diretamente no HTML. Construiu um template base com `{% block %}` que eliminou toda a repetição de código, e converteu as páginas para usar `{% extends %}`. Aprendeu a usar `url_for` para gerar URLs com segurança, a criar rotas com conversores de tipo, a acessar query string com `request.args` e a implementar flash messages para comunicar o resultado de ações ao usuário.
+!!! success "Selo desbloqueado: 🗺️ Navegador(a) de Rotas"
+    Você completou a Aula 03. Suas páginas deixaram de ser HTML fixo e passaram a ser geradas dinamicamente, com herança, controle de fluxo e URLs seguras. Na próxima aula você vai abrir a porta de entrada dos dados do usuário: formulários e o protocolo HTTP.
 
-![Mapa mental da Aula 03: variáveis, controle de fluxo, herança de templates, rotas avançadas e flash messages](../imgs/Aula_03_img_09.png)
+---
 
-Na próxima aula você vai aprender sobre **formulários e o protocolo HTTP** com profundidade: a diferença entre GET e POST, como receber dados enviados pelo usuário via `request.form`, como validar esses dados no back-end e como dar feedback visual quando algo está errado. Os formulários são a porta de entrada de todos os dados que o usuário vai fornecer ao sistema — e o CRUD completo começa lá.
+## 🔗 Navegação
+
+⬅️ [Aula 02 — Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md) · 🔒 Aula 04 — em breve.
 
 ---
 
@@ -974,6 +1285,8 @@ Na próxima aula você vai aprender sobre **formulários e o protocolo HTTP** co
 
 A documentação oficial do Jinja2 está em `jinja.palletsprojects.com/en/3.x/templates` — é a referência completa para todos os filtros, testes e recursos da linguagem de templates. O capítulo 3 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre herança de templates com uma profundidade excelente, incluindo macros e imports de templates — recursos que usaremos nas aulas finais do semestre.
 
+Na próxima aula você vai aprender sobre **formulários e o protocolo HTTP** com profundidade: a diferença entre GET e POST, como receber dados enviados pelo usuário via `request.form`, como validar esses dados no back-end e como dar feedback visual quando algo está errado. Os formulários são a porta de entrada de todos os dados que o usuário vai fornecer ao sistema — e o CRUD completo começa lá.
+
 ---
 
-> ⬅️ [Aula anterior: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md) | ➡️ [Próxima Aula: Formulários e HTTP](Aula_04_Formularios_e_HTTP.md)
+*Fatec Jahu · ILP951 · Prof. Ronan Adriel Zenatti · 2026*

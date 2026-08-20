@@ -1,4 +1,4 @@
 mkdocs>=1.6
 mkdocs-material>=9.5
 pymdown-extensions>=10.7
-mkdocs-quiz>=0.1.10
+mkdocs-quiz>=1.7,<2

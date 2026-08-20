@@ -78,7 +78,9 @@ padrão.** Ao escrever ou remodelar qualquer explicação de código:
 
 - **MkDocs Material** (`mkdocs.yml` na raiz, `docs_dir: docs`)
 - **Mermaid** para diagramas, via `pymdownx.superfences` (fence ` ```mermaid `), sem plugin extra
-- **mkdocs-quiz** para quizzes interativos, sintaxe `<quiz>...</quiz>`
+- **mkdocs-quiz** (série 1.x, plugin registrado como `mkdocs_quiz` no `mkdocs.yml`) para
+  quizzes interativos, sintaxe `<quiz>...</quiz>`. O feedback é **por alternativa**, em
+  linhas de citação (`>`) logo após cada `- [ ]`/`- [x]` (ver "Armadilhas já conhecidas")
 - Flashcards via admonition colapsável nativa do Material (`??? question "..."`), sem dependência nova
 - Deploy: `.github/workflows/deploy-docs.yml`, roda `mkdocs build` e publica em GitHub Pages a cada push em `main`
 
@@ -225,7 +227,9 @@ Antes de considerar a aula pronta:
      porque `md_in_html` está habilitado em `markdown_extensions`, **nunca remova essa
      extensão do `mkdocs.yml`**;
    - blocos ` ```mermaid ` fecham corretamente (não há crase/backtick sobrando dentro);
-   - blocos `<quiz>...</quiz>` têm pelo menos uma alternativa `- [x]`;
+   - blocos `<quiz>...</quiz>` têm pelo menos uma alternativa `- [x]`, e o feedback de
+     cada alternativa vem em linhas de citação (`>`) logo abaixo dela (formato da
+     mkdocs-quiz 1.x), não como parágrafo solto no fim do bloco;
    - toda imagem referenciada com `../imgs/arquivo.png` existe de fato em `docs/imgs/`.
 3. Se possível, abra `mkdocs serve` e navegue até a página da aula para conferir
    visualmente o mapa mental, os flashcards (clique para expandir) e o quiz.
@@ -246,6 +250,13 @@ Antes de considerar a aula pronta:
   exibidos como código cru em vez de renderizar. Não esqueça essa extensão ao criar o
   `mkdocs.yml` do zero (ela já vem incluída no arquivo entregue junto com este
   `CLAUDE.md`, mas fique atento se o arquivo for recriado).
+- **O plugin de quiz é `mkdocs_quiz` (série 1.x), não `quiz`.** A `mkdocs-quiz`
+  publicada no índice é a linha 1.x, cujo entry point registra o nome `mkdocs_quiz`. Se
+  o `mkdocs.yml` listar `plugins: - quiz`, o `mkdocs build` aborta com "The 'quiz' plugin
+  is not installed" e o site inteiro deixa de publicar. Mantenha `plugins: - mkdocs_quiz`
+  e o `requirements.txt` em `mkdocs-quiz>=1.7,<2`. A sintaxe `<quiz>...</quiz>` com
+  `- [x]` continua igual; o que mudou foi o feedback, que agora é por alternativa em
+  linhas `>` (ver Fase 3).
 - **O `nav` do `mkdocs.yml` é explícito.** Um arquivo `.md` novo em `docs/aulas/` não
   aparece no site até ser adicionado ao `nav`, isso é intencional (permite manter
   aulas "em rascunho" fora do site publicado), mas é fácil esquecer esse passo.
