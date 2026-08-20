@@ -66,7 +66,7 @@ medida que as aulas são publicadas.
 flowchart LR
     subgraph B1["🟢 Bloco 1 — Arquiteto(a) de Aplicações Web (Aulas 1–10)"]
         direction LR
-        A1["🧭 1"] --> A2["2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A6["6"] --> A7["7"] --> A8["8"] --> A9["9"] --> A10["🎖️ 10 · P1"]
+        A1["🧭 1"] --> A2["🧱 2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A6["6"] --> A7["7"] --> A8["8"] --> A9["9"] --> A10["🎖️ 10 · P1"]
     end
     subgraph B2["🔵 Bloco 2 — Engenheiro(a) Full-Stack (Aulas 11–20)"]
         direction LR
@@ -86,7 +86,7 @@ CRUD completo.
 | Aula | Data | Título | Status |
 |------|------|--------|--------|
 | 1 | 06/08 | [Introdução, Git e HTML5](aulas/Aula_01_Introducao_Git_HTML5.md) | ✅ Disponível |
-| 2 | 13/08 | Flask e Bootstrap | 🔒 Em breve |
+| 2 | 13/08 | [Flask e Bootstrap](aulas/Aula_02_Flask_e_Bootstrap.md) | ✅ Disponível |
 | 3 | 20/08 | [Templates Jinja2 e rotas](aulas/Aula_03_Templates_Jinja2_e_Rotas.md) | ✅ Disponível |
 | 4 | 27/08 | Formulários e HTTP | 🔒 Em breve |
 | 5 | 03/09 | Conexão MySQL e Python | 🔒 Em breve |

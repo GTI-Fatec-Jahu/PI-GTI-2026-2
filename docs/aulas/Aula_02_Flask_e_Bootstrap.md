@@ -6,9 +6,69 @@
 
 ---
 
-## 🗺️ O que você vai aprender nesta aula
+## 🎯 Objetivos da Aula
+
+Ao final desta aula você deverá ser capaz de:
+
+- **Explicar** a diferença entre uma página estática e uma dinâmica e o papel de um servidor web.
+- **Instalar** o Flask com o `pip` e **registrar** as dependências do projeto em `requirements.txt`.
+- **Identificar** as três camadas do padrão MVC e como elas se mapeiam em rotas, templates e models no Flask.
+- **Criar** uma aplicação Flask com múltiplas rotas, incluindo rotas com variáveis na URL.
+- **Separar** o HTML do Python usando `render_template`.
+- **Estilizar** as páginas com Bootstrap 5 (navbar, grid, cards, botões e alertas).
+- **Organizar e servir** arquivos estáticos próprios (CSS, JavaScript e imagens), sempre referenciados com `url_for('static', filename=...)`.
 
 Na aula anterior você montou o ambiente e escreveu páginas HTML estáticas — arquivos que o navegador lê diretamente do disco, sem nenhuma lógica por trás. Hoje isso muda. Você vai instalar o Flask, entender o que é um servidor web, escrever seu primeiro "Hello World" dinâmico com Python e estilizar a página com Bootstrap. Pela primeira vez, você verá o back-end e o front-end conversando — e esse é o momento em que a programação web começa a fazer sentido de verdade.
+
+---
+
+## 🗺️ Mapa Mental da Aula
+
+Antes de mergulhar no detalhe, veja o mapa dos cinco eixos de hoje. A ideia é criar a "moldura" onde cada conceito vai se encaixar: uma **requisição** chega, o **Flask** encontra a **rota** certa, ela devolve um **template** estilizado com **Bootstrap** e servido junto com os **arquivos estáticos**.
+
+```mermaid
+flowchart LR
+    ROOT(("Flask +<br/>Bootstrap"))
+
+    ROOT --> T1
+    subgraph T1["🌐 Servidor Web"]
+        direction TB
+        T1A["Estática vs. dinâmica"]
+        T1B["pip install flask"]
+        T1C["requirements.txt"]
+    end
+
+    ROOT --> T2
+    subgraph T2["🎛️ MVC e Rotas"]
+        direction TB
+        T2A["Controller = rota"]
+        T2B["@app.route('/')"]
+        T2C["Rota com variável /#60;nome#62;"]
+    end
+
+    ROOT --> T3
+    subgraph T3["📄 Templates"]
+        direction TB
+        T3A["render_template"]
+        T3B["pasta templates/"]
+    end
+
+    ROOT --> T4
+    subgraph T4["🎨 Bootstrap"]
+        direction TB
+        T4A["CDN + classes utilitárias"]
+        T4B["navbar · grid · cards"]
+        T4C["botões · alertas"]
+    end
+
+    ROOT --> T5
+    subgraph T5["🗂️ Arquivos estáticos"]
+        direction TB
+        T5A["pasta static/"]
+        T5B["url_for('static', ...)"]
+        T5C["CSS · JS · imagens próprios"]
+    end
+```
 
 ---
 
@@ -428,7 +488,84 @@ Salve e acesse o navegador. A diferença em relação à versão sem Bootstrap �
 
 ### Exemplo prático 2 — Navbar de navegação
 
-A **navbar** é um dos componentes mais usados do Bootstrap — a barra de navegação no topo da página. Ela é responsiva: em telas grandes aparece como barra horizontal, e em celulares colapsa para um menu hamburguer. Atualize o `templates/index.html`:
+A **navbar** é um dos componentes mais usados do Bootstrap — a barra de navegação no topo da página. Ela é responsiva: em telas grandes aparece como barra horizontal, e em celulares colapsa para um menu hamburguer. Vamos montá-la aos poucos, para você enxergar o que cada pedaço faz.
+
+**Passo 1 — a barra e a marca.** Logo depois da tag `<body>` do `templates/index.html`, coloque só o esqueleto da navbar com o nome do sistema:
+
+```html
+<!-- navbar-expand-lg: em telas grandes (lg) a navbar fica expandida; em telas menores, colapsa -->
+<!-- navbar-dark bg-dark: texto claro sobre fundo escuro -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <!-- navbar-brand: o "logo" ou nome da aplicação à esquerda -->
+    <a class="navbar-brand" href="/">SistemaGestão</a>
+  </div>
+</nav>
+```
+
+Salve e recarregue. Note que já surge uma barra escura no topo, ocupando toda a largura, com o nome do sistema à esquerda — mas ainda sem links.
+
+**Passo 2 — o botão hamburguer e o primeiro link.** Dentro do `<div class="container">`, logo depois do `navbar-brand`, acrescente o botão que aparece só em telas pequenas e o contêiner colapsável com um link:
+
+```html
+<!-- navbar-toggler: o botão hamburguer que aparece em telas pequenas -->
+<!-- data-bs-toggle e data-bs-target: conectam o botão ao menu colapsável -->
+<button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse" data-bs-target="#navbarNav">
+  <span class="navbar-toggler-icon"></span>
+</button>
+
+<!-- collapse navbar-collapse: o conjunto de links que colapsa em telas pequenas -->
+<!-- id="navbarNav": deve bater com o data-bs-target do botão acima -->
+<div class="collapse navbar-collapse" id="navbarNav">
+  <!-- navbar-nav ms-auto: lista de links, ms-auto empurra para a direita -->
+  <ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+      <!-- nav-link active: link ativo (página atual) fica destacado -->
+      <a class="nav-link active" href="/">Início</a>
+    </li>
+  </ul>
+</div>
+```
+
+Salve e recarregue. Em uma janela larga o link "Início" aparece à direita. Agora **estreite a janela do navegador** até ela ficar bem fina: note que o link some e surge o ícone de três tracinhos. Clique nele — o menu se abre e fecha. Esse comportamento responsivo é do Bootstrap; você não escreveu uma linha de JavaScript.
+
+**Passo 3 — os demais links.** Dentro do mesmo `<ul>`, depois do item "Início", adicione mais dois itens:
+
+```html
+<li class="nav-item">
+  <a class="nav-link" href="/sobre">Sobre</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="/contato">Contato</a>
+</li>
+```
+
+Salve, recarregue e confira os três links lado a lado.
+
+**Passo 4 — o conteúdo principal.** Abaixo da tag `</nav>` (fora dela), adicione o conteúdo da página com um alerta e um botão grande:
+
+```html
+<!-- Conteúdo principal da página -->
+<div class="container mt-5">
+  <h1 class="display-4">Bem-vindo</h1>
+  <p class="lead">
+    Este é o sistema desenvolvido ao longo do semestre na disciplina
+    Programação para Internet — FATEC Jahu.
+  </p>
+
+  <!-- alert alert-info: caixa de informação azul -->
+  <div class="alert alert-info">
+    <strong>Aula 02:</strong> Flask e Bootstrap funcionando juntos!
+  </div>
+
+  <a href="/sobre" class="btn btn-primary btn-lg">Saiba Mais</a>
+</div>
+```
+
+Salve e recarregue: a caixa azul de `alert-info` destaca o aviso e o botão grande (`btn-lg`) convida ao próximo passo.
+
+**Consolidação.** Juntando os quatro passos — e adicionando o `<script>` do Bootstrap no fim do `<body>` —, o `templates/index.html` completo desta etapa fica assim:
 
 ```html
 <!DOCTYPE html>
@@ -659,7 +796,117 @@ A forma correta de referenciar um arquivo estático em um template Flask é usan
 
 ### Exemplo prático 4 — CSS personalizado
 
-Vamos criar um arquivo de estilos próprios que se somam ao Bootstrap. Crie o arquivo `static/css/estilo.css`:
+Vamos criar um arquivo de estilos próprios que se somam ao Bootstrap. Em vez de colar tudo de uma vez, vamos escrever uma regra por vez e recarregar a página a cada passo para ver o efeito nascer.
+
+**Passo 1 — variáveis de cor e a navbar.** Crie o arquivo `static/css/estilo.css` começando só com as variáveis e a regra da navbar:
+
+```css
+/* static/css/estilo.css */
+/* Estilos personalizados do Sistema de Gestão */
+/* Estes estilos complementam o Bootstrap — nunca substituem */
+
+/* ── Variáveis de cor do sistema ─────────────────────────────────── */
+/* Variáveis CSS permitem reutilizar valores e facilitar manutenção */
+:root {
+    --cor-primaria: #2c3e50;   /* azul-petróleo escuro para cabeçalhos */
+    --cor-destaque: #e74c3c;   /* vermelho para alertas e ênfase */
+    --cor-fundo: #f8f9fa;      /* cinza muito claro para fundos */
+}
+
+/* ── Estilo da navbar ─────────────────────────────────────────────── */
+/* Sobrescreve a cor padrão bg-dark do Bootstrap */
+.navbar {
+    background-color: var(--cor-primaria) !important;
+    /* !important garante que este estilo prevaleça sobre o Bootstrap */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    /* sombra sutil para dar profundidade */
+}
+```
+
+O arquivo ainda não faz efeito nenhum, porque a página não sabe que ele existe. Para ligá-lo, adicione **dentro do `<head>` do `templates/index.html`, logo depois do `<link>` do Bootstrap**, esta linha:
+
+```html
+<!-- CSS próprio — carregado DEPOIS do Bootstrap para poder sobrescrever -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+```
+
+Salve os dois arquivos e recarregue. Note que a navbar deixou de ser preta e ganhou o tom azul-petróleo (`--cor-primaria`), com uma sombra sutil embaixo. Esse é o seu CSS sobrescrevendo o `bg-dark` do Bootstrap — e ele só consegue porque vem **depois** dele no `<head>`.
+
+**Passo 2 — o rodapé.** Acrescente ao fim do `estilo.css` a regra do rodapé:
+
+```css
+/* ── Rodapé personalizado ─────────────────────────────────────────── */
+footer {
+    background-color: var(--cor-primaria);
+    color: #ccc;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.875rem;
+}
+```
+
+Para vê-lo, adicione um `<footer>` logo antes do `<script>` do Bootstrap no `index.html`:
+
+```html
+<footer>
+  <div class="container">
+    &copy; 2026 SistemaGestão — FATEC Jahu
+  </div>
+</footer>
+```
+
+Salve e recarregue: agora há uma faixa escura no rodapé da página, com a mesma cor da navbar.
+
+**Passo 3 — o efeito nos cards.** Adicione ao `estilo.css` a transição e o `:hover` dos cards:
+
+```css
+/* ── Cards com hover ──────────────────────────────────────────────── */
+/* Efeito sutil ao passar o mouse sobre os cards */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* transition: define a animação suave ao mudar os valores */
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    /* sobe levemente ao passar o mouse */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    /* sombra mais pronunciada */
+}
+```
+
+Salve, recarregue e **passe o mouse por cima de um card**: ele sobe alguns pixels e ganha uma sombra maior. Um detalhe pequeno que dá muito polimento à interface.
+
+**Passo 4 — o banner de boas-vindas.** Por fim, adicione a classe do banner com gradiente (e, de brinde, o estilo de tabela que usaremos mais adiante):
+
+```css
+/* ── Tabelas ──────────────────────────────────────────────────────── */
+/* Cabeçalho de tabela com a cor primária do sistema */
+.tabela-sistema thead {
+    background-color: var(--cor-primaria);
+    color: white;
+}
+
+/* ── Mensagens de boas-vindas ─────────────────────────────────────── */
+.boas-vindas {
+    background: linear-gradient(135deg, var(--cor-primaria), #34495e);
+    color: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.boas-vindas h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+```
+
+Salve. O `.boas-vindas` só aparece quando um elemento usar essa classe — é o que faremos ao montar a versão final do `index.html` a seguir, onde você verá o banner com o gradiente diagonal.
+
+**Consolidação do `estilo.css`.** Reunindo os quatro passos, o arquivo `static/css/estilo.css` completo fica assim:
 
 ```css
 /* static/css/estilo.css */
@@ -993,6 +1240,85 @@ git push
 
 ---
 
+## 🃏 Flashcards de Revisão
+
+Tente responder mentalmente antes de clicar para revelar a resposta.
+
+??? question "Qual a diferença entre uma página estática e uma página dinâmica?"
+    A **estática** é um arquivo HTML fixo lido diretamente do disco — mostra sempre o mesmo conteúdo para todo mundo. A **dinâmica** é gerada em tempo real por um servidor (Flask) no momento da requisição, podendo variar conforme quem pede e os dados do banco.
+
+??? question "O que o comando `pip freeze > requirements.txt` faz?"
+    `pip freeze` lista todas as bibliotecas instaladas no ambiente virtual (com suas versões); o `>` grava essa lista no arquivo `requirements.txt`. Em outra máquina, `pip install -r requirements.txt` reinstala exatamente as mesmas dependências.
+
+??? question "No padrão MVC aplicado ao Flask, o que são as rotas, os templates e os models?"
+    As **rotas** (`@app.route`) são os **Controllers** — recebem a requisição e decidem o que fazer. Os **templates HTML** (pasta `templates/`) são as **Views** — o que o usuário vê. Os **models** são os dados/lógica de negócio (entram a partir da Aula 05, com o banco).
+
+??? question "Como se cria uma rota que captura uma parte variável da URL?"
+    Colocando o nome entre `<` e `>` no caminho e recebendo-o como parâmetro da função: `@app.route('/usuario/<nome>')` seguido de `def perfil_usuario(nome):`. Acessar `/usuario/maria` passa `nome='maria'` para a função.
+
+??? question "Por que referenciar arquivos estáticos com `url_for('static', filename=...)` em vez do caminho fixo `/static/...`?"
+    Porque o `url_for` gera o caminho correto automaticamente conforme o contexto da aplicação. Se um dia o app for movido para uma subpasta, os caminhos fixos quebrariam, mas o `url_for` se ajusta sozinho.
+
+??? question "Pegadinha: o link do seu CSS próprio deve vir antes ou depois do Bootstrap no `<head>`? E por quê?"
+    **Depois.** Quando duas regras têm a mesma especificidade, vence a que é declarada por último. Carregar o seu CSS depois do Bootstrap é o que permite que ele sobrescreva os estilos padrão (como a cor da navbar). O mesmo vale para o JS: o seu script vem depois do Bootstrap JS para poder usar a API dele.
+
+---
+
+## ✅ Quiz de Fixação
+
+<quiz>
+O que a função `render_template('index.html')` faz dentro de uma rota Flask?
+- [ ] Cria um novo arquivo HTML na pasta `static/`
+- [x] Busca o arquivo `index.html` na pasta `templates/` e o devolve como resposta ao navegador
+- [ ] Converte o código Python em HTML automaticamente sem precisar de um arquivo
+- [ ] Instala o Bootstrap na página
+
+O `render_template` procura o arquivo indicado dentro da pasta `templates/` (o local padrão do Flask), o processa e envia o HTML resultante como resposta HTTP — separando o HTML do código Python.
+</quiz>
+
+<quiz>
+Quais afirmações sobre arquivos estáticos e `url_for` estão corretas? (marque todas que se aplicam)
+- [x] Arquivos em `static/` são entregues ao navegador sem nenhuma transformação
+- [x] `url_for('static', filename='css/estilo.css')` gera o caminho correto para o arquivo
+- [x] O CSS próprio deve ser ligado depois do Bootstrap para poder sobrescrevê-lo
+- [ ] O parâmetro `filename` deve incluir o prefixo `static/` (ex: `static/css/estilo.css`)
+
+As três primeiras são corretas. A última é falsa: o `filename` é o caminho **relativo à pasta `static/`**, então escreve-se `css/estilo.css` (sem repetir `static/`).
+</quiz>
+
+<quiz>
+Ao acessar `http://localhost:5000/usuario/maria` com a rota `@app.route('/usuario/<nome>')`, o que acontece?
+- [ ] O Flask retorna erro 404 porque a rota é fixa
+- [x] A função recebe `nome='maria'` e pode usar esse valor na resposta
+- [ ] O Flask cria automaticamente um usuário chamado "maria" no banco
+- [ ] A variável `<nome>` é ignorada e a página fica em branco
+
+O trecho `<nome>` captura qualquer texto naquela posição da URL e o entrega como argumento para a função — é o mecanismo por trás de páginas de perfil, detalhes de produto e afins.
+
+</quiz>
+
+<quiz>
+No padrão MVC, qual componente corresponde ao "garçom" que recebe o pedido e decide o que fazer com ele?
+- [x] O Controller (no Flask, a rota decorada com `@app.route`)
+- [ ] A View (o template HTML)
+- [ ] O Model (os dados e a lógica de negócio)
+- [ ] O CDN do Bootstrap
+
+O Controller é o ponto de contato: recebe a requisição do navegador e coordena a resposta. No Flask, esse papel é das rotas. A View (template) é o "prato finalizado" e o Model é a "cozinha com estoque".
+</quiz>
+
+<quiz>
+Por que usamos o Bootstrap via CDN nesta aula?
+- [ ] Porque o CDN funciona mesmo sem conexão com a internet
+- [x] Porque basta adicionar uma linha `<link>` no `<head>`, sem baixar nenhum arquivo
+- [ ] Porque o CDN substitui a necessidade de escrever HTML
+- [ ] Porque o Flask exige o uso de CDN para servir páginas
+
+O CDN hospeda a biblioteca publicamente, então uma única linha de `<link>` já traz todos os estilos do Bootstrap. A contrapartida é que, sem internet, os arquivos do CDN não carregam.
+</quiz>
+
+---
+
 ## Resumo da Aula
 
 Hoje você deu um salto enorme: saiu de páginas HTML estáticas para uma aplicação web real com servidor Python. Instalou o Flask com pip e gerou o `requirements.txt`. Entendeu o padrão MVC e a separação entre controllers (rotas) e views (templates). Criou um servidor Flask com múltiplas rotas — incluindo rotas com variáveis dinâmicas na URL. Separou o HTML do Python usando `render_template`. Transformou a aparência das páginas com Bootstrap, usando navbar, grid, cards, botões e alertas. E aprendeu a organizar e servir arquivos estáticos próprios — CSS personalizado, JavaScript e imagens — todos referenciados com segurança via `url_for('static', filename=...)`.
@@ -1009,4 +1335,17 @@ A documentação oficial do Flask está em `flask.palletsprojects.com` — é mu
 
 ---
 
-> ⬅️ [Aula anterior: Introdução, Git e HTML5](Aula_01_Introducao_Git_HTML5.md) | ➡️ [Próxima Aula: Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md)
+## 🏆 Conquista da Aula
+
+!!! success "Selo desbloqueado: 🧱 Construtor(a) de Aplicações"
+    Você completou a Aula 02 e ergueu a primeira estrutura viva do semestre: um servidor Flask respondendo requisições, com páginas estilizadas em Bootstrap e arquivos estáticos próprios. Na Aula 03 você dá vida a esses templates com o Jinja2 — variáveis, condicionais e herança de layout.
+
+---
+
+## 🔗 Navegação
+
+⬅️ [Aula 01 — Introdução, Git e HTML5](Aula_01_Introducao_Git_HTML5.md) · ➡️ [Aula 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md)
+
+---
+
+*Fatec Jahu · ILP951 · Prof. Ronan Adriel Zenatti · 2026*
