@@ -107,6 +107,14 @@ O terceiro tipo é o **comentário**, escrito com `{# #}`. Ele é completamente 
 
 ![Os três tipos de marcação Jinja2: expressão, bloco de controle e comentário — cada um com um propósito distinto](../imgs/Aula_03_img_02.png)
 
+### 🔎 Verifique seu Entendimento
+
+Um painel mostra quantos créditos de uso de IA generativa um aluno ainda tem hoje — a variável já existe no Python e se chama `creditos`.
+
+**Desafio:** Escreva a marcação Jinja2 correta para exibir o valor de `creditos` no HTML, e escreva também um comentário Jinja2 (que não deve aparecer no HTML final) avisando o próximo colega que mexer nesse template que esse valor vem da API de créditos de IA.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 2 — Passando variáveis do Python para o template
@@ -266,6 +274,14 @@ E o `templates/index.html` completo que consome todas essas variáveis:
 
 Acesse `http://localhost:5000` e veja as variáveis Python sendo exibidas no HTML. Tente mudar os valores no `app.py`, salve e recarregue o navegador — a página reflete imediatamente as mudanças, sem tocar no HTML.
 
+### 🔎 Verifique seu Entendimento
+
+Um app de mobilidade urbana (bike-sharing) precisa exibir na página inicial: quantas estações existem, quantas bicicletas estão livres agora, e a tarifa por hora.
+
+**Desafio:** Escreva a rota Flask que monta um dicionário com essas três informações (`estacoes`, `bicicletas_livres`, `tarifa_hora`) e o envia ao template com `**dados`, e escreva as três marcações `{{ }}` correspondentes que exibiriam esses valores no HTML.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 3 — Filtros Jinja2: formatando os dados exibidos
@@ -315,6 +331,14 @@ Como você ainda não passou `apelido` pela rota, recarregue e observe que apare
 {# Encadeando filtros: trunca E depois capitaliza #}
 <p>{{ descricao | truncate(50) | capitalize }}</p>
 ```
+
+### 🔎 Verifique seu Entendimento
+
+Uma página de um evento de sustentabilidade recebe duas variáveis do Python: `nome_evento` (que às vezes não é enviado) e `pegada_carbono` (um número com várias casas decimais, ex.: `2.4371`).
+
+**Desafio:** Escreva a expressão Jinja2 que exibe `nome_evento` em maiúsculas com o valor padrão `'Evento sem nome'` caso ele não exista, e a expressão que exibe `pegada_carbono` arredondado para 1 casa decimal.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -699,6 +723,14 @@ Acesse `http://localhost:5000/produtos`. Você verá uma tabela profissional ger
 
 ![Tabela gerada dinamicamente com Jinja2 — cores automáticas conforme o nível de estoque](../imgs/Aula_03_img_05.png)
 
+### 🔎 Verifique seu Entendimento
+
+Um ranking de e-sports precisa exibir os jogadores em ordem, com uma medalha 🥇 destacando quem está em primeiro lugar.
+
+**Desafio:** Escreva a rota `/ranking-esports` com uma lista de pelo menos 3 dicionários (`nome`, `pontos`) e o trecho de template que usa `{% for %}` para listar a posição de cada jogador com `loop.index`, e `{% if %}` com `loop.first` para exibir 🥇 só ao lado do primeiro colocado.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 5 — Herança de templates: o template base
@@ -949,6 +981,14 @@ Compare este `produtos.html` com a versão da Parte 4: todo o `<!DOCTYPE>`, `<he
 
 ![Com herança de templates, cada página filha contém apenas seu conteúdo único — sem repetição](../imgs/Aula_03_img_07.png)
 
+### 🔎 Verifique seu Entendimento
+
+Retome a página de créditos de IA da Parte 1 (a que mostra `{{ creditos }}`).
+
+**Desafio:** Escreva o `templates/creditos.html` como página filha de `base.html`: a linha `{% extends %}`, o bloco `titulo` com "Meus Créditos de IA", e o bloco `conteudo` exibindo a variável `creditos`.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 6 — A função url_for: gerando URLs com segurança
@@ -999,6 +1039,14 @@ Salve e recarregue: visualmente nada muda — e é esse o ponto. Passe o mouse s
 <a class="nav-link" href="{{ url_for('lista_produtos') }}">Produtos</a>
 <a class="nav-link" href="{{ url_for('sobre') }}">Sobre</a>
 ```
+
+### 🔎 Verifique seu Entendimento
+
+Um app de bike-sharing tem duas rotas Python já definidas: `def estacoes():` (mapeada em `/estacoes`) e `def minha_bike():` (mapeada em `/minha-bike`).
+
+**Desafio:** Escreva os dois links de navbar para essas páginas usando `url_for` — nunca escrevendo `/estacoes` ou `/minha-bike` diretamente no `href`.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -1092,6 +1140,14 @@ def busca():
 ```
 ![Dois tipos de parâmetros em uma URL: parâmetros de rota (na URL) e query string (após o ?)](../imgs/Aula_03_img_08.png)
 
+### 🔎 Verifique seu Entendimento
+
+Um app de coleta seletiva quer duas coisas: uma página de detalhe para cada estação de reciclagem, identificada por um número; e uma busca que filtra estações por tipo de material, informado como parâmetro opcional na URL.
+
+**Desafio:** Escreva a rota `/estacao/<int:id>`, que só aceita IDs numéricos, e a rota `/buscar-pontos`, que lê o parâmetro `material` da query string com `request.args`, usando `'todos'` como valor padrão quando ele não for informado.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 8 — Flash messages: comunicando o resultado de ações
@@ -1147,6 +1203,14 @@ No `templates/base.html`, adicione o bloco de flash messages logo após a navbar
 ```
 
 Salve tudo e acesse `http://localhost:5000/acao`. Observe que a rota não renderiza uma página própria — ela chama `flash()` duas vezes e faz `redirect` para a inicial. Ao chegar na página inicial, os dois alertas (verde e amarelo) aparecem logo abaixo da navbar. Recarregue a página: os alertas somem, porque uma flash message é exibida **uma única vez** e depois é descartada.
+
+### 🔎 Verifique seu Entendimento
+
+Uma plataforma de venda de ingressos para shows de 2026 acabou de processar a compra de um ingresso, mas o método de pagamento escolhido cobra uma taxa extra que o comprador precisa saber.
+
+**Desafio:** Escreva a rota `/comprar-ingresso`, que chama `flash()` duas vezes — uma mensagem de sucesso confirmando a compra e uma de aviso sobre a taxa extra — e depois redireciona para a página inicial com `redirect(url_for(...))`.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -1286,6 +1350,14 @@ git push
 A documentação oficial do Jinja2 está em `jinja.palletsprojects.com/en/3.x/templates` — é a referência completa para todos os filtros, testes e recursos da linguagem de templates. O capítulo 3 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre herança de templates com uma profundidade excelente, incluindo macros e imports de templates — recursos que usaremos nas aulas finais do semestre.
 
 Na próxima aula você vai aprender sobre **formulários e o protocolo HTTP** com profundidade: a diferença entre GET e POST, como receber dados enviados pelo usuário via `request.form`, como validar esses dados no back-end e como dar feedback visual quando algo está errado. Os formulários são a porta de entrada de todos os dados que o usuário vai fornecer ao sistema — e o CRUD completo começa lá.
+
+---
+
+## 📋 Gabarito dos Exercícios
+
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+
+➡️ [Gabarito — Aula 03](gabaritos/Aula_03_gabarito.md)
 
 ---
 
