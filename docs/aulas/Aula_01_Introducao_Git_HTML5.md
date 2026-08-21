@@ -81,6 +81,14 @@ Nesta disciplina você vai aprender a construir as três camadas. Nesta primeira
 
 Python é atualmente uma das linguagens de programação mais usadas no mundo, tanto em empresas iniciantes quanto em gigantes como Google, Netflix e Instagram. Ela foi escolhida para esta disciplina por três razões concretas: sua sintaxe é muito próxima da linguagem humana (você vai conseguir ler o código e entender o que ele faz antes mesmo de aprender as regras formais), ela tem uma biblioteca chamada Flask que simplifica a criação de aplicações web, e ela é a mesma linguagem usada em áreas de grande crescimento como Inteligência Artificial e Ciência de Dados — o que você aprende aqui abre portas bem além desta disciplina.
 
+### 🔎 Verifique seu Entendimento
+
+Imagine um assistente de estudos com IA que alguns colegas seus já usam para tirar dúvidas de matérias como Cálculo e Programação: você digita uma pergunta no navegador e recebe uma resposta gerada na hora.
+
+**Desafio:** Identifique, nesse assistente, o que seria o front-end, o que seria o back-end e o que seria o banco de dados — explicando em uma frase o papel de cada camada *nesse cenário específico* (não repita a definição genérica, aplique ao assistente de estudos).
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 2 — Instalando o Python
@@ -111,6 +119,14 @@ Se a instalação funcionou corretamente, você verá algo como `Python 3.12.0`.
 
 > 💡 **Por que testamos no terminal?** Ao longo do semestre, você vai usar o terminal com frequência. Cada comando será explicado quando aparecer pela primeira vez — não se preocupe com o que ainda não foi apresentado.
 
+### 🔎 Verifique seu Entendimento
+
+Um colega de turma está montando o ambiente para prototipar um app de bike-sharing (aluguel de bicicletas por aplicativo) e, na pressa, esqueceu de marcar "Add Python to PATH" durante a instalação.
+
+**Desafio:** Descreva o que vai aparecer no terminal quando ele digitar `python --version` sem o PATH configurado, e explique — sem reinstalar nada do zero — o que precisa ser feito para resolver.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 3 — Instalando o Visual Studio Code
@@ -124,6 +140,14 @@ Acesse **code.visualstudio.com** e baixe a versão para Windows. A instalação 
 Após instalar o VS Code, você precisa adicionar duas extensões. Clique no ícone de blocos no painel lateral esquerdo (ou pressione `Ctrl + Shift + X`) para abrir o marketplace de extensões. Busque e instale a extensão **Python** (publicada pela Microsoft) e a extensão **Prettier - Code formatter**.
 
 ![Três passos para instalar a extensão Python no VS Code](../imgs/Aula_01_img_04.png)
+
+### 🔎 Verifique seu Entendimento
+
+Uma colega que também é criadora de conteúdo tech vai gravar um vídeo curto mostrando, ao vivo, que as extensões Python e Prettier estão realmente ativas no VS Code — sem abrir o menu de extensões durante a gravação.
+
+**Desafio:** Aponte duas evidências visuais na tela do VS Code (fora do menu de extensões) que provam que cada uma dessas extensões está funcionando.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -152,6 +176,14 @@ code .
 O ponto (`.`) significa "aqui" — ou seja, "abra o VS Code na pasta em que estou agora".
 
 ![Sequência de três comandos para criar a pasta e abrir no VS Code](../imgs/Aula_01_img_05.png)
+
+### 🔎 Verifique seu Entendimento
+
+Você vai começar, do zero, o protótipo de um app de venda de ingressos para o show de encerramento de um festival de música de 2026, guardado em uma pasta própria na Área de Trabalho.
+
+**Desafio:** Escreva, na ordem certa, os comandos de terminal para criar uma pasta chamada `ingressos-show`, entrar nela e abrir o VS Code já dentro dela.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -190,6 +222,14 @@ Após esse comando, o início da linha do terminal muda, ganhando o prefixo `(ve
 Esse `(venv)` é o sinal visual de que o ambiente virtual está ativo. Toda biblioteca instalada a partir deste momento vai para dentro da pasta `venv`, sem tocar no resto do computador.
 
 > ⚠️ **Regra de ouro:** Sempre que abrir um novo terminal para trabalhar no projeto, o primeiro comando deve ser ativar o ambiente virtual. Se você esquecer, as bibliotecas não serão encontradas e o projeto não funcionará.
+
+### 🔎 Verifique seu Entendimento
+
+Você está com dois projetos no computador ao mesmo tempo: o Projeto A é um assistente de estudos com IA que só funciona com a versão mais recente de uma biblioteca de IA generativa; o Projeto B é um projeto antigo da faculdade que trava se essa biblioteca for atualizada.
+
+**Desafio:** Explique por que instalar as bibliotecas direto no Python global quebraria um dos dois projetos, e escreva os comandos para criar e ativar um ambiente virtual só para o Projeto A.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -257,6 +297,14 @@ git push -u origin main
 ```
 
 Acesse o endereço do repositório no navegador e você verá seus arquivos lá. Seu portfólio online acabou de começar.
+
+### 🔎 Verifique seu Entendimento
+
+Você e mais dois colegas estão versionando juntos, pela primeira vez, o repositório de um app de caronas compartilhadas para ir à faculdade. Antes do primeiro commit, vocês criaram um arquivo `.env` guardando a chave de acesso (API key) de um serviço de mapas — e essa chave nunca pode ir para o GitHub público.
+
+**Desafio:** Diga o que precisa estar dentro do `.gitignore` **antes** do primeiro commit para que essa chave nunca seja enviada ao GitHub, e escreva a sequência completa de comandos Git — do `git init` ao `git push` — que o grupo usaria para o primeiro envio do projeto.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -754,6 +802,14 @@ Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final
 </html>
 ```
 
+### 🔎 Verifique seu Entendimento
+
+Uma associação de bairro está organizando um mutirão de coleta seletiva e quer uma página simples para divulgar a ação — sem nenhum framework ainda, só HTML5 puro, exatamente como você aprendeu nesta aula.
+
+**Desafio:** Sem olhar os exemplos anteriores, escreva do zero um arquivo HTML5 válido para essa página, contendo: a estrutura obrigatória completa, um `<h1>` com o nome do mutirão, uma lista `<ul>` com pelo menos três materiais aceitos (ex.: papel, vidro, eletrônicos), uma tabela `<table>` com os dias e horários de coleta em cada rua, e um link `<a>` ao final apontando para o Instagram da ação.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 8 — Atividade da Aula
@@ -874,6 +930,14 @@ O **MDN Web Docs** em `developer.mozilla.org` é a referência oficial para HTML
 ## 🔗 Navegação
 
 ➡️ [Próxima Aula: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md)
+
+---
+
+## 📋 Gabarito dos Exercícios
+
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+
+➡️ [Gabarito — Aula 01](gabaritos/Aula_01_gabarito.md)
 
 ---
 

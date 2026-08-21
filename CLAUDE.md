@@ -74,6 +74,37 @@ padrão.** Ao escrever ou remodelar qualquer explicação de código:
 - Isso vale tanto para aulas remodeladas a partir do conteúdo herdado (que pode
   precisar ser fatiado se estiver em blocos grandes) quanto para conteúdo novo.
 
+## Exercícios de verificação parcial (mini-desafios)
+
+Regra pedagógica complementar à anterior: nunca deixe o aluno acumular vários
+conceitos novos sem checar o próprio entendimento até só o quiz do final da aula.
+Todo bloco de conteúdo numerado (`## N. [Bloco]` / `## Parte N`) termina com um
+mini-desafio prático "🔎 Verifique seu Entendimento":
+
+- **Um mini-desafio por bloco de conteúdo**, não por subtítulo, não fragmente demais.
+- **Sempre prático/aplicado**, mesmo em blocos conceituais sem código: peça para
+  aplicar o conceito a um cenário concreto (ex.: mapear Model/View/Controller de um
+  app real), nunca "explique X" com as próprias palavras (isso é papel do flashcard).
+- **Temas atuais de 2026, nunca o óbvio de livro-texto** (chega de biblioteca e
+  cadastro de alunos). Varie entre os blocos da mesma aula, sem repetir o mesmo tema
+  duas vezes seguidas:
+  - IA generativa no dia a dia (assistente de estudos, painel de créditos de uso)
+  - Mobilidade urbana (bike-sharing, veículo elétrico, caronas compartilhadas)
+  - Sustentabilidade e clima (coleta seletiva, energia solar residencial, pegada de
+    carbono de um evento)
+  - Cultura pop / eventos de 2026 e economia criativa (ingressos, e-sports, métricas
+    de criador de conteúdo, pequeno negócio local)
+- **Nunca traga a resposta junto do desafio, nem um link direto para ela.** O
+  mini-desafio só aponta para "o gabarito desta aula, no fim da página" — isso é
+  proposital, evita que o aluno resolva o exercício só clicando na resposta.
+- **Um arquivo de gabarito por aula**, em `docs/aulas/gabaritos/Aula_NN_gabarito.md`
+  (gabarito estrutural em `templates/GABARITO_TEMPLATE.md`), um bloco `## Parte N` por
+  mini-desafio, na mesma ordem da aula. Fica dentro de `docs/` (é publicado, o link no
+  fim da aula funciona) mas **nunca é adicionado ao `nav` do `mkdocs.yml`** — só quem
+  tiver o link da aula chega até ele.
+- A aula referencia o gabarito **uma única vez**, na seção "📋 Gabarito dos
+  Exercícios", a última seção do arquivo (depois de "🔗 Navegação").
+
 ## Stack e comandos
 
 - **MkDocs Material** (`mkdocs.yml` na raiz, `docs_dir: docs`)
@@ -165,7 +196,9 @@ institucional não precisam de mapa mental):
    representem requisição, rota e resposta; para aulas de banco de dados, um
    `erDiagram` complementar (fora do mapa mental) pode ajudar a mostrar as tabelas.
 4. Conteúdo, mantém a didática problema→conceito→exemplo já usada no conteúdo herdado
-   do 1º semestre, aplicando a regra de "Ensino incremental de código" acima
+   do 1º semestre, aplicando a regra de "Ensino incremental de código" acima. Cada
+   bloco de conteúdo termina com um mini-desafio de verificação parcial (ver
+   "Exercícios de verificação parcial" abaixo)
 5. 🃏 **Flashcards de revisão** (3–6 por aula), sintaxe:
    ```
    ??? question "Pergunta objetiva?"
@@ -205,6 +238,9 @@ institucional não precisam de mapa mental):
    já existir em `docs/aulas/`.** Como as aulas chegam progressivamente, a mais recente
    deve mostrar `🔒 Aula NN+1 — em breve.` no lugar do link. Ao adicionar essa próxima
    aula depois, volte na aula anterior e troque o placeholder pelo link real.
+10. 📋 **Gabarito dos Exercícios**, a última seção do arquivo, um único link para
+    `gabaritos/Aula_NN_gabarito.md` (ver "Exercícios de verificação parcial" abaixo).
+    Nunca embuta as respostas na própria aula.
 
 Depois de remodelar o conteúdo:
 - Atualize `docs/index.md`: mude o status da aula de 🔒 "Em breve" para ✅ "Disponível"
@@ -230,7 +266,10 @@ Antes de considerar a aula pronta:
    - blocos `<quiz>...</quiz>` têm pelo menos uma alternativa `- [x]`, e o feedback de
      cada alternativa vem em linhas de citação (`>`) logo abaixo dela (formato da
      mkdocs-quiz 1.x), não como parágrafo solto no fim do bloco;
-   - toda imagem referenciada com `../imgs/arquivo.png` existe de fato em `docs/imgs/`.
+   - toda imagem referenciada com `../imgs/arquivo.png` existe de fato em `docs/imgs/`;
+   - todo mini-desafio "🔎 Verifique seu Entendimento" tem seu par correspondente em
+     `gabaritos/Aula_NN_gabarito.md`, e esse arquivo de gabarito **não** foi
+     adicionado ao `nav` do `mkdocs.yml`.
 3. Se possível, abra `mkdocs serve` e navegue até a página da aula para conferir
    visualmente o mapa mental, os flashcards (clique para expandir) e o quiz.
 4. **Faça o commit** assim que a aula passar nas checagens acima. Mensagem de commit
@@ -281,6 +320,10 @@ Antes de considerar a aula pronta:
   quebrada). Se houver Playwright disponível no ambiente, renderize o bloco Mermaid
   isolado (`mermaid.min.js` local + HTML mínimo) dentro de um container com a largura
   aproximada da coluna de conteúdo (~760px) e tire um screenshot antes de aplicar.
+- **Arquivos de gabarito (`docs/aulas/gabaritos/*.md`) são publicados mesmo fora do
+  `nav`.** O `mkdocs build` gera um aviso informativo do tipo "not included in the
+  'nav' configuration" para eles, isso é esperado e proposital (ver "Exercícios de
+  verificação parcial"), não confunda com um link ou imagem quebrada de verdade.
 - **Conteúdo herdado do 1º semestre pode ter blocos de código grandes.** Ao remodelar
   essas aulas, avise na Fase 1 quais trechos serão fatiados em incrementos menores
   (ver "Ensino incremental de código"), isso é uma mudança de apresentação do conteúdo

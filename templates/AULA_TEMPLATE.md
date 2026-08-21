@@ -10,7 +10,15 @@ forçar uma seção vazia.
 Lembrete de estilo (ver CLAUDE.md, "Ensino incremental de código"): ao apresentar
 código, fatie em incrementos pequenos, peça para o aluno rodar e observar antes de
 seguir para o próximo trecho. Só consolide tudo num bloco único ao final da seção.
+
+Lembrete de verificação parcial (ver CLAUDE.md, "Exercícios de verificação parcial"):
+todo bloco de conteúdo numerado ("## N. [Bloco]") termina com um mini-desafio prático
+"### 🔎 Verifique seu Entendimento", temático em algo atual de 2026 (nunca biblioteca/
+cadastro de alunos genérico). O mini-desafio NUNCA traz a resposta junto — ele só
+aponta para o gabarito da aula, e o link para esse gabarito aparece uma única vez, na
+seção "📋 Gabarito dos Exercícios", a ÚLTIMA seção do arquivo.
 -->
+
 
 # Aula NN — [Título da Aula]
 
@@ -81,9 +89,32 @@ incrementos pequenos, um trecho novo por vez, com uma instrução explícita par
 rodar e observar antes do próximo incremento. Use tabelas, exemplos de código e
 diagramas Mermaid (`flowchart`, `erDiagram`) onde ajudar a visualizar.]
 
+### 🔎 Verifique seu Entendimento
+
+[Contextualize em 1-2 frases com um tema atual de 2026 (IA generativa, mobilidade
+urbana, sustentabilidade/clima, ou cultura pop/economia criativa — varie o tema entre
+os blocos da mesma aula). Depois peça uma tarefa curta e aplicada: adaptar/estender o
+que acabou de ser mostrado neste bloco para o cenário novo — mesmo em blocos
+conceituais (sem código), a tarefa deve pedir para o aluno aplicar o conceito a um
+cenário concreto, não só repetir a definição.]
+
+**Desafio:** [enunciado objetivo da tarefa].
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito
+> desta aula (link na última seção da página).
+
 ## 2. [Segundo bloco de conteúdo]
 
 [...]
+
+### 🔎 Verifique seu Entendimento
+
+[mesmo padrão do bloco 1, tema 2026 diferente do bloco anterior]
+
+**Desafio:** [...]
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito
+> desta aula (link na última seção da página).
 
 ---
 
@@ -139,6 +170,16 @@ consigo, não uma repetição do conteúdo.]
 ## 🔗 Navegação
 
 ⬅️ [Aula NN-1 — Título anterior](Aula_NN-1_Titulo.md) · ➡️ [Aula NN+1 — Título seguinte](Aula_NN+1_Titulo.md)
+
+---
+
+## 📋 Gabarito dos Exercícios
+
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm
+as soluções comentadas reunidas em um único arquivo, organizado por bloco de
+conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+
+➡️ [Gabarito — Aula NN](gabaritos/Aula_NN_gabarito.md)
 
 ---
 
