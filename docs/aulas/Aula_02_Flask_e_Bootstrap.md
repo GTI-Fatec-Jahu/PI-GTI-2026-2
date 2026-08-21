@@ -92,6 +92,14 @@ O "micro" no nome não significa que o Flask é limitado — significa que ele c
 
 ![O Flask recebe a requisição do navegador, executa o código Python e devolve o HTML gerado](../imgs/Aula_02_img_02.png)
 
+### 🔎 Verifique seu Entendimento
+
+Pense em um assistente de estudos com IA: a tela de "Termos de Uso" é sempre idêntica para todo mundo, mas a tela "Meu histórico de perguntas" muda de aluno para aluno e a cada nova pergunta feita.
+
+**Desafio:** Diga qual das duas telas é estática e qual é dinâmica, e explique em uma frase por que cada uma se encaixa nessa classificação, pensando no que precisa (ou não) ser gerado no momento da requisição.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 2 — Instalando o Flask
@@ -137,6 +145,14 @@ git add requirements.txt
 git commit -m "Aula 02: Flask instalado, requirements.txt gerado"
 ```
 
+### 🔎 Verifique seu Entendimento
+
+Você está montando o ambiente de um protótipo de app de bike-sharing e, além do Flask, também vai precisar da biblioteca `requests` (usada mais adiante para consultar serviços externos, como um mapa de estações).
+
+**Desafio:** Escreva a sequência completa de comandos para instalar o `requests`, regravar o `requirements.txt` incluindo essa nova dependência, e commitar essa mudança no Git com uma mensagem adequada.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 3 — O padrão MVC: entendendo a arquitetura antes de codificar
@@ -150,6 +166,14 @@ No MVC: o **Controller** é o garçom — recebe as requisições do navegador e
 ![O padrão MVC: Controller coordena, Model processa dados, View apresenta o resultado](../imgs/Aula_02_img_04.png)
 
 No Flask, essa separação fica assim: as **rotas** (funções Python decoradas com `@app.route`) são os Controllers. Os **templates HTML** (arquivos na pasta `templates/`) são as Views. Os **modelos de dados** (que criaremos a partir da Aula 05) são os Models. Hoje vamos trabalhar com Controllers e Views — o Model entra na Aula 05 quando conectarmos ao banco de dados.
+
+### 🔎 Verifique seu Entendimento
+
+Pense em um app de agendamento de coleta seletiva de bairro, construído em Flask.
+
+**Desafio:** Sem escrever código, descreva em uma frase cada o que seria o Controller, a View e o Model desse app — aplicando a analogia do garçom, da cozinha e do prato a esse cenário específico, não à definição genérica de MVC.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -185,6 +209,14 @@ mkdir static\imgs
 ```
 
 ![Estrutura de pastas do projeto Flask — cada diretório tem uma responsabilidade bem definida](../imgs/Aula_02_img_05.png)
+
+### 🔎 Verifique seu Entendimento
+
+Você vai organizar, do zero, a estrutura de pastas do projeto de uma pequena loja on-line de um criador de conteúdo local.
+
+**Desafio:** Escreva a sequência de comandos `mkdir` para criar, dentro da pasta do projeto, as pastas `templates/`, `static/`, `static/css`, `static/js` e `static/imgs` — na mesma estrutura que você acabou de ver.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -325,6 +357,14 @@ def perfil_usuario(nome):
 
 Acesse `http://localhost:5000/usuario/joao` e depois `http://localhost:5000/usuario/maria`. Veja como a página muda conforme o que está na URL. Esse mecanismo é fundamental — é assim que sistemas exibem páginas de perfil, detalhes de produtos, etc.
 
+### 🔎 Verifique seu Entendimento
+
+Um app de estudos com IA precisa mostrar, para cada aluno, quantos créditos de uso de IA generativa ele ainda tem disponíveis hoje.
+
+**Desafio:** Adicione ao `app.py` uma nova rota `/creditos/<usuario>` que recebe o nome do usuário pela URL e devolve uma mensagem como "joao ainda tem 12 créditos de IA hoje" (o número pode ser fixo por enquanto).
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 6 — Templates: separando o HTML do Python
@@ -392,6 +432,14 @@ if __name__ == '__main__':
 ```
 
 Crie também os arquivos `templates/sobre.html` e `templates/contato.html` com estrutura HTML5 válida e conteúdo adequado. O código Python ficou muito mais limpo, e o HTML ficou em arquivos próprios onde pode ser editado com toda a ajuda do VS Code (autocompletar, validação de tags, etc.).
+
+### 🔎 Verifique seu Entendimento
+
+Um app de mobilidade urbana precisa de uma página `/rota-ativa` anunciando qual linha de ônibus elétrico está circulando no momento.
+
+**Desafio:** Crie o arquivo `templates/rota_ativa.html` com uma estrutura HTML5 simples anunciando a linha, e uma rota `/rota-ativa` no `app.py` que usa `render_template` para servi-lo — nos mesmos moldes do que você acabou de fazer com `index.html`.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -735,6 +783,14 @@ Crie um arquivo `templates/sobre.html`:
 </html>
 ```
 
+### 🔎 Verifique seu Entendimento
+
+A página `/sobre` do seu projeto agora vai anunciar também um evento: o show de encerramento de um festival de música de 2026 que a equipe está patrocinando.
+
+**Desafio:** Adicione um quarto `card` Bootstrap à `<div class="row">` de `sobre.html`, na mesma estrutura `col-md-4` / `card` / `card-body` / `card-title` / `card-text` dos três já existentes, anunciando esse evento.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 8 — O sistema de grid em detalhes
@@ -754,6 +810,14 @@ A tabela abaixo resume os breakpoints — os pontos de quebra onde o layout muda
 | `xl` | Extra large | 1200px | Desktop |
 
 Então quando você escreve `col-md-4`, está dizendo: "em telas médias ou maiores, ocupe 4 colunas; em telas menores que md, ocupe a linha inteira (comportamento padrão)". Isso é o que torna o Bootstrap responsivo sem que você escreva media queries manualmente.
+
+### 🔎 Verifique seu Entendimento
+
+Um painel de consumo de energia solar residencial precisa mostrar 4 indicadores (cards) lado a lado em telas grandes, 2 por linha em tablets, e 1 por linha no celular.
+
+**Desafio:** Usando a tabela de breakpoints que você acabou de ver, escreva a combinação de classes `col-*` que cada card deve receber para atingir exatamente esse comportamento responsivo.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
 
 ---
 
@@ -1213,6 +1277,14 @@ E a regra sobre **posicionamento** no HTML:
 
 ![Ordem correta de carregamento dos arquivos estáticos — Bootstrap antes dos arquivos próprios em ambos os casos](../imgs/Aula_02_img_14.png)
 
+### 🔎 Verifique seu Entendimento
+
+Um app de mobilidade urbana quer destacar, com uma cor diferente, qual rota está ativa no momento — e vai preparar um script próprio para isso mais adiante.
+
+**Desafio:** Crie os arquivos `static/css/mobilidade.css` (com uma regra `.rota-ativa { color: green; }`) e `static/js/mapa.js` (por enquanto, só um comentário), e vincule os dois ao template correto usando `url_for` — o CSS no `<head>`, o JS no fim do `<body>`.
+
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+
 ---
 
 ## Parte 10 — Atividade da Aula
@@ -1345,6 +1417,14 @@ A documentação oficial do Flask está em `flask.palletsprojects.com` — é mu
 ## 🔗 Navegação
 
 ⬅️ [Aula 01 — Introdução, Git e HTML5](Aula_01_Introducao_Git_HTML5.md) · ➡️ [Aula 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md)
+
+---
+
+## 📋 Gabarito dos Exercícios
+
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+
+➡️ [Gabarito — Aula 02](gabaritos/Aula_02_gabarito.md)
 
 ---
 
