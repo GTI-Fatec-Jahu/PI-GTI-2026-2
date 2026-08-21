@@ -1,69 +1,42 @@
-# 🌐 Programação para Internet — ILP951
+# 🌐 Programação para Internet — ILP951 — 2º Semestre/2026
 
-Material didático da disciplina **Programação para Internet** (ILP951), do curso de
-Tecnologia em Gestão da Tecnologia da Informação (GTI) da **Fatec Jahu**, 2º
-Semestre/2026.
+<div align="center">
 
-O conteúdo é publicado como um site estático com [MkDocs Material][mkdocs-material] e
-fica disponível em:
+![Fatec Jahu](https://img.shields.io/badge/Fatec-Jahu-blue?style=for-the-badge)
+![Semestre](https://img.shields.io/badge/2º%20Semestre-2026-green?style=for-the-badge)
+![Carga Horária](https://img.shields.io/badge/Carga%20Horária-80%20aulas-orange?style=for-the-badge)
 
-**📖 [gti-fatec-jahu.github.io/PI-GTI-2026-2](https://gti-fatec-jahu.github.io/PI-GTI-2026-2/)**
+### 🌐 [Acesse o site da disciplina →](https://gti-fatec-jahu.github.io/PI-GTI-2026-2/)
 
-[mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
+</div>
 
 ---
 
-## Sobre a disciplina
+Este repositório é a **fonte** do material de aulas, atividades e avaliações da disciplina Programação para Internet (ILP951) — Fatec Jahu, curso de Tecnologia em Gestão da Tecnologia da Informação (GTI), 2º semestre de 2026.
 
-- **Sigla:** ILP951 · **Curso:** Tecnologia em Gestão da Tecnologia da Informação (GTI)
-- **Carga horária:** 80 aulas presenciais (20 encontros de 4 horas-aula)
-- **Professor:** Ronan Adriel Zenatti
-- **Stack ensinada:** Python, Flask, Jinja2, Bootstrap 5, MySQL, Git/GitHub
+> **Para estudar, use o [site publicado](https://gti-fatec-jahu.github.io/PI-GTI-2026-2/).**
+> Ele é gerado automaticamente a partir destes mesmos arquivos Markdown, com mapas mentais, flashcards e quizzes totalmente funcionais — recursos que o GitHub não renderiza ao abrir um `.md` isoladamente (é por isso que este README, por exemplo, não usa esses recursos: aqui só o que o próprio GitHub sabe renderizar).
 
-Ao longo do semestre, os alunos constroem um sistema web completo — do primeiro
-"Olá, mundo" em Flask até um CRUD relacional com login e relatórios gerenciais,
-apresentado em banca ao final do curso.
+## 🎮 Como este repositório é mantido
 
-## 🗂️ Estrutura do repositório
+As aulas são adicionadas **progressivamente**, uma por semana, em `docs/aulas/`. Ao longo do semestre, os alunos constroem um sistema web completo — do primeiro "Olá, mundo" em Flask até um CRUD relacional com login e relatórios gerenciais, apresentado em banca ao final do curso.
 
-```
-docs/
-  index.md              # home do site: ementa, trilha e sumário de aulas
-  aulas/
-    Aula_NN_Titulo.md    # uma aula por arquivo, publicada progressivamente
-  imgs/                  # imagens usadas nas aulas
-templates/
-  AULA_TEMPLATE.md       # gabarito estrutural usado ao remodelar cada aula
-mkdocs.yml               # configuração do site (nav é explícito)
-requirements.txt         # dependências Python do site
-.github/workflows/
-  deploy-docs.yml         # publica o site no GitHub Pages a cada push em main
-```
-
-## 🚀 Rodando localmente
+## 🛠️ Rodando o site localmente
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-mkdocs serve                     # preview local em http://127.0.0.1:8000
-mkdocs build                     # build de produção, gera a pasta site/
+mkdocs serve
 ```
 
-## 📦 Publicação
+Acesse `http://127.0.0.1:8000`. A publicação em produção é automática: todo push na branch `main` builda e publica em GitHub Pages via Actions.
 
-O deploy é automático: todo push na branch `main` dispara o workflow
-[`deploy-docs.yml`](.github/workflows/deploy-docs.yml), que builda o site com MkDocs e
-publica o resultado no GitHub Pages.
+⚠️ **Configuração única necessária:** em `Settings → Pages`, defina **Source: GitHub Actions**.
 
-## 🛠️ Tecnologias do site
+## 💬 Contato
 
-[MkDocs Material](https://squidfunk.github.io/mkdocs-material/) como gerador de site
-estático, [Mermaid](https://mermaid.js.org/) para diagramas (mapas mentais das aulas)
-e [mkdocs-quiz](https://pypi.org/project/mkdocs-quiz/) para os quizzes interativos de
-fixação.
+📧 [ronan.zenatti@cps.sp.gov.br](mailto:ronan.zenatti@cps.sp.gov.br)
 
 ---
 
-*Fatec Jahu · ILP951 · Prof. Ronan Adriel Zenatti · 2º Semestre/2026*
+<sub>Fatec Jahu · Centro Paula Souza · Governo do Estado de São Paulo · 2026</sub>
