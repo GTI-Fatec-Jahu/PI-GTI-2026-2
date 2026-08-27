@@ -102,9 +102,114 @@ Pense em um assistente de estudos com IA: a tela de "Termos de Uso" é sempre id
 
 ---
 
-## Parte 2 — Instalando o Flask
+## Parte 2 — Retomando o ambiente e instalando o Flask
 
-### pip: o instalador de pacotes do Python
+Esta aula parte do princípio de que o ambiente da Aula 01 — pasta do projeto, ambiente virtual, Git e GitHub — continua funcionando exatamente como você deixou. Na prática, isso nem sempre acontece: o computador pode ter sido formatado, você pode estar em uma máquina diferente da usada na Aula 01, ou algum passo pode ter sido esquecido. Por isso, antes de instalar qualquer coisa, faça as três checagens abaixo, nesta ordem — cada uma te diz exatamente para onde ir se alguma coisa estiver faltando.
+
+**Checagem 1 — a pasta do projeto existe?** Abra o terminal, vá até a Área de Trabalho e liste o conteúdo:
+
+```
+cd Desktop
+dir
+```
+
+Se `projeto-web` aparecer na lista, a pasta existe — pule direto para a Checagem 2. Se ela não aparecer (ou o próprio `cd Desktop` falhar), a pasta foi perdida ou nunca chegou a ser criada nesta máquina: vá para a seção [2.1 — Recriando a pasta do projeto e o ambiente virtual](#21-recriando-a-pasta-do-projeto-e-o-ambiente-virtual) antes de continuar.
+
+**Checagem 2 — o projeto está versionado no Git?** Com o terminal dentro da pasta `projeto-web`, execute:
+
+```
+git status
+```
+
+Se o Git responder com informações do repositório (branch atual, arquivos modificados etc.), o projeto já está versionado — siga para a Checagem 3. Se a resposta for algo como `fatal: not a git repository`, o Git ainda não foi iniciado aqui: vá para a seção [2.2 — Versionando o projeto localmente](#22-versionando-o-projeto-localmente) antes de continuar.
+
+**Checagem 3 — o projeto está publicado no GitHub?** Ainda dentro da pasta `projeto-web`, execute:
+
+```
+git remote -v
+```
+
+Se aparecer uma URL do GitHub associada a `origin`, o projeto já está publicado — pule direto para a seção [2.4 — Instalando o Flask](#24-instalando-o-flask). Se o comando não retornar nada, o repositório local ainda não está conectado a um repositório remoto: vá para a seção [2.3 — Publicando no GitHub](#23-publicando-no-github) antes de continuar.
+
+Se as três checagens confirmaram que está tudo certo, siga direto para a seção 2.4 — não é preciso reler 2.1, 2.2 e 2.3.
+
+### 2.1 — Recriando a pasta do projeto e o ambiente virtual
+
+Esse processo foi explicado em detalhes na Aula 01 (Partes 4 e 5) — aqui vai o resumo direto para reconstruir o ambiente rapidamente.
+
+Com o terminal aberto, recrie a pasta do projeto na Área de Trabalho e abra-a no VS Code:
+
+```
+cd Desktop
+mkdir projeto-web
+cd projeto-web
+code .
+```
+
+Com o terminal dentro de `projeto-web`, crie e ative o ambiente virtual:
+
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+Confirme que a ativação funcionou: o início da linha do terminal deve mostrar o prefixo `(venv)`. Se isso não acontecer, revise a Aula 01 (Parte 5) antes de continuar — o restante desta aula depende do ambiente virtual estar ativo.
+
+Como esta é uma pasta recém-criada, ela ainda não está versionada — siga direto para a seção 2.2.
+
+### 2.2 — Versionando o projeto localmente
+
+Esse processo foi explicado em detalhes na Aula 01 (Parte 6) — aqui vai o resumo direto.
+
+Crie o arquivo `.gitignore` na raiz do projeto com este conteúdo:
+
+```
+# Ambiente virtual — nunca versionar
+venv/
+
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+
+# Configurações locais do VS Code
+.vscode/
+
+# Variáveis de ambiente sensíveis (senhas, chaves)
+.env
+```
+
+Em seguida, inicie o repositório Git e faça o primeiro commit:
+
+```
+git init
+git add .
+git commit -m "Aula 02: retomando o projeto"
+```
+
+> ⚠️ **Computador novo?** Se o Git pedir sua identidade antes de aceitar o commit, configure-a como na Aula 01: `git config --global user.name "Seu Nome Completo"` e `git config --global user.email "seu.email@example.com"`.
+
+Com o commit feito localmente, siga para a seção 2.3, para publicar o projeto no GitHub.
+
+### 2.3 — Publicando no GitHub
+
+Esse processo também foi explicado na Aula 01 (Parte 6) — aqui vai o resumo direto.
+
+Acesse **github.com**, clique em **New repository**, dê um nome ao repositório (por exemplo, `projeto-web-fatec`) e crie-o **vazio** — sem README, sem `.gitignore` e sem licença, já que esses arquivos já existem no seu projeto local, e criá-los de novo no GitHub só geraria conflito no primeiro envio.
+
+De volta ao terminal, conecte o repositório local ao repositório remoto recém-criado e envie o código:
+
+```
+git remote add origin https://github.com/SEU-USUARIO/projeto-web-fatec.git
+git push -u origin main
+```
+
+Troque `SEU-USUARIO` pelo seu nome de usuário no GitHub e o nome do repositório pelo que você escolheu. Depois do `push`, acesse o endereço do repositório no navegador e confirme que os arquivos aparecem lá.
+
+Com a pasta criada, versionada e publicada no GitHub, siga para a seção 2.4 — agora sim, vamos instalar o Flask.
+
+### 2.4 — Instalando o Flask
+
+#### pip: o instalador de pacotes do Python
 
 O Python vem acompanhado de uma ferramenta chamada **pip** (Package Installer for Python). O pip é para o Python o que a App Store é para um smartphone: um repositório enorme de bibliotecas prontas que você pode instalar com um único comando. O Flask é uma dessas bibliotecas.
 
@@ -126,7 +231,7 @@ O comando `pip show` exibe informações sobre um pacote instalado — nome, ver
 
 ![O pip instalando o Flask — a linha "Successfully installed" confirma que deu certo](../imgs/Aula_02_img_03.png)
 
-### O arquivo requirements.txt
+#### O arquivo requirements.txt
 
 Existe um problema prático importante: se outra pessoa quiser rodar seu projeto (ou se você mesmo precisar configurar o projeto em outro computador), ela precisará saber quais bibliotecas instalar. O **requirements.txt** é a solução — um arquivo que lista todas as dependências do projeto com suas versões.
 
