@@ -89,7 +89,7 @@ CRUD completo.
 | 2 | 13/08 | [Flask e Bootstrap](aulas/Aula_02_Flask_e_Bootstrap.md) | ✅ Disponível |
 | 3 | 20/08 | [Templates Jinja2 e rotas](aulas/Aula_03_Templates_Jinja2_e_Rotas.md) | ✅ Disponível |
 | 4 | 27/08 | [Formulários e HTTP](aulas/Aula_04_Formularios_e_HTTP.md) | ✅ Disponível |
-| 5 | 03/09 | Conexão MySQL e Python | 🔒 Em breve |
+| 5 | 03/09 | [Conexão MySQL e Python](aulas/Aula_05_Conexao_MySQL_e_Python.md) | ✅ Disponível |
 | 6 | 05/09 | Calculadora de IMC em Flask (trabalho individual) | 🔒 Em breve |
 | 7 | 10/09 | CRUD: inserção e leitura | 🔒 Em breve |
 | 8 | 17/09 | CRUD: edição e exclusão | 🔒 Em breve |
