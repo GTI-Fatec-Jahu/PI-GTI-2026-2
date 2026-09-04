@@ -57,4 +57,5 @@ nav:
           - Aula 01 — Introdução, Git e HTML5: aulas/Aula_01_Introducao_Git_HTML5.md
           - Aula 02 — Flask e Bootstrap: aulas/Aula_02_Flask_e_Bootstrap.md
           - Aula 03 — Templates Jinja2 e Rotas: aulas/Aula_03_Templates_Jinja2_e_Rotas.md
+          - Aula 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
       - Bloco 2 (em construção): index.md
