@@ -338,3 +338,7 @@ Se algo travar, volte ao conteúdo correspondente:
 - [Aula 02 — Flask e Bootstrap](../aulas/Aula_02_Flask_e_Bootstrap.md): primeira aplicação, Bootstrap via CDN, pasta `static/`, `requirements.txt`.
 - [Aula 03 — Templates Jinja2 e Rotas](../aulas/Aula_03_Templates_Jinja2_e_Rotas.md): `render_template`, variáveis, `{% if %}`, `{% for %}` e `url_for`. Nesta atividade a **herança** (`extends` e `block`) **não** é usada.
 - [Aula 04 — Formulários e HTTP](../aulas/Aula_04_Formularios_e_HTTP.md): GET e POST, `request.form`, validação no servidor, código 405.
+
+---
+
+📝 [Voltar à lista de atividades](index.md)

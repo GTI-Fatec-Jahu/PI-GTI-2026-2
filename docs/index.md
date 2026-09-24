@@ -7,6 +7,14 @@
 
 ---
 
+!!! success "📝 Atividades da disciplina"
+    Simulados e trabalhos práticos ficam reunidos em uma página própria, separada das aulas.
+    O **Simulado das Aulas 1 a 4** já está disponível.
+
+    [📝 Ver lista de atividades](atividades/index.md){ .md-button .md-button--primary }
+
+---
+
 ## 📋 Sobre esta disciplina
 
 Bem-vindo ao repositório oficial da disciplina **Programação para Internet**. Aqui
