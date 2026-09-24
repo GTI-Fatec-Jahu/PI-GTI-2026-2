@@ -60,3 +60,5 @@ nav:
           - Aula 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
           - Aula 05 — Conexão MySQL e Python: aulas/Aula_05_Conexao_MySQL_e_Python.md
       - Bloco 2 (em construção): index.md
+  - Atividades:
+      - Simulado — Aulas 1 a 4 (não vale nota): atividades/Simulado_Aulas_01_a_04.md
