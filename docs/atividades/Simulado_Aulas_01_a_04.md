@@ -341,4 +341,51 @@ Se algo travar, volte ao conteúdo correspondente:
 
 ---
 
+## 🧩 Solução de referência
+
+!!! danger "⚠️ Pare aqui: leia este aviso antes de abrir a solução"
+    A solução de referência reúne **o que há de melhor nas explicações do material entregue** (Aulas 1 a 4) e resolve **os dois temas**. Justamente por isso, ela é perigosa para quem a consulta cedo demais.
+
+    **Ver a solução antes de tentar cria uma falsa impressão de que você sabe fazer.** Ler um código pronto e achar que entendeu é muito diferente de conseguir escrevê-lo do zero. No dia da avaliação, ninguém vai lhe entregar essa solução: o professor pode pedir que você **altere uma regra ao vivo** ou **explique um trecho**, e quem só copiou não consegue.
+
+    O caminho honesto é este:
+
+    1. **Tente sozinho(a) primeiro**, seguindo o roteiro das etapas. Errar e depurar é o treino que a avaliação cobra.
+    2. Travou? Releia a aula correspondente (veja a **Revisão de apoio** acima) e tente de novo.
+    3. Só **depois de ter uma versão sua funcionando**, abra a solução para **comparar**: o que ela fez diferente de você e por quê?
+    4. Nunca copie e cole. Se for reaproveitar uma ideia, reescreva com as suas palavras e confirme que sabe explicar cada linha.
+
+??? warning "Já tentei por conta própria e quero ver a solução"
+    **Repositório:** [github.com/GTI-Fatec-Jahu/simulado_1_pi-2026-2](https://github.com/GTI-Fatec-Jahu/simulado_1_pi-2026-2)
+
+    #### O que a solução contém
+
+    | Rota | Arquivo | O que faz |
+    |------|---------|-----------|
+    | `/` | `templates/index.html` | Página inicial com cards que levam às outras páginas. |
+    | `/carbono` | `templates/carbono.html` | **Tema A**: formulário, validação, cálculo e classificação em 4 faixas. |
+    | `/creditos` | `templates/creditos.html` | **Tema B**: formulário, validação, projeção e classificação em 4 faixas. |
+    | `/equipe` | `templates/equipe.html` | Página da equipe, com fotos e dados. |
+
+    Todos os `.html` são páginas completas e independentes, sem `extends` nem `block`. O `README.md` do repositório traz a tabela de testes preenchida.
+
+    #### O que observar ao comparar com o seu código
+
+    - Como os **erros são acumulados** em uma lista e só depois exibidos, em vez de parar no primeiro.
+    - Como cada conversão de texto para número é protegida com `try / except`, para que um valor não numérico não cause erro 500.
+    - Que a classificação usa `if / elif / else` e que o `else` cobre a última faixa.
+    - No Tema B, que a verificação de **limite esgotado vem primeiro**. Inverter a ordem muda o resultado do teste 4.
+    - Como o `app.py` envia ao template só o necessário (`erros`, `resultado`, `dados_form`) e o template apenas exibe.
+    - O uso de `url_for` para os links e para os arquivos de `static/`.
+
+    #### Diferenças em relação ao enunciado
+
+    A solução implementa **os dois temas no mesmo projeto**, então ela se organiza de outro jeito do que você deve entregar. **A sua entrega segue o enunciado**, não a solução:
+
+    - Você escolhe **um tema** e o formulário fica na rota `/` (requisito R3). Na solução, `/` é uma página inicial e os formulários ficam em `/carbono` e `/creditos`.
+    - A sua rota `/equipe` deve ter **uma foto da dupla**. A solução usa uma imagem por integrante, e as imagens e os dados do repositório são **fictícios**.
+    - A solução tem uma página inicial e uma navbar com mais links do que o exigido.
+
+---
+
 📝 [Voltar à lista de atividades](index.md)
