@@ -13,6 +13,7 @@ Esta página reúne as atividades práticas da disciplina, além das aulas. Elas
 | Atividade | Conteúdo | Formato | Vale nota? | Status |
 |-----------|----------|---------|------------|--------|
 | [Simulado — Aulas 1 a 4](Simulado_Aulas_01_a_04.md) | Flask, Bootstrap, formulários, `GET`/`POST`, `if / elif / else` e Git/GitHub | Dupla · apresentação no dia da avaliação e link do GitHub no Classroom | ❌ Não, é apenas um simulado | ✅ Disponível |
+| [Avaliação — Aulas 1 a 4](Avaliacao_Aulas_01_a_04.md) | Calculadora de IMC: Flask, Bootstrap, formulários, `GET`/`POST`, `if / elif / else` e Git/GitHub | Dupla · 19h30 às 21h · link do GitHub no Classroom | ✅ Sim, 4 pontos | ✅ Disponível |
 
 ---
 
