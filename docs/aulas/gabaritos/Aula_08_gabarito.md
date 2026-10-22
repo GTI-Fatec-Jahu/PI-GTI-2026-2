@@ -1,7 +1,7 @@
-# Gabarito — Tópico 08 — CRUD: Edição e Exclusão
+# Gabarito — Tópico 07 — CRUD: Edição e Exclusão
 
 > Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
-> [Tópico 08](../Aula_08_CRUD_Edicao_e_Exclusao.md). Tente resolver cada desafio por
+> [Tópico 07](../Aula_08_CRUD_Edicao_e_Exclusao.md). Tente resolver cada desafio por
 > conta própria antes de conferir aqui.
 
 ---

@@ -75,11 +75,11 @@ medida que os tópicos são publicados.
 flowchart TB
     subgraph B1["🟢 Bloco 1"]
         direction LR
-        A1["🧭 1"] --> A2["🧱 2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A7["📝 7"] --> A8["🔧 8"]
+        A1["🧭 1"] --> A2["🧱 2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A6["📝 6"] --> A7["🔧 7"]
     end
     subgraph B2["🔵 Bloco 2"]
         direction LR
-        A11["11"] --> A12["12"] --> A14["14"] --> A15["15"] --> A16["16"] --> A17["17"] --> A20["🎓 20"]
+        A8["8"] --> A9["9"] --> A10["10"] --> A11["11"] --> A12["12"] --> A13["13"] --> A14["🎓 14"]
     end
     B1 --> B2
 ```
@@ -92,15 +92,15 @@ Do zero absoluto até o primeiro sistema completo: ambiente de
 desenvolvimento, Git, Flask, Bootstrap, templates, formulários, conexão com MySQL e
 CRUD completo.
 
-| Tópico | Data | Título | Status |
-|------|------|--------|--------|
-| 1 | 06/08 | [Introdução, Git e HTML5](aulas/Aula_01_Introducao_Git_HTML5.md) | ✅ Disponível |
-| 2 | 13/08 | [Flask e Bootstrap](aulas/Aula_02_Flask_e_Bootstrap.md) | ✅ Disponível |
-| 3 | 20/08 | [Templates Jinja2 e rotas](aulas/Aula_03_Templates_Jinja2_e_Rotas.md) | ✅ Disponível |
-| 4 | 27/08 | [Formulários e HTTP](aulas/Aula_04_Formularios_e_HTTP.md) | ✅ Disponível |
-| 5 | 03/09 | [Conexão MySQL e Python](aulas/Aula_05_Conexao_MySQL_e_Python.md) | ✅ Disponível |
-| 7 | 10/09 | [CRUD: inserção e leitura](aulas/Aula_07_CRUD_Insercao_e_Leitura.md) | ✅ Disponível |
-| 8 | 17/09 | [CRUD: edição e exclusão](aulas/Aula_08_CRUD_Edicao_e_Exclusao.md) | ✅ Disponível |
+| Tópico | Título | Status |
+|--------|--------|--------|
+| 1 | [Introdução, Git e HTML5](aulas/Aula_01_Introducao_Git_HTML5.md) | ✅ Disponível |
+| 2 | [Flask e Bootstrap](aulas/Aula_02_Flask_e_Bootstrap.md) | ✅ Disponível |
+| 3 | [Templates Jinja2 e rotas](aulas/Aula_03_Templates_Jinja2_e_Rotas.md) | ✅ Disponível |
+| 4 | [Formulários e HTTP](aulas/Aula_04_Formularios_e_HTTP.md) | ✅ Disponível |
+| 5 | [Conexão MySQL e Python](aulas/Aula_05_Conexao_MySQL_e_Python.md) | ✅ Disponível |
+| 6 | [CRUD: inserção e leitura](aulas/Aula_07_CRUD_Insercao_e_Leitura.md) | ✅ Disponível |
+| 7 | [CRUD: edição e exclusão](aulas/Aula_08_CRUD_Edicao_e_Exclusao.md) | ✅ Disponível |
 
 ---
 
@@ -109,15 +109,15 @@ CRUD completo.
 Evolução do sistema para múltiplas tabelas relacionadas, segurança de credenciais,
 login, relatórios gerenciais e entrega do projeto final.
 
-| Tópico | Data | Título | Status |
-|------|------|--------|--------|
-| 11 | 08/10 | Modelagem relacional 1:N | 🔒 Em breve |
-| 12 | 22/10 | CRUD relacional: implementação | 🔒 Em breve |
-| 14 | 29/10 | Visualização mestre-detalhe e segurança de registro | 🔒 Em breve |
-| 15 | 05/11 | Login e controle de sessão | 🔒 Em breve |
-| 16 | 12/11 | IV Congresso de Tecnologia da Fatec Jahu | 🔒 Em breve |
-| 17 | 19/11 | Relatórios gerenciais | 🔒 Em breve |
-| 20 | 10/12 | Encerramento do semestre | 🔒 Em breve |
+| Tópico | Título | Status |
+|--------|--------|--------|
+| 8 | Modelagem relacional 1:N | 🔒 Em breve |
+| 9 | CRUD relacional: implementação | 🔒 Em breve |
+| 10 | Visualização mestre-detalhe e segurança de registro | 🔒 Em breve |
+| 11 | Login e controle de sessão | 🔒 Em breve |
+| 12 | IV Congresso de Tecnologia da Fatec Jahu | 🔒 Em breve |
+| 13 | Relatórios gerenciais | 🔒 Em breve |
+| 14 | Encerramento do semestre | 🔒 Em breve |
 
 ---
 

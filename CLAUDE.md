@@ -31,21 +31,26 @@ comportar ao lidar com o repositório, não substitui o julgamento dele.
 A turma não acompanhou a programação semanal, então "aula" deixou de fazer sentido para
 quem lê o site. **Em tudo que o aluno vê** (site, `nav`, `index.md`, README, páginas de
 atividades, gabaritos, mensagens de commit de exemplo dentro do conteúdo) use **"tópico"**,
-no masculino ("este tópico", "o próximo tópico", "Tópico 07", "Conquista do Tópico").
+no masculino ("este tópico", "o próximo tópico", "Tópico 06", "Conquista do Tópico").
 "Horas-aula" (carga horária) e "encontros" continuam valendo.
 
 - **Nomes de arquivo, pastas e imagens não mudam:** `docs/aulas/Aula_NN_*.md`,
   `gabaritos/Aula_NN_gabarito.md`, `docs/imgs/Aula_NN_img_*.png`. O prefixo `Aula_` é só
-  identificador interno; a numeração do tópico acompanha o número do arquivo (Tópico 07 =
-  `Aula_07_*.md`).
+  identificador interno. **A numeração dos tópicos é contínua e independente do número do
+  arquivo** (não há lacunas na interface). Mapa atual: Tópicos 1 a 5 = `Aula_01` a
+  `Aula_05`; Tópico 6 = `Aula_07_*.md`; Tópico 7 = `Aula_08_*.md`. Os próximos seguem
+  a ordem do Sumário do `index.md` (Bloco 2: Tópico 8 = antiga Aula 11, 9 = Aula 12,
+  10 = Aula 14, 11 = Aula 15, 12 = Aula 16, 13 = Aula 17, 14 = Aula 20), mas o número
+  do arquivo continua o do planejamento.
 - Neste arquivo e nos prompts, "aula" segue como atalho para a unidade de conteúdo. A
   regra vale para o **texto produzido** para o aluno, inclusive os templates em
   `templates/`.
 - **Trabalhos, simulados e avaliações ficam só em `docs/atividades/`.** Eles não são
   tópicos: não entram na Trilha do `index.md` nem no Sumário de tópicos (as antigas Aulas
-  6, 9, 10, 13, 18 e 19 do planejamento). Os números de tópico dessas lacunas simplesmente
-  não existem na interface, e os selos associados a elas (ver tabela de gamificação) não
-  são usados.
+  6, 9, 10, 13, 18 e 19 do planejamento). Como a numeração dos tópicos é
+  contínua, essas lacunas não aparecem na interface, e os selos associados a elas (ver
+  tabela de gamificação, que usa os números do planejamento) não são usados.
+- **Sumário sem datas:** a tabela do `index.md` não tem coluna de data.
 
 ## Conteúdo herdado do 1º semestre
 

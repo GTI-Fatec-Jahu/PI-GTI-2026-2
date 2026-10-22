@@ -1,10 +1,10 @@
-# Tópico 08 — CRUD: Edição e Exclusão
+# Tópico 07 — CRUD: Edição e Exclusão
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
 **Fatec Jahu — 2º Semestre/2026**
 
-> **Pré-requisitos:** Tópico 07 concluído — cadastro (`/produtos/novo`), listagem com filtros, página de detalhe e a função `execute_insert` funcionando.
+> **Pré-requisitos:** Tópico 06 concluído — cadastro (`/produtos/novo`), listagem com filtros, página de detalhe e a função `execute_insert` funcionando.
 
 ---
 
@@ -77,7 +77,7 @@ O Update acontece em **duas requisições**, exatamente como o Create: um `GET` 
 
 ### Passo 1 — a rota de edição, só com GET
 
-Acrescente ao `app.py`. Ela busca o produto pelo `id` da URL, responde `404` se ele não existir (padrão da Parte 5 do Tópico 07) e mostra o formulário com os dados do banco:
+Acrescente ao `app.py`. Ela busca o produto pelo `id` da URL, responde `404` se ele não existir (padrão da Parte 5 do Tópico 06) e mostra o formulário com os dados do banco:
 
 ```python
 @app.route('/produtos/<int:produto_id>/editar')
@@ -576,7 +576,7 @@ Repare também no `WHERE id = X` em **todos** os comandos. O `DELETE` sem `WHERE
 
 ### 🔎 Verifique seu Entendimento
 
-A cooperativa de coleta seletiva do Tópico 07 quer remover o ponto de coleta de id `7`, que fechou, mas que tem dois anos de pesagens registradas e aparece em relatórios de volume coletado. Também quer remover o ponto de id `99`, cadastrado por engano ontem e sem nenhuma pesagem.
+A cooperativa de coleta seletiva do Tópico 06 quer remover o ponto de coleta de id `7`, que fechou, mas que tem dois anos de pesagens registradas e aparece em relatórios de volume coletado. Também quer remover o ponto de id `99`, cadastrado por engano ontem e sem nenhuma pesagem.
 
 **Desafio:** Escreva o comando SQL adequado para cada um dos dois pontos e justifique em uma frase por que o tipo de exclusão escolhido é diferente em cada caso.
 
@@ -858,7 +858,7 @@ Em um painel de créditos de uso de IA generativa, um desenvolvedor escreveu o l
 
 ### O mapa de rotas final
 
-O recurso **produto** agora tem o CRUD inteiro. Compare com o mapa que desenhamos na Parte 1 do Tópico 07: todas as linhas estão preenchidas.
+O recurso **produto** agora tem o CRUD inteiro. Compare com o mapa que desenhamos na Parte 1 do Tópico 06: todas as linhas estão preenchidas.
 
 | Rota | Métodos | SQL executado | Resposta |
 |---|---|---|---|
@@ -896,7 +896,7 @@ Toda rota de um CRUD precisa passar por estas perguntas. Os itens vieram do Tóp
 
 ### O `app.py` completo do módulo de produtos
 
-Para consolidar, aqui está o `app.py` inteiro ao final do tópico, com todas as peças que você construiu nos Tópicos 07 e 08. Use-o para comparar com o seu e achar diferenças:
+Para consolidar, aqui está o `app.py` inteiro ao final do tópico, com todas as peças que você construiu nos Tópicos 06 e 07. Use-o para comparar com o seu e achar diferenças:
 
 ```python
 from decimal import Decimal, InvalidOperation
@@ -1355,7 +1355,7 @@ Esse CRUD completo será a base do Trabalho 1 (T1), cujo prazo será divulgado n
 
 ```
 git add .
-git commit -m "Tópico 08: CRUD completo com edição, exclusão lógica e física com confirmação"
+git commit -m "Tópico 07: CRUD completo com edição, exclusão lógica e física com confirmação"
 git push
 ```
 
@@ -1364,13 +1364,13 @@ git push
 ## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 🔧 Mantenedor(a) do Ciclo de Vida"
-    Você completou o Tópico 08. O seu sistema agora acompanha um registro durante toda a vida dele: da criação à consulta, da correção à desativação, da reativação até a remoção definitiva, com cada passo protegido no servidor. O próximo tópico leva esse mesmo raciocínio para além de uma tabela isolada, modelando dados que se relacionam entre si.
+    Você completou o Tópico 07. O seu sistema agora acompanha um registro durante toda a vida dele: da criação à consulta, da correção à desativação, da reativação até a remoção definitiva, com cada passo protegido no servidor. O próximo tópico leva esse mesmo raciocínio para além de uma tabela isolada, modelando dados que se relacionam entre si.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Tópico 07 — CRUD: Inserção e Leitura](Aula_07_CRUD_Insercao_e_Leitura.md) · 🔒 Tópico 11 — em breve.
+⬅️ [Tópico 06 — CRUD: Inserção e Leitura](Aula_07_CRUD_Insercao_e_Leitura.md) · 🔒 Tópico 08 — em breve.
 
 ---
 
@@ -1384,7 +1384,7 @@ A documentação do Bootstrap 5 sobre o componente *Modal*, incluindo o evento `
 
 Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Tópico 08](gabaritos/Aula_08_gabarito.md)
+➡️ [Gabarito — Tópico 07](gabaritos/Aula_08_gabarito.md)
 
 ---
 

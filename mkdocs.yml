@@ -59,8 +59,8 @@ nav:
           - Tópico 03 — Templates Jinja2 e Rotas: aulas/Aula_03_Templates_Jinja2_e_Rotas.md
           - Tópico 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
           - Tópico 05 — Conexão MySQL e Python: aulas/Aula_05_Conexao_MySQL_e_Python.md
-          - "Tópico 07 — CRUD: Inserção e Leitura": aulas/Aula_07_CRUD_Insercao_e_Leitura.md
-          - "Tópico 08 — CRUD: Edição e Exclusão": aulas/Aula_08_CRUD_Edicao_e_Exclusao.md
+          - "Tópico 06 — CRUD: Inserção e Leitura": aulas/Aula_07_CRUD_Insercao_e_Leitura.md
+          - "Tópico 07 — CRUD: Edição e Exclusão": aulas/Aula_08_CRUD_Edicao_e_Exclusao.md
       - Bloco 2 (em construção): index.md
   - Atividades:
       - Lista de atividades: atividades/index.md

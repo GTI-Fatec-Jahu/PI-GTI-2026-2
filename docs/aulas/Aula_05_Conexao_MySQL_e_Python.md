@@ -997,7 +997,7 @@ git push
 
 ## 🔗 Navegação
 
-⬅️ [Tópico 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md) · ➡️ [Tópico 07 — CRUD: Inserção e Leitura](Aula_07_CRUD_Insercao_e_Leitura.md)
+⬅️ [Tópico 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md) · ➡️ [Tópico 06 — CRUD: Inserção e Leitura](Aula_07_CRUD_Insercao_e_Leitura.md)
 
 ---
 

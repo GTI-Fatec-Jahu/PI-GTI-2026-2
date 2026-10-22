@@ -1,7 +1,7 @@
-# Gabarito — Tópico 07 — CRUD: Inserção e Leitura
+# Gabarito — Tópico 06 — CRUD: Inserção e Leitura
 
 > Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
-> [Tópico 07](../Aula_07_CRUD_Insercao_e_Leitura.md). Tente resolver cada desafio por
+> [Tópico 06](../Aula_07_CRUD_Insercao_e_Leitura.md). Tente resolver cada desafio por
 > conta própria antes de conferir aqui.
 
 ---

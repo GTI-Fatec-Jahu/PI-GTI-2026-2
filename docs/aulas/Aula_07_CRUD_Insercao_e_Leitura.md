@@ -1,4 +1,4 @@
-# Tópico 07 — CRUD: Inserção e Leitura
+# Tópico 06 — CRUD: Inserção e Leitura
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
@@ -96,8 +96,8 @@ Um **recurso** é a "coisa" que o CRUD manipula, aqui, o produto. Antes de escre
 | `/produtos` | `GET` | Lista os produtos, com busca e filtros | Hoje (Partes 3 e 4) |
 | `/produtos/novo` | `GET`, `POST` | `GET` mostra o formulário; `POST` valida e grava | Hoje (Parte 2) |
 | `/produtos/<id>` | `GET` | Mostra os detalhes de um produto | Hoje (Parte 5) |
-| `/produtos/<id>/editar` | `GET`, `POST` | `GET` mostra o formulário preenchido; `POST` atualiza | Tópico 08 |
-| `/produtos/<id>/excluir` | `POST` | Desativa ou apaga o produto | Tópico 08 |
+| `/produtos/<id>/editar` | `GET`, `POST` | `GET` mostra o formulário preenchido; `POST` atualiza | Tópico 07 |
+| `/produtos/<id>/excluir` | `POST` | Desativa ou apaga o produto | Tópico 07 |
 
 O fluxo do que construímos hoje se resume neste diagrama. Note que o `POST` com erro volta para o formulário, e o `POST` bem-sucedido **redireciona** para a lista, que é o padrão PRG:
 
@@ -1301,7 +1301,7 @@ Aplique o **Create** e o **Read** ao domínio do **seu** sistema (produtos, livr
 
 ```
 git add .
-git commit -m "Tópico 07: CRUD Create e Read com filtros dinâmicos e página de detalhe"
+git commit -m "Tópico 06: CRUD Create e Read com filtros dinâmicos e página de detalhe"
 git push
 ```
 
@@ -1310,13 +1310,13 @@ git push
 ## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 📝 Escriba de Dados"
-    Você completou o Tópico 07. O seu sistema agora grava e consulta dados de ponta a ponta, com validação no servidor, filtros seguros e uma URL para cada registro. No próximo tópico, o CRUD se completa: editar e excluir, as duas operações em que um descuido apaga dados de verdade.
+    Você completou o Tópico 06. O seu sistema agora grava e consulta dados de ponta a ponta, com validação no servidor, filtros seguros e uma URL para cada registro. No próximo tópico, o CRUD se completa: editar e excluir, as duas operações em que um descuido apaga dados de verdade.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Tópico 05 — Conexão MySQL e Python](Aula_05_Conexao_MySQL_e_Python.md) · ➡️ [Tópico 08 — CRUD: Edição e Exclusão](Aula_08_CRUD_Edicao_e_Exclusao.md)
+⬅️ [Tópico 05 — Conexão MySQL e Python](Aula_05_Conexao_MySQL_e_Python.md) · ➡️ [Tópico 07 — CRUD: Edição e Exclusão](Aula_08_CRUD_Edicao_e_Exclusao.md)
 
 ---
 
@@ -1330,7 +1330,7 @@ A documentação do Flask sobre rotas, conversores de URL e tratamento de erros 
 
 Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Tópico 07](gabaritos/Aula_07_gabarito.md)
+➡️ [Gabarito — Tópico 06](gabaritos/Aula_07_gabarito.md)
 
 ---
 
