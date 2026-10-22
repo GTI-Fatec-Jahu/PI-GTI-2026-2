@@ -1,16 +1,16 @@
-# Aula 04 — Formulários e HTTP
+# Tópico 04 — Formulários e HTTP
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
 **Fatec Jahu — 2º Semestre/2026**
 
-> **Pré-requisitos:** Aula 03 concluída — Jinja2 dominado, template base criado com herança, rotas com parâmetros funcionando.
+> **Pré-requisitos:** Tópico 03 concluído — Jinja2 dominado, template base criado com herança, rotas com parâmetros funcionando.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 
 - Explicar a estrutura de uma requisição e de uma resposta HTTP (método, URL, headers, body) e reconhecer os códigos de status mais comuns.
 - Diferenciar os métodos GET e POST e escolher o método correto para cada situação.
@@ -20,11 +20,11 @@ Ao final desta aula você deverá ser capaz de:
 - Aplicar o padrão PRG (Post-Redirect-Get) para evitar o reenvio acidental de um formulário.
 - Usar o painel Network do navegador para inspecionar requisições HTTP reais.
 
-Até aqui, a comunicação entre o navegador e o Flask foi de mão única: o usuário digita uma URL, o servidor responde com uma página. Mas aplicações reais precisam receber dados do usuário — um nome de cadastro, uma senha de login, a descrição de um produto, um filtro de busca. O mecanismo para isso são os **formulários HTML**, e o protocolo que governa como esses dados trafegam pela internet é o **HTTP**. Hoje você vai entender como o HTTP funciona de verdade, aprender a diferença fundamental entre os métodos GET e POST, criar formulários completos com validação visual usando Bootstrap, e processar os dados recebidos no back-end com Flask. Ao final desta aula, seu sistema será capaz de receber informações do usuário e responder com inteligência.
+Até aqui, a comunicação entre o navegador e o Flask foi de mão única: o usuário digita uma URL, o servidor responde com uma página. Mas aplicações reais precisam receber dados do usuário — um nome de cadastro, uma senha de login, a descrição de um produto, um filtro de busca. O mecanismo para isso são os **formulários HTML**, e o protocolo que governa como esses dados trafegam pela internet é o **HTTP**. Hoje você vai entender como o HTTP funciona de verdade, aprender a diferença fundamental entre os métodos GET e POST, criar formulários completos com validação visual usando Bootstrap, e processar os dados recebidos no back-end com Flask. Ao final deste tópico, seu sistema será capaz de receber informações do usuário e responder com inteligência.
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 ```mermaid
 flowchart LR
@@ -112,7 +112,7 @@ Um assistente de estudos com IA generativa mostra, no rodapé da página, quanto
 
 **Desafio:** Se essa chamada à API de créditos falhar por sobrecarga no servidor, qual categoria de código de status HTTP (2xx, 3xx, 4xx ou 5xx) o painel deveria esperar receber, e qual código específico dessa categoria faz mais sentido usar? Justifique em uma frase.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -140,7 +140,7 @@ Um app de mobilidade urbana tem duas telas: uma que mostra as estações de bike
 
 **Desafio:** Diga qual método HTTP (GET ou POST) cada uma dessas duas telas deveria usar, e explique em uma frase por que compartilhar o link da tela de filtro por bairro faz sentido, mas compartilhar o link da tela de desbloqueio não faria.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -366,7 +366,7 @@ def cadastro():
         email = request.form['email']
         cidade = request.form['cidade']
 
-        # Por enquanto apenas imprimimos no terminal — banco de dados vem na Aula 05.
+        # Por enquanto apenas imprimimos no terminal — banco de dados vem no Tópico 05.
         print(f'Novo cadastro recebido: {nome} | {email} | {cidade}')
 
         # flash() envia uma mensagem de feedback para o próximo template renderizado.
@@ -409,7 +409,7 @@ def cadastro():
         email = request.form['email']
         cidade = request.form['cidade']
 
-        # Por enquanto apenas imprimimos no terminal — banco de dados vem na Aula 05.
+        # Por enquanto apenas imprimimos no terminal — banco de dados vem no Tópico 05.
         print(f'Novo cadastro recebido: {nome} | {email} | {cidade}')
 
         # flash() envia uma mensagem de feedback para o próximo template renderizado.
@@ -554,7 +554,7 @@ Uma cooperativa de coleta seletiva quer cadastrar pontos de entrega de recicláv
 
 **Desafio:** Diga qual tipo de campo HTML (`<select>`, `<input type="radio">` ou `<input type="checkbox">`) você usaria para "tipo de material aceito" e qual usaria para "aceita coleta domiciliar", justificando com base em quantas opções cada campo permite marcar ao mesmo tempo.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -598,7 +598,7 @@ Uma plataforma de venda de ingressos para um festival de 2026 tem um campo opcio
 
 **Desafio:** Escreva as duas linhas de `request.form` que leem esses campos — uma usando a forma que faz mais sentido para o campo opcional, outra para o obrigatório — e explique em uma frase por que a escolha é diferente entre os dois.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -687,7 +687,7 @@ Salve e envie o formulário sem selecionar cidade e sem marcar o checkbox de ter
                                perfil=perfil)
 
     # Se chegamos até aqui, todos os dados são válidos.
-    # Processamento bem-sucedido (banco de dados vem na Aula 05).
+    # Processamento bem-sucedido (banco de dados vem no Tópico 05).
     print(f'✅ Cadastro válido: {nome} | {email} | {cidade} | {perfil}')
     flash(f'Cadastro de {nome} realizado com sucesso!', 'success')
     return redirect(url_for('pagina_inicial'))
@@ -939,7 +939,7 @@ Um painel de créditos de uso de IA generativa tem um formulário para o usuári
 
 **Desafio:** Escreva o trecho Python que coleta o campo `codigo` com `.strip()` e as duas validações (vazio e comprimento diferente de 8) adicionando mensagens à lista `erros`, seguindo exatamente o padrão desta seção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -979,7 +979,7 @@ Um app de mobilidade urbana confirma o aluguel de um veículo elétrico comparti
 
 **Desafio:** Explique, em termos do padrão PRG, o que aconteceria de errado se a rota de confirmação de aluguel usasse `render_template('confirmacao.html')` diretamente ao final do POST em vez de `redirect(url_for(...))`, e o que o PRG evita nesse cenário específico.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1068,7 +1068,7 @@ Um formulário de adesão a um programa de energia solar residencial pede a "pot
 
 **Desafio:** Escreva a condição Jinja2 (`class="form-control {% if ... %}..."`) que aplica `is-invalid` a esse campo quando `erros.potencia` existir, e o bloco `{% if %}` que exibe `erros.potencia` dentro de um `invalid-feedback`, seguindo o padrão desta seção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1335,7 +1335,7 @@ Uma plataforma de e-sports quer uma busca de campeonatos por nome do jogo, com u
 
 **Desafio:** Escreva a rota `/campeonatos` com `request.args.get` lendo `jogo` e `modalidade` (com `'todas'` como padrão), e a linha de filtro em list comprehension que remove da lista os campeonatos cuja modalidade não bate, seguindo o padrão desta seção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1359,7 +1359,7 @@ Um painel de créditos de uso de IA generativa parece "travar" ao clicar em "Res
 
 **Desafio:** Descreva os passos que você daria no painel Network do navegador para descobrir se o problema é (a) a requisição nem está sendo enviada, (b) o servidor está respondendo com erro, ou (c) os dados enviados estão incorretos — e qual aba do painel (Headers, Payload ou Response) responderia a cada uma dessas três hipóteses.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1455,17 +1455,17 @@ No painel Network do Chrome (F12), qual aba mostra os campos e valores exatos qu
 
 Hoje você aprendeu os conceitos que tornam uma aplicação web interativa. Entendeu o protocolo HTTP — requisições, respostas e códigos de status. Compreendeu a diferença fundamental entre GET e POST e quando usar cada um. Construiu formulários HTML completos com todos os tipos de input, em incrementos pequenos e testados um a um. Processou dados no Flask com `request.form` e `request.args`. Implementou validação no servidor coletando erros granulares e repopulando o formulário. Aplicou feedback visual avançado com as classes `is-valid`/`is-invalid` do Bootstrap. Entendeu e aplicou o padrão PRG para evitar reenvio de dados. E aprendeu a usar o painel Network do navegador para inspecionar o que trafega nas requisições.
 
-![Mapa mental da Aula 04: HTTP, formulários, processamento Flask, validação e padrões](../imgs/Aula_04_img_10.png)
+![Mapa mental do Tópico 04: HTTP, formulários, processamento Flask, validação e padrões](../imgs/Aula_04_img_10.png)
 
-Na próxima aula você vai conectar o Flask ao MySQL. Toda a lógica de formulários que construímos hoje — coleta de dados, validação, feedback — vai ganhar persistência real: os cadastros serão salvos no banco de dados e poderão ser lidos, editados e excluídos. É o início do CRUD completo.
+No próximo tópico você vai conectar o Flask ao MySQL. Toda a lógica de formulários que construímos hoje — coleta de dados, validação, feedback — vai ganhar persistência real: os cadastros serão salvos no banco de dados e poderão ser lidos, editados e excluídos. É o início do CRUD completo.
 
 ---
 
-## Parte 10 — Atividade da Aula
+## Parte 10 — Atividade do Tópico
 
 ### O que fazer
 
-Esta é a atividade mais completa até agora, e o resultado dela será a base do Trabalho 1 (T1) que você entregará na Aula 09.
+Esta é a atividade mais completa até agora, e o resultado dela será a base do Trabalho 1 (T1) que você entregará (o prazo será divulgado na página de **Atividades**).
 
 Crie uma rota `/novo` no seu sistema com um formulário POST para cadastrar um novo item do seu domínio (produto, cliente, livro, consulta — o que você escolheu no início do semestre). O formulário deve ter pelo menos quatro campos de tipos diferentes: um campo de texto, um campo numérico ou de data, um select com pelo menos três opções, e um campo de texto longo com `<textarea>`. Todos os campos devem ter `label` com `for` correto e placeholder descritivo.
 
@@ -1477,36 +1477,36 @@ Verifique tudo no painel Network do navegador (`F12`) antes de fazer o commit.
 
 ```
 git add .
-git commit -m "Aula 04: formulários GET e POST, validação servidor, padrão PRG"
+git commit -m "Tópico 04: formulários GET e POST, validação servidor, padrão PRG"
 git push
 ```
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 📨 Mensageiro(a) HTTP"
-    Você completou a Aula 04. Seu sistema agora recebe dados do usuário com formulários completos, valida tudo no servidor e usa o padrão PRG para evitar reenvios. Na próxima aula, esses dados ganham memória permanente: é hora de conectar o Flask ao MySQL.
+    Você completou o Tópico 04. Seu sistema agora recebe dados do usuário com formulários completos, valida tudo no servidor e usa o padrão PRG para evitar reenvios. No próximo tópico, esses dados ganham memória permanente: é hora de conectar o Flask ao MySQL.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Aula 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md) · ➡️ [Aula 05 — Conexão MySQL e Python](Aula_05_Conexao_MySQL_e_Python.md)
+⬅️ [Tópico 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md) · ➡️ [Tópico 05 — Conexão MySQL e Python](Aula_05_Conexao_MySQL_e_Python.md)
 
 ---
 
 ## Referências e Leitura Complementar
 
-A especificação completa do protocolo HTTP está na RFC 7231, mas para fins práticos a documentação do MDN em `developer.mozilla.org/pt-BR/docs/Web/HTTP` é muito mais acessível e igualmente completa. O capítulo 4 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre formulários com a biblioteca WTForms — uma alternativa mais estruturada ao que fizemos aqui que será apresentada nas aulas avançadas.
+A especificação completa do protocolo HTTP está na RFC 7231, mas para fins práticos a documentação do MDN em `developer.mozilla.org/pt-BR/docs/Web/HTTP` é muito mais acessível e igualmente completa. O capítulo 4 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre formulários com a biblioteca WTForms — uma alternativa mais estruturada ao que fizemos aqui que será apresentada nos tópicos avançadas.
 
 ---
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula 04](gabaritos/Aula_04_gabarito.md)
+➡️ [Gabarito — Tópico 04](gabaritos/Aula_04_gabarito.md)
 
 ---
 

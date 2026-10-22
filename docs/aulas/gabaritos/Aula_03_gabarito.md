@@ -1,7 +1,7 @@
-# Gabarito — Aula 03 — Templates Jinja2 e Rotas
+# Gabarito — Tópico 03 — Templates Jinja2 e Rotas
 
-> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" da
-> [Aula 03](../Aula_03_Templates_Jinja2_e_Rotas.md). Tente resolver cada desafio por
+> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
+> [Tópico 03](../Aula_03_Templates_Jinja2_e_Rotas.md). Tente resolver cada desafio por
 > conta própria antes de conferir aqui.
 
 ---

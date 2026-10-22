@@ -1,16 +1,16 @@
-# Aula 03 — Templates Jinja2 e Rotas
+# Tópico 03 — Templates Jinja2 e Rotas
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
 **Fatec Jahu — 2º Semestre/2026**
 
-> **Pré-requisitos:** Aula 02 concluída — Flask instalado, `app.py` com rotas básicas funcionando, Bootstrap aplicado nos templates.
+> **Pré-requisitos:** Tópico 02 concluído — Flask instalado, `app.py` com rotas básicas funcionando, Bootstrap aplicado nos templates.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 
 - Passar variáveis do Python para os templates com `render_template` e exibi-las com `{{ }}`.
 - Formatar dados diretamente no template usando **filtros** Jinja2 (`upper`, `default`, `length`, `round`…).
@@ -20,11 +20,11 @@ Ao final desta aula você deverá ser capaz de:
 - Criar rotas com **conversores de tipo** (`int`, `float`, `path`) e ler a **query string** com `request.args`.
 - Comunicar o resultado de uma ação ao usuário com **flash messages**.
 
-Na Aula 02 você criou rotas Flask e usou `render_template` para servir arquivos HTML. Mas os templates que criamos até agora são puramente estáticos — o mesmo HTML é entregue para qualquer pessoa que acesse a página. Hoje isso muda completamente. Você vai aprender a **passar variáveis do Python para o HTML**, criar **estruturas condicionais e loops dentro dos templates**, construir um **template base** que todas as páginas herdam — eliminando de vez a repetição de código — e dominar as **rotas com parâmetros** de forma aprofundada. Ao final desta aula, sua aplicação vai gerar páginas verdadeiramente dinâmicas, com conteúdo diferente dependendo dos dados recebidos.
+No Tópico 02 você criou rotas Flask e usou `render_template` para servir arquivos HTML. Mas os templates que criamos até agora são puramente estáticos — o mesmo HTML é entregue para qualquer pessoa que acesse a página. Hoje isso muda completamente. Você vai aprender a **passar variáveis do Python para o HTML**, criar **estruturas condicionais e loops dentro dos templates**, construir um **template base** que todas as páginas herdam — eliminando de vez a repetição de código — e dominar as **rotas com parâmetros** de forma aprofundada. Ao final deste tópico, sua aplicação vai gerar páginas verdadeiramente dinâmicas, com conteúdo diferente dependendo dos dados recebidos.
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 Antes de entrar no detalhe, veja o mapa dos conceitos de hoje. Toda página que geramos agora segue o mesmo fluxo: uma **requisição** chega a uma **rota**, a rota monta os **dados** em Python e entrega ao **template** Jinja2, que aplica marcações, controle de fluxo e herança para produzir o **HTML final** que volta ao navegador.
 
@@ -83,7 +83,7 @@ flowchart LR
 
 ### O problema que o Jinja2 resolve
 
-Na Aula 02, quando precisávamos exibir o nome de um usuário na página, a solução era montar a string HTML inteira dentro do Python e devolvê-la como resposta. Isso funciona para coisas simples, mas imagine tentar montar uma tabela com 50 linhas de dados vindos do banco, ou exibir uma mensagem de "Bem-vindo, João!" apenas se o usuário estiver logado — tudo isso concatenando strings em Python. Rapidamente o código se torna incompreensível.
+No Tópico 02, quando precisávamos exibir o nome de um usuário na página, a solução era montar a string HTML inteira dentro do Python e devolvê-la como resposta. Isso funciona para coisas simples, mas imagine tentar montar uma tabela com 50 linhas de dados vindos do banco, ou exibir uma mensagem de "Bem-vindo, João!" apenas se o usuário estiver logado — tudo isso concatenando strings em Python. Rapidamente o código se torna incompreensível.
 
 O que você realmente precisa é de uma forma de escrever o HTML de forma natural, mas com "espaços reservados" onde os dados do Python serão inseridos quando a página for gerada. É exatamente isso que o **Jinja2** oferece.
 
@@ -113,7 +113,7 @@ Um painel mostra quantos créditos de uso de IA generativa um aluno ainda tem ho
 
 **Desafio:** Escreva a marcação Jinja2 correta para exibir o valor de `creditos` no HTML, e escreva também um comentário Jinja2 (que não deve aparecer no HTML final) avisando o próximo colega que mexer nesse template que esse valor vem da API de créditos de IA.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -280,7 +280,7 @@ Um app de mobilidade urbana (bike-sharing) precisa exibir na página inicial: qu
 
 **Desafio:** Escreva a rota Flask que monta um dicionário com essas três informações (`estacoes`, `bicicletas_livres`, `tarifa_hora`) e o envia ao template com `**dados`, e escreva as três marcações `{{ }}` correspondentes que exibiriam esses valores no HTML.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -338,7 +338,7 @@ Uma página de um evento de sustentabilidade recebe duas variáveis do Python: `
 
 **Desafio:** Escreva a expressão Jinja2 que exibe `nome_evento` em maiúsculas com o valor padrão `'Evento sem nome'` caso ele não exista, e a expressão que exibe `pegada_carbono` arredondado para 1 casa decimal.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -393,7 +393,7 @@ Vamos criar uma rota que simula um sistema de perfil, mostrando informações di
 @app.route('/perfil/<nome>')
 def perfil(nome):
     # Simulando um banco de dados com um dicionário de usuários
-    # Na Aula 05 isso virá do MySQL de verdade
+    # No Tópico 05 isso virá do MySQL de verdade
     usuarios = {
         'admin': {
             'nome': 'Administrador',
@@ -671,7 +671,7 @@ Salve e recarregue: o Monitor (estoque 0) fica vermelho com "Esgotado", o Teclad
 
             {# Formatando o preço: duas casas decimais com o filtro round #}
             {# Nota: para formatação monetária completa (R$, vírgula) usaremos #}
-            {# Python no app.py a partir da próxima aula #}
+            {# Python no app.py a partir do próximo tópico #}
             <td>R$ {{ produto.preco }}</td>
 
             {# Colorindo a célula de estoque conforme o nível #}
@@ -729,7 +729,7 @@ Um ranking de e-sports precisa exibir os jogadores em ordem, com uma medalha �
 
 **Desafio:** Escreva a rota `/ranking-esports` com uma lista de pelo menos 3 dicionários (`nome`, `pontos`) e o trecho de template que usa `{% for %}` para listar a posição de cada jogador com `loop.index`, e `{% if %}` com `loop.first` para exibir 🥇 só ao lado do primeiro colocado.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -987,7 +987,7 @@ Retome a página de créditos de IA da Parte 1 (a que mostra `{{ creditos }}`).
 
 **Desafio:** Escreva o `templates/creditos.html` como página filha de `base.html`: a linha `{% extends %}`, o bloco `titulo` com "Meus Créditos de IA", e o bloco `conteudo` exibindo a variável `creditos`.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1046,7 +1046,7 @@ Um app de bike-sharing tem duas rotas Python já definidas: `def estacoes():` (m
 
 **Desafio:** Escreva os dois links de navbar para essas páginas usando `url_for` — nunca escrevendo `/estacoes` ou `/minha-bike` diretamente no `href`.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1054,7 +1054,7 @@ Um app de bike-sharing tem duas rotas Python já definidas: `def estacoes():` (m
 
 ### Tipos de dados nos parâmetros de rota
 
-Na Aula 02, vimos que `<nome>` na URL captura qualquer string. O Flask permite especificar o tipo do parâmetro, o que além de garantir o tipo correto, faz com que URLs com o tipo errado retornem automaticamente um erro 404. Os conversores disponíveis são `string` (padrão), `int` (número inteiro), `float` (número decimal) e `path` (string que aceita barras `/`).
+No Tópico 02, vimos que `<nome>` na URL captura qualquer string. O Flask permite especificar o tipo do parâmetro, o que além de garantir o tipo correto, faz com que URLs com o tipo errado retornem automaticamente um erro 404. Os conversores disponíveis são `string` (padrão), `int` (número inteiro), `float` (número decimal) e `path` (string que aceita barras `/`).
 
 Adicione **um conversor por vez** ao seu `app.py` e teste o comportamento na URL antes de seguir. Comece com o `int`:
 
@@ -1146,7 +1146,7 @@ Um app de coleta seletiva quer duas coisas: uma página de detalhe para cada est
 
 **Desafio:** Escreva a rota `/estacao/<int:id>`, que só aceita IDs numéricos, e a rota `/buscar-pontos`, que lê o parâmetro `material` da query string com `request.args`, usando `'todos'` como valor padrão quando ele não for informado.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1210,7 +1210,7 @@ Uma plataforma de venda de ingressos para shows de 2026 acabou de processar a co
 
 **Desafio:** Escreva a rota `/comprar-ingresso`, que chama `flash()` duas vezes — uma mensagem de sucesso confirmando a compra e uma de aviso sobre a taxa extra — e depois redireciona para a página inicial com `redirect(url_for(...))`.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1289,9 +1289,9 @@ Dentro de um `{% for produto in produtos %}`, o que a variável `loop.index` for
 </quiz>
 
 <quiz>
-Para que serve a `app.secret_key` no contexto desta aula?
+Para que serve a `app.secret_key` no contexto deste tópico?
 - [ ] Para criptografar o banco de dados MySQL
-> Não — nesta aula ainda não há banco de dados.
+> Não — neste tópico ainda não há banco de dados.
 - [x] Para o Flask conseguir usar sessões e, com isso, as flash messages
 > Correto. As flash messages ficam guardadas na **sessão**, e o Flask só usa sessões com uma `secret_key` definida.
 - [ ] Para definir a senha de login do administrador
@@ -1306,11 +1306,11 @@ Para que serve a `app.secret_key` no contexto desta aula?
 
 Hoje a sua aplicação Flask ganhou inteligência real. Você aprendeu a passar variáveis do Python para os templates usando `render_template`, a usar filtros Jinja2 para formatar dados, a criar estruturas condicionais com `{% if %}` e loops com `{% for %}` diretamente no HTML. Construiu um template base com `{% block %}` que eliminou toda a repetição de código, e converteu as páginas para usar `{% extends %}`. Aprendeu a usar `url_for` para gerar URLs com segurança, a criar rotas com conversores de tipo, a acessar query string com `request.args` e a implementar flash messages para comunicar o resultado de ações ao usuário. O fio condutor é sempre o mesmo: a requisição chega à rota, a rota monta os dados, o Jinja2 transforma dados em HTML.
 
-![Mapa mental da Aula 03: variáveis, controle de fluxo, herança de templates, rotas avançadas e flash messages](../imgs/Aula_03_img_09.png)
+![Mapa mental do Tópico 03: variáveis, controle de fluxo, herança de templates, rotas avançadas e flash messages](../imgs/Aula_03_img_09.png)
 
 ---
 
-## Parte 9 — Atividade da Aula
+## Parte 9 — Atividade do Tópico
 
 ### O que fazer
 
@@ -1326,38 +1326,38 @@ Finalmente, certifique-se de que toda a navegação usa `url_for` em vez de URLs
 
 ```
 git add .
-git commit -m "Aula 03: Jinja2, herança de templates e rotas avançadas"
+git commit -m "Tópico 03: Jinja2, herança de templates e rotas avançadas"
 git push
 ```
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 🗺️ Navegador(a) de Rotas"
-    Você completou a Aula 03. Suas páginas deixaram de ser HTML fixo e passaram a ser geradas dinamicamente, com herança, controle de fluxo e URLs seguras. Na próxima aula você vai abrir a porta de entrada dos dados do usuário: formulários e o protocolo HTTP.
+    Você completou o Tópico 03. Suas páginas deixaram de ser HTML fixo e passaram a ser geradas dinamicamente, com herança, controle de fluxo e URLs seguras. No próximo tópico você vai abrir a porta de entrada dos dados do usuário: formulários e o protocolo HTTP.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Aula 02 — Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md) · ➡️ [Aula 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md)
+⬅️ [Tópico 02 — Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md) · ➡️ [Tópico 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md)
 
 ---
 
 ## Referências e Leitura Complementar
 
-A documentação oficial do Jinja2 está em `jinja.palletsprojects.com/en/3.x/templates` — é a referência completa para todos os filtros, testes e recursos da linguagem de templates. O capítulo 3 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre herança de templates com uma profundidade excelente, incluindo macros e imports de templates — recursos que usaremos nas aulas finais do semestre.
+A documentação oficial do Jinja2 está em `jinja.palletsprojects.com/en/3.x/templates` — é a referência completa para todos os filtros, testes e recursos da linguagem de templates. O capítulo 3 do livro **Desenvolvimento Web com Flask** de Miguel Grinberg cobre herança de templates com uma profundidade excelente, incluindo macros e imports de templates — recursos que usaremos nos tópicos finais do semestre.
 
-Na próxima aula você vai aprender sobre **formulários e o protocolo HTTP** com profundidade: a diferença entre GET e POST, como receber dados enviados pelo usuário via `request.form`, como validar esses dados no back-end e como dar feedback visual quando algo está errado. Os formulários são a porta de entrada de todos os dados que o usuário vai fornecer ao sistema — e o CRUD completo começa lá.
+No próximo tópico você vai aprender sobre **formulários e o protocolo HTTP** com profundidade: a diferença entre GET e POST, como receber dados enviados pelo usuário via `request.form`, como validar esses dados no back-end e como dar feedback visual quando algo está errado. Os formulários são a porta de entrada de todos os dados que o usuário vai fornecer ao sistema — e o CRUD completo começa lá.
 
 ---
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula 03](gabaritos/Aula_03_gabarito.md)
+➡️ [Gabarito — Tópico 03](gabaritos/Aula_03_gabarito.md)
 
 ---
 

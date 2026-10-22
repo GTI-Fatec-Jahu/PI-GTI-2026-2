@@ -1,7 +1,7 @@
-# Gabarito — Aula 05 — Conexão MySQL e Python
+# Gabarito — Tópico 05 — Conexão MySQL e Python
 
-> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" da
-> [Aula 05](../Aula_05_Conexao_MySQL_e_Python.md). Tente resolver cada desafio por
+> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
+> [Tópico 05](../Aula_05_Conexao_MySQL_e_Python.md). Tente resolver cada desafio por
 > conta própria antes de conferir aqui.
 
 ---
@@ -90,7 +90,7 @@ CONFIGURACAO = {
 `time_zone='+00:00'` é a escolha correta para um serviço hospedado na nuvem, evitando
 inconsistências entre o fuso do servidor de banco e o fuso da aplicação. `pool_size=8`
 atende o tráfego maior esperado sem exagerar no número de conexões simultâneas
-mantidas abertas no servidor MySQL (o padrão sugerido na aula é 5, mas o pool pode
+mantidas abertas no servidor MySQL (o padrão sugerido no tópico é 5, mas o pool pode
 crescer conforme a demanda real do sistema).
 
 ---
@@ -142,8 +142,7 @@ UPDATE ponto_coleta SET ativo = 0 WHERE id = 7;
 ```
 
 O `SELECT` filtra com `WHERE quilos_coletados > 100` e ordena do maior para o menor
-com `ORDER BY quilos_coletados DESC`. O `UPDATE` segue a mesma cautela reforçada na
-aula: sempre usar `WHERE` com um `id` específico, nunca um `UPDATE` "solto" que
+com `ORDER BY quilos_coletados DESC`. O `UPDATE` segue a mesma cautela reforçada no tópico: sempre usar `WHERE` com um `id` específico, nunca um `UPDATE` "solto" que
 alteraria todos os pontos de coleta cadastrados.
 
 ---
@@ -163,7 +162,7 @@ SELECT * FROM evento WHERE nome LIKE '%%' OR '1'='1'%'
 Como `'1'='1'` é sempre verdadeiro, a condição inteira passa a ser verdadeira para
 **todas** as linhas, retornando todos os eventos cadastrados independentemente do
 termo digitado — e, em variações mais agressivas, o mesmo tipo de campo poderia ser
-usado para comandos ainda mais destrutivos, como visto na Parte 7 da aula.
+usado para comandos ainda mais destrutivos, como visto na Parte 7 do tópico.
 
 A correção usa placeholder `%s`, deixando o `%` de "contém" fora da string do usuário:
 

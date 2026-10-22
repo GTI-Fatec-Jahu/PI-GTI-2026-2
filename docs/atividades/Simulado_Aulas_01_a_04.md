@@ -1,4 +1,4 @@
-# Simulado — Preparação para a Avaliação (Aulas 1 a 4)
+# Simulado — Preparação para a Avaliação (Tópicos 1 a 4)
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
@@ -7,7 +7,7 @@
 !!! warning "Atividade não avaliativa — não vale nota"
     Este é um **simulado**. Ele **não vale nota**: existe para você e sua dupla testarem, com calma e sem risco, o que será cobrado na avaliação. Levar a sério é a melhor forma de descobrir o que ainda precisa de revisão **antes** do dia que conta.
 
-> **Pré-requisitos:** Aulas 01 a 04 concluídas (Git/GitHub, ambiente virtual, Flask, Bootstrap, rotas, formulários, GET e POST, validação no servidor).
+> **Pré-requisitos:** Tópicos 01 a 04 concluídos (Git/GitHub, ambiente virtual, Flask, Bootstrap, rotas, formulários, GET e POST, validação no servidor).
 
 ---
 
@@ -243,7 +243,7 @@ Siga as etapas **na ordem**. Ao fim de cada uma há um **ponto de verificação*
 - Aplique as regras de validação da tabela do seu tema, acumulando **todos** os erros antes de exibir algum.
 - Se houver erros, devolva a página com cada erro em um alerta Bootstrap (`alert-danger`) acima do formulário. Se não houver, siga para a próxima etapa.
 
-🔎 **Ponto de verificação:** rode todos os testes **inválidos** da tabela do seu tema. Para conseguir enviar campos vazios ou fora do intervalo, remova os atributos `required`, `min` e `max` pelo DevTools, como fizemos na Aula 04. O servidor não pode quebrar (erro 500) em nenhum deles.
+🔎 **Ponto de verificação:** rode todos os testes **inválidos** da tabela do seu tema. Para conseguir enviar campos vazios ou fora do intervalo, remova os atributos `required`, `min` e `max` pelo DevTools, como fizemos no Tópico 04. O servidor não pode quebrar (erro 500) em nenhum deles.
 
 ### Etapa 5 — O cálculo
 
@@ -334,24 +334,24 @@ seu-repositorio/
 
 Se algo travar, volte ao conteúdo correspondente:
 
-- [Aula 01 — Introdução, Git e HTML5](../aulas/Aula_01_Introducao_Git_HTML5.md): repositório, commits, `venv`, `.gitignore`.
-- [Aula 02 — Flask e Bootstrap](../aulas/Aula_02_Flask_e_Bootstrap.md): primeira aplicação, Bootstrap via CDN, pasta `static/`, `requirements.txt`.
-- [Aula 03 — Templates Jinja2 e Rotas](../aulas/Aula_03_Templates_Jinja2_e_Rotas.md): `render_template`, variáveis, `{% if %}`, `{% for %}` e `url_for`. Nesta atividade a **herança** (`extends` e `block`) **não** é usada.
-- [Aula 04 — Formulários e HTTP](../aulas/Aula_04_Formularios_e_HTTP.md): GET e POST, `request.form`, validação no servidor, código 405.
+- [Tópico 01 — Introdução, Git e HTML5](../aulas/Aula_01_Introducao_Git_HTML5.md): repositório, commits, `venv`, `.gitignore`.
+- [Tópico 02 — Flask e Bootstrap](../aulas/Aula_02_Flask_e_Bootstrap.md): primeira aplicação, Bootstrap via CDN, pasta `static/`, `requirements.txt`.
+- [Tópico 03 — Templates Jinja2 e Rotas](../aulas/Aula_03_Templates_Jinja2_e_Rotas.md): `render_template`, variáveis, `{% if %}`, `{% for %}` e `url_for`. Nesta atividade a **herança** (`extends` e `block`) **não** é usada.
+- [Tópico 04 — Formulários e HTTP](../aulas/Aula_04_Formularios_e_HTTP.md): GET e POST, `request.form`, validação no servidor, código 405.
 
 ---
 
 ## 🧩 Solução de referência
 
 !!! danger "⚠️ Pare aqui: leia este aviso antes de abrir a solução"
-    A solução de referência reúne **o que há de melhor nas explicações do material entregue** (Aulas 1 a 4) e resolve **os dois temas**. Justamente por isso, ela é perigosa para quem a consulta cedo demais.
+    A solução de referência reúne **o que há de melhor nas explicações do material entregue** (Tópicos 1 a 4) e resolve **os dois temas**. Justamente por isso, ela é perigosa para quem a consulta cedo demais.
 
     **Ver a solução antes de tentar cria uma falsa impressão de que você sabe fazer.** Ler um código pronto e achar que entendeu é muito diferente de conseguir escrevê-lo do zero. No dia da avaliação, ninguém vai lhe entregar essa solução: o professor pode pedir que você **altere uma regra ao vivo** ou **explique um trecho**, e quem só copiou não consegue.
 
     O caminho honesto é este:
 
     1. **Tente sozinho(a) primeiro**, seguindo o roteiro das etapas. Errar e depurar é o treino que a avaliação cobra.
-    2. Travou? Releia a aula correspondente (veja a **Revisão de apoio** acima) e tente de novo.
+    2. Travou? Releia o tópico correspondente (veja a **Revisão de apoio** acima) e tente de novo.
     3. Só **depois de ter uma versão sua funcionando**, abra a solução para **comparar**: o que ela fez diferente de você e por quê?
     4. Nunca copie e cole. Se for reaproveitar uma ideia, reescreva com as suas palavras e confirme que sabe explicar cada linha.
 

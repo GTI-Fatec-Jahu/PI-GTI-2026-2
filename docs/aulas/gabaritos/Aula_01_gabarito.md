@@ -1,7 +1,7 @@
-# Gabarito — Aula 01 — Introdução, Git e HTML5
+# Gabarito — Tópico 01 — Introdução, Git e HTML5
 
-> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" da
-> [Aula 01](../Aula_01_Introducao_Git_HTML5.md). Tente resolver cada desafio por conta
+> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
+> [Tópico 01](../Aula_01_Introducao_Git_HTML5.md). Tente resolver cada desafio por conta
 > própria antes de conferir aqui.
 
 ---

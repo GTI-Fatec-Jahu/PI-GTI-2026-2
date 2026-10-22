@@ -1,21 +1,21 @@
-# Aula 01 — Introdução, Git e HTML5
+# Tópico 01 — Introdução, Git e HTML5
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
 **Fatec Jahu — 2º Semestre/2026**
-**Pré-requisitos:** Nenhum — esta é a aula zero, o ponto de partida absoluto.
+**Pré-requisitos:** Nenhum — este é o tópico zero, o ponto de partida absoluto.
 
 ---
 
-## 🗺️ O que você vai aprender nesta aula
+## 🗺️ O que você vai aprender neste tópico
 
-Nesta primeira aula você vai configurar todo o ambiente de desenvolvimento que usaremos durante o semestre inteiro. Ao final, você terá instalado Python, criado a pasta do projeto, configurado um ambiente virtual, feito seu primeiro commit no GitHub e escrito um arquivo HTML5 válido. Parece muito, mas cada passo é simples quando feito um de cada vez — e é exatamente assim que vamos fazer.
+Neste primeiro tópico você vai configurar todo o ambiente de desenvolvimento que usaremos durante o semestre inteiro. Ao final, você terá instalado Python, criado a pasta do projeto, configurado um ambiente virtual, feito seu primeiro commit no GitHub e escrito um arquivo HTML5 válido. Parece muito, mas cada passo é simples quando feito um de cada vez — e é exatamente assim que vamos fazer.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 
 - Instalar e configurar o ambiente de desenvolvimento do semestre (Python, VS Code e extensões essenciais)
 - Criar a estrutura de pastas de um projeto e isolar suas dependências com um ambiente virtual (`venv`)
@@ -24,11 +24,11 @@ Ao final desta aula você deverá ser capaz de:
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 ```mermaid
 flowchart LR
-    ROOT(("Aula 01<br/>Ambiente e Fundamentos"))
+    ROOT(("Tópico 01<br/>Ambiente e Fundamentos"))
 
     ROOT --> AMB
     subgraph AMB["🐍 Ambiente de Desenvolvimento"]
@@ -75,7 +75,7 @@ Nessa história existem três personagens principais. O **front-end** é tudo qu
 
 ![Arquitetura de uma aplicação web: front-end, back-end e banco de dados](../imgs/Aula_01_img_01.png)
 
-Nesta disciplina você vai aprender a construir as três camadas. Nesta primeira aula, vamos montar a estrutura base e entender o HTML — a fundação de tudo que aparece na tela.
+Nesta disciplina você vai aprender a construir as três camadas. Neste primeiro tópico, vamos montar a estrutura base e entender o HTML — a fundação de tudo que aparece na tela.
 
 ### Por que Python?
 
@@ -87,7 +87,7 @@ Imagine um assistente de estudos com IA que alguns colegas seus já usam para ti
 
 **Desafio:** Identifique, nesse assistente, o que seria o front-end, o que seria o back-end e o que seria o banco de dados — explicando em uma frase o papel de cada camada *nesse cenário específico* (não repita a definição genérica, aplique ao assistente de estudos).
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -125,7 +125,7 @@ Um colega de turma está montando o ambiente para prototipar um app de bike-shar
 
 **Desafio:** Descreva o que vai aparecer no terminal quando ele digitar `python --version` sem o PATH configurado, e explique — sem reinstalar nada do zero — o que precisa ser feito para resolver.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -147,7 +147,7 @@ Uma colega que também é criadora de conteúdo tech vai gravar um vídeo curto 
 
 **Desafio:** Aponte duas evidências visuais na tela do VS Code (fora do menu de extensões) que provam que cada uma dessas extensões está funcionando.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -183,7 +183,7 @@ Você vai começar, do zero, o protótipo de um app de venda de ingressos para o
 
 **Desafio:** Escreva, na ordem certa, os comandos de terminal para criar uma pasta chamada `ingressos-show`, entrar nela e abrir o VS Code já dentro dela.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -229,7 +229,7 @@ Você está com dois projetos no computador ao mesmo tempo: o Projeto A é um as
 
 **Desafio:** Explique por que instalar as bibliotecas direto no Python global quebraria um dos dois projetos, e escreva os comandos para criar e ativar um ambiente virtual só para o Projeto A.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -286,7 +286,7 @@ Todo commit passa por três estágios: você edita arquivos no seu projeto, adic
 ```
 git init
 git add .
-git commit -m "Aula 01: configuração inicial do projeto"
+git commit -m "Tópico 01: configuração inicial do projeto"
 ```
 
 Depois de criar o repositório no GitHub (em github.com, clique em "New repository"), conecte e envie:
@@ -304,7 +304,7 @@ Você e mais dois colegas estão versionando juntos, pela primeira vez, o reposi
 
 **Desafio:** Diga o que precisa estar dentro do `.gitignore` **antes** do primeiro commit para que essa chave nunca seja enviada ao GitHub, e escreva a sequência completa de comandos Git — do `git init` ao `git push` — que o grupo usaria para o primeiro envio do projeto.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -521,7 +521,7 @@ Tabelas em HTML organizam dados em linhas e colunas. A estrutura usa quatro tags
   <table border="1">
     <!-- table = contêiner da tabela inteira.
          border="1" adiciona bordas visíveis para visualizarmos a estrutura.
-         Nas próximas aulas usaremos Bootstrap para estilizar com elegância. -->
+         Nos próximos tópicos usaremos Bootstrap para estilizar com elegância. -->
 
     <thead>
       <!-- thead = agrupa a linha de cabeçalho: visualmente separada do corpo -->
@@ -596,7 +596,7 @@ Salve e recarregue uma última vez. A tabela agora tem três linhas de dados com
   <table border="1">
     <!-- table = contêiner da tabela inteira.
          border="1" adiciona bordas visíveis para visualizarmos a estrutura.
-         Nas próximas aulas usaremos Bootstrap para estilizar com elegância. -->
+         Nos próximos tópicos usaremos Bootstrap para estilizar com elegância. -->
 
     <thead>
       <!-- thead = agrupa a linha de cabeçalho: visualmente separada do corpo -->
@@ -643,7 +643,7 @@ Salve e recarregue uma última vez. A tabela agora tem três linhas de dados com
 
 ### Exemplo prático 3 — Página com imagem e formulário
 
-Este exemplo introduz `<img>` e a estrutura básica de um formulário. Os formulários serão estudados em profundidade na Aula 04 — por ora, foque em observar a estrutura e o propósito de cada tag. Crie um arquivo chamado `contato.html`, novamente em passos.
+Este exemplo introduz `<img>` e a estrutura básica de um formulário. Os formulários serão estudados em profundidade no Tópico 04 — por ora, foque em observar a estrutura e o propósito de cada tag. Crie um arquivo chamado `contato.html`, novamente em passos.
 
 **Passo 1 — título e imagem.** Comece com o esqueleto, um `<h1>` e uma imagem:
 
@@ -680,7 +680,7 @@ Salve e recarregue a página. A imagem de placeholder aparece com 150 pixels de 
 
   <form>
     <!-- form = formulário. Agrupa campos de entrada de dados.
-         Voltaremos a ele com muito mais detalhe na Aula 04. -->
+         Voltaremos a ele com muito mais detalhe no Tópico 04. -->
 
     <label for="nome">Seu nome:</label>
     <!-- label = rótulo descritivo de um campo.
@@ -731,11 +731,11 @@ Salve e recarregue. Note que a `<textarea>` aparece como uma caixa maior, com v�
 ```html
     <button type="submit">Enviar Mensagem</button>
     <!-- button type="submit" = envia o formulário ao servidor.
-         Ainda não temos back-end para receber os dados (isso vem na Aula 04),
+         Ainda não temos back-end para receber os dados (isso vem no Tópico 04),
          mas a estrutura já está correta. -->
 ```
 
-Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final do formulário — clicar nele ainda não faz nada de útil, porque não existe back-end recebendo esses dados ainda (isso muda na Aula 04).
+Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final do formulário — clicar nele ainda não faz nada de útil, porque não existe back-end recebendo esses dados ainda (isso muda no Tópico 04).
 
 **Bloco completo consolidado** — seu arquivo `contato.html` final deve estar assim:
 
@@ -763,7 +763,7 @@ Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final
 
   <form>
     <!-- form = formulário. Agrupa campos de entrada de dados.
-         Voltaremos a ele com muito mais detalhe na Aula 04. -->
+         Voltaremos a ele com muito mais detalhe no Tópico 04. -->
 
     <label for="nome">Seu nome:</label>
     <!-- label = rótulo descritivo de um campo.
@@ -794,7 +794,7 @@ Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final
 
     <button type="submit">Enviar Mensagem</button>
     <!-- button type="submit" = envia o formulário ao servidor.
-         Ainda não temos back-end para receber os dados (isso vem na Aula 04),
+         Ainda não temos back-end para receber os dados (isso vem no Tópico 04),
          mas a estrutura já está correta. -->
   </form>
 
@@ -804,15 +804,15 @@ Salve e recarregue pela última vez. O botão "Enviar Mensagem" aparece ao final
 
 ### 🔎 Verifique seu Entendimento
 
-Uma associação de bairro está organizando um mutirão de coleta seletiva e quer uma página simples para divulgar a ação — sem nenhum framework ainda, só HTML5 puro, exatamente como você aprendeu nesta aula.
+Uma associação de bairro está organizando um mutirão de coleta seletiva e quer uma página simples para divulgar a ação — sem nenhum framework ainda, só HTML5 puro, exatamente como você aprendeu neste tópico.
 
 **Desafio:** Sem olhar os exemplos anteriores, escreva do zero um arquivo HTML5 válido para essa página, contendo: a estrutura obrigatória completa, um `<h1>` com o nome do mutirão, uma lista `<ul>` com pelo menos três materiais aceitos (ex.: papel, vidro, eletrônicos), uma tabela `<table>` com os dias e horários de coleta em cada rua, e um link `<a>` ao final apontando para o Instagram da ação.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
-## Parte 8 — Atividade da Aula
+## Parte 8 — Atividade do Tópico
 
 ### O que fazer
 
@@ -822,7 +822,7 @@ Após criar e salvar, registre no Git:
 
 ```
 git add .
-git commit -m "Aula 01: página inicial do projeto"
+git commit -m "Tópico 01: página inicial do projeto"
 git push
 ```
 
@@ -904,13 +904,13 @@ Essa associação entre `for` e `id` é um recurso de acessibilidade: ao clicar 
 
 ---
 
-## 📝 Resumo da Aula
+## 📝 Resumo do Tópico
 
 Hoje você configurou todo o ambiente que usará no semestre e deu os primeiros passos práticos como desenvolvedor: Python e VS Code instalados, projeto criado com ambiente virtual isolado, repositório Git iniciado com primeiro commit e push para o GitHub, e três arquivos HTML5 escritos e visualizados no navegador.
 
-![Mapa mental da Aula 01: os quatro pilares aprendidos hoje](../imgs/Aula_01_img_16.png)
+![Mapa mental do Tópico 01: os quatro pilares aprendidos hoje](../imgs/Aula_01_img_16.png)
 
-Na próxima aula, você vai instalar o Flask e ver pela primeira vez o Python respondendo requisições do navegador. O `index.html` que você criou hoje vai evoluir para um template dinâmico gerado pelo back-end — e essa será a primeira vez que você verá as três camadas da aplicação web trabalhando juntas.
+No próximo tópico, você vai instalar o Flask e ver pela primeira vez o Python respondendo requisições do navegador. O `index.html` que você criou hoje vai evoluir para um template dinâmico gerado pelo back-end — e essa será a primeira vez que você verá as três camadas da aplicação web trabalhando juntas.
 
 ---
 
@@ -920,24 +920,24 @@ O **MDN Web Docs** em `developer.mozilla.org` é a referência oficial para HTML
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 🧭 Explorador(a) da Web"
-    Você configurou seu primeiro ambiente de desenvolvimento completo, fez seu primeiro commit no Git e escreveu suas primeiras páginas HTML5 válidas. Na próxima aula, o `index.html` que você criou vai ganhar vida: o Flask vai gerar essa página dinamicamente, e você vai ver o back-end e o front-end conversando pela primeira vez.
+    Você configurou seu primeiro ambiente de desenvolvimento completo, fez seu primeiro commit no Git e escreveu suas primeiras páginas HTML5 válidas. No próximo tópico, o `index.html` que você criou vai ganhar vida: o Flask vai gerar essa página dinamicamente, e você vai ver o back-end e o front-end conversando pela primeira vez.
 
 ---
 
 ## 🔗 Navegação
 
-➡️ [Próxima Aula: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md)
+➡️ [Próximo Tópico: Flask e Bootstrap](Aula_02_Flask_e_Bootstrap.md)
 
 ---
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula 01](gabaritos/Aula_01_gabarito.md)
+➡️ [Gabarito — Tópico 01](gabaritos/Aula_01_gabarito.md)
 
 ---
 

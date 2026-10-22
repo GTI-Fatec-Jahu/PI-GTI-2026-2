@@ -1,7 +1,7 @@
-# Gabarito — Aula 04 — Formulários e HTTP
+# Gabarito — Tópico 04 — Formulários e HTTP
 
-> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" da
-> [Aula 04](../Aula_04_Formularios_e_HTTP.md). Tente resolver cada desafio por conta
+> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
+> [Tópico 04](../Aula_04_Formularios_e_HTTP.md). Tente resolver cada desafio por conta
 > própria antes de conferir aqui.
 
 ---
@@ -14,11 +14,11 @@ sobrecarga no servidor.
 **Solução comentada:**
 
 A falha é causada pelo **servidor** (sobrecarga), não por um erro do usuário — por isso
-a categoria correta é **5xx**. Dentro do que a aula apresentou, o código mais direto é
+a categoria correta é **5xx**. Dentro do que o tópico apresentou, o código mais direto é
 o **500 Internal Server Error**, usado quando algo deu errado no código ou na
 infraestrutura do servidor. (Em APIs reais existe também o código mais específico
 **503 Service Unavailable**, próprio para sobrecarga temporária — mas o raciocínio de
-categoria, 5xx = erro do servidor, é o que a aula pede.)
+categoria, 5xx = erro do servidor, é o que o tópico pede.)
 
 ---
 
@@ -107,7 +107,7 @@ elif len(codigo) != 8:
     erros.append('O código promocional deve ter exatamente 8 caracteres.')
 ```
 
-Segue exatamente o padrão da Parte 5 da aula: primeiro coleta com `.strip()` para
+Segue exatamente o padrão da Parte 5 do tópico: primeiro coleta com `.strip()` para
 eliminar espaços acidentais, depois valida em cadeia (`if` / `elif`) para não checar o
 comprimento de um código que já está vazio.
 

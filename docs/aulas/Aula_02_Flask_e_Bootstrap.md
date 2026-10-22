@@ -1,14 +1,14 @@
-# Aula 02 — Flask e Bootstrap
+# Tópico 02 — Flask e Bootstrap
 
 > **Disciplina:** Programação para Internet (ILP951)  
 > **Professor:** Ronan Adriel Zenatti  
-> **Pré-requisitos:** Aula 01 concluída — Python instalado, VS Code configurado, ambiente virtual criado e ativado, repositório Git funcionando.
+> **Pré-requisitos:** Tópico 01 concluído — Python instalado, VS Code configurado, ambiente virtual criado e ativado, repositório Git funcionando.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 
 - **Explicar** a diferença entre uma página estática e uma dinâmica e o papel de um servidor web.
 - **Instalar** o Flask com o `pip` e **registrar** as dependências do projeto em `requirements.txt`.
@@ -18,11 +18,11 @@ Ao final desta aula você deverá ser capaz de:
 - **Estilizar** as páginas com Bootstrap 5 (navbar, grid, cards, botões e alertas).
 - **Organizar e servir** arquivos estáticos próprios (CSS, JavaScript e imagens), sempre referenciados com `url_for('static', filename=...)`.
 
-Na aula anterior você montou o ambiente e escreveu páginas HTML estáticas — arquivos que o navegador lê diretamente do disco, sem nenhuma lógica por trás. Hoje isso muda. Você vai instalar o Flask, entender o que é um servidor web, escrever seu primeiro "Hello World" dinâmico com Python e estilizar a página com Bootstrap. Pela primeira vez, você verá o back-end e o front-end conversando — e esse é o momento em que a programação web começa a fazer sentido de verdade.
+No tópico anterior você montou o ambiente e escreveu páginas HTML estáticas — arquivos que o navegador lê diretamente do disco, sem nenhuma lógica por trás. Hoje isso muda. Você vai instalar o Flask, entender o que é um servidor web, escrever seu primeiro "Hello World" dinâmico com Python e estilizar a página com Bootstrap. Pela primeira vez, você verá o back-end e o front-end conversando — e esse é o momento em que a programação web começa a fazer sentido de verdade.
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 Antes de mergulhar no detalhe, veja o mapa dos cinco eixos de hoje. A ideia é criar a "moldura" onde cada conceito vai se encaixar: uma **requisição** chega, o **Flask** encontra a **rota** certa, ela devolve um **template** estilizado com **Bootstrap** e servido junto com os **arquivos estáticos**.
 
@@ -76,7 +76,7 @@ flowchart LR
 
 ### A diferença entre uma página estática e uma dinâmica
 
-Na Aula 01, quando você abriu o `index.html` no navegador, o que aconteceu foi simples: o navegador leu o arquivo do seu disco rígido e exibiu o conteúdo. Não havia nenhum processamento envolvido — o arquivo sempre mostraria a mesma coisa para qualquer pessoa que o abrisse. Isso é uma **página estática**.
+No Tópico 01, quando você abriu o `index.html` no navegador, o que aconteceu foi simples: o navegador leu o arquivo do seu disco rígido e exibiu o conteúdo. Não havia nenhum processamento envolvido — o arquivo sempre mostraria a mesma coisa para qualquer pessoa que o abrisse. Isso é uma **página estática**.
 
 Agora pense em um site como o seu banco. Quando você faz login, a página exibe seu nome, seu saldo, suas últimas transações. Essas informações são diferentes para cada usuário e mudam ao longo do tempo. Não é possível escrever isso em um arquivo HTML fixo — o conteúdo precisa ser **gerado no momento em que a página é solicitada**, com base em quem está pedindo e nos dados do banco de dados. Isso é uma **página dinâmica**.
 
@@ -98,13 +98,13 @@ Pense em um assistente de estudos com IA: a tela de "Termos de Uso" é sempre id
 
 **Desafio:** Diga qual das duas telas é estática e qual é dinâmica, e explique em uma frase por que cada uma se encaixa nessa classificação, pensando no que precisa (ou não) ser gerado no momento da requisição.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
 ## Parte 2 — Retomando o ambiente e instalando o Flask
 
-Esta aula parte do princípio de que o ambiente da Aula 01 — pasta do projeto, ambiente virtual, Git e GitHub — continua funcionando exatamente como você deixou. Na prática, isso nem sempre acontece: o computador pode ter sido formatado, você pode estar em uma máquina diferente da usada na Aula 01, ou algum passo pode ter sido esquecido. Por isso, antes de instalar qualquer coisa, faça as três checagens abaixo, nesta ordem — cada uma te diz exatamente para onde ir se alguma coisa estiver faltando.
+Este tópico parte do princípio de que o ambiente do Tópico 01 — pasta do projeto, ambiente virtual, Git e GitHub — continua funcionando exatamente como você deixou. Na prática, isso nem sempre acontece: o computador pode ter sido formatado, você pode estar em uma máquina diferente da usada no Tópico 01, ou algum passo pode ter sido esquecido. Por isso, antes de instalar qualquer coisa, faça as três checagens abaixo, nesta ordem — cada uma te diz exatamente para onde ir se alguma coisa estiver faltando.
 
 **Checagem 1 — a pasta do projeto existe?** Abra o terminal, vá até a Área de Trabalho e liste o conteúdo:
 
@@ -135,7 +135,7 @@ Se as três checagens confirmaram que está tudo certo, siga direto para a seç�
 
 ### 2.1 — Recriando a pasta do projeto e o ambiente virtual
 
-Esse processo foi explicado em detalhes na Aula 01 (Partes 4 e 5) — aqui vai o resumo direto para reconstruir o ambiente rapidamente.
+Esse processo foi explicado em detalhes no Tópico 01 (Partes 4 e 5) — aqui vai o resumo direto para reconstruir o ambiente rapidamente.
 
 Com o terminal aberto, recrie a pasta do projeto na Área de Trabalho e abra-a no VS Code:
 
@@ -153,13 +153,13 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-Confirme que a ativação funcionou: o início da linha do terminal deve mostrar o prefixo `(venv)`. Se isso não acontecer, revise a Aula 01 (Parte 5) antes de continuar — o restante desta aula depende do ambiente virtual estar ativo.
+Confirme que a ativação funcionou: o início da linha do terminal deve mostrar o prefixo `(venv)`. Se isso não acontecer, revise o Tópico 01 (Parte 5) antes de continuar — o restante deste tópico depende do ambiente virtual estar ativo.
 
 Como esta é uma pasta recém-criada, ela ainda não está versionada — siga direto para a seção 2.2.
 
 ### 2.2 — Versionando o projeto localmente
 
-Esse processo foi explicado em detalhes na Aula 01 (Parte 6) — aqui vai o resumo direto.
+Esse processo foi explicado em detalhes no Tópico 01 (Parte 6) — aqui vai o resumo direto.
 
 Crie o arquivo `.gitignore` na raiz do projeto com este conteúdo:
 
@@ -183,16 +183,16 @@ Em seguida, inicie o repositório Git e faça o primeiro commit:
 ```
 git init
 git add .
-git commit -m "Aula 02: retomando o projeto"
+git commit -m "Tópico 02: retomando o projeto"
 ```
 
-> ⚠️ **Computador novo?** Se o Git pedir sua identidade antes de aceitar o commit, configure-a como na Aula 01: `git config --global user.name "Seu Nome Completo"` e `git config --global user.email "seu.email@example.com"`.
+> ⚠️ **Computador novo?** Se o Git pedir sua identidade antes de aceitar o commit, configure-a como no Tópico 01: `git config --global user.name "Seu Nome Completo"` e `git config --global user.email "seu.email@example.com"`.
 
 Com o commit feito localmente, siga para a seção 2.3, para publicar o projeto no GitHub.
 
 ### 2.3 — Publicando no GitHub
 
-Esse processo também foi explicado na Aula 01 (Parte 6) — aqui vai o resumo direto.
+Esse processo também foi explicado no Tópico 01 (Parte 6) — aqui vai o resumo direto.
 
 Acesse **github.com**, clique em **New repository**, dê um nome ao repositório (por exemplo, `projeto-web-fatec`) e crie-o **vazio** — sem README, sem `.gitignore` e sem licença, já que esses arquivos já existem no seu projeto local, e criá-los de novo no GitHub só geraria conflito no primeiro envio.
 
@@ -247,7 +247,7 @@ Faça um commit com essa adição:
 
 ```
 git add requirements.txt
-git commit -m "Aula 02: Flask instalado, requirements.txt gerado"
+git commit -m "Tópico 02: Flask instalado, requirements.txt gerado"
 ```
 
 ### 🔎 Verifique seu Entendimento
@@ -256,7 +256,7 @@ Você está montando o ambiente de um protótipo de app de bike-sharing e, além
 
 **Desafio:** Escreva a sequência completa de comandos para instalar o `requests`, regravar o `requirements.txt` incluindo essa nova dependência, e commitar essa mudança no Git com uma mensagem adequada.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -270,7 +270,7 @@ No MVC: o **Controller** é o garçom — recebe as requisições do navegador e
 
 ![O padrão MVC: Controller coordena, Model processa dados, View apresenta o resultado](../imgs/Aula_02_img_04.png)
 
-No Flask, essa separação fica assim: as **rotas** (funções Python decoradas com `@app.route`) são os Controllers. Os **templates HTML** (arquivos na pasta `templates/`) são as Views. Os **modelos de dados** (que criaremos a partir da Aula 05) são os Models. Hoje vamos trabalhar com Controllers e Views — o Model entra na Aula 05 quando conectarmos ao banco de dados.
+No Flask, essa separação fica assim: as **rotas** (funções Python decoradas com `@app.route`) são os Controllers. Os **templates HTML** (arquivos na pasta `templates/`) são as Views. Os **modelos de dados** (que criaremos a partir do Tópico 05) são os Models. Hoje vamos trabalhar com Controllers e Views — o Model entra no Tópico 05 quando conectarmos ao banco de dados.
 
 ### 🔎 Verifique seu Entendimento
 
@@ -278,7 +278,7 @@ Pense em um app de agendamento de coleta seletiva de bairro, construído em Flas
 
 **Desafio:** Sem escrever código, descreva em uma frase cada o que seria o Controller, a View e o Model desse app — aplicando a analogia do garçom, da cozinha e do prato a esse cenário específico, não à definição genérica de MVC.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -321,7 +321,7 @@ Você vai organizar, do zero, a estrutura de pastas do projeto de uma pequena lo
 
 **Desafio:** Escreva a sequência de comandos `mkdir` para criar, dentro da pasta do projeto, as pastas `templates/`, `static/`, `static/css`, `static/js` e `static/imgs` — na mesma estrutura que você acabou de ver.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -468,7 +468,7 @@ Um app de estudos com IA precisa mostrar, para cada aluno, quantos créditos de 
 
 **Desafio:** Adicione ao `app.py` uma nova rota `/creditos/<usuario>` que recebe o nome do usuário pela URL e devolve uma mensagem como "joao ainda tem 12 créditos de IA hoje" (o número pode ser fixo por enquanto).
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -478,7 +478,7 @@ Um app de estudos com IA precisa mostrar, para cada aluno, quantos créditos de 
 
 Nos exemplos anteriores, o HTML estava escrito diretamente dentro das funções Python — dentro de strings. Isso funciona para exemplos simples, mas em um projeto real causa sérios problemas: páginas HTML têm centenas de linhas, e misturá-las com código Python torna ambos ilegíveis. Imagine tentar fazer manutenção em um arquivo com 500 linhas misturando Python e HTML desordenadamente.
 
-A solução do Flask para isso são os **templates** — arquivos HTML separados que ficam na pasta `templates/`, com uma capacidade especial: eles podem receber variáveis do Python e exibi-las dinamicamente. O motor de templates que o Flask usa se chama **Jinja2**, e estudaremos ele com profundidade na Aula 03. Por agora, vamos aprender a usar a função `render_template`, que carrega um arquivo HTML da pasta `templates/` e o envia ao navegador.
+A solução do Flask para isso são os **templates** — arquivos HTML separados que ficam na pasta `templates/`, com uma capacidade especial: eles podem receber variáveis do Python e exibi-las dinamicamente. O motor de templates que o Flask usa se chama **Jinja2**, e estudaremos ele com profundidade no Tópico 03. Por agora, vamos aprender a usar a função `render_template`, que carrega um arquivo HTML da pasta `templates/` e o envia ao navegador.
 
 ![O app.py contém a lógica Python; os templates contêm o HTML — cada um na sua responsabilidade](../imgs/Aula_02_img_07.png)
 
@@ -544,7 +544,7 @@ Um app de mobilidade urbana precisa de uma página `/rota-ativa` anunciando qual
 
 **Desafio:** Crie o arquivo `templates/rota_ativa.html` com uma estrutura HTML5 simples anunciando a linha, e uma rota `/rota-ativa` no `app.py` que usa `render_template` para servi-lo — nos mesmos moldes do que você acabou de fazer com `index.html`.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -709,7 +709,7 @@ Salve, recarregue e confira os três links lado a lado.
 
   <!-- alert alert-info: caixa de informação azul -->
   <div class="alert alert-info">
-    <strong>Aula 02:</strong> Flask e Bootstrap funcionando juntos!
+    <strong>Tópico 02:</strong> Flask e Bootstrap funcionando juntos!
   </div>
 
   <a href="/sobre" class="btn btn-primary btn-lg">Saiba Mais</a>
@@ -782,7 +782,7 @@ Salve e recarregue: a caixa azul de `alert-info` destaca o aviso e o botão gran
 
     <!-- alert alert-info: caixa de informação azul -->
     <div class="alert alert-info">
-      <strong>Aula 02:</strong> Flask e Bootstrap funcionando juntos!
+      <strong>Tópico 02:</strong> Flask e Bootstrap funcionando juntos!
     </div>
 
     <a href="/sobre" class="btn btn-primary btn-lg">Saiba Mais</a>
@@ -894,7 +894,7 @@ A página `/sobre` do seu projeto agora vai anunciar também um evento: o show d
 
 **Desafio:** Adicione um quarto `card` Bootstrap à `<div class="row">` de `sobre.html`, na mesma estrutura `col-md-4` / `card` / `card-body` / `card-title` / `card-text` dos três já existentes, anunciando esse evento.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -922,7 +922,7 @@ Um painel de consumo de energia solar residencial precisa mostrar 4 indicadores 
 
 **Desafio:** Usando a tabela de breakpoints que você acabou de ver, escreva a combinação de classes `col-*` que cada card deve receber para atingir exatamente esse comportamento responsivo.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -1388,15 +1388,15 @@ Um app de mobilidade urbana quer destacar, com uma cor diferente, qual rota est�
 
 **Desafio:** Crie os arquivos `static/css/mobilidade.css` (com uma regra `.rota-ativa { color: green; }`) e `static/js/mapa.js` (por enquanto, só um comentário), e vincule os dois ao template correto usando `url_for` — o CSS no `<head>`, o JS no fim do `<body>`.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
-## Parte 10 — Atividade da Aula
+## Parte 10 — Atividade do Tópico
 
 ### O que fazer
 
-Nesta atividade você vai transformar a página inicial do seu projeto — o `index.html` criado na Aula 01 — em uma aplicação Flask real com Bootstrap e arquivos estáticos próprios.
+Nesta atividade você vai transformar a página inicial do seu projeto — o `index.html` criado no Tópico 01 — em uma aplicação Flask real com Bootstrap e arquivos estáticos próprios.
 
 Primeiro, crie o `app.py` com pelo menos três rotas: a rota `/` para a página inicial, uma rota `/sobre` descrevendo o sistema, e uma rota `/contato`. Segundo, mova o conteúdo do `index.html` para a pasta `templates/` e converta-o para usar `render_template`. Terceiro, adicione Bootstrap a todos os templates, incluindo uma navbar com links de navegação entre as páginas. Quarto, na página inicial, use o sistema de grid com cards para apresentar pelo menos três funcionalidades do seu sistema.
 
@@ -1411,7 +1411,7 @@ Lembre-se de fazer commits a cada etapa concluída — não apenas no final:
 
 ```
 git add .
-git commit -m "Aula 02: Flask, Bootstrap e arquivos estáticos (CSS, JS, imagem)"
+git commit -m "Tópico 02: Flask, Bootstrap e arquivos estáticos (CSS, JS, imagem)"
 git push
 ```
 
@@ -1428,7 +1428,7 @@ Tente responder mentalmente antes de clicar para revelar a resposta.
     `pip freeze` lista todas as bibliotecas instaladas no ambiente virtual (com suas versões); o `>` grava essa lista no arquivo `requirements.txt`. Em outra máquina, `pip install -r requirements.txt` reinstala exatamente as mesmas dependências.
 
 ??? question "No padrão MVC aplicado ao Flask, o que são as rotas, os templates e os models?"
-    As **rotas** (`@app.route`) são os **Controllers** — recebem a requisição e decidem o que fazer. Os **templates HTML** (pasta `templates/`) são as **Views** — o que o usuário vê. Os **models** são os dados/lógica de negócio (entram a partir da Aula 05, com o banco).
+    As **rotas** (`@app.route`) são os **Controllers** — recebem a requisição e decidem o que fazer. Os **templates HTML** (pasta `templates/`) são as **Views** — o que o usuário vê. Os **models** são os dados/lógica de negócio (entram a partir do Tópico 05, com o banco).
 
 ??? question "Como se cria uma rota que captura uma parte variável da URL?"
     Colocando o nome entre `<` e `>` no caminho e recebendo-o como parâmetro da função: `@app.route('/usuario/<nome>')` seguido de `def perfil_usuario(nome):`. Acessar `/usuario/maria` passa `nome='maria'` para a função.
@@ -1485,7 +1485,7 @@ O Controller é o ponto de contato: recebe a requisição do navegador e coorden
 </quiz>
 
 <quiz>
-Por que usamos o Bootstrap via CDN nesta aula?
+Por que usamos o Bootstrap via CDN neste tópico?
 - [ ] Porque o CDN funciona mesmo sem conexão com a internet
 - [x] Porque basta adicionar uma linha `<link>` no `<head>`, sem baixar nenhum arquivo
 - [ ] Porque o CDN substitui a necessidade de escrever HTML
@@ -1496,40 +1496,40 @@ O CDN hospeda a biblioteca publicamente, então uma única linha de `<link>` já
 
 ---
 
-## Resumo da Aula
+## Resumo do Tópico
 
 Hoje você deu um salto enorme: saiu de páginas HTML estáticas para uma aplicação web real com servidor Python. Instalou o Flask com pip e gerou o `requirements.txt`. Entendeu o padrão MVC e a separação entre controllers (rotas) e views (templates). Criou um servidor Flask com múltiplas rotas — incluindo rotas com variáveis dinâmicas na URL. Separou o HTML do Python usando `render_template`. Transformou a aparência das páginas com Bootstrap, usando navbar, grid, cards, botões e alertas. E aprendeu a organizar e servir arquivos estáticos próprios — CSS personalizado, JavaScript e imagens — todos referenciados com segurança via `url_for('static', filename=...)`.
 
-![Mapa mental da Aula 02: os cinco eixos aprendidos hoje](../imgs/Aula_02_img_13.png)
+![Mapa mental do Tópico 02: os cinco eixos aprendidos hoje](../imgs/Aula_02_img_13.png)
 
-Na próxima aula você vai conhecer o **Jinja2**, o motor de templates do Flask, que vai permitir passar variáveis do Python para os templates HTML, criar estruturas condicionais e loops diretamente no HTML, e — o mais importante — criar um **template base** que todas as páginas herdam, eliminando a repetição da navbar e do cabeçalho em cada arquivo.
+No próximo tópico você vai conhecer o **Jinja2**, o motor de templates do Flask, que vai permitir passar variáveis do Python para os templates HTML, criar estruturas condicionais e loops diretamente no HTML, e — o mais importante — criar um **template base** que todas as páginas herdam, eliminando a repetição da navbar e do cabeçalho em cada arquivo.
 
 ---
 
 ## Referências e Leitura Complementar
 
-A documentação oficial do Flask está em `flask.palletsprojects.com` — é muito bem escrita e tem um tutorial de início rápido excelente. A documentação do Bootstrap 5 está em `getbootstrap.com/docs/5.3` — para qualquer componente que você queira usar, basta pesquisar lá e copiar o código de exemplo. O livro de referência da disciplina, **Desenvolvimento Web com Flask** de Miguel Grinberg (Novatec, 2019), cobre todo o conteúdo das próximas aulas com profundidade excelente.
+A documentação oficial do Flask está em `flask.palletsprojects.com` — é muito bem escrita e tem um tutorial de início rápido excelente. A documentação do Bootstrap 5 está em `getbootstrap.com/docs/5.3` — para qualquer componente que você queira usar, basta pesquisar lá e copiar o código de exemplo. O livro de referência da disciplina, **Desenvolvimento Web com Flask** de Miguel Grinberg (Novatec, 2019), cobre todo o conteúdo dos próximos tópicos com profundidade excelente.
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 🧱 Construtor(a) de Aplicações"
-    Você completou a Aula 02 e ergueu a primeira estrutura viva do semestre: um servidor Flask respondendo requisições, com páginas estilizadas em Bootstrap e arquivos estáticos próprios. Na Aula 03 você dá vida a esses templates com o Jinja2 — variáveis, condicionais e herança de layout.
+    Você completou o Tópico 02 e ergueu a primeira estrutura viva do semestre: um servidor Flask respondendo requisições, com páginas estilizadas em Bootstrap e arquivos estáticos próprios. No Tópico 03 você dá vida a esses templates com o Jinja2 — variáveis, condicionais e herança de layout.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Aula 01 — Introdução, Git e HTML5](Aula_01_Introducao_Git_HTML5.md) · ➡️ [Aula 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md)
+⬅️ [Tópico 01 — Introdução, Git e HTML5](Aula_01_Introducao_Git_HTML5.md) · ➡️ [Tópico 03 — Templates Jinja2 e Rotas](Aula_03_Templates_Jinja2_e_Rotas.md)
 
 ---
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula 02](gabaritos/Aula_02_gabarito.md)
+➡️ [Gabarito — Tópico 02](gabaritos/Aula_02_gabarito.md)
 
 ---
 

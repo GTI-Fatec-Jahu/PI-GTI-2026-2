@@ -1,7 +1,7 @@
-# Gabarito — Aula 02 — Flask e Bootstrap
+# Gabarito — Tópico 02 — Flask e Bootstrap
 
-> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" da
-> [Aula 02](../Aula_02_Flask_e_Bootstrap.md). Tente resolver cada desafio por conta
+> Soluções comentadas dos mini-desafios de "🔎 Verifique seu Entendimento" do
+> [Tópico 02](../Aula_02_Flask_e_Bootstrap.md). Tente resolver cada desafio por conta
 > própria antes de conferir aqui.
 
 ---
@@ -32,7 +32,7 @@ commitar a mudança.
 pip install requests
 pip freeze > requirements.txt
 git add requirements.txt
-git commit -m "Aula 02: adiciona requests ao requirements.txt"
+git commit -m "Tópico 02: adiciona requests ao requirements.txt"
 ```
 
 `pip install requests` baixa e instala a biblioteca no ambiente virtual ativo.
@@ -214,7 +214,7 @@ No fim do `<body>`, depois do Bootstrap JS:
 <script src="{{ url_for('static', filename='js/mapa.js') }}"></script>
 ```
 
-A ordem importa pelo mesmo motivo do `estilo.css` visto na aula: o CSS próprio precisa
+A ordem importa pelo mesmo motivo do `estilo.css` visto no tópico: o CSS próprio precisa
 vir depois do Bootstrap para poder sobrescrevê-lo, e o JS próprio precisa vir depois
 do Bootstrap JS para poder usar a API dele, se precisar.
 

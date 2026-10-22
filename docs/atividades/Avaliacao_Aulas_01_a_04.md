@@ -1,4 +1,4 @@
-# Avaliação — Calculadora de IMC (Aulas 1 a 4)
+# Avaliação — Calculadora de IMC (Tópicos 1 a 4)
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
@@ -15,10 +15,10 @@ Em dupla, desenvolver uma aplicação Flask que calcula o **Índice de Massa Cor
 
 ## 📚 O que está sendo cobrado
 
-- **Aula 01 — Introdução, Git e HTML5:** criar repositório no GitHub, clonar, `commit` e `push`, ambiente virtual (`venv`), `.gitignore`, estrutura básica de uma página HTML.
-- **Aula 02 — Flask e Bootstrap:** primeira aplicação Flask, `requirements.txt`, Bootstrap 5 via CDN, pasta `static/`.
-- **Aula 03 — Templates Jinja2 e Rotas:** `render_template`, variáveis `{{ }}`, `{% if %}`, `{% for %}` e `url_for`.
-- **Aula 04 — Formulários e HTTP:** métodos `GET` e `POST`, `request.form`, conversão de texto para número, validação no servidor.
+- **Tópico 01 — Introdução, Git e HTML5:** criar repositório no GitHub, clonar, `commit` e `push`, ambiente virtual (`venv`), `.gitignore`, estrutura básica de uma página HTML.
+- **Tópico 02 — Flask e Bootstrap:** primeira aplicação Flask, `requirements.txt`, Bootstrap 5 via CDN, pasta `static/`.
+- **Tópico 03 — Templates Jinja2 e Rotas:** `render_template`, variáveis `{{ }}`, `{% if %}`, `{% for %}` e `url_for`.
+- **Tópico 04 — Formulários e HTTP:** métodos `GET` e `POST`, `request.form`, conversão de texto para número, validação no servidor.
 
 ---
 
@@ -123,7 +123,7 @@ E estes valores **inválidos** devem produzir mensagens de erro, sem resultado e
 | 9 | Todos os campos vazios | os três erros aparecem juntos |
 
 !!! note "Como testar os inválidos"
-    Para enviar campos vazios ou fora do intervalo, remova os atributos `required`, `min` e `max` pelo DevTools (`F12`), como feito na Aula 04.
+    Para enviar campos vazios ou fora do intervalo, remova os atributos `required`, `min` e `max` pelo DevTools (`F12`), como feito no Tópico 04.
 
 ---
 

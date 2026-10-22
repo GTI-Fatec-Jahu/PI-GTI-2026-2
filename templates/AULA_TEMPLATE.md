@@ -1,8 +1,8 @@
 <!--
 GABARITO ESTRUTURAL DE AULA, vive fora de docs/, não é publicado no site.
-Use como referência de seções obrigatórias ao remodelar uma aula. A ordem importa:
+Use como referência de seções obrigatórias ao remodelar um tópico. A ordem importa:
 ela foi desenhada para intercalar teoria com prática de memorização em vez de
-empilhar tudo no fim. Nem toda aula terá conteúdo para todas as seções (ex.: aulas
+empilhar tudo no fim. Nem todo tópico terá conteúdo para todas as seções (ex.: tópicos
 que são só enunciado de trabalho, avaliação, ou evento institucional pulam mapa
 mental e flashcards), use bom senso e, na dúvida, pergunte ao professor em vez de
 forçar uma seção vazia.
@@ -15,12 +15,12 @@ Lembrete de verificação parcial (ver CLAUDE.md, "Exercícios de verificação 
 todo bloco de conteúdo numerado ("## N. [Bloco]") termina com um mini-desafio prático
 "### 🔎 Verifique seu Entendimento", temático em algo atual de 2026 (nunca biblioteca/
 cadastro de alunos genérico). O mini-desafio NUNCA traz a resposta junto — ele só
-aponta para o gabarito da aula, e o link para esse gabarito aparece uma única vez, na
+aponta para o gabarito do tópico, e o link para esse gabarito aparece uma única vez, na
 seção "📋 Gabarito dos Exercícios", a ÚLTIMA seção do arquivo.
 -->
 
 
-# Aula NN — [Título da Aula]
+# Tópico NN — [Título do Tópico]
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
@@ -28,16 +28,16 @@ seção "📋 Gabarito dos Exercícios", a ÚLTIMA seção do arquivo.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 - [objetivo 1, verbo de ação: criar/implementar/conectar/identificar/...]
 - [objetivo 2]
 - [objetivo 3]
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 Visão geral dos conceitos antes de entrar no detalhe, ajuda a criar a "moldura" onde o
 conteúdo que vem a seguir vai se encaixando.
@@ -56,7 +56,7 @@ conteúdo que vem a seguir vai se encaixando.
 
 ```mermaid
 flowchart LR
-    ROOT(("Tema Central<br/>da Aula"))
+    ROOT(("Tema Central<br/>do Tópico"))
 
     ROOT --> T1
     subgraph T1["🅰️ Conceito A"]
@@ -74,8 +74,8 @@ flowchart LR
     ROOT --> T3["🆎 Conceito C"]
 ```
 
-Para aulas centradas em rotas, requisição e resposta, um bom padrão de nós é
-`Cliente → Rota → View/Lógica → Template/Resposta`. Para aulas de banco de dados, um
+Para tópicos centrados em rotas, requisição e resposta, um bom padrão de nós é
+`Cliente → Rota → View/Lógica → Template/Resposta`. Para tópicos de banco de dados, um
 `erDiagram` complementar (separado do mapa mental) ajuda a mostrar tabelas e chaves
 estrangeiras.
 
@@ -93,7 +93,7 @@ diagramas Mermaid (`flowchart`, `erDiagram`) onde ajudar a visualizar.]
 
 [Contextualize em 1-2 frases com um tema atual de 2026 (IA generativa, mobilidade
 urbana, sustentabilidade/clima, ou cultura pop/economia criativa — varie o tema entre
-os blocos da mesma aula). Depois peça uma tarefa curta e aplicada: adaptar/estender o
+os blocos do mesmo tópico). Depois peça uma tarefa curta e aplicada: adaptar/estender o
 que acabou de ser mostrado neste bloco para o cenário novo — mesmo em blocos
 conceituais (sem código), a tarefa deve pedir para o aluno aplicar o conceito a um
 cenário concreto, não só repetir a definição.]
@@ -101,7 +101,7 @@ cenário concreto, não só repetir a definição.]
 **Desafio:** [enunciado objetivo da tarefa].
 
 > 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito
-> desta aula (link na última seção da página).
+> deste tópico (link na última seção da página).
 
 ## 2. [Segundo bloco de conteúdo]
 
@@ -114,14 +114,14 @@ cenário concreto, não só repetir a definição.]
 **Desafio:** [...]
 
 > 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito
-> desta aula (link na última seção da página).
+> deste tópico (link na última seção da página).
 
 ---
 
 ## 🃏 Flashcards de Revisão
 
 Bloco colapsado por padrão, o aluno tenta responder mentalmente antes de clicar para
-revelar. Usar 3 a 6 flashcards por aula, cobrindo os conceitos mais prováveis de cair
+revelar. Usar 3 a 6 flashcards por tópico, cobrindo os conceitos mais prováveis de cair
 em prova ou de serem esquecidos primeiro.
 
 ??? question "Pergunta objetiva sobre o Conceito A?"
@@ -130,14 +130,14 @@ em prova ou de serem esquecidos primeiro.
 ??? question "Pergunta objetiva sobre o Conceito B?"
     Resposta direta e curta.
 
-??? question "Pegadinha comum ou erro típico sobre o tema desta aula?"
+??? question "Pegadinha comum ou erro típico sobre o tema deste tópico?"
     Explicação de por que é um erro e qual o raciocínio correto.
 
 ---
 
 ## ✅ Quiz de Fixação
 
-3 a 5 perguntas cobrindo os pontos que mais importam da aula. Pelo menos uma pergunta
+3 a 5 perguntas cobrindo os pontos que mais importam do tópico. Pelo menos uma pergunta
 de múltipla resposta (checkbox) para variar o formato.
 
 <quiz>
@@ -154,32 +154,32 @@ de múltipla resposta (checkbox) para variar o formato.
 
 ## 📝 Resumo
 
-[3 a 5 frases amarrando os conceitos principais da aula, o que o aluno deve levar
+[3 a 5 frases amarrando os conceitos principais do tópico, o que o aluno deve levar
 consigo, não uma repetição do conteúdo.]
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: [Nome temático do selo, ver lista no CLAUDE.md]"
-    Você completou a Aula NN. [Uma frase curta conectando esta aula à próxima,
+    Você completou o Tópico NN. [Uma frase curta conectando este tópico ao próximo,
     reforço de progresso, não apenas decoração.]
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Aula NN-1 — Título anterior](Aula_NN-1_Titulo.md) · ➡️ [Aula NN+1 — Título seguinte](Aula_NN+1_Titulo.md)
+⬅️ [Tópico NN-1 — Título anterior](Aula_NN-1_Titulo.md) · ➡️ [Tópico NN+1 — Título seguinte](Aula_NN+1_Titulo.md)
 
 ---
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm
 as soluções comentadas reunidas em um único arquivo, organizado por bloco de
 conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula NN](gabaritos/Aula_NN_gabarito.md)
+➡️ [Gabarito — Tópico NN](gabaritos/Aula_NN_gabarito.md)
 
 ---
 

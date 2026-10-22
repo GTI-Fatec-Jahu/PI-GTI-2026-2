@@ -4,7 +4,7 @@
 
 ![Fatec Jahu](https://img.shields.io/badge/Fatec-Jahu-blue?style=for-the-badge)
 ![Semestre](https://img.shields.io/badge/2º%20Semestre-2026-green?style=for-the-badge)
-![Carga Horária](https://img.shields.io/badge/Carga%20Horária-80%20aulas-orange?style=for-the-badge)
+![Carga Horária](https://img.shields.io/badge/Carga%20Horária-80%20horas--aula-orange?style=for-the-badge)
 
 ### 🌐 [Acesse o site da disciplina →](https://gti-fatec-jahu.github.io/PI-GTI-2026-2/)
 
@@ -12,14 +12,14 @@
 
 ---
 
-Este repositório é a **fonte** do material de aulas, atividades e avaliações da disciplina Programação para Internet (ILP951) — Fatec Jahu, curso de Tecnologia em Gestão da Tecnologia da Informação (GTI), 2º semestre de 2026.
+Este repositório é a **fonte** do material de tópicos, atividades e avaliações da disciplina Programação para Internet (ILP951) — Fatec Jahu, curso de Tecnologia em Gestão da Tecnologia da Informação (GTI), 2º semestre de 2026.
 
 > **Para estudar, use o [site publicado](https://gti-fatec-jahu.github.io/PI-GTI-2026-2/).**
 > Ele é gerado automaticamente a partir destes mesmos arquivos Markdown, com mapas mentais, flashcards e quizzes totalmente funcionais — recursos que o GitHub não renderiza ao abrir um `.md` isoladamente (é por isso que este README, por exemplo, não usa esses recursos: aqui só o que o próprio GitHub sabe renderizar).
 
 ## 🎮 Como este repositório é mantido
 
-As aulas são adicionadas **progressivamente**, uma por semana, em `docs/aulas/`. Ao longo do semestre, os alunos constroem um sistema web completo — do primeiro "Olá, mundo" em Flask até um CRUD relacional com login e relatórios gerenciais, apresentado em banca ao final do curso.
+Os tópicos são adicionados **progressivamente**, uma por semana, em `docs/aulas/`. Ao longo do semestre, os alunos constroem um sistema web completo — do primeiro "Olá, mundo" em Flask até um CRUD relacional com login e relatórios gerenciais, apresentado em banca ao final do curso.
 
 ## 🛠️ Rodando o site localmente
 

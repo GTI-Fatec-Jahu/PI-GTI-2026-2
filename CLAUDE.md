@@ -26,6 +26,27 @@ comportar ao lidar com o repositório, não substitui o julgamento dele.
   deploy, iniciado na Aula 17) e Avaliação P2, projeto final (Aula 18); Avaliação
   Substitutiva (Aula 19), que recupera a nota de P1 ou P2.
 
+## Terminologia nas interfaces dos alunos: "tópico", não "aula"
+
+A turma não acompanhou a programação semanal, então "aula" deixou de fazer sentido para
+quem lê o site. **Em tudo que o aluno vê** (site, `nav`, `index.md`, README, páginas de
+atividades, gabaritos, mensagens de commit de exemplo dentro do conteúdo) use **"tópico"**,
+no masculino ("este tópico", "o próximo tópico", "Tópico 07", "Conquista do Tópico").
+"Horas-aula" (carga horária) e "encontros" continuam valendo.
+
+- **Nomes de arquivo, pastas e imagens não mudam:** `docs/aulas/Aula_NN_*.md`,
+  `gabaritos/Aula_NN_gabarito.md`, `docs/imgs/Aula_NN_img_*.png`. O prefixo `Aula_` é só
+  identificador interno; a numeração do tópico acompanha o número do arquivo (Tópico 07 =
+  `Aula_07_*.md`).
+- Neste arquivo e nos prompts, "aula" segue como atalho para a unidade de conteúdo. A
+  regra vale para o **texto produzido** para o aluno, inclusive os templates em
+  `templates/`.
+- **Trabalhos, simulados e avaliações ficam só em `docs/atividades/`.** Eles não são
+  tópicos: não entram na Trilha do `index.md` nem no Sumário de tópicos (as antigas Aulas
+  6, 9, 10, 13, 18 e 19 do planejamento). Os números de tópico dessas lacunas simplesmente
+  não existem na interface, e os selos associados a elas (ver tabela de gamificação) não
+  são usados.
+
 ## Conteúdo herdado do 1º semestre
 
 A disciplina já tem um repositório do 1º semestre de 2026 com 15 aulas escritas em
