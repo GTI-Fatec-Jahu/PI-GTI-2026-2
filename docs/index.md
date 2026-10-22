@@ -3,13 +3,13 @@
 > **Fatec Jahu** · Tecnologia em Gestão da Tecnologia da Informação (GTI)
 > **Professor:** Ronan Adriel Zenatti
 > **Semestre:** 2º Semestre / 2026
-> **Carga Horária:** 80 aulas (20 encontros de 4 horas-aula)
+> **Carga Horária:** 80 horas-aula (20 encontros de 4 horas-aula cada)
 
 ---
 
 !!! success "📝 Atividades da disciplina"
-    Simulados e trabalhos práticos ficam reunidos em uma página própria, separada das aulas.
-    O **Simulado das Aulas 1 a 4** já está disponível.
+    Simulados e trabalhos práticos ficam reunidos em uma página própria, separada dos tópicos.
+    O **Simulado dos Tópicos 1 a 4** já está disponível.
 
     [📝 Ver lista de atividades](atividades/index.md){ .md-button .md-button--primary }
 
@@ -52,11 +52,11 @@ especificado.
 
 | Sigla | Nome | Tipo | Quando |
 |-------|------|------|--------|
-| **T1** | Estrutura de Rotas e Interface | Trabalho prático | Aula 9 (entrega) |
-| **P1** | Avaliação Teórica + apresentação do T1 | Prova escrita + apresentação | Aula 10 |
-| **T2** | Validação Final e Deploy | Trabalho prático | Aula 17 (início) |
-| **P2** | Projeto Final | Apresentação do sistema completo | Aula 18 |
-| **R** | Avaliação Substitutiva | Prova substitutiva (recupera P1 ou P2) | Aula 19 |
+| **T1** | Estrutura de Rotas e Interface | Trabalho prático | Encontro 9 (entrega) |
+| **P1** | Avaliação Teórica + apresentação do T1 | Prova escrita + apresentação | Encontro 10 |
+| **T2** | Validação Final e Deploy | Trabalho prático | Encontro 17 (início) |
+| **P2** | Projeto Final | Apresentação do sistema completo | Encontro 18 |
+| **R** | Avaliação Substitutiva | Prova substitutiva (recupera P1 ou P2) | Encontro 19 |
 
 **P1** avalia a capacidade de estruturação de projeto web e front-end, e os
 conhecimentos conceituais de HTTP, Web e Flask. **P2** avalia a competência técnica na
@@ -67,61 +67,56 @@ construção de soluções web completas (CRUD, login, relatórios).
 ## 🗺️ Trilha do(a) Desenvolvedor(a) Full-Stack
 
 A jornada do semestre é dividida em dois blocos, cada um com sua própria progressão de
-selos. A trilha completa dos selos aparece na "Conquista da Aula" de cada página, à
-medida que as aulas são publicadas.
+selos. Aqui aparecem só os tópicos de conteúdo; trabalhos, simulados e avaliações ficam
+reunidos na área de [Atividades](atividades/index.md). A trilha completa dos selos aparece na "Conquista do Tópico" de cada página, à
+medida que os tópicos são publicados.
 
 ```mermaid
-flowchart LR
-    subgraph B1["🟢 Bloco 1 — Arquiteto(a) de Aplicações Web (Aulas 1–10)"]
+flowchart TB
+    subgraph B1["🟢 Bloco 1"]
         direction LR
-        A1["🧭 1"] --> A2["🧱 2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A6["6"] --> A7["7"] --> A8["8"] --> A9["9"] --> A10["🎖️ 10 · P1"]
+        A1["🧭 1"] --> A2["🧱 2"] --> A3["🗺️ 3"] --> A4["4"] --> A5["5"] --> A7["📝 7"] --> A8["🔧 8"]
     end
-    subgraph B2["🔵 Bloco 2 — Engenheiro(a) Full-Stack (Aulas 11–20)"]
+    subgraph B2["🔵 Bloco 2"]
         direction LR
-        A11["11"] --> A12["12"] --> A13["13"] --> A14["14"] --> A15["15"] --> A16["16"] --> A17["17"] --> A18["🏆 18 · P2"] --> A19["19"] --> A20["🎓 20"]
+        A11["11"] --> A12["12"] --> A14["14"] --> A15["15"] --> A16["16"] --> A17["17"] --> A20["🎓 20"]
     end
     B1 --> B2
 ```
 
 ---
 
-## 🟢 Bloco 1 — Fundamentos e Primeiro Sistema (Aulas 1 a 10)
+## 🟢 Bloco 1 — Fundamentos e Primeiro Sistema
 
-Do zero absoluto até a apresentação do primeiro sistema completo: ambiente de
+Do zero absoluto até o primeiro sistema completo: ambiente de
 desenvolvimento, Git, Flask, Bootstrap, templates, formulários, conexão com MySQL e
 CRUD completo.
 
-| Aula | Data | Título | Status |
+| Tópico | Data | Título | Status |
 |------|------|--------|--------|
 | 1 | 06/08 | [Introdução, Git e HTML5](aulas/Aula_01_Introducao_Git_HTML5.md) | ✅ Disponível |
 | 2 | 13/08 | [Flask e Bootstrap](aulas/Aula_02_Flask_e_Bootstrap.md) | ✅ Disponível |
 | 3 | 20/08 | [Templates Jinja2 e rotas](aulas/Aula_03_Templates_Jinja2_e_Rotas.md) | ✅ Disponível |
 | 4 | 27/08 | [Formulários e HTTP](aulas/Aula_04_Formularios_e_HTTP.md) | ✅ Disponível |
 | 5 | 03/09 | [Conexão MySQL e Python](aulas/Aula_05_Conexao_MySQL_e_Python.md) | ✅ Disponível |
-| 6 | 05/09 | Calculadora de IMC em Flask (trabalho individual) | 🔒 Em breve |
-| 7 | 10/09 | CRUD: inserção e leitura | 🔒 Em breve |
-| 8 | 17/09 | CRUD: edição e exclusão | 🔒 Em breve |
-| 9 | 24/09 | Entrega do Trabalho 1 | 🔒 Em breve |
-| 10 | 01/10 | Avaliação P1 (Teórica) e apresentação do Trabalho 1 | 🔒 Em breve |
+| 7 | 10/09 | [CRUD: inserção e leitura](aulas/Aula_07_CRUD_Insercao_e_Leitura.md) | ✅ Disponível |
+| 8 | 17/09 | [CRUD: edição e exclusão](aulas/Aula_08_CRUD_Edicao_e_Exclusao.md) | ✅ Disponível |
 
 ---
 
-## 🔵 Bloco 2 — Sistema Relacional, Segurança e Entrega Final (Aulas 11 a 20)
+## 🔵 Bloco 2 — Sistema Relacional, Segurança e Entrega Final
 
 Evolução do sistema para múltiplas tabelas relacionadas, segurança de credenciais,
 login, relatórios gerenciais e entrega do projeto final.
 
-| Aula | Data | Título | Status |
+| Tópico | Data | Título | Status |
 |------|------|--------|--------|
 | 11 | 08/10 | Modelagem relacional 1:N | 🔒 Em breve |
 | 12 | 22/10 | CRUD relacional: implementação | 🔒 Em breve |
-| 13 | 24/10 | Evolução da Calculadora de IMC com histórico em banco de dados (trabalho individual) | 🔒 Em breve |
 | 14 | 29/10 | Visualização mestre-detalhe e segurança de registro | 🔒 Em breve |
 | 15 | 05/11 | Login e controle de sessão | 🔒 Em breve |
 | 16 | 12/11 | IV Congresso de Tecnologia da Fatec Jahu | 🔒 Em breve |
-| 17 | 19/11 | Relatórios gerenciais e Trabalho 2 | 🔒 Em breve |
-| 18 | 26/11 | Avaliação P2: Projeto Final | 🔒 Em breve |
-| 19 | 03/12 | Fechamento de notas: avaliação substitutiva | 🔒 Em breve |
+| 17 | 19/11 | Relatórios gerenciais | 🔒 Em breve |
 | 20 | 10/12 | Encerramento do semestre | 🔒 Em breve |
 
 ---
@@ -131,7 +126,7 @@ login, relatórios gerenciais e entrega do projeto final.
 **Python 3.x**, linguagem principal. **Flask**, microframework web usado no semestre
 inteiro. **Jinja2**, motor de templates do Flask. **Bootstrap 5**, framework CSS para
 interfaces responsivas. **MySQL**, banco de dados relacional usado para persistir os
-dados do sistema. **Git e GitHub**, versionamento de código desde a primeira aula.
+dados do sistema. **Git e GitHub**, versionamento de código desde o primeiro tópico.
 
 ## 📚 Bibliografia básica
 

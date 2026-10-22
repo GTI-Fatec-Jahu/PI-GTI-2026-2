@@ -1,16 +1,16 @@
-# Aula 05 — Conexão MySQL e Python
+# Tópico 05 — Conexão MySQL e Python
 
 **Disciplina:** Programação para Internet (ILP951)
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br
 **Fatec Jahu — 2º Semestre/2026**
 
-> **Pré-requisitos:** Aula 04 concluída — formulários GET/POST funcionando, padrão PRG aplicado.
+> **Pré-requisitos:** Tópico 04 concluído — formulários GET/POST funcionando, padrão PRG aplicado.
 
 ---
 
-## 🎯 Objetivos da Aula
+## 🎯 Objetivos do Tópico
 
-Ao final desta aula você deverá ser capaz de:
+Ao final deste tópico você deverá ser capaz de:
 
 - Explicar a diferença entre dado volátil e dado persistente, e por que um banco de dados relacional é a solução correta para sistemas web.
 - Escolher o tipo de coluna SQL adequado para cada tipo de dado (`VARCHAR`, `TEXT`, `INT`, `DECIMAL`, `TINYINT`, `TIMESTAMP`).
@@ -20,11 +20,11 @@ Ao final desta aula você deverá ser capaz de:
 - Centralizar o acesso ao banco em um módulo `db.py` reutilizável por toda a aplicação.
 - Executar os comandos SQL fundamentais (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) e identificar por que a concatenação de strings em SQL é perigosa.
 
-Até aqui, todos os dados do sistema existiam apenas enquanto a aplicação estava rodando — listas Python que desapareciam ao reiniciar o servidor. Hoje isso muda permanentemente. Você vai instalar e configurar o MySQL, entender como bancos de dados relacionais funcionam e por que são a escolha certa para sistemas web, conectar o Python ao banco usando a biblioteca `mysql-connector-python`, criar a primeira tabela via script Python, e executar os primeiros comandos SQL diretamente do código. Ao final desta aula, os dados cadastrados pelo seu sistema sobreviverão a qualquer reinicialização do servidor — pela primeira vez, sua aplicação terá memória permanente.
+Até aqui, todos os dados do sistema existiam apenas enquanto a aplicação estava rodando — listas Python que desapareciam ao reiniciar o servidor. Hoje isso muda permanentemente. Você vai instalar e configurar o MySQL, entender como bancos de dados relacionais funcionam e por que são a escolha certa para sistemas web, conectar o Python ao banco usando a biblioteca `mysql-connector-python`, criar a primeira tabela via script Python, e executar os primeiros comandos SQL diretamente do código. Ao final deste tópico, os dados cadastrados pelo seu sistema sobreviverão a qualquer reinicialização do servidor — pela primeira vez, sua aplicação terá memória permanente.
 
 ---
 
-## 🗺️ Mapa Mental da Aula
+## 🗺️ Mapa Mental do Tópico
 
 ```mermaid
 flowchart LR
@@ -111,7 +111,7 @@ Um app de mobilidade urbana registra cada corrida de bike-sharing (usuário, est
 
 **Desafio:** Explique, em termos de dado volátil versus persistente, o que acontece com o histórico de corridas se o servidor Flask reiniciar sem um banco de dados, e por que isso é inaceitável para um app desse tipo em produção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -144,7 +144,7 @@ Uma cooperativa quer uma tabela `ponto_coleta` para pontos de coleta seletiva: n
 
 **Desafio:** Para cada um desses cinco atributos, escolha o tipo SQL mais adequado entre `VARCHAR(n)`, `TEXT`, `INT`, `DECIMAL(p,d)`, `TINYINT(1)` e `TIMESTAMP`, justificando a escolha de `quilos coletados` especificamente (por que não `INT`?).
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -193,7 +193,7 @@ Uma organizadora de campeonatos de e-sports de 2026 precisa de um banco próprio
 
 **Desafio:** Escreva o comando `CREATE DATABASE` completo para esse cenário, incluindo `IF NOT EXISTS`, `CHARACTER SET` e `COLLATE`, seguindo exatamente o padrão desta seção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -339,7 +339,7 @@ Para desenvolvimento local, SSL é opcional (banco e aplicação estão na mesma
 
 ### Exemplo completo com todos os parâmetros — Azure Database for MySQL
 
-> **Este exemplo não é testável em aula** — depende de um recurso provisionado na nuvem Microsoft Azure. Serve como referência de como seria uma conexão de produção real com todos os parâmetros configurados corretamente, por isso ele é apresentado de uma vez, sem a divisão em incrementos que usamos nos exemplos que você de fato executa.
+> **Este exemplo não é testável em sala** — depende de um recurso provisionado na nuvem Microsoft Azure. Serve como referência de como seria uma conexão de produção real com todos os parâmetros configurados corretamente, por isso ele é apresentado de uma vez, sem a divisão em incrementos que usamos nos exemplos que você de fato executa.
 
 O Azure Database for MySQL é um serviço de banco de dados gerenciado. Ele exige SSL, usa credenciais no formato `usuario@servidor`, e tipicamente opera em UTC. Este é o exemplo de uma configuração completa para esse ambiente:
 
@@ -622,7 +622,7 @@ Um painel de créditos de uso de IA generativa, hospedado na nuvem, precisa de u
 
 **Desafio:** Escreva o dicionário de parâmetros com `time_zone`, `pool_name` e `pool_size` corretos para esse cenário, seguindo o padrão das seções "time_zone" e "Pool de Conexões" desta parte.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -765,7 +765,7 @@ Um app de mobilidade urbana precisa de uma rota `/estacoes` que mostre só as es
 
 **Desafio:** Escreva a chamada a `execute_query` (com `fetch=True`) que busca essas estações na tabela `estacao`, assumindo que ela tem uma coluna `bicicletas_livres`, seguindo exatamente o padrão usado na rota `/produtos` desta seção.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -829,7 +829,7 @@ A tabela `ponto_coleta` da Parte 2 (nome, endereço, quilos coletados, ativo, ca
 
 **Desafio:** Escreva o `SELECT` que lista os pontos com mais de 100 quilos coletados, ordenados do maior para o menor volume, e o `UPDATE` que desativa (`ativo = 0`) um ponto específico pelo `id`, seguindo o padrão desta seção (incluindo o comentário de atenção sobre o `WHERE`).
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -860,7 +860,7 @@ cursor.execute(sql, (usuario, senha))
 # Mesmo que usuario contenha ' OR '1'='1', ele será tratado como texto literal
 ```
 
-Esta é a regra mais importante desta aula: **jamais concatene dados do usuário em strings SQL**. Repare que a função `execute_query` do `db.py`, construída na Parte 5, já força esse hábito: o parâmetro `params` é sempre passado separado do `sql`, nunca colado dentro da string.
+Esta é a regra mais importante deste tópico: **jamais concatene dados do usuário em strings SQL**. Repare que a função `execute_query` do `db.py`, construída na Parte 5, já força esse hábito: o parâmetro `params` é sempre passado separado do `sql`, nunca colado dentro da string.
 
 ### 🔎 Verifique seu Entendimento
 
@@ -868,7 +868,7 @@ Um sistema de venda de ingressos para shows de 2026 tem uma busca de eventos por
 
 **Desafio:** Explique qual valor um atacante poderia digitar no campo de busca para que a query retorne todos os eventos independentemente do termo, e reescreva o trecho de código usando placeholder `%s` para eliminar a vulnerabilidade.
 
-> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito desta aula (link na última seção da página).
+> 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
 ---
 
@@ -970,34 +970,34 @@ Configurou um **pool de conexões** no `db.py` com `MySQLConnectionPool` — fun
 
 Criou o módulo `db.py` que centraliza tudo e expõe `execute_query` e `execute_one`, substituindo os dados estáticos por dados reais do banco. Aprendeu o que é SQL Injection, como funciona e por que placeholders `%s` eliminam completamente o risco.
 
-![Mapa mental da Aula 05: MySQL, SQL básico, conexão Python e segurança contra SQL Injection](../imgs/Aula_05_img_06.png)
+![Mapa mental do Tópico 05: MySQL, SQL básico, conexão Python e segurança contra SQL Injection](../imgs/Aula_05_img_06.png)
 
-Na próxima aula, o CRUD começa de verdade: você vai construir o **Create** conectando o formulário da Aula 04 diretamente ao `INSERT INTO`, e o **Read** completo com filtros dinâmicos usando `WHERE 1=1` e `LIKE`. Metade do sistema ficará funcional de ponta a ponta.
+No próximo tópico, o CRUD começa de verdade: você vai construir o **Create** conectando o formulário do Tópico 04 diretamente ao `INSERT INTO`, e o **Read** completo com filtros dinâmicos usando `WHERE 1=1` e `LIKE`. Metade do sistema ficará funcional de ponta a ponta.
 
 ---
 
-## Parte 8 — Atividade da Aula
+## Parte 8 — Atividade do Tópico
 
 Crie o `db_setup.py` adaptado para o domínio do seu sistema (produtos, livros, clientes, consultas, filmes — o que você escolheu). Defina a tabela principal com pelo menos seis colunas de tipos variados: `INT AUTO_INCREMENT PRIMARY KEY`, `VARCHAR(n)`, `TEXT`, `DECIMAL(10,2)`, `TINYINT(1)` e `TIMESTAMP DEFAULT CURRENT_TIMESTAMP`. Insira pelo menos cinco registros de exemplo representativos. Execute o script e confirme no Workbench. Crie o `db.py` com `execute_query` e `execute_one`. Atualize a rota de listagem no `app.py` para buscar dados do MySQL em vez da lista estática.
 
 ```
 git add .
-git commit -m "Aula 05: MySQL conectado, tabela criada, listagem via banco real"
+git commit -m "Tópico 05: MySQL conectado, tabela criada, listagem via banco real"
 git push
 ```
 
 ---
 
-## 🏆 Conquista da Aula
+## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: 🔌 Integrador(a) de Dados"
-    Você completou a Aula 05. Sua aplicação agora tem memória permanente: os dados sobrevivem a qualquer reinicialização do servidor, e o acesso ao banco está centralizado em um módulo seguro contra SQL Injection. Na próxima aula, você une tudo: formulários da Aula 04 gravando direto no banco, e o Read completo do CRUD.
+    Você completou o Tópico 05. Sua aplicação agora tem memória permanente: os dados sobrevivem a qualquer reinicialização do servidor, e o acesso ao banco está centralizado em um módulo seguro contra SQL Injection. No próximo tópico, você une tudo: formulários do Tópico 04 gravando direto no banco, e o Read completo do CRUD.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Aula 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md) · 🔒 Aula 06 — em breve.
+⬅️ [Tópico 04 — Formulários e HTTP](Aula_04_Formularios_e_HTTP.md) · ➡️ [Tópico 07 — CRUD: Inserção e Leitura](Aula_07_CRUD_Insercao_e_Leitura.md)
 
 ---
 
@@ -1009,9 +1009,9 @@ A documentação oficial do `mysql-connector-python` está em `dev.mysql.com/doc
 
 ## 📋 Gabarito dos Exercícios
 
-Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo desta aula têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
+Os mini-desafios de "🔎 Verifique seu Entendimento" espalhados ao longo deste tópico têm as soluções comentadas reunidas em um único arquivo, organizado por bloco de conteúdo. Tente resolver cada desafio por conta própria antes de conferir.
 
-➡️ [Gabarito — Aula 05](gabaritos/Aula_05_gabarito.md)
+➡️ [Gabarito — Tópico 05](gabaritos/Aula_05_gabarito.md)
 
 ---
 

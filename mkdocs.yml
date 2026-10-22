@@ -47,20 +47,22 @@ plugins:
   - search
   - mkdocs_quiz
 
-# O nav é EXPLÍCITO (ver CLAUDE.md). Cada aula remodelada precisa ser adicionada aqui
+# O nav é EXPLÍCITO (ver CLAUDE.md). Cada tópico remodelado precisa ser adicionado aqui
 # manualmente na Fase 2 do pipeline, um arquivo novo em docs/aulas/ não aparece
-# sozinho no site.
+# sozinho no site. Na interface o termo é "Tópico"; os arquivos mantêm o prefixo Aula_.
 nav:
   - Início: index.md
-  - Aulas:
+  - Tópicos:
       - Bloco 1:
-          - Aula 01 — Introdução, Git e HTML5: aulas/Aula_01_Introducao_Git_HTML5.md
-          - Aula 02 — Flask e Bootstrap: aulas/Aula_02_Flask_e_Bootstrap.md
-          - Aula 03 — Templates Jinja2 e Rotas: aulas/Aula_03_Templates_Jinja2_e_Rotas.md
-          - Aula 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
-          - Aula 05 — Conexão MySQL e Python: aulas/Aula_05_Conexao_MySQL_e_Python.md
+          - Tópico 01 — Introdução, Git e HTML5: aulas/Aula_01_Introducao_Git_HTML5.md
+          - Tópico 02 — Flask e Bootstrap: aulas/Aula_02_Flask_e_Bootstrap.md
+          - Tópico 03 — Templates Jinja2 e Rotas: aulas/Aula_03_Templates_Jinja2_e_Rotas.md
+          - Tópico 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
+          - Tópico 05 — Conexão MySQL e Python: aulas/Aula_05_Conexao_MySQL_e_Python.md
+          - "Tópico 07 — CRUD: Inserção e Leitura": aulas/Aula_07_CRUD_Insercao_e_Leitura.md
+          - "Tópico 08 — CRUD: Edição e Exclusão": aulas/Aula_08_CRUD_Edicao_e_Exclusao.md
       - Bloco 2 (em construção): index.md
   - Atividades:
       - Lista de atividades: atividades/index.md
-      - Simulado — Aulas 1 a 4 (não vale nota): atividades/Simulado_Aulas_01_a_04.md
-      - Avaliação — Aulas 1 a 4 (4 pontos): atividades/Avaliacao_Aulas_01_a_04.md
+      - Simulado — Tópicos 1 a 4 (não vale nota): atividades/Simulado_Aulas_01_a_04.md
+      - Avaliação — Tópicos 1 a 4 (4 pontos): atividades/Avaliacao_Aulas_01_a_04.md
