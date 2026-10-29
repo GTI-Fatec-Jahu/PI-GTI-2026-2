@@ -119,7 +119,7 @@ def estacoes():
     return render_template('estacoes.html', estacoes=estacoes, total=len(estacoes))
 ```
 
-Segue exatamente o padrão da rota `/produtos` da Parte 5: `execute_query` com
+Segue exatamente o padrão da rota `/usuarios` da Parte 5: `execute_query` com
 `fetch=True` para um `SELECT`, dentro de um `try/except` que trata falhas de conexão
 sem derrubar a página, e o resultado passado ao template junto com a contagem total.
 

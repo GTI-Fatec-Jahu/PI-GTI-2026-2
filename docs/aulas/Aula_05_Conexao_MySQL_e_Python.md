@@ -13,7 +13,8 @@
 Ao final deste tópico você deverá ser capaz de:
 
 - Explicar a diferença entre dado volátil e dado persistente, e por que um banco de dados relacional é a solução correta para sistemas web.
-- Escolher o tipo de coluna SQL adequado para cada tipo de dado (`VARCHAR`, `TEXT`, `INT`, `DECIMAL`, `TINYINT`, `TIMESTAMP`).
+- Escolher o tipo de coluna SQL adequado para cada tipo de dado (`VARCHAR`, `TEXT`, `INT`, `BIGINT`, `DECIMAL`, `TINYINT`, `DATE`, `TIMESTAMP`).
+- Criar duas tabelas relacionadas (`perfis` e `usuarios`) com chave primária, `UNIQUE` e chave estrangeira (`FOREIGN KEY`), e juntá-las com um `JOIN` simples.
 - Instalar e configurar o MySQL Community Server e criar um banco de dados pelo MySQL Workbench.
 - Conectar uma aplicação Python ao MySQL com `mysql-connector-python`, seguindo o ciclo conectar → cursor → executar → confirmar/ler → fechar.
 - Configurar parâmetros de conexão robustos (`sql_mode`, `time_zone`, `use_pure`, timeout, pool de conexões).
@@ -41,7 +42,8 @@ flowchart LR
     subgraph T2["🔤 Tipos SQL"]
         direction TB
         T2A["VARCHAR, TEXT, INT"]
-        T2B["DECIMAL, TINYINT, TIMESTAMP"]
+        T2B["DECIMAL, TINYINT, DATE, TIMESTAMP"]
+        T2C["UNIQUE e FOREIGN KEY"]
     end
 
     ROOT --> T3
@@ -119,24 +121,41 @@ Um app de mobilidade urbana registra cada corrida de bike-sharing (usuário, est
 
 Antes de criar a primeira tabela, é fundamental entender os tipos de dados disponíveis no MySQL, pois cada coluna deve ter um tipo declarado. Isso garante integridade e permite ao banco otimizar armazenamento e consultas.
 
-Para texto curto (nomes, e-mails, títulos) usa-se `VARCHAR(n)`, onde `n` é o tamanho máximo em caracteres — por exemplo, `VARCHAR(200)` para um nome de produto. Para textos longos sem limite fixo (descrições, conteúdo de artigos) usa-se `TEXT`. Para números inteiros (quantidades, IDs, idades) usa-se `INT`. Para valores decimais com precisão controlada (preços, medidas) usa-se `DECIMAL(p, d)`, onde `p` é o total de dígitos e `d` quantos ficam após a vírgula — `DECIMAL(10, 2)` suporta valores como `99999999.99`. Para valores verdadeiro/falso usa-se `TINYINT(1)`, onde `1` significa verdadeiro e `0` significa falso. Para datas e horas usa-se `DATE`, `DATETIME` ou `TIMESTAMP` — este último pode ser preenchido automaticamente com a data e hora atuais.
+Para texto curto (nomes, e-mails, títulos) usa-se `VARCHAR(n)`, onde `n` é o tamanho máximo em caracteres — por exemplo, `VARCHAR(255)` para um e-mail. Para textos de tamanho sempre igual, como a sigla do estado (`SP`), usa-se `CHAR(n)`. Para textos longos sem limite fixo (descrições, conteúdo de artigos) usa-se `TEXT`. Para números inteiros (quantidades, IDs, idades) usa-se `INT`, ou `BIGINT` quando o intervalo precisa ser maior (é o tipo dos nossos IDs); `UNSIGNED` indica que só há valores positivos. Para valores decimais com precisão controlada (preços, medidas) usa-se `DECIMAL(p, d)`, onde `p` é o total de dígitos e `d` quantos ficam após a vírgula — `DECIMAL(10, 2)` suporta valores como `99999999.99`. Para valores verdadeiro/falso usa-se `TINYINT(1)`, onde `1` significa verdadeiro e `0` significa falso. Para datas e horas usa-se `DATE` (só a data, como um aniversário), `DATETIME` ou `TIMESTAMP` — este último pode ser preenchido automaticamente com a data e hora atuais. Além do tipo, cada coluna pode ganhar **restrições**: `NOT NULL` (obrigatória), `UNIQUE` (sem valores repetidos, como o e-mail) e `DEFAULT` (valor padrão).
 
-O diagrama de entidade abaixo mostra a estrutura que vamos criar:
+O diagrama de entidade abaixo mostra as duas tabelas que vamos criar e como elas se ligam. `PERFIS` é a tabela **auxiliar**: cada linha é um papel (Administrador, Gerente, Usuário). `USUARIOS` é a principal, e cada usuário aponta para **um** perfil pela coluna `perfil_id`. Um mesmo perfil pode ser dado a **muitos** usuários (uma relação "um para muitos", ou 1:N):
 
 ```mermaid
 erDiagram
-    PRODUTO {
-        int id PK "AUTO_INCREMENT"
-        varchar_200 nome "NOT NULL"
-        text descricao "nullable"
-        decimal_10_2 preco "NOT NULL"
-        int estoque "DEFAULT 0"
-        tinyint_1 ativo "DEFAULT 1"
+    PERFIS ||--o{ USUARIOS : "tem"
+    PERFIS {
+        bigint_unsigned id_perfil PK "AUTO_INCREMENT"
+        varchar_100 nome "NOT NULL, UNIQUE"
+        varchar_255 descricao "nullable"
         timestamp criado_em "DEFAULT CURRENT_TIMESTAMP"
+        timestamp atualizado_em "ON UPDATE CURRENT_TIMESTAMP"
+    }
+    USUARIOS {
+        bigint id_usuario PK "AUTO_INCREMENT"
+        varchar_255 nome "NOT NULL"
+        varchar_255 email "NOT NULL, UNIQUE"
+        varchar_255 senha "NOT NULL (hash)"
+        varchar_20 celular "nullable"
+        date data_nascimento "nullable"
+        varchar_14 cpf "UNIQUE"
+        bigint_unsigned perfil_id FK "NOT NULL"
+        varchar_9 cep "nullable"
+        varchar_255 endereco "nullable"
+        varchar_20 numero "nullable"
+        varchar_100 complemento "nullable"
+        varchar_100 cidade "nullable"
+        char_2 estado "nullable"
+        timestamp criado_em "DEFAULT CURRENT_TIMESTAMP"
+        timestamp atualizado_em "ON UPDATE CURRENT_TIMESTAMP"
     }
 ```
 
-O campo `id` com `AUTO_INCREMENT` e `PRIMARY KEY` é especial: o banco gera automaticamente um número único para cada novo registro, garantindo que nenhum produto tenha o mesmo ID jamais.
+Os campos `id_perfil` e `id_usuario`, com `AUTO_INCREMENT` e `PRIMARY KEY`, são especiais: o banco gera automaticamente um número único para cada novo registro, garantindo que nenhum usuário tenha o mesmo ID jamais. Já `perfil_id` é uma **chave estrangeira** (`FK`): ela só aceita números que existam em `perfis.id_perfil`, e é assim que o banco impede um usuário de apontar para um perfil inexistente. Para a mesma ideia de tipos com valores monetários (`DECIMAL`) e texto longo (`TEXT`), veja o [material de apoio com a tabela `produto`](apoio/Aula_05_apoio_produto.md).
 
 ### 🔎 Verifique seu Entendimento
 
@@ -454,81 +473,160 @@ finally:
 
 Rode `python db_setup.py` no terminal. Se aparecer `✅ Conectado ao MySQL com sucesso!` seguido de `🔌 Conexão encerrada.`, as credenciais estão corretas e podemos seguir. Se aparecer um erro, ajuste a senha em `CONFIGURACAO` antes de continuar.
 
-**Passo 2 — criar a tabela.** Adicione o `CREATE TABLE` logo após a mensagem de conexão bem-sucedida, ainda dentro do `try`:
+**Passo 2 — criar a tabela `perfis`.** Adicione o `CREATE TABLE` logo após a mensagem de conexão bem-sucedida, ainda dentro do `try`. Começamos por `perfis` porque ela é a tabela **auxiliar**: guarda os papéis que um usuário pode ter (Administrador, Gerente...), e a tabela `usuarios` vai apontar para ela. Quem é apontado precisa existir **antes** de quem aponta:
 
 ```python
-    # Cria a tabela de produtos
+    # Tabela auxiliar: os perfis (papéis) que um usuário pode assumir
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS produto (
-            id         INT            AUTO_INCREMENT PRIMARY KEY,
-            nome       VARCHAR(200)   NOT NULL,
-            descricao  TEXT,
-            preco      DECIMAL(10, 2) NOT NULL,
-            estoque    INT            NOT NULL DEFAULT 0,
-            ativo      TINYINT(1)     NOT NULL DEFAULT 1,
-            criado_em  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS perfis (
+            id_perfil     BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            nome          VARCHAR(100) NOT NULL UNIQUE,
+            descricao     VARCHAR(255),
+            criado_em     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     ''')
-    # AUTO_INCREMENT: MySQL gera o id automaticamente (1, 2, 3, ...)
-    # NOT NULL: campo obrigatório — INSERT sem esse campo gera erro
-    # DEFAULT 0: valor padrão quando o campo não é informado no INSERT
-    # DECIMAL(10,2): até 10 dígitos no total, 2 após a vírgula (ideal para preço)
-    # TIMESTAMP DEFAULT CURRENT_TIMESTAMP: preenchido automaticamente
+    # BIGINT UNSIGNED: inteiro grande, só positivos (um id nunca é negativo)
+    # AUTO_INCREMENT + PRIMARY KEY: o MySQL gera o id (1, 2, 3, ...) e garante que ele é único
+    # UNIQUE: não pode haver dois perfis com o mesmo nome — o banco recusa a duplicata
+    # descricao não tem NOT NULL: é opcional (aceita NULL)
+    # ON UPDATE CURRENT_TIMESTAMP: o MySQL atualiza esta coluna sozinho a cada alteração da linha
 
     conn.commit()
-    print('✅ Tabela "produto" criada (ou já existia).')
+    print('✅ Tabela "perfis" criada (ou já existia).')
 ```
 
-Rode `python db_setup.py` de novo. No Workbench, atualize o painel Navigator (botão direito → Refresh All) e confirme que a tabela `produto` aparece dentro de `projeto_web`, mesmo sem nenhuma linha ainda.
+Rode `python db_setup.py`. No Workbench, atualize o painel Navigator (botão direito → Refresh All), confirme que `perfis` aparece dentro de `projeto_web` e rode `DESCRIBE perfis;` para ver as colunas, os tipos e a chave primária.
 
-**Passo 3 — verificar se já existem dados.** Antes de inserir exemplos, precisamos saber se a tabela já está populada (para não duplicar a cada execução do script). Adicione:
+**Passo 3 — criar a tabela `usuarios`.** Adicione logo depois do `commit` anterior:
 
 ```python
-    # Insere dados de exemplo apenas se a tabela estiver vazia
-    cursor.execute('SELECT COUNT(*) FROM produto')
-    total_existente = cursor.fetchone()[0]
+    # Tabela principal: os usuários do sistema, cada um com um perfil
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id_usuario      BIGINT AUTO_INCREMENT PRIMARY KEY,
+            nome            VARCHAR(255) NOT NULL,
+            email           VARCHAR(255) NOT NULL UNIQUE,
+            senha           VARCHAR(255) NOT NULL,
+            celular         VARCHAR(20),
+            data_nascimento DATE,
+            cpf             VARCHAR(14) UNIQUE,
+            perfil_id       BIGINT UNSIGNED NOT NULL,
+            cep             VARCHAR(9),
+            endereco        VARCHAR(255),
+            numero          VARCHAR(20),
+            complemento     VARCHAR(100),
+            cidade          VARCHAR(100),
+            estado          CHAR(2),
+            criado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_usuarios_perfil
+                FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)
+                ON DELETE RESTRICT
+        ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    ''')
+    # email e cpf UNIQUE: dois usuários não podem ter o mesmo e-mail ou o mesmo CPF
+    # senha VARCHAR(255): guarda o HASH da senha (veja o quadro abaixo), nunca a senha digitada
+    # cpf VARCHAR(14) e cep VARCHAR(9): cabem com a pontuação ('000.000.000-00' e '00000-000')
+    # DATE: só a data, sem hora (ideal para data de nascimento)
+    # CHAR(2): tamanho fixo, a sigla do estado ('SP')
+    # perfil_id é do mesmo tipo de perfis.id_perfil (BIGINT UNSIGNED): a FOREIGN KEY exige isso
+    # ON DELETE RESTRICT: o banco NÃO deixa apagar um perfil que ainda tem usuários
+
+    conn.commit()
+    print('✅ Tabela "usuarios" criada (ou já existia).')
+```
+
+Rode de novo e atualize o Navigator: agora existem duas tabelas. A linha `FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)` é a **chave estrangeira**: ela amarra cada usuário a um perfil que **existe**. Você pode conferir o que o MySQL guardou com `SHOW CREATE TABLE usuarios;` no Workbench.
+
+> 🔐 **Por que a coluna `senha` é `VARCHAR(255)`, se uma senha tem poucos caracteres?** Porque o banco nunca guarda a senha em si: guarda o **hash** dela, uma sequência longa e embaralhada calculada por uma função sem volta (você vai gerar um no Passo 5). Se alguém copiar o banco, não encontra as senhas, só os hashes. Quem confere a senha no login compara o hash do que foi digitado com o hash guardado. O Tópico 06 aprofunda isso.
+
+**Passo 4 — popular a tabela `perfis`.** Antes de inserir usuários, precisamos dos perfis que eles vão receber. Verifique se a tabela já tem dados (para não duplicar a cada execução do script) e insira os três perfis iniciais:
+
+```python
+    # Insere os perfis iniciais apenas se a tabela estiver vazia
+    cursor.execute('SELECT COUNT(*) FROM perfis')
+    total_perfis = cursor.fetchone()[0]
     # fetchone() retorna a próxima linha do resultado como tupla; [0] pega o valor
 
-    print(f'ℹ️  A tabela já contém {total_existente} registro(s).')
-```
-
-Rode novamente: como a tabela está vazia, a mensagem mostra `0 registro(s)`.
-
-**Passo 4 — inserir os dados de exemplo.** Substitua a linha de `print` do Passo 3 pela lógica condicional que insere cinco produtos apenas na primeira execução:
-
-```python
-    if total_existente == 0:
-        produtos_exemplo = [
-            ('Notebook Dell Inspiron',    'i5, 8GB RAM, 256GB SSD',         3499.90, 15),
-            ('Mouse Logitech MX Master',  'Sem fio ergonômico, 7 botões',    299.90, 42),
-            ('Teclado Mecânico Redragon', 'Switches Red, retroiluminado',    189.90,  3),
-            ('Monitor LG 24"',            'Full HD, 75Hz, painel IPS',      1199.90,  0),
-            ('Headset HyperX Cloud',      'Som surround 7.1, microfone',     349.90, 27),
+    if total_perfis == 0:
+        perfis_exemplo = [
+            ('Administrador', 'Acesso total ao sistema, inclusive à gestão de usuários e perfis'),
+            ('Gerente',       'Gerencia cadastros e consulta relatórios, sem administrar perfis'),
+            ('Usuário',       'Acesso básico: consulta e atualiza os próprios dados'),
         ]
         cursor.executemany(
-            'INSERT INTO produto (nome, descricao, preco, estoque) VALUES (%s, %s, %s, %s)',
-            produtos_exemplo
+            'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
+            perfis_exemplo
         )
         # executemany: insere múltiplos registros com eficiência
         # %s são placeholders — NUNCA use f-strings ou concatenação em SQL
         # O conector trata cada %s como dado puro, nunca como código SQL
         conn.commit()
-        print(f'✅ {len(produtos_exemplo)} produtos inseridos.')
+        print(f'✅ {len(perfis_exemplo)} perfis inseridos.')
     else:
-        print(f'ℹ️  Tabela já contém {total_existente} registro(s).')
+        print(f'ℹ️  Tabela perfis já contém {total_perfis} registro(s).')
 ```
 
-Rode `python db_setup.py` uma última vez: agora aparece `✅ 5 produtos inseridos.`. Rode de novo (uma segunda vez): a mensagem muda para `ℹ️ Tabela já contém 5 registro(s).` — a checagem do Passo 3 evita duplicar os dados.
+Rode `python db_setup.py`: aparece `✅ 3 perfis inseridos.`. Rode de novo: a mensagem muda para `ℹ️ Tabela perfis já contém 3 registro(s).`, porque a verificação evita duplicar os dados. No Workbench, `SELECT * FROM perfis;` mostra os três perfis, com `id_perfil` 1, 2 e 3 (nesta ordem, gerados pelo `AUTO_INCREMENT`).
+
+**Passo 5 — inserir os usuários de exemplo.** O mesmo padrão (verificar, depois inserir), agora com a senha transformada em hash. O Flask já instalou o Werkzeug, que traz a função pronta. Acrescente o `import` no topo do arquivo:
+
+```python
+from werkzeug.security import generate_password_hash
+```
+
+E, dentro do `try`, logo depois do bloco dos perfis:
+
+```python
+    # Insere usuários de exemplo apenas se a tabela estiver vazia
+    cursor.execute('SELECT COUNT(*) FROM usuarios')
+    total_usuarios = cursor.fetchone()[0]
+
+    if total_usuarios == 0:
+        # Todos os usuários de exemplo usam a senha "Senha@123"; no banco vai só o hash dela.
+        # (Num cadastro real, cada senha gera um hash próprio: aqui um só basta, são dados de teste.)
+        senha_hash = generate_password_hash('Senha@123')
+
+        usuarios_exemplo = [
+            # nome, email, senha, celular, data_nascimento, cpf, perfil_id, cep, endereco, numero, complemento, cidade, estado
+            ('Ana Beatriz Lima',     'ana.lima@exemplo.com.br',        senha_hash, '(14) 99811-2030', '1988-03-14',
+             '526.018.159-06', 1, '17201-000', 'Rua das Acácias',    '120',  'Sala 2',  'Jaú',   'SP'),
+            ('Carlos Eduardo Souza', 'carlos.souza@exemplo.com.br',    senha_hash, '(14) 99722-4050', '1991-07-22',
+             '083.016.613-05', 2, '17202-100', 'Avenida Brasil',     '455',  None,      'Jaú',   'SP'),
+            ('Mariana Oliveira',     'mariana.oliveira@exemplo.com.br', senha_hash, '(14) 99633-8870', '1999-11-05',
+             '186.091.390-34', 3, '17210-300', 'Rua XV de Novembro', '88',   'Apto 31', 'Jaú',   'SP'),
+            ('Rafael Santos',        'rafael.santos@exemplo.com.br',   senha_hash, '(14) 3622-1144',  '2002-01-30',
+             '996.030.824-30', 3, '17010-120', 'Rua Quinze de Agosto', '1500', None,    'Bauru', 'SP'),
+            ('Juliana Ferreira',     'juliana.ferreira@exemplo.com.br', senha_hash, None,              '1995-09-18',
+             '628.194.821-12', 3, None,        None,                 None,   None,      None,    None),
+        ]
+        cursor.executemany(
+            'INSERT INTO usuarios (nome, email, senha, celular, data_nascimento, cpf, perfil_id, '
+            'cep, endereco, numero, complemento, cidade, estado) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            usuarios_exemplo
+        )
+        # None vira NULL no banco: é como se representa "não informado" nas colunas opcionais
+        # perfil_id 1, 2 e 3 são os ids dos perfis inseridos no Passo 4
+        conn.commit()
+        print(f'✅ {len(usuarios_exemplo)} usuários inseridos.')
+    else:
+        print(f'ℹ️  Tabela usuarios já contém {total_usuarios} registro(s).')
+```
+
+Rode `python db_setup.py`: aparece `✅ 5 usuários inseridos.`. Rode uma segunda vez e a mensagem muda para `ℹ️ Tabela usuarios já contém 5 registro(s).`. Repare que a última usuária, Juliana, tem várias colunas `NULL`: o banco aceita porque essas colunas não foram declaradas `NOT NULL`.
 
 **Consolidação — `db_setup.py` completo:**
 
 ```python
 # db_setup.py — Script de configuração inicial do banco de dados
 # Execute com: python db_setup.py
-# Cria a tabela e insere dados de exemplo para testes.
+# Cria as tabelas perfis e usuarios e insere dados de exemplo para testes.
 
 import mysql.connector
 from mysql.connector import Error
+from werkzeug.security import generate_password_hash
 
 CONFIGURACAO = {
     'host':               'localhost',
@@ -551,51 +649,96 @@ try:
     cursor = conn.cursor()
     print('✅ Conectado ao MySQL com sucesso!')
 
-    # Passo 2: cria a tabela de produtos
+    # Passo 2: tabela auxiliar (precisa existir antes de quem aponta para ela)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS produto (
-            id         INT            AUTO_INCREMENT PRIMARY KEY,
-            nome       VARCHAR(200)   NOT NULL,
-            descricao  TEXT,
-            preco      DECIMAL(10, 2) NOT NULL,
-            estoque    INT            NOT NULL DEFAULT 0,
-            ativo      TINYINT(1)     NOT NULL DEFAULT 1,
-            criado_em  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS perfis (
+            id_perfil     BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            nome          VARCHAR(100) NOT NULL UNIQUE,
+            descricao     VARCHAR(255),
+            criado_em     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     ''')
-    # AUTO_INCREMENT: MySQL gera o id automaticamente (1, 2, 3, ...)
-    # NOT NULL: campo obrigatório — INSERT sem esse campo gera erro
-    # DEFAULT 0: valor padrão quando o campo não é informado no INSERT
-    # DECIMAL(10,2): até 10 dígitos no total, 2 após a vírgula (ideal para preço)
-    # TIMESTAMP DEFAULT CURRENT_TIMESTAMP: preenchido automaticamente
-
     conn.commit()
-    print('✅ Tabela "produto" criada (ou já existia).')
+    print('✅ Tabela "perfis" criada (ou já existia).')
 
-    # Passo 3: insere dados de exemplo apenas se a tabela estiver vazia
-    cursor.execute('SELECT COUNT(*) FROM produto')
-    total_existente = cursor.fetchone()[0]
-    # fetchone() retorna a próxima linha do resultado como tupla; [0] pega o valor
+    # Passo 3: tabela principal, com a chave estrangeira para perfis
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id_usuario      BIGINT AUTO_INCREMENT PRIMARY KEY,
+            nome            VARCHAR(255) NOT NULL,
+            email           VARCHAR(255) NOT NULL UNIQUE,
+            senha           VARCHAR(255) NOT NULL,
+            celular         VARCHAR(20),
+            data_nascimento DATE,
+            cpf             VARCHAR(14) UNIQUE,
+            perfil_id       BIGINT UNSIGNED NOT NULL,
+            cep             VARCHAR(9),
+            endereco        VARCHAR(255),
+            numero          VARCHAR(20),
+            complemento     VARCHAR(100),
+            cidade          VARCHAR(100),
+            estado          CHAR(2),
+            criado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_usuarios_perfil
+                FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)
+                ON DELETE RESTRICT
+        ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    ''')
+    conn.commit()
+    print('✅ Tabela "usuarios" criada (ou já existia).')
 
-    if total_existente == 0:
-        produtos_exemplo = [
-            ('Notebook Dell Inspiron',    'i5, 8GB RAM, 256GB SSD',         3499.90, 15),
-            ('Mouse Logitech MX Master',  'Sem fio ergonômico, 7 botões',    299.90, 42),
-            ('Teclado Mecânico Redragon', 'Switches Red, retroiluminado',    189.90,  3),
-            ('Monitor LG 24"',            'Full HD, 75Hz, painel IPS',      1199.90,  0),
-            ('Headset HyperX Cloud',      'Som surround 7.1, microfone',     349.90, 27),
+    # Passo 4: perfis iniciais, apenas se a tabela estiver vazia
+    cursor.execute('SELECT COUNT(*) FROM perfis')
+    total_perfis = cursor.fetchone()[0]
+
+    if total_perfis == 0:
+        perfis_exemplo = [
+            ('Administrador', 'Acesso total ao sistema, inclusive à gestão de usuários e perfis'),
+            ('Gerente',       'Gerencia cadastros e consulta relatórios, sem administrar perfis'),
+            ('Usuário',       'Acesso básico: consulta e atualiza os próprios dados'),
         ]
         cursor.executemany(
-            'INSERT INTO produto (nome, descricao, preco, estoque) VALUES (%s, %s, %s, %s)',
-            produtos_exemplo
+            'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
+            perfis_exemplo
         )
-        # executemany: insere múltiplos registros com eficiência
-        # %s são placeholders — NUNCA use f-strings ou concatenação em SQL
-        # O conector trata cada %s como dado puro, nunca como código SQL
         conn.commit()
-        print(f'✅ {len(produtos_exemplo)} produtos inseridos.')
+        print(f'✅ {len(perfis_exemplo)} perfis inseridos.')
     else:
-        print(f'ℹ️  Tabela já contém {total_existente} registro(s).')
+        print(f'ℹ️  Tabela perfis já contém {total_perfis} registro(s).')
+
+    # Passo 5: usuários de exemplo, apenas se a tabela estiver vazia
+    cursor.execute('SELECT COUNT(*) FROM usuarios')
+    total_usuarios = cursor.fetchone()[0]
+
+    if total_usuarios == 0:
+        # Senha de todos os usuários de exemplo: "Senha@123" (no banco vai só o hash)
+        senha_hash = generate_password_hash('Senha@123')
+
+        usuarios_exemplo = [
+            # nome, email, senha, celular, data_nascimento, cpf, perfil_id, cep, endereco, numero, complemento, cidade, estado
+            ('Ana Beatriz Lima',     'ana.lima@exemplo.com.br',        senha_hash, '(14) 99811-2030', '1988-03-14',
+             '526.018.159-06', 1, '17201-000', 'Rua das Acácias',    '120',  'Sala 2',  'Jaú',   'SP'),
+            ('Carlos Eduardo Souza', 'carlos.souza@exemplo.com.br',    senha_hash, '(14) 99722-4050', '1991-07-22',
+             '083.016.613-05', 2, '17202-100', 'Avenida Brasil',     '455',  None,      'Jaú',   'SP'),
+            ('Mariana Oliveira',     'mariana.oliveira@exemplo.com.br', senha_hash, '(14) 99633-8870', '1999-11-05',
+             '186.091.390-34', 3, '17210-300', 'Rua XV de Novembro', '88',   'Apto 31', 'Jaú',   'SP'),
+            ('Rafael Santos',        'rafael.santos@exemplo.com.br',   senha_hash, '(14) 3622-1144',  '2002-01-30',
+             '996.030.824-30', 3, '17010-120', 'Rua Quinze de Agosto', '1500', None,    'Bauru', 'SP'),
+            ('Juliana Ferreira',     'juliana.ferreira@exemplo.com.br', senha_hash, None,              '1995-09-18',
+             '628.194.821-12', 3, None,        None,                 None,   None,      None,    None),
+        ]
+        cursor.executemany(
+            'INSERT INTO usuarios (nome, email, senha, celular, data_nascimento, cpf, perfil_id, '
+            'cep, endereco, numero, complemento, cidade, estado) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            usuarios_exemplo
+        )
+        conn.commit()
+        print(f'✅ {len(usuarios_exemplo)} usuários inseridos.')
+    else:
+        print(f'ℹ️  Tabela usuarios já contém {total_usuarios} registro(s).')
 
 except Error as e:
     print(f'❌ Erro MySQL: {e}')
@@ -610,7 +753,7 @@ finally:
     print('🔌 Conexão encerrada.')
 ```
 
-No Workbench, clique com o botão direito em `produto` → **"Select Rows"**: os cinco produtos aparecem. Reinicie o servidor, desligue o computador — os dados continuam lá.
+No Workbench, clique com o botão direito em `usuarios` → **"Select Rows"**: os cinco usuários aparecem, com a coluna `senha` cheia de texto embaralhado (o hash). Reinicie o servidor, desligue o computador — os dados continuam lá.
 
 ![Workbench confirmando os dados inseridos pelo script Python — os registros estão persistidos no banco](../imgs/Aula_05_img_03.png)
 
@@ -697,7 +840,7 @@ def execute_query(sql, params=None, fetch=False):
     """
     conn = get_connection()
     try:
-        # dictionary=True: cada linha retorna como dicionário — produto['nome'] em vez de produto[0]
+        # dictionary=True: cada linha retorna como dicionário — usuario['nome'] em vez de usuario[0]
         cursor = conn.cursor(dictionary=True)
         cursor.execute(sql, params or ())
 
@@ -715,9 +858,9 @@ def execute_query(sql, params=None, fetch=False):
         conn.close()   # devolve ao pool, não fecha fisicamente
 ```
 
-Teste: `python -c "from db import execute_query; print(execute_query('SELECT * FROM produto', fetch=True))"`. Deve imprimir a lista com os cinco produtos inseridos na Parte 4.
+Teste: `python -c "from db import execute_query; print(execute_query('SELECT id_usuario, nome, email FROM usuarios', fetch=True))"`. Deve imprimir a lista com os cinco usuários inseridos na Parte 4.
 
-**Passo 4 — `execute_one()`.** Por fim, uma função de conveniência para quando você só precisa de uma linha (por exemplo, buscar um produto por ID):
+**Passo 4 — `execute_one()`.** Por fim, uma função de conveniência para quando você só precisa de uma linha (por exemplo, buscar um usuário por ID):
 
 ```python
 def execute_one(sql, params=None):
@@ -731,7 +874,7 @@ def execute_one(sql, params=None):
 
 ![Arquitetura em camadas: app.py usa db.py que acessa o MySQL — cada camada tem uma responsabilidade clara](../imgs/Aula_05_img_04.png)
 
-Com `db.py` pronto, o `app.py` para listar produtos fica assim:
+Com `db.py` pronto, o `app.py` para listar usuários fica assim:
 
 ```python
 from flask import Flask, render_template, flash
@@ -741,29 +884,61 @@ app = Flask(__name__)
 app.secret_key = 'chave-secreta-fatec-2026'
 
 
-@app.route('/produtos')
-def lista_produtos():
+@app.route('/usuarios')
+def lista_usuarios():
     try:
         # Toda a complexidade de conexão está em execute_query
         # O app.py só precisa saber o SQL e o que fazer com os dados
-        produtos = execute_query(
-            'SELECT * FROM produto WHERE ativo = 1 ORDER BY nome',
+        usuarios = execute_query(
+            'SELECT u.id_usuario, u.nome, u.email, p.nome AS perfil '
+            'FROM usuarios u JOIN perfis p ON p.id_perfil = u.perfil_id '
+            'ORDER BY u.nome',
             fetch=True
         )
     except Exception as e:
-        flash(f'Erro ao carregar produtos: {e}', 'danger')
-        produtos = []
+        flash(f'Erro ao carregar usuários: {e}', 'danger')
+        usuarios = []
 
-    return render_template('produtos.html', produtos=produtos, total=len(produtos))
+    return render_template('usuarios.html', usuarios=usuarios, total=len(usuarios))
 ```
 
-Salve e acesse `http://localhost:5000/produtos`: a página agora lista os produtos que vieram do MySQL, não mais de uma lista fixa no Python.
+Note que a consulta já usa o `JOIN` que você vai conhecer na Parte 6: a lista mostra o **nome** do perfil, e não o número. Agora crie `templates/usuarios.html`, reaproveitando o `base.html` do Tópico 03 e o `{% for %}...{% else %}` que você já conhece:
+
+```html
+{% extends 'base.html' %}
+{% block titulo %}Usuários — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <h2>Usuários</h2>
+  <p class="text-muted">{{ total }} usuário(s) cadastrado(s)</p>
+
+  <table class="table table-hover">
+    <thead class="table-dark">
+      <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Perfil</th></tr>
+    </thead>
+    <tbody>
+      {% for usuario in usuarios %}
+      <tr>
+        <td>{{ usuario.id_usuario }}</td>
+        <td>{{ usuario.nome }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>{{ usuario.perfil }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-center text-muted">Nenhum usuário cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+```
+
+Salve e acesse `http://localhost:5000/usuarios`: a página agora lista os usuários que vieram do MySQL, não mais de uma lista fixa no Python. Repare que a coluna `senha` ficou de fora do `SELECT` de propósito: nenhuma tela precisa dela.
 
 ### 🔎 Verifique seu Entendimento
 
 Um app de mobilidade urbana precisa de uma rota `/estacoes` que mostre só as estações de bike-sharing com pelo menos uma bicicleta livre.
 
-**Desafio:** Escreva a chamada a `execute_query` (com `fetch=True`) que busca essas estações na tabela `estacao`, assumindo que ela tem uma coluna `bicicletas_livres`, seguindo exatamente o padrão usado na rota `/produtos` desta seção.
+**Desafio:** Escreva a chamada a `execute_query` (com `fetch=True`) que busca essas estações na tabela `estacao`, assumindo que ela tem uma coluna `bicicletas_livres`, seguindo exatamente o padrão usado na rota `/usuarios` desta seção.
 
 > 💬 Tente por conta própria antes de seguir. A solução comentada está no gabarito deste tópico (link na última seção da página).
 
@@ -775,51 +950,85 @@ Antes de avançar para o CRUD completo, é essencial dominar os comandos SQL que
 
 ```sql
 -- ─── SELECT ──────────────────────────────────────────────────────
-SELECT * FROM produto;
-SELECT nome, preco, estoque FROM produto ORDER BY preco DESC;
-SELECT * FROM produto WHERE estoque = 0;
-SELECT * FROM produto WHERE preco BETWEEN 200 AND 500;
+SELECT * FROM usuarios;
+SELECT nome, email, cidade FROM usuarios ORDER BY nome;
+SELECT * FROM usuarios WHERE cidade = 'Jaú' AND perfil_id = 3;
+SELECT nome, data_nascimento FROM usuarios
+WHERE data_nascimento BETWEEN '1990-01-01' AND '1999-12-31';
+SELECT nome FROM usuarios WHERE celular IS NULL;
 ```
 
-Rode esse primeiro bloco e observe: cada `SELECT` muda o que aparece na grade de resultados, do jeito que a cláusula pede.
+Rode esse primeiro bloco e observe: cada `SELECT` muda o que aparece na grade de resultados, do jeito que a cláusula pede. Repare no último: para achar o que está **vazio** (`NULL`), o SQL pede `IS NULL`; escrever `celular = NULL` não funciona, porque `NULL` significa "desconhecido" e nada é igual a "desconhecido".
 
 ```sql
 -- LIKE com % busca texto em qualquer posição
-SELECT * FROM produto WHERE nome LIKE '%mouse%';
+SELECT * FROM usuarios WHERE nome LIKE '%oliveira%';
+SELECT * FROM usuarios WHERE email LIKE '%@exemplo.com.br';
 
 -- Funções de agregação
-SELECT COUNT(*)             AS total    FROM produto;
-SELECT ROUND(AVG(preco), 2) AS media    FROM produto;
-SELECT SUM(estoque)         AS estoque_total FROM produto;
+SELECT COUNT(*)       AS total       FROM usuarios;
+SELECT COUNT(celular) AS com_celular FROM usuarios;
+SELECT MIN(data_nascimento) AS mais_velho, MAX(data_nascimento) AS mais_novo FROM usuarios;
 ```
 
-Rode este segundo bloco: note que as funções de agregação (`COUNT`, `AVG`, `SUM`) devolvem uma única linha com o resultado calculado, diferente dos `SELECT` anteriores que devolviam várias linhas.
+Rode este segundo bloco: note que as funções de agregação (`COUNT`, `MIN`, `MAX`) devolvem uma única linha com o resultado calculado, diferente dos `SELECT` anteriores que devolviam várias linhas. Compare `COUNT(*)` (5, conta linhas) com `COUNT(celular)` (4, conta só as linhas em que `celular` **não** é `NULL`). As funções `AVG` e `SUM`, que somam e tiram médias de valores numéricos, aparecem no [material de apoio com a tabela `produto`](apoio/Aula_05_apoio_produto.md).
+
+```sql
+-- ─── JOIN: juntando usuarios e perfis ────────────────────────────
+SELECT u.nome, u.email, p.nome AS perfil
+FROM usuarios u
+JOIN perfis p ON p.id_perfil = u.perfil_id
+ORDER BY p.nome, u.nome;
+```
+
+Na tabela `usuarios`, a coluna `perfil_id` guarda só um **número** (1, 2 ou 3). O nome do perfil mora na tabela `perfis`. O `JOIN` junta as duas: `ON p.id_perfil = u.perfil_id` diz como as linhas se encontram (a chave estrangeira apontando para a chave primária), e `u` e `p` são apelidos curtos para as tabelas. Rode e veja os nomes dos perfis no lugar dos números. Esta é a consulta que a listagem de usuários vai usar nos próximos tópicos; o Tópico 08 aprofunda os relacionamentos.
 
 ```sql
 -- ─── INSERT ──────────────────────────────────────────────────────
-INSERT INTO produto (nome, descricao, preco, estoque)
-VALUES ('Webcam Logitech C920', 'Full HD 1080p, microfone duplo', 449.90, 18);
+-- Só as colunas NOT NULL: as opcionais ficam NULL
+INSERT INTO usuarios (nome, email, senha, perfil_id)
+VALUES ('Teste Provisório', 'teste@exemplo.com.br', 'x', 3);
 ```
 
-Rode o `INSERT` e depois repita `SELECT * FROM produto;`: a Webcam aparece como um sexto registro, com um novo `id` gerado automaticamente pelo `AUTO_INCREMENT`.
+Rode o `INSERT` e depois repita `SELECT * FROM usuarios;`: o novo usuário aparece como um sexto registro, com um novo `id_usuario` gerado pelo `AUTO_INCREMENT` e as colunas opcionais `NULL`. Agora rode o **mesmo** `INSERT` outra vez e veja o banco recusar:
+
+```
+Error Code: 1062. Duplicate entry 'teste@exemplo.com.br' for key 'usuarios.email'
+```
+
+É o `UNIQUE` da coluna `email` trabalhando. Por fim, tente criar um usuário com um perfil que não existe:
+
+```sql
+INSERT INTO usuarios (nome, email, senha, perfil_id)
+VALUES ('Outro Teste', 'outro@exemplo.com.br', 'x', 99);
+```
+
+```
+Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails
+```
+
+Quem barrou foi a **chave estrangeira**: não existe perfil 99 em `perfis`. As regras de integridade moram no banco, e ele as aplica mesmo que o código Python esqueça de conferir.
 
 ```sql
 -- ─── UPDATE ──────────────────────────────────────────────────────
 -- ATENÇÃO: sem WHERE o UPDATE afeta TODOS os registros!
-UPDATE produto SET estoque = 10 WHERE id = 4;
-UPDATE produto SET ativo   = 0  WHERE estoque = 0;
+UPDATE usuarios SET celular = '(14) 98888-7777' WHERE id_usuario = 5;
+UPDATE usuarios SET perfil_id = 2 WHERE id_usuario = 4;
 ```
 
-Rode o `UPDATE` e confira com um novo `SELECT` que só o produto de `id = 4` mudou de estoque — o `WHERE` é o que garante que a alteração fique restrita à linha certa.
+Rode os `UPDATE` e confira com um novo `SELECT` que só os usuários de `id_usuario` 5 e 4 mudaram: o `WHERE` é o que garante que a alteração fique restrita à linha certa. Rode também `SELECT id_usuario, nome, criado_em, atualizado_em FROM usuarios WHERE id_usuario = 4;`: a coluna `atualizado_em` foi atualizada sozinha pelo MySQL (`ON UPDATE CURRENT_TIMESTAMP`), e a `criado_em` continua com a data original.
 
 ```sql
 -- ─── DELETE ──────────────────────────────────────────────────────
 -- ATENÇÃO: sem WHERE o DELETE apaga TODOS os registros!
--- Sempre use WHERE com id específico:
-DELETE FROM produto WHERE id = 99;
+-- Sempre use WHERE com id específico (confira o id do 'Teste Provisório' na grade):
+DELETE FROM usuarios WHERE id_usuario = 6;
+
+-- E o que acontece ao tentar apagar um perfil que ainda tem usuários?
+DELETE FROM perfis WHERE id_perfil = 3;
 ```
 
-Como não existe produto com `id = 99`, esse `DELETE` não apaga nada — é proposital, para você rodá-lo sem risco de perder dados reais nesta prática.
+O primeiro `DELETE` remove o usuário de teste. O segundo **falha** com o erro `1451. Cannot delete or update a parent row`: é o `ON DELETE RESTRICT` que declaramos na chave estrangeira, protegendo o perfil `Usuário` enquanto houver usuários ligados a ele. Em tabelas que se relacionam, apagar a ponta "pai" exige antes cuidar das "filhas".
 
 Cada um desses comandos SQL tem um equivalente direto em Python via `execute_query`. Praticar no Workbench antes de codificar no Python é uma estratégia fundamental: você vê o resultado imediatamente, sem a variável do código Python adicionando complexidade ao diagnóstico.
 
@@ -839,15 +1048,15 @@ A tabela `ponto_coleta` da Parte 2 (nome, endereço, quilos coletados, ativo, ca
 
 ```python
 # ❌ CÓDIGO VULNERÁVEL — NUNCA faça isso
-usuario = request.form['usuario']
-sql = f"SELECT * FROM usuario WHERE login='{usuario}'"
+email = request.form['email']
+sql = f"SELECT * FROM usuarios WHERE email='{email}'"
 cursor.execute(sql)
 # Se o atacante digitar: ' OR '1'='1' --
-# A query vira: SELECT * FROM usuario WHERE login='' OR '1'='1' --
+# A query vira: SELECT * FROM usuarios WHERE email='' OR '1'='1' --
 # Como '1'='1' é sempre verdadeiro, TODOS os usuários são retornados
 ```
 
-Variantes mais agressivas usam `'; DROP TABLE usuario; --` para destruir tabelas inteiras com um único envio de formulário.
+Variantes mais agressivas usam `'; DROP TABLE usuarios; --` para destruir tabelas inteiras com um único envio de formulário.
 
 ![SQL Injection: concatenação abre brechas devastadoras — placeholders %s eliminam completamente o risco](../imgs/Aula_05_img_05.png)
 
@@ -855,12 +1064,12 @@ A solução é simples e inviolável: **sempre use queries parametrizadas com pl
 
 ```python
 # ✅ CÓDIGO SEGURO — sempre assim, sem exceção
-sql = "SELECT * FROM usuario WHERE login = %s AND senha = %s"
-cursor.execute(sql, (usuario, senha))
-# Mesmo que usuario contenha ' OR '1'='1', ele será tratado como texto literal
+sql = "SELECT * FROM usuarios WHERE email = %s"
+cursor.execute(sql, (email,))
+# Mesmo que email contenha ' OR '1'='1', ele será tratado como texto literal
 ```
 
-Esta é a regra mais importante deste tópico: **jamais concatene dados do usuário em strings SQL**. Repare que a função `execute_query` do `db.py`, construída na Parte 5, já força esse hábito: o parâmetro `params` é sempre passado separado do `sql`, nunca colado dentro da string.
+Repare que a consulta segura busca só pelo e-mail, e não compara a senha no SQL: como o banco guarda o **hash** da senha, quem confere a senha é o Python, depois de buscar o usuário (o login completo vem no Tópico 11). Esta é a regra mais importante deste tópico: **jamais concatene dados do usuário em strings SQL**. Repare que a função `execute_query` do `db.py`, construída na Parte 5, já força esse hábito: o parâmetro `params` é sempre passado separado do `sql`, nunca colado dentro da string.
 
 ### 🔎 Verifique seu Entendimento
 
@@ -891,7 +1100,7 @@ Tente responder mentalmente antes de clicar para revelar.
 ??? question "Por que centralizar o acesso ao banco em um módulo `db.py` em vez de repetir a conexão em cada rota?"
     Porque credenciais e configuração de conexão ficam em um único lugar — mudar a senha ou migrar de servidor exige editar um arquivo, não dezenas de rotas. Além disso, as rotas do `app.py` ficam livres de detalhes de infraestrutura, só chamando `execute_query`.
 
-??? question "Por que `cursor.execute(sql, (usuario, senha))` é seguro contra SQL Injection, mas `f\"...{usuario}...\"` não é?"
+??? question "Por que `cursor.execute(sql, (email,))` é seguro contra SQL Injection, mas `f\"...{email}...\"` não é?"
     Com placeholders `%s` e uma tupla de parâmetros, o conector MySQL sempre trata os valores como **dados**, nunca como parte do comando SQL — mesmo que o valor contenha aspas ou palavras-chave SQL. Com f-string, o valor é colado na string antes de virar SQL, permitindo que um atacante injete código.
 
 ---
@@ -935,7 +1144,7 @@ Qual é a principal vantagem de um pool de conexões em uma aplicação web com 
 </quiz>
 
 <quiz>
-Por que o código `sql = f"SELECT * FROM usuario WHERE login='{usuario}'"` seguido de `cursor.execute(sql)` é perigoso?
+Por que o código `sql = f"SELECT * FROM usuarios WHERE email='{email}'"` seguido de `cursor.execute(sql)` é perigoso?
 - [ ] Porque f-strings são mais lentas que concatenação com +
 > Não é uma questão de performance — é uma questão de segurança.
 - [x] Porque permite SQL Injection: um valor malicioso digitado pelo usuário pode alterar o comando SQL executado
@@ -948,13 +1157,13 @@ Por que o código `sql = f"SELECT * FROM usuario WHERE login='{usuario}'"` segui
 
 <quiz>
 Qual das opções abaixo é a forma segura e correta de executar uma query com um valor vindo do usuário?
-- [ ] `cursor.execute(f"SELECT * FROM produto WHERE id={id_produto}")`
+- [ ] `cursor.execute(f"SELECT * FROM usuarios WHERE id_usuario={id_usuario}")`
 > Não. Concatenar o valor diretamente na string abre brecha para SQL Injection.
-- [x] `cursor.execute("SELECT * FROM produto WHERE id = %s", (id_produto,))`
+- [x] `cursor.execute("SELECT * FROM usuarios WHERE id_usuario = %s", (id_usuario,))`
 > Correto. O placeholder `%s` com o valor passado separadamente garante que o dado nunca seja interpretado como código SQL.
-- [ ] `cursor.execute("SELECT * FROM produto WHERE id = " + str(id_produto))`
+- [ ] `cursor.execute("SELECT * FROM usuarios WHERE id_usuario = " + str(id_usuario))`
 > Não. Concatenação com `+` tem exatamente o mesmo risco que a f-string.
-- [ ] `cursor.execute("SELECT * FROM produto WHERE id = {}".format(id_produto))`
+- [ ] `cursor.execute("SELECT * FROM usuarios WHERE id_usuario = {}".format(id_usuario))`
 > Não. `.format()` também concatena o valor diretamente na string SQL, sem proteção contra injection.
 </quiz>
 
@@ -962,17 +1171,17 @@ Qual das opções abaixo é a forma segura e correta de executar uma query com u
 
 ## 📝 Resumo
 
-Hoje você conectou o Python ao mundo da persistência. Instalou e configurou o MySQL, criou o banco `projeto_web` e a tabela principal via script Python com `executemany`, construído em incrementos pequenos e testados um a um. Aprendeu o ciclo de vida de uma conexão (conectar → cursor → executar → commit/fetchall → fechar) e por que o `finally` é essencial.
+Hoje você conectou o Python ao mundo da persistência. Instalou e configurou o MySQL, criou o banco `projeto_web` e as tabelas relacionadas `perfis` e `usuarios` (com `UNIQUE` e `FOREIGN KEY`) via script Python com `executemany`, construído em incrementos pequenos e testados um a um, e viu a senha ser guardada como hash. Aprendeu o ciclo de vida de uma conexão (conectar → cursor → executar → commit/fetchall → fechar) e por que o `finally` é essencial.
 
 Conheceu os parâmetros avançados do conector: `sql_mode` (valida os dados com rigor), `time_zone` (garante consistência de datas entre ambientes), `use_pure` (Python puro resolve incompatibilidades de autenticação quando tudo parece correto mas a conexão falha), `connection_timeout` (evita travamentos por servidor inacessível) e `autocommit=False` (exige `commit()` explícito para controle de transações).
 
 Configurou um **pool de conexões** no `db.py` com `MySQLConnectionPool` — fundamental para aplicações web, onde reutilizar conexões existentes é muito mais eficiente do que abrir e fechar uma por requisição. Viu como esse mesmo padrão se aplica a bancos em nuvem, como o Azure Database for MySQL, com a adição de SSL e parâmetros específicos do ambiente.
 
-Criou o módulo `db.py` que centraliza tudo e expõe `execute_query` e `execute_one`, substituindo os dados estáticos por dados reais do banco. Aprendeu o que é SQL Injection, como funciona e por que placeholders `%s` eliminam completamente o risco.
+Criou o módulo `db.py` que centraliza tudo e expõe `execute_query` e `execute_one`, substituindo os dados estáticos por dados reais do banco, e fez o primeiro `JOIN` entre `usuarios` e `perfis`. Aprendeu o que é SQL Injection, como funciona e por que placeholders `%s` eliminam completamente o risco.
 
 ![Mapa mental do Tópico 05: MySQL, SQL básico, conexão Python e segurança contra SQL Injection](../imgs/Aula_05_img_06.png)
 
-No próximo tópico, o CRUD começa de verdade: você vai construir o **Create** conectando o formulário do Tópico 04 diretamente ao `INSERT INTO`, e o **Read** completo com filtros dinâmicos usando `WHERE 1=1` e `LIKE`. Metade do sistema ficará funcional de ponta a ponta.
+No próximo tópico, o CRUD começa de verdade: você vai construir o **Create** do CRUD de **usuários**, conectando o formulário do Tópico 04 diretamente ao `INSERT INTO`, e o **Read** completo com filtros dinâmicos usando `WHERE 1=1` e `LIKE`. Metade do sistema ficará funcional de ponta a ponta.
 
 ---
 
@@ -985,6 +1194,12 @@ git add .
 git commit -m "Tópico 05: MySQL conectado, tabela criada, listagem via banco real"
 git push
 ```
+
+---
+
+## 📎 Material de Apoio
+
+O banco deste tópico usa `perfis` e `usuarios`. Os recursos de SQL que dependem de preço, estoque e texto longo (`DECIMAL`, `TEXT`, `AVG`, `SUM`) estão no [Apoio ao Tópico 05 — a tabela `produto`](apoio/Aula_05_apoio_produto.md).
 
 ---
 
