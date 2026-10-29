@@ -78,7 +78,7 @@ def estacao_nova():
     return render_template('estacao_form.html', estacao={})
 ```
 
-A estrutura é a mesma da rota de produtos: **coletar → validar e converter → decidir entre mostrar erros ou gravar → redirecionar**. Três decisões importam: a conversão com `int()` dentro de `try/except ValueError` (tudo que vem de `request.form` é texto), a regra `valor < 1` no ramo `else` (que só roda se a conversão deu certo) e os valores sempre em placeholders `%s`, nunca concatenados. Uma variação válida seria envolver o `execute_insert` em `try/except Exception`, como no cadastro de produtos, para mostrar uma mensagem amigável se o banco falhar.
+A estrutura é a mesma da rota de cadastro de usuários: **coletar → validar e converter → decidir entre mostrar erros ou gravar → redirecionar**. Três decisões importam: a conversão com `int()` dentro de `try/except ValueError` (tudo que vem de `request.form` é texto), a regra `valor < 1` no ramo `else` (que só roda se a conversão deu certo) e os valores sempre em placeholders `%s`, nunca concatenados. Uma variação válida seria envolver o `execute_insert` em `try/except Exception`, como no cadastro de usuários, para mostrar uma mensagem amigável se o banco falhar.
 
 ---
 
