@@ -62,6 +62,10 @@ real da matéria, o professor já validou a didática e a progressão pedagógic
   O texto teórico e os exemplos de código já existem, o trabalho aqui é aplicar o
   pipeline deste arquivo (mapa mental, flashcards, quiz, conquista) preservando o
   conteúdo original por completo.
+- **O domínio dos exemplos herdados muda.** O 1º semestre usava outro domínio nos
+  exemplos; no 2º semestre toda aula remodelada usa `usuarios`/`perfis` (seção "Domínio do
+  CRUD"). A teoria e a didática herdadas permanecem; o que não couber no novo domínio vai
+  para `docs/aulas/apoio/`, e nada é descartado.
 - **Aula 14 (2º semestre) funde duas aulas do 1º semestre** (Visualização
   Mestre-Detalhe + Segurança e Registro). Ao processá-la, combine o conteúdo das duas
   fontes sem cortar nenhuma das duas, e pergunte ao professor se a ordem de fusão faz
@@ -83,6 +87,103 @@ versionado no GitHub. As Aulas 6 e 13 do 2º semestre seguem exatamente esse pad
 (calculadora de IMC, e depois sua evolução com histórico em banco de dados). Escreva o
 enunciado dessas aulas com o mesmo nível de detalhe e o mesmo tom, como um roteiro de
 etapas claras, nunca como uma atividade "menor" ou de preenchimento.
+
+## Domínio do CRUD: `usuarios` e `perfis` (tabela auxiliar)
+
+O sistema que a turma constrói em aula é um **CRUD de usuários, cada um com um perfil**
+guardado em uma tabela auxiliar. Todos os exemplos de banco, rotas, templates e
+validações do semestre (Tópico 05 em diante) usam esse domínio. O exemplo antigo
+(`produto`) saiu do texto principal e vive só em material de apoio (ver abaixo), e na
+lista fixa do Tópico 03, que é exemplo de Jinja2 e não usa banco.
+
+**Esquema oficial** (definido pelo professor; criado pelo `db_setup.py` do Tópico 05,
+com `perfis` antes de `usuarios` por causa da chave estrangeira):
+
+```sql
+CREATE TABLE perfis (
+    id_perfil     BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome          VARCHAR(100) NOT NULL UNIQUE,
+    descricao     VARCHAR(255),
+    criado_em     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE usuarios (
+    id_usuario      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome            VARCHAR(255) NOT NULL,
+    email           VARCHAR(255) NOT NULL UNIQUE,
+    senha           VARCHAR(255) NOT NULL,      -- guarda o HASH, nunca a senha
+    celular         VARCHAR(20),
+    data_nascimento DATE,
+    cpf             VARCHAR(14) UNIQUE,         -- gravado como 000.000.000-00
+    perfil_id       BIGINT UNSIGNED NOT NULL,
+    cep             VARCHAR(9),
+    endereco        VARCHAR(255),
+    numero          VARCHAR(20),
+    complemento     VARCHAR(100),
+    cidade          VARCHAR(100),
+    estado          CHAR(2),
+    criado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuarios_perfil FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)
+        ON DELETE RESTRICT   -- acrescentado ao DDL original do professor (FK desde o CREATE TABLE)
+);
+```
+
+A coluna `ativo TINYINT(1) NOT NULL DEFAULT 1` **não** está no `CREATE TABLE`: entra pelo
+`ALTER TABLE ... ADD COLUMN ativo ... AFTER estado` do Tópico 06 (Parte 3), que preserva a
+lição de evoluir uma tabela sem perder dados. Quem recriar o banco do zero precisa
+acrescentá-la (os tópicos avisam).
+
+**Dados de exemplo** (`db_setup.py`): perfis `Administrador` (id 1), `Gerente` (id 2) e
+`Usuário` (id 3); cinco usuários fictícios (e-mails `@exemplo.com.br`, CPFs válidos),
+todos com a senha de teste `Senha@123`, que vai ao banco já como hash. O último usuário
+tem colunas opcionais `NULL` de propósito.
+
+**Convenções (mantenha em todo tópico novo):**
+
+- Nomes de tabela no **plural** (`usuarios`, `perfis`), chave primária `id_<singular>`,
+  chave estrangeira `<singular>_id`. Rotas `/usuarios`, `/usuarios/novo`,
+  `/usuarios/<int:usuario_id>`, `.../editar`, `.../excluir`, `.../reativar`; funções
+  `lista_usuarios`, `usuario_novo`, `usuario_detalhe`, `usuario_editar`,
+  `usuario_excluir`, `usuario_reativar`; templates `usuarios.html`, `usuario_form.html`,
+  `usuario_detalhe.html`. Para `perfis`, o mesmo molde (`/perfis`, `perfil_*`).
+- **Senha: sempre hash** (`werkzeug.security.generate_password_hash` /
+  `check_password_hash`). Nunca em texto puro, nunca em `print`/log, nunca devolvida ao
+  formulário. As telas leem os usuários por `SELECT_USUARIO`, que lista as colunas e
+  **deixa `senha` de fora**; só a rota de login (Tópico 11) lê o hash.
+- **O que é `NOT NULL` no banco é obrigatório no formulário**; o que aceita `NULL` é
+  opcional, mas validado se preenchido (campo opcional vazio vira `NULL`, não `''`).
+- E-mail e CPF são `UNIQUE`: o app confere por `SELECT` (mensagem amigável) e o banco
+  continua sendo a barreira final. Na edição, comparar o `id` para ignorar o próprio usuário.
+- O `<select>` de perfil sempre vem de `SELECT ... FROM perfis` (nunca uma lista fixa em
+  Python) e o servidor valida o valor recebido (`int` + existe na tabela).
+- Funções puras de formatação e validação (CPF, celular, CEP) ficam em `validacoes.py`;
+  acesso ao banco em `db.py`; o `app.py` guarda rotas, filtros Jinja2 e `validar_usuario`.
+- Os **mini-desafios** continuam em temas variados (ver regra abaixo) e **não** usam
+  `usuarios`/`perfis`, porque o exemplo da aula já é esse domínio.
+
+**Material de apoio com o domínio antigo.** O que o CRUD de `produto` ensinava e não
+existe em `usuarios` (tipo `DECIMAL` e agregações numéricas, `Decimal`/`quantize` e `int`
+para preço e estoque, filtro Jinja2 `moeda`, badges por faixa de estoque, `ALTER TABLE`
+para criar uma categoria, lista fixa de categorias) ficou em `docs/aulas/apoio/`
+(`Aula_05_apoio_produto.md`, `Aula_07_apoio_produtos.md`), publicado mas **fora do `nav`**,
+como os gabaritos. A aula que perde conteúdo para o apoio cita o arquivo em uma seção
+"📎 Material de Apoio", logo antes da Conquista. Ao adaptar o domínio de uma aula nova,
+use o que for interessante para `usuarios`/`perfis`, mova o restante para o apoio com
+`produto` como exemplo, e **nunca descarte** conteúdo original.
+
+**Plano para o Bloco 2 (proposta; confirme cada ponto com o professor na Fase 1 do
+tópico, ele é a autoridade pedagógica):**
+
+| Tópico | Tema | Como entra o domínio `usuarios`/`perfis` |
+|---|---|---|
+| 8 | Modelagem relacional 1:N | Formaliza o que o aluno já usou: diagrama ER `perfis` 1:N `usuarios`, PK/FK, `ON DELETE`/`ON UPDATE`, `SHOW CREATE TABLE`, `INNER JOIN` x `LEFT JOIN` (perfil sem usuários). A FK já existe desde o Tópico 05: mostre-a e experimente-a, não a "introduza" |
+| 9 | CRUD relacional: implementação | CRUD completo de `perfis` no mesmo molde; contagem de usuários por perfil na lista (`LEFT JOIN` + `GROUP BY`); impedir apagar perfil em uso, com mensagem amigável (erro `1451`/`COUNT` prévio) |
+| 10 | Mestre-detalhe e segurança de registro | Mestre-detalhe: página do perfil com a lista dos seus usuários. Segurança de registro: auto-cadastro público (`/registro`) que **fixa** o perfil `Usuário` no servidor, nunca aceita `perfil_id` do formulário público; força de senha; CSRF token |
+| 11 | Login e controle de sessão | Login por e-mail e senha (`check_password_hash`), `session`, usuário inativo não entra, decoradores `login_required` e `perfil_required('Administrador')`, protegendo `/usuarios` e `/perfis`, logout. Fecha as lacunas apontadas no checklist do Tópico 07 |
+| 13 | Relatórios gerenciais | Usuários por perfil, por UF, cadastros por mês, ativos x inativos (`GROUP BY`, `COUNT`, agregações) |
+| 14 | Encerramento | Revisão do sistema completo; Trabalho 2 (validação final e deploy) parte desse CRUD |
 
 ## Ensino incremental de código (regra de estilo)
 
@@ -157,6 +258,8 @@ docs/
   index.md              # home do site, ementa, trilha, sumário de aulas
   aulas/
     Aula_NN_Titulo.md    # uma aula por arquivo, adicionada progressivamente pelo professor
+    gabaritos/           # Aula_NN_gabarito.md, publicados mas fora do nav
+    apoio/               # Aula_NN_apoio_*.md, material de apoio (domínio produto), fora do nav
   imgs/                  # imagens referenciadas pelas aulas (../imgs/arquivo.png)
 mkdocs.yml               # nav é EXPLÍCITO, arquivo novo não aparece no site sozinho
 ```
@@ -193,6 +296,10 @@ houver qualquer um destes casos, não assuma a resposta:
   deve ser reescrito sem ela.
 - **Pré-requisito ainda não coberto**: a aula assume um conceito que ainda não apareceu
   em nenhuma aula publicada até agora.
+- **Domínio do exemplo**: se o rascunho ou o conteúdo herdado usa outro domínio (produto,
+  cliente, livro...), diga como pretende levá-lo para `usuarios`/`perfis` (ver "Domínio do
+  CRUD") e quais trechos, por não terem equivalente, iriam para o material de apoio.
+  Confirme antes de aplicar.
 - **Exemplos/dados**: se os exemplos numéricos ou o código do rascunho puderem ser
   adaptados para caber melhor em um mapa mental ou flashcard, confirme antes de
   alterá-los, são escolha pedagógica do professor, não só formatação.
@@ -295,7 +402,13 @@ Antes de considerar a aula pronta:
    - toda imagem referenciada com `../imgs/arquivo.png` existe de fato em `docs/imgs/`;
    - todo mini-desafio "🔎 Verifique seu Entendimento" tem seu par correspondente em
      `gabaritos/Aula_NN_gabarito.md`, e esse arquivo de gabarito **não** foi
-     adicionado ao `nav` do `mkdocs.yml`.
+     adicionado ao `nav` do `mkdocs.yml`;
+   - se a aula tem seção "📎 Material de Apoio", o arquivo em `apoio/` existe, o link
+     funciona e o arquivo **não** está no `nav`;
+   - o código do domínio `usuarios`/`perfis` foi **executado**, não só lido: no mínimo
+     `ast.parse` dos blocos Python e, para rotas e templates, um teste com o cliente de
+     teste do Flask contra um banco simulado (sem MySQL local, SQLite em memória serve
+     para validar rotas, templates e validações; o DDL do MySQL precisa ser conferido à mão).
 3. Se possível, abra `mkdocs serve` e navegue até a página da aula para conferir
    visualmente o mapa mental, os flashcards (clique para expandir) e o quiz.
 4. **Faça o commit** assim que a aula passar nas checagens acima. Mensagem de commit
@@ -322,6 +435,14 @@ Antes de considerar a aula pronta:
   e o `requirements.txt` em `mkdocs-quiz>=1.7,<2`. A sintaxe `<quiz>...</quiz>` com
   `- [x]` continua igual; o que mudou foi o feedback, que agora é por alternativa em
   linhas `>` (ver Fase 3).
+- **Capturas de tela do domínio antigo.** As imagens `Aula_06_img_01.png` (formulário de
+  novo produto), `Aula_06_img_02.png` (diagrama do `WHERE 1=1` com `produto`),
+  `Aula_06_img_03.png` (lista e detalhe de produtos) e `Aula_07_img_01.png` (edição de
+  produto) não combinam mais com o texto. Estão comentadas (`<!-- IMAGEM PENDENTE ... -->`)
+  nos Tópicos 06 e 07 até haver versões com `usuarios`; o diagrama do `WHERE 1=1` foi
+  trocado por uma tabela. `Aula_07_img_02.png` e `_03.png` (GET x POST, modal) usam
+  produto como ilustração genérica e foram mantidas, com a legenda avisando. Não invente
+  capturas: peça ao professor.
 - **O `nav` do `mkdocs.yml` é explícito.** Um arquivo `.md` novo em `docs/aulas/` não
   aparece no site até ser adicionado ao `nav`, isso é intencional (permite manter
   aulas "em rascunho" fora do site publicado), mas é fácil esquecer esse passo.

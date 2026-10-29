@@ -159,6 +159,17 @@ consigo, não uma repetição do conteúdo.]
 
 ---
 
+<!-- SEÇÃO OPCIONAL: só inclua se algo do conteúdo original ficou de fora porque o exemplo
+     do tópico usa o domínio usuarios/perfis (ver CLAUDE.md, "Domínio do CRUD"). O conteúdo
+     que sai do texto principal NUNCA é descartado: vai para docs/aulas/apoio/. -->
+## 📎 Material de Apoio
+
+[Uma ou duas frases dizendo o que está no apoio e para quem serve.]
+
+➡️ [Apoio ao Tópico NN — título](apoio/Aula_NN_apoio_assunto.md)
+
+---
+
 ## 🏆 Conquista do Tópico
 
 !!! success "Selo desbloqueado: [Nome temático do selo, ver lista no CLAUDE.md]"
