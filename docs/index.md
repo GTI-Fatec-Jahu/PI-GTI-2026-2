@@ -42,7 +42,7 @@ aprofundar.
 | [15](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) | [SELECT relacional de usuário](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) |
 | [16](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) | [UPDATE e DELETE de usuário](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) |
 | [17](capitulos/Capitulo_17_Login.md) | [Login](capitulos/Capitulo_17_Login.md) | ✅ [Disponível](capitulos/Capitulo_17_Login.md) |
-| 17.1 | Controle de permissão (opcional) | 🔒 Em breve |
+| [17.1](capitulos/Capitulo_17_1_Controle_de_Permissao.md) | [Controle de permissão (opcional)](capitulos/Capitulo_17_1_Controle_de_Permissao.md) | ✅ [Disponível](capitulos/Capitulo_17_1_Controle_de_Permissao.md) |
 | 18 | CRUD de produtos | 🔒 Em breve |
 | 19 | Relatórios | 🔒 Em breve |
 | 20 | Publicação | 🔒 Em breve |

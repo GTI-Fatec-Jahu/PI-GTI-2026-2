@@ -75,3 +75,4 @@ nav:
       - "Capítulo 15 — SELECT relacional de usuário": capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md
       - "Capítulo 16 — UPDATE e DELETE de usuário": capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md
       - "Capítulo 17 — Login": capitulos/Capitulo_17_Login.md
+      - "Capítulo 17.1 — Controle de permissão (opcional)": capitulos/Capitulo_17_1_Controle_de_Permissao.md

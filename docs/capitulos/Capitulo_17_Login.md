@@ -502,7 +502,7 @@ Salve e confira, **sem** estar logado:
 Agora entre como Ana e percorra o sistema: tudo funciona como no Capítulo 16. A única diferença é que o sistema agora sabe quem está pedindo.
 
 !!! info "A dor de repetir"
-    As mesmas três linhas aparecem **dez vezes**. Se um dia a mensagem mudar, ou se o aviso passar a levar a pessoa de volta à página que ela queria, são dez lugares para lembrar de corrigir (e basta esquecer **um** para abrir uma brecha). O Capítulo 17.1, opcional, troca essas linhas por um decorador, e acrescenta o controle por perfil. O sistema já está seguro sem ele.
+    As mesmas três linhas aparecem **dez vezes**. Se um dia a mensagem mudar, ou se o aviso passar a levar a pessoa de volta à página que ela queria, são dez lugares para lembrar de corrigir (e basta esquecer **um** para abrir uma brecha). O [Capítulo 17.1](Capitulo_17_1_Controle_de_Permissao.md), opcional, troca essas linhas por um decorador, e acrescenta o controle por perfil. O sistema já está seguro sem ele.
 
 ### Excluir o próprio usuário
 
@@ -1304,7 +1304,7 @@ O sistema só passou a distinguir uma pessoa de outra quando ganhou o login. O `
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 16 — UPDATE e DELETE de usuário](Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) · 🔒 Capítulo 17.1 (opcional) — em breve · 🔒 Capítulo 18 — em breve.
+⬅️ [Capítulo 16 — UPDATE e DELETE de usuário](Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) · ➡️ [Capítulo 17.1 — Controle de permissão (opcional)](Capitulo_17_1_Controle_de_Permissao.md) · 🔒 Capítulo 18 — em breve.
 
 ---
 
