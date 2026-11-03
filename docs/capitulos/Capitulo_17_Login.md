@@ -1304,7 +1304,7 @@ O sistema só passou a distinguir uma pessoa de outra quando ganhou o login. O `
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 16 — UPDATE e DELETE de usuário](Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) · ➡️ [Capítulo 17.1 — Controle de permissão (opcional)](Capitulo_17_1_Controle_de_Permissao.md) · 🔒 Capítulo 18 — em breve.
+⬅️ [Capítulo 16 — UPDATE e DELETE de usuário](Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) · ➡️ [Capítulo 17.1 — Controle de permissão (opcional)](Capitulo_17_1_Controle_de_Permissao.md) · ➡️ [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md)
 
 ---
 

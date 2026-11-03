@@ -1152,7 +1152,7 @@ O `@login_required` troca as dez cópias do `if` por uma linha por rota: é uma 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 17 — Login](Capitulo_17_Login.md) · 🔒 Capítulo 18 — em breve.
+⬅️ [Capítulo 17 — Login](Capitulo_17_Login.md) · ➡️ [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md)
 
 ---
 

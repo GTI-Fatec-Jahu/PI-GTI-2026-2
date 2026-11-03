@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  {% if acao == 'editar' %}
+    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
+  {% else %}
+    {% set destino = url_for('produto_novo') %}
+  {% endif %}
+
+  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %}</h1>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+
+          <form action="{{ destino }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome do produto</label>
+              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Mouse sem fio" value="{{ dados.nome }}" required minlength="3" maxlength="255">
+            </div>
+
+            <div class="mb-3">
+              <label for="descricao" class="form-label">Descrição (opcional)</label>
+              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao }}</textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="preco" class="form-label">Preço</label>
+                <div class="input-group">
+                  <span class="input-group-text">R$</span>
+                  <input type="text" inputmode="decimal" class="form-control" id="preco" name="preco" placeholder="0,00" value="{{ dados.preco }}" required pattern="([0-9]{1,3}(\.[0-9]{3})+|[0-9]+)(,[0-9]{1,2})?" title="Use vírgula nos centavos, por exemplo 1.234,56">
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="estoque" class="form-label">Estoque</label>
+                <input type="number" class="form-control" id="estoque" name="estoque" value="{{ dados.estoque }}" required min="0" max="1000000" step="1">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="categoria" class="form-label">Categoria (opcional)</label>
+                <select class="form-select" id="categoria" name="categoria">
+                  <option value="">Sem categoria</option>
+                  {% for categoria in categorias %}
+                    <option value="{{ categoria }}" {% if dados.categoria == categoria %}selected{% endif %}>{{ categoria }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="foto" class="form-label">{% if foto_atual %}Trocar a foto (opcional){% else %}Foto (opcional){% endif %}</label>
+              {% if foto_atual %}
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <img src="{{ url_for('static', filename=foto_atual) }}" alt="Foto atual do produto" class="foto-produto">
+                  <div class="form-check mb-0">
+                    <input class="form-check-input" type="checkbox" id="remover_foto" name="remover_foto" value="1">
+                    <label class="form-check-label" for="remover_foto">Remover a foto atual</label>
+                  </div>
+                </div>
+              {% endif %}
+              <input type="file" class="form-control" id="foto" name="foto" accept=".jpg,.jpeg,.png,.webp">
+              <div class="form-text">Arquivo jpg, jpeg, png ou webp, com até 2 MB.</div>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == '1' %}checked{% endif %}>
+              <label class="form-check-label" for="ativo">Produto ativo</label>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar produto{% endif %}</button>
+              <a href="{{ url_for('lista_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
