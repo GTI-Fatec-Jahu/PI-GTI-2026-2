@@ -35,7 +35,7 @@
         </td>
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
         <td class="text-end">
-          <a href="{{ url_for('perfil_editar', perfil_id=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
           <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
         </td>
       </tr>

@@ -76,16 +76,16 @@ UPDATE perfis SET deletado_em = NULL WHERE nome = 'Teste';
 Ligue o servidor (`python app.py`), com o XAMPP ligado, e abra o `app.py`. Na rota `perfil_excluir`, a exclusão vira a marcação. A contagem de usuários e o `try/except` do erro `1451` saem: um `UPDATE` não infringe a chave estrangeira (a linha do perfil continua existindo), e o banco nunca recusa. Substitua a rota inteira por esta:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/excluir', methods=['POST'])
-def perfil_excluir(perfil_id):
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
-    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (perfil_id,))
+    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
 
     return redirect(url_for('lista_perfis'))
@@ -122,7 +122,7 @@ Salve e recarregue: o `Teste` sumiu da lista. Nem toda tela olha para essa lista
         perfil = execute_one(
             'SELECT id_perfil, nome, descricao FROM perfis '
             'WHERE id_perfil = %s AND deletado_em IS NULL',
-            (perfil_id,),
+            (id_perfil,),
         )
     ```
 
@@ -131,7 +131,7 @@ Salve e recarregue: o `Teste` sumiu da lista. Nem toda tela olha para essa lista
     ```python
         perfil = execute_one(
             'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
-            (perfil_id,),
+            (id_perfil,),
         )
     ```
 
@@ -238,7 +238,7 @@ E, na linha do `for`, depois da célula do `deletado_em`:
 
 ```html
         <td class="text-end">
-          <form action="{{ url_for('perfil_restaurar', perfil_id=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
           </form>
@@ -248,16 +248,16 @@ E, na linha do `for`, depois da célula do `deletado_em`:
 O `colspan` do `{% else %}` passa de `4` para `5`. Falta a rota. No `app.py`, depois da `perfil_excluir`:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/restaurar', methods=['POST'])
-def perfil_restaurar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
+def perfil_restaurar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
-    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (perfil_id,))
+    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
 
     return redirect(url_for('lista_perfis'))
@@ -393,31 +393,31 @@ def conferir_perfil(nome, descricao, id_atual):
     return erros
 
 
-@app.route('/perfis/<int:perfil_id>/excluir', methods=['POST'])
-def perfil_excluir(perfil_id):
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
-    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (perfil_id,))
+    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
 
     return redirect(url_for('lista_perfis'))
 
 
-@app.route('/perfis/<int:perfil_id>/restaurar', methods=['POST'])
-def perfil_restaurar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
+def perfil_restaurar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
-    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (perfil_id,))
+    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
 
     return redirect(url_for('lista_perfis'))
@@ -460,7 +460,7 @@ Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `
         </td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end">
-          <form action="{{ url_for('perfil_restaurar', perfil_id=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
           </form>

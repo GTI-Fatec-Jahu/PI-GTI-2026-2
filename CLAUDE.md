@@ -134,7 +134,7 @@ pela `session` (8) e termina no MySQL (10).
 | 14.1 | Consulta de CEP (opcional) | API e JSON, botão **Buscar** com `onclick`, `fetch` com `async/await` no ViaCEP, preenche endereço, cidade e UF, trata CEP incompleto, inexistente e falha de rede (`try/catch`). O servidor não muda: continua validando tudo |
 | 15 | SELECT relacional de usuário | `JOIN` com `perfis`, badges por perfil, página de detalhe, filtros Jinja de data e CPF. A senha nunca é selecionada |
 | 16 | UPDATE e DELETE de usuário | Edição com senha opcional, unicidade ignorando o próprio registro, exclusão com modal |
-| 17 | Login | `check_password_hash`, `session`, logout, `if 'usuario_id' not in session` em cada rota protegida, menu que muda se logado |
+| 17 | Login | `check_password_hash`, `session`, logout, `if 'id_usuario' not in session` em cada rota protegida, menu que muda se logado |
 | 17.1 | Controle de permissão (opcional) | `@login_required` e `@perfil_required('Administrador')`, página 403, menu por perfil |
 | 18 | CRUD de produtos | Campos que `usuarios` não cobriu: preço (`DECIMAL`, `Decimal`, "1.234,56", filtro `moeda`), estoque, textarea, `ativo` (checkbox), foto (upload, `secure_filename`, extensão e tamanho, gravada em disco, caminho no banco) |
 | 18.1 a 18.4 | INSERT, SELECT, UPDATE, DELETE de produtos | Quatro arquivos que dividem o capítulo 18; cada um com zip intermediário |
@@ -225,9 +225,16 @@ funcionarem seja qual for o `id` que o aluno gerou.
 **Convenções (mantenha em todo capítulo do Projeto 2):**
 
 - Tabelas no **plural**, chave primária `id_<singular>`, chave estrangeira `<singular>_id`.
-  Rotas `/perfis`, `/perfis/novo`, `/perfis/<int:perfil_id>`, `.../editar`, `.../excluir`;
+  Rotas `/perfis`, `/perfis/novo`, `/perfis/<int:id_perfil>`, `.../editar`, `.../excluir`;
   funções `lista_perfis`, `perfil_novo`, `perfil_editar`, `perfil_excluir`; templates
-  `perfis.html`, `perfil_form.html`. O mesmo molde para `usuarios` e `produtos`.
+  `perfis.html`, `perfil_form.html`. O mesmo molde para `usuarios` (`<int:id_usuario>`) e
+  `produtos` (`<int:id_produto>`).
+- **Nome de quem guarda o valor de uma chave primária:** o parâmetro de rota, o argumento do
+  `url_for` e a variável Python que carrega a PK usam o **nome da própria PK** (`id_perfil`,
+  `id_usuario`, `id_produto`): `url_for('perfil_editar', id_perfil=perfil.id_perfil)`. O nome
+  `<singular>_id` (`perfil_id`) é **só da chave estrangeira** (`usuarios.perfil_id`) e do campo
+  do formulário que a escolhe. Isso vale para o Projeto 2; no Projeto 1 (Capítulos 3 a 9) o
+  `produto_id` acompanha a chave `id` de uma lista em memória, que não é uma PK.
 - **Senha: sempre hash** (`werkzeug.security`). Nunca em texto puro, nunca em `print` ou log,
   nunca devolvida ao formulário. As telas leem usuários por um `SELECT_USUARIO` que **deixa
   `senha` de fora**; só o login lê o hash.

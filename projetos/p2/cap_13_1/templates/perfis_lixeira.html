@@ -32,7 +32,7 @@
         </td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end">
-          <form action="{{ url_for('perfil_restaurar', perfil_id=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
           </form>

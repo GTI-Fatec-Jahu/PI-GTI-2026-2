@@ -4,7 +4,7 @@
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('perfil_editar', perfil_id=perfil_id) %}
+    {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
   {% else %}
     {% set destino = url_for('perfil_novo') %}
   {% endif %}

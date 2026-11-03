@@ -58,8 +58,8 @@ O Capítulo 12 mostrou o molde de nomes do recurso. Este capítulo acrescenta as
 |---|---|---|---|---|
 | `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis.html` |
 | `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfil_form.html` |
-| `/perfis/<int:perfil_id>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfil_form.html` |
-| `/perfis/<int:perfil_id>/excluir` | só POST | Exclui o perfil e volta para a lista | `perfil_excluir` | (nenhum) |
+| `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfil_form.html` |
+| `/perfis/<int:id_perfil>/excluir` | só POST | Exclui o perfil e volta para a lista | `perfil_excluir` | (nenhum) |
 
 Repare que o `editar` usa o **mesmo template** do `novo`, e que o `excluir` não tem template: ele não mostra nada, só faz o que foi pedido e redireciona. O caminho do navegador na edição é parecido com o do cadastro:
 
@@ -86,11 +86,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, abo
 E acrescente a rota `perfil_editar`, **depois** da `perfil_novo` e antes dos `@app.errorhandler`. Por enquanto ela só busca o perfil e mostra o formulário:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/editar')
-def perfil_editar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/editar')
+def perfil_editar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
@@ -98,8 +98,8 @@ def perfil_editar(perfil_id):
     return render_template('perfil_form.html', nome=perfil['nome'], descricao=perfil['descricao'])
 ```
 
-!!! note "Flask: `<int:perfil_id>` e `abort(404)`"
-    O `<int:perfil_id>` captura o pedaço do endereço, converte para número inteiro e entrega à função como o parâmetro `perfil_id`. Um endereço como `/perfis/abc/editar` nem chega à função: o Flask já responde 404. O `execute_one` devolve o perfil encontrado ou `None`, e o `abort(404)` interrompe a rota e mostra a página 404 do Capítulo 11. A tupla `(perfil_id,)` tem a vírgula que o Python exige para uma tupla de um item.
+!!! note "Flask: `<int:id_perfil>` e `abort(404)`"
+    O `<int:id_perfil>` captura o pedaço do endereço, converte para número inteiro e entrega à função como o parâmetro `id_perfil`. O parâmetro leva o **mesmo nome da chave primária** da tabela, de propósito: o nome `perfil_id` fica reservado para a chave **estrangeira** da tabela `usuarios`. Um endereço como `/perfis/abc/editar` nem chega à função: o Flask já responde 404. O `execute_one` devolve o perfil encontrado ou `None`, e o `abort(404)` interrompe a rota e mostra a página 404 do Capítulo 11. A tupla `(id_perfil,)` tem a vírgula que o Python exige para uma tupla de um item.
 
 Salve. Na lista, descubra o código de um perfil (a primeira coluna) e abra, pela barra de endereço, `http://127.0.0.1:5000/perfis/` + o código + `/editar`. O formulário aparece **preenchido** com o nome e a descrição do perfil. Agora abra `/perfis/99999/editar`: a página 404, porque não existe perfil com esse código.
 
@@ -123,14 +123,14 @@ O formulário já aparece preenchido, mas ainda diz **Novo perfil**, o botão di
 Primeiro, as rotas entregam a informação. Na `perfil_editar`, a última linha passa a ser:
 
 ```python
-    return render_template('perfil_form.html', acao='editar', perfil_id=perfil_id,
+    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 ```
 
 E, na `perfil_novo`, o `render_template` do final passa a ser:
 
 ```python
-    return render_template('perfil_form.html', acao='criar', perfil_id=None,
+    return render_template('perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 ```
 
@@ -149,14 +149,14 @@ Salve e compare `/perfis/novo` com a edição de um perfil: o mesmo arquivo, doi
 ```html
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('perfil_editar', perfil_id=perfil_id) %}
+    {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
   {% else %}
     {% set destino = url_for('perfil_novo') %}
   {% endif %}
 ```
 
 !!! note "Jinja: `{% set %}`"
-    O `{% set destino = ... %}` cria uma variável **dentro do template**, como o `destino = ...` do Python. Aqui ela guarda um endereço escolhido pelo `if`. O Jinja só executa o ramo que vale: no cadastro, o `perfil_id` é `None`, mas o `url_for('perfil_editar', ...)` nem chega a rodar.
+    O `{% set destino = ... %}` cria uma variável **dentro do template**, como o `destino = ...` do Python. Aqui ela guarda um endereço escolhido pelo `if`. O Jinja só executa o ramo que vale: no cadastro, o `id_perfil` é `None`, mas o `url_for('perfil_editar', ...)` nem chega a rodar.
 
 E use a variável no formulário:
 
@@ -184,7 +184,7 @@ Na linha do `for`, depois da célula do `criado_em`:
 
 ```html
         <td class="text-end">
-          <a href="{{ url_for('perfil_editar', perfil_id=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
         </td>
 ```
 
@@ -258,7 +258,7 @@ O `0` é o `id_atual` do cadastro: nenhum perfil tem o código `0`, então a con
 Agora a `perfil_editar` aceita o envio. Troque a linha do `@app.route` para aceitar os dois métodos:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/editar', methods=['GET', 'POST'])
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 ```
 
 E, **antes** do `return render_template(...)` do final da rota, acrescente o `if` do POST. Por enquanto ele só confere e avisa:
@@ -268,7 +268,7 @@ E, **antes** do `return render_template(...)` do final da rota, acrescente o `if
         nome = request.form.get('nome', '').strip()
         descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, perfil_id)
+        erros = conferir_perfil(nome, descricao, id_perfil)
 
         if erros:
             for mensagem in erros:
@@ -297,7 +297,7 @@ Os dados chegam conferidos. Falta trocar o aviso provisório pela gravação. Tr
             try:
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, perfil_id),
+                    (nome, descricao_gravada, id_perfil),
                 )
                 flash(f'Perfil "{nome}" atualizado.', 'success')
                 return redirect(url_for('lista_perfis'))
@@ -311,7 +311,7 @@ Os dados chegam conferidos. Falta trocar o aviso provisório pela gravação. Tr
 O `if descricao == ''` é o mesmo do cadastro: campo opcional em branco vira `NULL`, nunca `''`. O `try/except` também: entre o `SELECT` da conferência e o `UPDATE` outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade ([Capítulo 12, Tópico 6](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#topico-6-nome-repetido-o-erro-1062)). Olhe com atenção a última peça do comando: **`WHERE id_perfil = %s`**. É ela que restringe a alteração ao perfil certo.
 
 !!! danger "UPDATE sem WHERE altera a tabela inteira"
-    Sem o `WHERE`, o `UPDATE perfis SET nome = %s` trocaria o nome de **todos** os perfis para o mesmo valor. O banco não pergunta se você tem certeza. O código do perfil vem do **endereço** (`perfil_id`, já convertido para número pelo Flask), e não de um campo do formulário, que a pessoa poderia adulterar. O restante segue o que você já sabe: valores em `%s`, `commit` dentro do `execute_query`, PRG com `redirect` e `flash`.
+    Sem o `WHERE`, o `UPDATE perfis SET nome = %s` trocaria o nome de **todos** os perfis para o mesmo valor. O banco não pergunta se você tem certeza. O código do perfil vem do **endereço** (`id_perfil`, já convertido para número pelo Flask), e não de um campo do formulário, que a pessoa poderia adulterar. O restante segue o que você já sabe: valores em `%s`, `commit` dentro do `execute_query`, PRG com `redirect` e `flash`.
 
 Salve e faça os testes, nesta ordem:
 
@@ -335,11 +335,11 @@ As duas linhas imprimem `0`. O MySQL conta as linhas **efetivamente modificadas*
 A rota `perfil_editar` completa, para conferir com a sua:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/editar', methods=['GET', 'POST'])
-def perfil_editar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
+def perfil_editar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
@@ -353,7 +353,7 @@ def perfil_editar(perfil_id):
         nome = request.form.get('nome', '').strip()
         descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, perfil_id)
+        erros = conferir_perfil(nome, descricao, id_perfil)
 
         if erros:
             for mensagem in erros:
@@ -367,7 +367,7 @@ def perfil_editar(perfil_id):
             try:
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, perfil_id),
+                    (nome, descricao_gravada, id_perfil),
                 )
                 flash(f'Perfil "{nome}" atualizado.', 'success')
                 return redirect(url_for('lista_perfis'))
@@ -377,7 +377,7 @@ def perfil_editar(perfil_id):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', perfil_id=perfil_id,
+    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 ```
 
@@ -412,16 +412,16 @@ A exclusão exige um clique humano **deliberado**, e a forma de garantir isso é
 No `app.py`, acrescente a rota depois da `perfil_editar`:
 
 ```python
-@app.route('/perfis/<int:perfil_id>/excluir', methods=['POST'])
-def perfil_excluir(perfil_id):
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
-    execute_query('DELETE FROM perfis WHERE id_perfil = %s', (perfil_id,))
+    execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
 
     return redirect(url_for('lista_perfis'))
@@ -434,7 +434,7 @@ O `SELECT` inicial cumpre dois papéis: responde 404 para um código que não ex
 Para a pessoa acionar a rota, a coluna **Ações** da lista ganha um **formulário** com um botão, e não um link. No `perfis.html`, dentro da célula de ações, **depois** do link **Editar**:
 
 ```html
-          <form action="{{ url_for('perfil_excluir', perfil_id=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('perfil_excluir', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
           </form>
@@ -559,7 +559,7 @@ Antes de excluir, a rota pergunta ao banco quantos usuários o perfil tem. Na `p
 ```python
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
@@ -574,7 +574,7 @@ Como no `SELECT` do nome repetido, passa um intervalo entre a contagem e o `DELE
 
 ```python
     try:
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (perfil_id,))
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
     except Error as erro:
         if erro.errno == 1451:
@@ -713,15 +713,15 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', perfil_id=None,
+    return render_template('perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
-@app.route('/perfis/<int:perfil_id>/editar', methods=['GET', 'POST'])
-def perfil_editar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
+def perfil_editar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
@@ -735,7 +735,7 @@ def perfil_editar(perfil_id):
         nome = request.form.get('nome', '').strip()
         descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, perfil_id)
+        erros = conferir_perfil(nome, descricao, id_perfil)
 
         if erros:
             for mensagem in erros:
@@ -749,7 +749,7 @@ def perfil_editar(perfil_id):
             try:
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, perfil_id),
+                    (nome, descricao_gravada, id_perfil),
                 )
                 flash(f'Perfil "{nome}" atualizado.', 'success')
                 return redirect(url_for('lista_perfis'))
@@ -759,29 +759,29 @@ def perfil_editar(perfil_id):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', perfil_id=perfil_id,
+    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
-@app.route('/perfis/<int:perfil_id>/excluir', methods=['POST'])
-def perfil_excluir(perfil_id):
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
         return redirect(url_for('lista_perfis'))
 
     try:
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (perfil_id,))
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
     except Error as erro:
         if erro.errno == 1451:
@@ -843,7 +843,7 @@ O `templates/perfis.html`:
         </td>
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
         <td class="text-end">
-          <a href="{{ url_for('perfil_editar', perfil_id=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
           <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
         </td>
       </tr>
@@ -897,7 +897,7 @@ O `templates/perfil_form.html`:
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('perfil_editar', perfil_id=perfil_id) %}
+    {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
   {% else %}
     {% set destino = url_for('perfil_novo') %}
   {% endif %}
@@ -1004,7 +1004,7 @@ Qual é o motivo de a exclusão de perfil usar `methods=['POST']` em vez de um l
 <quiz>
 Quais afirmações sobre a edição de perfil estão corretas? (selecione todas que se aplicam)
 - [x] O código do perfil vem do endereço, e não de um campo do formulário
-> Correto. O endereço já passa pelo `<int:perfil_id>`, e um campo do formulário poderia ser adulterado.
+> Correto. O endereço já passa pelo `<int:id_perfil>`, e um campo do formulário poderia ser adulterado.
 - [x] Na edição, o nome do próprio perfil não conta como repetido
 > Correto. O `id_perfil <> %s` faz o `SELECT` ignorar o registro que está sendo editado.
 - [x] Quando há erro de validação, a rota mostra o formulário de novo, ainda em modo de edição, com o que foi digitado

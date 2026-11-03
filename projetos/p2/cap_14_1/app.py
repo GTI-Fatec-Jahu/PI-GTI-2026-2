@@ -99,15 +99,15 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', perfil_id=None,
+    return render_template('perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
-@app.route('/perfis/<int:perfil_id>/editar', methods=['GET', 'POST'])
-def perfil_editar(perfil_id):
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
+def perfil_editar(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
@@ -121,7 +121,7 @@ def perfil_editar(perfil_id):
         nome = request.form.get('nome', '').strip()
         descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, perfil_id)
+        erros = conferir_perfil(nome, descricao, id_perfil)
 
         if erros:
             for mensagem in erros:
@@ -135,7 +135,7 @@ def perfil_editar(perfil_id):
             try:
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, perfil_id),
+                    (nome, descricao_gravada, id_perfil),
                 )
                 flash(f'Perfil "{nome}" atualizado.', 'success')
                 return redirect(url_for('lista_perfis'))
@@ -145,29 +145,29 @@ def perfil_editar(perfil_id):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', perfil_id=perfil_id,
+    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
-@app.route('/perfis/<int:perfil_id>/excluir', methods=['POST'])
-def perfil_excluir(perfil_id):
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         abort(404)
 
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
         return redirect(url_for('lista_perfis'))
 
     try:
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (perfil_id,))
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
     except Error as erro:
         if erro.errno == 1451:
@@ -192,13 +192,13 @@ def vazio_para_none(valor):
 
 def conferir_perfil_do_usuario(perfil_txt):
     try:
-        perfil_id = int(perfil_txt)
+        id_perfil = int(perfil_txt)
     except ValueError:
         return 'Selecione um perfil.'
 
     perfil = execute_one(
         'SELECT id_perfil FROM perfis WHERE id_perfil = %s',
-        (perfil_id,),
+        (id_perfil,),
     )
     if perfil is None:
         return 'Selecione um perfil válido.'
