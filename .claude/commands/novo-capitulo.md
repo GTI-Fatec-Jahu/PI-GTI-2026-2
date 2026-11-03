@@ -6,6 +6,11 @@ argument-hint: número do capítulo (ex.: 3, 12.1) ou caminho do rascunho
 Leia `CLAUDE.md` na raiz do repositório antes de qualquer outra coisa, se ainda não está no
 contexto desta sessão.
 
+Se `$ARGUMENTS` for um capítulo de número inteiro (ex.: `2`, `12`, `18`), **todos os seus
+subcapítulos** da tabela "Sequência dos capítulos" (2.1, 12.1, 18.1 a 18.4...) entram no mesmo
+pedido e são criados juntos, cada um com zip e commit próprios. Se for um subcapítulo (ex.:
+`12.1`), vale só para ele.
+
 Processe `$ARGUMENTS` seguindo exatamente as três fases descritas em `CLAUDE.md`, nesta ordem,
 sem pular nenhuma:
 

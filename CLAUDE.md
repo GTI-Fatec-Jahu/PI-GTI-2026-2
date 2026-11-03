@@ -350,6 +350,14 @@ onde entra) para separar do que é erro de verdade. Quando o professor colocar o
 O professor pede um capítulo diretamente na conversa ou por `/novo-capitulo NN`. Siga as três
 fases **nesta ordem**. Não pule a Fase 1.
 
+> ⚠️ **Capítulo e subcapítulos nascem juntos.** Ao pedir o Capítulo X, **todos** os subcapítulos
+> X.Y da tabela "Sequência dos capítulos" são processados no mesmo pedido (2 → 2.1; 12 → 12.1;
+> 13 → 13.1; 17 → 17.1; 18 → 18.1 a 18.4). Eles entram juntos na Fase 1 (resumo e perguntas
+> cobrem cada arquivo), são escritos na Fase 2 e verificados na Fase 3, cada um com o seu zip e
+> o seu commit. **Nunca entregue o capítulo deixando o subcapítulo como "🔒 Em breve"**; se não
+> for possível entregá-lo com qualidade completa, diga isso explicitamente. Um pedido só do
+> subcapítulo (ex.: `/novo-capitulo 2.1`) vale apenas para ele.
+
 ### Fase 1 — Validar e perguntar antes de escrever
 
 **Não escreva nada ainda.** Leia a linha do capítulo em "Sequência dos capítulos", o que o
@@ -381,7 +389,9 @@ Use `templates/CAPITULO_TEMPLATE.md`. Todo capítulo tem, nesta ordem:
 7. ✅ Quiz (3 a 5 perguntas, ao menos uma de múltipla resposta)
 8. 📝 Resumo
 9. 🔗 Navegação. **Só linke o capítulo seguinte se o arquivo já existir**; senão escreva
-   `🔒 Capítulo NN+1 — em breve.` Ao criar o seguinte, volte e troque o placeholder.
+   `🔒 Capítulo NN+1 — em breve.` Ao criar o seguinte, volte e troque o placeholder. O capítulo
+   que tem subcapítulo linka os dois (`➡️ Capítulo 2.1 (opcional) · ➡️ Capítulo 3`), e o
+   subcapítulo linka o capítulo-pai e o próximo número inteiro.
 
 Subcapítulos omitem o quiz. Depois de escrever, atualize `docs/index.md` (status e link no
 sumário) e `mkdocs.yml` (entrada no `nav`, obrigatória).
@@ -397,9 +407,9 @@ sumário) e `mkdocs.yml` (entrada no `nav`, obrigatória).
    templates, o cliente de teste do Flask contra um banco simulado (SQLite em memória serve
    para rotas, templates e validações). O DDL e o SQL do MySQL/MariaDB são conferidos à mão.
 4. **Faça o commit** do capítulo pronto, com mensagem que o identifique (ex.: `Adiciona o
-   Capítulo 03 — Flask, com quiz e zip`). Um commit por capítulo.
-5. **Não faça `git push` sem avisar.** Pergunte: "o Capítulo NN está commitado, posso enviar
-   para o GitHub?" e só envie depois de um sim claro.
+   Capítulo 03 — Flask, com quiz e zip`). Um commit por capítulo e um por subcapítulo.
+5. **Não faça `git push` sem avisar.** Pergunte: "o Capítulo NN (e os subcapítulos NN.Y) estão
+   commitados, posso enviar para o GitHub?" e só envie depois de um sim claro.
 
 ---
 
