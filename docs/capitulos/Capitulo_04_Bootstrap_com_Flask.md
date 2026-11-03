@@ -889,7 +889,7 @@ Você ligou o Bootstrap ao catálogo por CDN, deixou nele o visual da página e 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 3 — Flask](Capitulo_03_Flask.md) · 🔒 Capítulo 5 — em breve.
+⬅️ [Capítulo 3 — Flask](Capitulo_03_Flask.md) · ➡️ [Capítulo 5 — Variáveis, filtros, `if` e `for`](Capitulo_05_Variaveis_Filtros_If_e_For.md)
 
 ---
 

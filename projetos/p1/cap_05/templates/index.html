@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ titulo }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+              aria-label="Abrir o menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    {# O título vem da rota index(), no app.py #}
+    <h1>{{ titulo }}</h1>
+    <p class="lead">Papelaria, informática, casa e acessórios para o dia a dia.</p>
+
+    <section id="produtos" class="mb-5">
+      <h2>Produtos</h2>
+      <p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
+      <table class="table table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Nº</th>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Faixa</th>
+            <th class="text-end">Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for produto in produtos %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+            <td>{{ produto.categoria|default('Sem categoria') }}</td>
+            <td>
+              {% if produto.preco <= 20 %}
+              <span class="badge bg-success">Econômico</span>
+              {% elif produto.preco <= 100 %}
+              <span class="badge bg-primary">Intermediário</span>
+              {% else %}
+              <span class="badge bg-warning text-dark">Premium</span>
+              {% endif %}
+            </td>
+            <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-body-secondary">Nenhum produto cadastrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section id="categorias">
+      <h2>Categorias</h2>
+      <div class="row g-3">
+        {% for categoria in categorias %}
+        <div class="col-sm-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">{{ categoria }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-body-secondary py-3">
+    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

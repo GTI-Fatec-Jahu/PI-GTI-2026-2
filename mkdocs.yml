@@ -57,3 +57,4 @@ nav:
       - "Capítulo 2 — Clone, pull, formulário, CSS e JavaScript": capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md
       - "Capítulo 3 — Flask": capitulos/Capitulo_03_Flask.md
       - "Capítulo 4 — Bootstrap com Flask": capitulos/Capitulo_04_Bootstrap_com_Flask.md
+      - "Capítulo 5 — Variáveis, filtros, if e for": capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md
