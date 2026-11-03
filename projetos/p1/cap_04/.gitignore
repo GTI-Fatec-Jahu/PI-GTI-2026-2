@@ -1,0 +1,16 @@
+# Anotações pessoais que não vão para o repositório
+rascunho.txt
+
+# Configurações locais do VS Code
+.vscode/
+
+# Arquivos que o sistema operacional cria sozinho
+Thumbs.db
+.DS_Store
+
+# Ambiente virtual: pode ser recriado a qualquer momento com o requirements.txt
+.venv/
+
+# Arquivos temporários que o Python cria sozinho
+__pycache__/
+*.pyc

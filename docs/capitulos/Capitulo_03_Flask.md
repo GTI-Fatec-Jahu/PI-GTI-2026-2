@@ -773,7 +773,7 @@ Você deu ao catálogo o seu primeiro servidor: criou o ambiente virtual, instal
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 2 — Clone, pull, formulário, CSS e JavaScript](Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) · 🔒 Capítulo 4 — em breve.
+⬅️ [Capítulo 2 — Clone, pull, formulário, CSS e JavaScript](Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) · ➡️ [Capítulo 4 — Bootstrap com Flask](Capitulo_04_Bootstrap_com_Flask.md)
 
 ---
 

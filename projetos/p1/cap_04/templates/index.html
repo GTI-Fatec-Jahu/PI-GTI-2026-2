@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Produtos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+              aria-label="Abrir o menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    <h1>Catálogo de Produtos</h1>
+    <p class="lead">Papelaria, informática, casa e acessórios para o dia a dia.</p>
+
+    <section id="produtos" class="mb-5">
+      <h2>Produtos</h2>
+      <table class="table table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th class="text-end">Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=1) }}">Caneta esferográfica azul</a></td>
+            <td>Papelaria</td>
+            <td class="text-end">R$ 2,50</td>
+          </tr>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=2) }}">Caderno universitário 96 folhas</a></td>
+            <td>Papelaria</td>
+            <td class="text-end">R$ 18,90</td>
+          </tr>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=3) }}">Mouse sem fio</a></td>
+            <td>Informática</td>
+            <td class="text-end">R$ 59,90</td>
+          </tr>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=4) }}">Teclado USB</a></td>
+            <td>Informática</td>
+            <td class="text-end">R$ 89,90</td>
+          </tr>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=5) }}">Garrafa térmica 500 ml</a></td>
+            <td>Casa</td>
+            <td class="text-end">R$ 49,90</td>
+          </tr>
+          <tr>
+            <td><a href="{{ url_for('produto', produto_id=6) }}">Mochila escolar</a></td>
+            <td>Acessórios</td>
+            <td class="text-end">R$ 129,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="categorias">
+      <h2>Categorias</h2>
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">Papelaria</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">Informática</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">Casa</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">Acessórios</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-body-secondary py-3">
+    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
