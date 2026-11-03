@@ -1,0 +1,68 @@
+site_name: Programação para Internet — ILP951
+site_description: Material da disciplina Programação para Internet (Fatec Jahu, 2º Semestre/2026)
+site_author: Ronan Adriel Zenatti
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Modo escuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocs_quiz
+
+# O nav é EXPLÍCITO (ver CLAUDE.md). Cada tópico remodelado precisa ser adicionado aqui
+# manualmente na Fase 2 do pipeline, um arquivo novo em docs/aulas/ não aparece
+# sozinho no site. Na interface o termo é "Tópico"; os arquivos mantêm o prefixo Aula_.
+nav:
+  - Início: index.md
+  - Tópicos:
+      - Bloco 1:
+          - Tópico 01 — Introdução, Git e HTML5: aulas/Aula_01_Introducao_Git_HTML5.md
+          - Tópico 02 — Flask e Bootstrap: aulas/Aula_02_Flask_e_Bootstrap.md
+          - Tópico 03 — Templates Jinja2 e Rotas: aulas/Aula_03_Templates_Jinja2_e_Rotas.md
+          - Tópico 04 — Formulários e HTTP: aulas/Aula_04_Formularios_e_HTTP.md
+          - Tópico 05 — Conexão MySQL e Python: aulas/Aula_05_Conexao_MySQL_e_Python.md
+          - "Tópico 06 — CRUD: Inserção e Leitura": aulas/Aula_07_CRUD_Insercao_e_Leitura.md
+          - "Tópico 07 — CRUD: Edição e Exclusão": aulas/Aula_08_CRUD_Edicao_e_Exclusao.md
+      - Bloco 2 (em construção): index.md
+  - Atividades:
+      - Lista de atividades: atividades/index.md
+      - Simulado — Tópicos 1 a 4 (não vale nota): atividades/Simulado_Aulas_01_a_04.md
+      - Avaliação — Tópicos 1 a 4 (4 pontos): atividades/Avaliacao_Aulas_01_a_04.md
