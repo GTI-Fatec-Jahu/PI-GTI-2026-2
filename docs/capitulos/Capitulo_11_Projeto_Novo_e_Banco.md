@@ -1094,7 +1094,7 @@ O Projeto 2 nasceu do zero com o mesmo roteiro do Projeto 1: pasta, ambiente vir
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 10 — Banco de dados](Capitulo_10_Banco_de_Dados.md) · 🔒 Capítulo 12 — em breve.
+⬅️ [Capítulo 10 — Banco de dados](Capitulo_10_Banco_de_Dados.md) · ➡️ [Capítulo 12 — INSERT e SELECT de perfis](Capitulo_12_INSERT_e_SELECT_de_Perfis.md)
 
 ---
 

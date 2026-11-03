@@ -33,8 +33,7 @@ aprofundar.
 | Capítulo | Tema | Status |
 |---|---|---|
 | [11](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | [Projeto novo e banco de dados](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | ✅ [Disponível](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) |
-| 12 | INSERT e SELECT de perfis | 🔒 Em breve |
-| 12.1 | Busca, filtro e paginação (opcional) | 🔒 Em breve |
+| [12](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) | [INSERT e SELECT de perfis](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) | ✅ [Disponível](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) |
 | 13 | UPDATE e DELETE de perfis | 🔒 Em breve |
 | 13.1 | Soft-delete (opcional) | 🔒 Em breve |
 | 14 | INSERT relacional de usuário | 🔒 Em breve |

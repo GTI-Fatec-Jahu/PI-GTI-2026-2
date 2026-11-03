@@ -66,3 +66,4 @@ nav:
       - "Capítulo 10 — Banco de dados": capitulos/Capitulo_10_Banco_de_Dados.md
   - Projeto 2 — Sistema de Gestão:
       - "Capítulo 11 — Projeto novo e banco": capitulos/Capitulo_11_Projeto_Novo_e_Banco.md
+      - "Capítulo 12 — INSERT e SELECT de perfis": capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md
