@@ -69,3 +69,4 @@ nav:
       - "Capítulo 12 — INSERT e SELECT de perfis": capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md
       - "Capítulo 12.1 — Busca, filtro e paginação (opcional)": capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md
       - "Capítulo 13 — UPDATE e DELETE de perfis": capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md
+      - "Capítulo 13.1 — Soft-delete (opcional)": capitulos/Capitulo_13_1_Soft_Delete.md

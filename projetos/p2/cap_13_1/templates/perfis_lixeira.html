@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">{{ titulo }}</h1>
+    <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Voltar para os perfis</a>
+  </div>
+
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>Descrição</th>
+        <th>Excluído em</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for perfil in perfis %}
+      <tr>
+        <td>{{ perfil.id_perfil }}</td>
+        <td>{{ perfil.nome }}</td>
+        <td>
+          {% if perfil.descricao %}
+            {{ perfil.descricao }}
+          {% else %}
+            <span class="text-body-secondary">—</span>
+          {% endif %}
+        </td>
+        <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end">
+          <form action="{{ url_for('perfil_restaurar', perfil_id=perfil.id_perfil) }}" method="post" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-body-secondary py-4">A lixeira está vazia.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
