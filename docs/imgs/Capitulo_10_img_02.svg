@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="t2 d2">
+  <title id="t2">127.0.0.1 e localhost simulam uma conexão de rede</title>
+  <desc id="d2">À esquerda, a aplicação e o banco de dados em computadores diferentes, ligados pela rede, com o host sendo o endereço do servidor. À direita, a aplicação e o banco no mesmo computador: a conexão sai do Python, passa pelo endereço 127.0.0.1 e volta ao próprio computador, chegando ao MariaDB.</desc>
+  <defs>
+    <marker id="seta-azul" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#1F6FB8"/>
+    </marker>
+    <marker id="seta-verde" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#3E7D24"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="#ffffff"/>
+  <text x="640" y="56" text-anchor="middle" font-size="32" font-weight="bold" fill="#1F2933">127.0.0.1 (localhost): a rede dentro do seu computador</text>
+
+  <!-- Painel esquerdo: banco em outro computador -->
+  <rect x="40" y="90" width="580" height="490" rx="20" fill="#F7F9FB" stroke="#C9D3DC" stroke-width="3"/>
+  <text x="330" y="132" text-anchor="middle" font-size="26" font-weight="bold" fill="#1F2933">Banco em outro computador</text>
+  <text x="330" y="162" text-anchor="middle" font-size="20" fill="#5F6B7A">(como em um sistema real)</text>
+
+  <rect x="50" y="230" width="168" height="140" rx="14" fill="#E6F0FA" stroke="#1F6FB8" stroke-width="4"/>
+  <text x="134" y="282" text-anchor="middle" font-size="20" font-weight="bold" fill="#1F2933">Computador</text>
+  <text x="134" y="308" text-anchor="middle" font-size="20" font-weight="bold" fill="#1F2933">da aplicação</text>
+  <text x="134" y="340" text-anchor="middle" font-size="19" fill="#1F6FB8">Python + Flask</text>
+
+  <g fill="#1F6FB8" stroke="#1F6FB8" stroke-width="8">
+    <circle cx="300" cy="306" r="22"/>
+    <circle cx="330" cy="290" r="28"/>
+    <circle cx="362" cy="304" r="24"/>
+    <circle cx="345" cy="322" r="22"/>
+    <circle cx="312" cy="324" r="20"/>
+  </g>
+  <g fill="#E6F0FA">
+    <circle cx="300" cy="306" r="22"/>
+    <circle cx="330" cy="290" r="28"/>
+    <circle cx="362" cy="304" r="24"/>
+    <circle cx="345" cy="322" r="22"/>
+    <circle cx="312" cy="324" r="20"/>
+  </g>
+  <text x="331" y="316" text-anchor="middle" font-size="20" font-weight="bold" fill="#1F6FB8">rede</text>
+
+  <line x1="222" y1="300" x2="272" y2="300" stroke="#1F6FB8" stroke-width="3" marker-start="url(#seta-azul)" marker-end="url(#seta-azul)"/>
+  <line x1="390" y1="300" x2="438" y2="300" stroke="#1F6FB8" stroke-width="3" marker-start="url(#seta-azul)" marker-end="url(#seta-azul)"/>
+
+  <rect x="442" y="230" width="168" height="140" rx="14" fill="#FDF0E2" stroke="#EE7F1D" stroke-width="4"/>
+  <text x="526" y="282" text-anchor="middle" font-size="20" font-weight="bold" fill="#1F2933">Servidor de</text>
+  <text x="526" y="308" text-anchor="middle" font-size="20" font-weight="bold" fill="#1F2933">banco de dados</text>
+  <text x="526" y="340" text-anchor="middle" font-size="19" fill="#B85A00">MariaDB / MySQL</text>
+
+  <rect x="120" y="420" width="420" height="48" rx="10" fill="#F2F4F7" stroke="#5F6B7A" stroke-width="2"/>
+  <text x="330" y="452" text-anchor="middle" font-family="Consolas, 'Courier New', monospace" font-size="23" fill="#1F2933">host = '192.168.0.10'</text>
+  <text x="330" y="504" text-anchor="middle" font-size="20" fill="#5F6B7A">o endereço do servidor (exemplo)</text>
+
+  <!-- Painel direito: banco no mesmo computador -->
+  <rect x="660" y="90" width="580" height="490" rx="20" fill="#F7F9FB" stroke="#C9D3DC" stroke-width="3"/>
+  <text x="950" y="132" text-anchor="middle" font-size="26" font-weight="bold" fill="#1F2933">Banco no seu computador</text>
+  <text x="950" y="162" text-anchor="middle" font-size="20" fill="#5F6B7A">(o XAMPP, neste curso)</text>
+
+  <rect x="684" y="190" width="532" height="272" rx="16" fill="#ffffff" stroke="#1F6FB8" stroke-width="3" stroke-dasharray="10 7"/>
+  <text x="704" y="218" font-size="20" font-weight="bold" fill="#1F6FB8">Seu computador</text>
+
+  <rect x="712" y="238" width="156" height="110" rx="14" fill="#E6F0FA" stroke="#1F6FB8" stroke-width="4"/>
+  <text x="790" y="284" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">Python</text>
+  <text x="790" y="314" text-anchor="middle" font-size="19" fill="#1F6FB8">Flask + db.py</text>
+
+  <rect x="1032" y="238" width="156" height="110" rx="14" fill="#FDF0E2" stroke="#EE7F1D" stroke-width="4"/>
+  <text x="1110" y="284" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">MariaDB</text>
+  <text x="1110" y="314" text-anchor="middle" font-size="19" fill="#B85A00">XAMPP</text>
+
+  <path d="M790 350 V404 H1110 V352" fill="none" stroke="#3E7D24" stroke-width="4" stroke-linejoin="round" marker-end="url(#seta-verde)"/>
+  <rect x="880" y="384" width="150" height="40" rx="20" fill="#EAF4E4" stroke="#5AA23C" stroke-width="3"/>
+  <text x="955" y="411" text-anchor="middle" font-size="21" font-weight="bold" fill="#3E7D24">127.0.0.1</text>
+  <text x="950" y="443" text-anchor="middle" font-size="18" fill="#5F6B7A">sai do Python e volta para o mesmo computador</text>
+
+  <rect x="800" y="478" width="300" height="48" rx="10" fill="#F2F4F7" stroke="#5F6B7A" stroke-width="2"/>
+  <text x="950" y="510" text-anchor="middle" font-family="Consolas, 'Courier New', monospace" font-size="23" fill="#1F2933">host = '127.0.0.1'</text>
+  <text x="950" y="556" text-anchor="middle" font-size="19" fill="#5F6B7A">localhost é o nome desse mesmo endereço</text>
+
+  <!-- Legenda -->
+  <rect x="60" y="604" width="1160" height="86" rx="16" fill="#EAF4E4" stroke="#5AA23C" stroke-width="3"/>
+  <text x="640" y="637" text-anchor="middle" font-size="23" fill="#1F2933">O código é o mesmo nos dois casos: só o host muda.</text>
+  <text x="640" y="669" text-anchor="middle" font-size="23" fill="#1F2933">O 127.0.0.1 faz o próprio computador agir como se fosse o servidor.</text>
+</svg>

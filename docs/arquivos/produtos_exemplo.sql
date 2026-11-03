@@ -16,10 +16,10 @@ USE catalogo;
 DROP TABLE IF EXISTS produtos;
 
 CREATE TABLE produtos (
-    id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    nome      VARCHAR(100) NOT NULL,
-    categoria VARCHAR(50)  NOT NULL,
-    preco     DECIMAL(7,2) NOT NULL
+    id_produto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome       VARCHAR(100) NOT NULL,
+    categoria  VARCHAR(50),
+    preco      DECIMAL(14,2) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO produtos (nome, categoria, preco) VALUES

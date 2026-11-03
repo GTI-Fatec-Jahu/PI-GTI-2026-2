@@ -29,8 +29,8 @@ Se o seu projeto não está funcionando, baixe o código do Capítulo 4 e descom
 ➡️ [Baixar p1_cap_04.zip](../arquivos/p1_cap_04.zip)
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -49,7 +49,7 @@ git status
 
 O `git status` deve dizer `nothing to commit, working tree clean`. Se algo estiver pendente, faça o ciclo do Capítulo 1 (`git add .`, `git commit -m "..."`, `git push`) antes de seguir.
 
-Ative o ambiente virtual (`.venv\Scripts\activate`) e ligue o servidor:
+Ative o ambiente virtual (`venv\Scripts\activate`) e ligue o servidor:
 
 ```bash
 python app.py
@@ -667,7 +667,7 @@ git push
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, a pasta `templates` (`index.html`, `cadastro.html` e `produto.html`), a pasta `static` (`estilo.css` e `produto.js`), o `requirements.txt`, o `.gitignore` e a pasta `treino`. O ambiente virtual **não** vai no zip: depois de descompactar, crie-o com os três comandos do Capítulo 3 (`python -m venv .venv`, `.venv\Scripts\activate` e `pip install -r requirements.txt`).
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, a pasta `templates` (`index.html`, `cadastro.html` e `produto.html`), a pasta `static` (`estilo.css` e `produto.js`), o `requirements.txt`, o `.gitignore` e a pasta `treino`. O ambiente virtual **não** vai no zip: depois de descompactar, crie-o com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`).
 
 ➡️ [Baixar p1_cap_05.zip](../arquivos/p1_cap_05.zip)
 

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="t1 d1">
+  <title id="t1">Banco de dados em um servidor remoto</title>
+  <desc id="d1">Notebook, smartphone, computador e tablet enviam pedidos pela internet a um servidor de aplicação com Python e Flask, que consulta, pela rede, um servidor de banco de dados separado, ligado 24 horas.</desc>
+  <defs>
+    <marker id="seta-azul" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#1F6FB8"/>
+    </marker>
+    <marker id="seta-laranja" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#EE7F1D"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="#ffffff"/>
+  <text x="640" y="56" text-anchor="middle" font-size="32" font-weight="bold" fill="#1F2933">O banco de dados fica em um servidor, longe dos dispositivos</text>
+
+  <!-- Dispositivos -->
+  <text x="170" y="118" text-anchor="middle" font-size="24" font-weight="bold" fill="#1F6FB8">Vários dispositivos</text>
+  <text x="170" y="148" text-anchor="middle" font-size="22" fill="#1F6FB8">ao mesmo tempo</text>
+
+  <g stroke="#1F6FB8" stroke-width="4" fill="#ffffff" stroke-linejoin="round">
+    <!-- notebook -->
+    <rect x="62" y="185" width="76" height="50" rx="4"/>
+    <path d="M50 246 H150 L142 237 H58 Z" fill="#1F6FB8"/>
+    <!-- smartphone -->
+    <rect x="82" y="275" width="36" height="66" rx="8"/>
+    <!-- computador -->
+    <rect x="62" y="383" width="76" height="46" rx="4"/>
+    <path d="M100 429 V441 M80 445 H120" fill="none" stroke-linecap="round"/>
+    <!-- tablet -->
+    <rect x="66" y="483" width="68" height="64" rx="8"/>
+  </g>
+  <g font-size="22" fill="#1F2933">
+    <text x="172" y="222">Notebook</text>
+    <text x="172" y="322">Smartphone</text>
+    <text x="172" y="422">Computador</text>
+    <text x="172" y="522">Tablet</text>
+  </g>
+
+  <!-- Setas dos dispositivos para a internet -->
+  <g stroke="#1F6FB8" stroke-width="3" fill="none" marker-end="url(#seta-azul)">
+    <line x1="296" y1="215" x2="350" y2="338"/>
+    <line x1="296" y1="315" x2="344" y2="354"/>
+    <line x1="296" y1="415" x2="344" y2="378"/>
+    <line x1="296" y1="515" x2="350" y2="396"/>
+  </g>
+
+  <!-- Internet -->
+  <g fill="#1F6FB8" stroke="#1F6FB8" stroke-width="8">
+    <circle cx="386" cy="368" r="40"/>
+    <circle cx="428" cy="338" r="46"/>
+    <circle cx="474" cy="362" r="40"/>
+    <circle cx="448" cy="392" r="38"/>
+    <circle cx="404" cy="394" r="34"/>
+  </g>
+  <g fill="#E6F0FA">
+    <circle cx="386" cy="368" r="40"/>
+    <circle cx="428" cy="338" r="46"/>
+    <circle cx="474" cy="362" r="40"/>
+    <circle cx="448" cy="392" r="38"/>
+    <circle cx="404" cy="394" r="34"/>
+  </g>
+  <text x="430" y="376" text-anchor="middle" font-size="24" font-weight="bold" fill="#1F6FB8">Internet</text>
+
+  <!-- Internet -> servidor da aplicação -->
+  <line x1="520" y1="365" x2="576" y2="365" stroke="#1F6FB8" stroke-width="3" marker-end="url(#seta-azul)"/>
+  <text x="548" y="350" text-anchor="middle" font-size="18" fill="#1F6FB8">HTTP</text>
+
+  <!-- Servidor da aplicação -->
+  <rect x="580" y="230" width="240" height="210" rx="16" fill="#E6F0FA" stroke="#1F6FB8" stroke-width="4"/>
+  <g fill="#ffffff" stroke="#1F6FB8" stroke-width="3">
+    <rect x="640" y="248" width="120" height="20" rx="4"/>
+    <rect x="640" y="274" width="120" height="20" rx="4"/>
+    <rect x="640" y="300" width="120" height="20" rx="4"/>
+  </g>
+  <g fill="#1F6FB8">
+    <circle cx="652" cy="258" r="4"/>
+    <circle cx="652" cy="284" r="4"/>
+    <circle cx="652" cy="310" r="4"/>
+  </g>
+  <text x="700" y="356" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">Servidor da</text>
+  <text x="700" y="381" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">aplicação</text>
+  <text x="700" y="414" text-anchor="middle" font-size="20" fill="#1F6FB8">Python + Flask</text>
+
+  <!-- Aplicação <-> banco pela rede -->
+  <line x1="824" y1="328" x2="976" y2="328" stroke="#EE7F1D" stroke-width="3" marker-end="url(#seta-laranja)"/>
+  <text x="900" y="314" text-anchor="middle" font-size="20" font-weight="bold" fill="#EE7F1D">SQL</text>
+  <line x1="976" y1="376" x2="824" y2="376" stroke="#EE7F1D" stroke-width="3" marker-end="url(#seta-laranja)"/>
+  <text x="900" y="404" text-anchor="middle" font-size="20" font-weight="bold" fill="#EE7F1D">linhas</text>
+
+  <!-- Servidor de banco de dados -->
+  <rect x="980" y="230" width="260" height="210" rx="16" fill="#FDF0E2" stroke="#EE7F1D" stroke-width="4"/>
+  <g fill="#ffffff" stroke="#EE7F1D" stroke-width="3">
+    <path d="M1070 262 V300 A40 14 0 0 0 1150 300 V262"/>
+    <ellipse cx="1110" cy="262" rx="40" ry="14"/>
+    <path d="M1070 281 A40 14 0 0 0 1150 281" fill="none"/>
+  </g>
+  <text x="1110" y="356" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">Servidor de</text>
+  <text x="1110" y="381" text-anchor="middle" font-size="21" font-weight="bold" fill="#1F2933">banco de dados</text>
+  <text x="1110" y="414" text-anchor="middle" font-size="20" fill="#B85A00">MariaDB / MySQL</text>
+  <circle cx="1094" cy="475" r="6" fill="#5AA23C"/>
+  <text x="1108" y="481" font-size="19" fill="#3E7D24">ligado 24 horas</text>
+
+  <!-- Marcador do host -->
+  <line x1="900" y1="418" x2="900" y2="468" stroke="#5F6B7A" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="740" y="470" width="320" height="44" rx="10" fill="#F2F4F7" stroke="#5F6B7A" stroke-width="2"/>
+  <text x="900" y="499" text-anchor="middle" font-family="Consolas, 'Courier New', monospace" font-size="21" fill="#1F2933">host = endereço do servidor</text>
+
+  <!-- Legenda -->
+  <rect x="60" y="585" width="1160" height="100" rx="16" fill="#EAF4E4" stroke="#5AA23C" stroke-width="3"/>
+  <text x="640" y="625" text-anchor="middle" font-size="24" fill="#1F2933">O banco de dados é um programa à parte, em outro computador: o servidor.</text>
+  <text x="640" y="662" text-anchor="middle" font-size="24" fill="#1F2933">Por isso muitos dispositivos usam os mesmos dados ao mesmo tempo.</text>
+</svg>

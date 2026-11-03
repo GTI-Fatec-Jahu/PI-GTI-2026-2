@@ -79,9 +79,18 @@ o repositório, não substitui o julgamento dele.
   (a série 26 não é compatível com o MariaDB do XAMPP).
 - **Conexão MySQL (Capítulo 10 em diante):** o `db.py` mantém `use_pure: True` (alunos com
   XAMPP e MySQL da Oracle instalados juntos tiveram erros com a extensão C), `time_zone:
-  '-03:00'` e `sql_mode` estrito.
-- **Segredos:** até o Capítulo 10, a senha do banco e a `secret_key` ficam no código, com aviso
-  de que é provisório. O `.env` entra no Capítulo 11. São projetos de sala, sem dados reais.
+  '-03:00'` e as **quatro** regras de `sql_mode`: `STRICT_TRANS_TABLES`, `NO_ZERO_DATE`,
+  `ERROR_FOR_DIVISION_BY_ZERO` e `NO_ENGINE_SUBSTITUTION`. O Capítulo 10 **explica** as quatro
+  (tabela "sem ela / com ela"); o Capítulo 11 só as **repete**, apontando para o 10.
+- **Segredos e marcadores:** até o Capítulo 10, a senha do banco e a `secret_key` ficam no
+  código, com aviso de que é provisório. O `.env` entra no Capítulo 11. São projetos de sala,
+  sem dados reais. **Nos Capítulos 10 e 11 o código mostra os marcadores `SUA_SENHA_AQUI` e
+  `NOME_BANCO_DADOS`** (no 10, em `teste_banco.py` e `db.py`; no 11, no `.env.example`), de
+  propósito: o aluno precisa trocá-los, vê os erros `1045` e `1049` quando esquece, e entende a
+  conexão em vez de só copiar. O zip mantém os marcadores. No XAMPP, a senha do `root` é vazia.
+- **Ambiente virtual dos alunos:** a pasta se chama **`venv`** (visível), nunca `.venv`. Vale
+  para os capítulos, os `.gitignore` das etapas e os zips. (O `.venv` do próprio repositório,
+  usado só para o `mkdocs`, não é material de aluno.)
 
 ## Sequência dos capítulos
 
@@ -107,7 +116,7 @@ pela `session` (8) e termina no MySQL (10).
 | 7 | Formulários | GET e POST, `request.form`, tipos de input (text, number, select, radio, checkbox, textarea, date, password, email), PRG. O produto entra numa lista global |
 | 8 | Session | `secret_key`, cookie assinado, `session` como **banco temporário**: minicrud de produtos (nome, categoria, preço) com formulário, listagem e exclusão. CSRF com `Flask-WTF`: ativar `CSRFProtect`, ver o erro 400 e acrescentar o `<input type="hidden">` aos formulários |
 | 9 | Validação e flash | Validação no servidor (uma função por campo), `flash` com alertas do Bootstrap, formulário que mantém os valores digitados, validação no navegador x no servidor |
-| 10 | Banco de dados | XAMPP, phpMyAdmin, importar `produtos_exemplo.sql`, `mysql-connector-python`, `db.py` com pool (`execute_query`, `execute_one`), `SELECT` na lista e `INSERT` pelo formulário |
+| 10 | Banco de dados | XAMPP, phpMyAdmin, importar `produtos_exemplo.sql` (tabela `produtos` com `id_produto BIGINT UNSIGNED`, `nome`, `categoria` e `preco DECIMAL(14,2)`), por que o banco fica em um servidor e o que é o `127.0.0.1` (dois diagramas SVG), `mysql-connector-python`, conexão com os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS`, `db.py` com pool (`execute_query`, `execute_one`) e as quatro regras do `sql_mode`, `SELECT` na lista e `INSERT` pelo formulário |
 
 ### Projeto 2 — Sistema de Gestão (Capítulos 11 a 19)
 
@@ -203,7 +212,7 @@ primeira linha, `-- DROP DATABASE IF EXISTS gestao;` comentado: o aluno tira o `
 quiser recomeçar do zero.
 
 **Dados prontos para baixar** (únicos casos em que o banco é populado, todos em
-`docs/arquivos/`): `produtos_exemplo.sql` (Capítulo 10, banco `catalogo` com a tabela mínima
+`docs/arquivos/`): `produtos_exemplo.sql` (Capítulo 10, banco `catalogo` com a tabela mínima, chave `id_produto`,
 `produtos` com `nome`, `categoria` e `preco`, e algumas linhas), `perfis_30.sql` (12.1) e
 `relatorios_dados.sql` (19, usuários e produtos com datas de cadastro espalhadas por vários
 meses). Os `.sql` de dados usam `INSERT IGNORE` e buscam o `id_perfil` pelo nome, para
@@ -307,6 +316,11 @@ Imagem é exceção, não regra. Para cada figura que o rascunho ou o texto de `
 
 O texto alternativo descreve a figura (acessibilidade), nunca é "imagem 1".
 
+**Diagramas em SVG:** quando o professor pedir, o Claude desenha a figura direto em SVG
+(`docs/imgs/Capitulo_10_img_01.svg`, mesma numeração e mesma inserção `![alt](../imgs/...)`), no
+estilo base abaixo, com `<title>` e `<desc>`. Nesse caso **não há prompt** para o Nano Banana.
+Confira o desenho renderizado (Edge headless) antes de publicar.
+
 **Prompts para o Nano Banana:** um arquivo por capítulo, `projetos/imagens/Capitulo_NN_prompts.md`
 (fora do site), com um bloco por imagem pendente:
 
@@ -341,7 +355,7 @@ onde entra) para separar do que é erro de verdade. Quando o professor colocar o
   da etapa (não um diff). Um script em `projetos/` gera os zips; **teste cada etapa antes** de
   empacotar (instalar `requirements.txt`, rodar, abrir as páginas).
 - O zip leva `requirements.txt`, `.env.example` e os `.sql` da etapa. **Nunca** leva `.env`,
-  `.venv`, `__pycache__` nem a pasta `.git`.
+  `venv`, `__pycache__` nem a pasta `.git`.
 
 ---
 

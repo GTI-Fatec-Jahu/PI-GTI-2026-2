@@ -6,7 +6,7 @@
   <section id="detalhe" class="card">
     <div class="card-body">
       <h1 class="card-title h2">{{ produto.nome }}</h1>
-      <p class="card-text"><strong>Código:</strong> {{ produto.id }}</p>
+      <p class="card-text"><strong>Código:</strong> {{ produto.id_produto }}</p>
       <p class="card-text"><strong>Categoria:</strong> {{ produto.categoria }}</p>
       <p class="card-text"><strong>Preço:</strong> R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</p>
       <p class="card-text">

@@ -39,8 +39,8 @@ baixe o ponto de partida, descompacte, crie o ambiente virtual e instale as depe
 ➡️ [Baixar p1_cap_NN-1.zip](../arquivos/p1_cap_NN-1.zip)
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 

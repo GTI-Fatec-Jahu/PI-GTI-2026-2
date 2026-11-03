@@ -11,7 +11,7 @@
 Ao final deste capítulo você deverá ser capaz de:
 
 - Explicar a diferença entre uma página estática e uma página dinâmica, e o papel do servidor web
-- Criar um ambiente virtual (`.venv`), instalar o Flask com o `pip` e registrar as dependências em `requirements.txt` com `pip freeze`
+- Criar um ambiente virtual (`venv`), instalar o Flask com o `pip` e registrar as dependências em `requirements.txt` com `pip freeze`
 - Ampliar o `.gitignore` para deixar de fora o ambiente virtual e os arquivos temporários do Python
 - Criar uma aplicação Flask com rotas, usando `@app.route` (o seu primeiro decorador), e rodá-la no navegador
 - Criar uma rota com variável na URL, como `/produto/<id>`
@@ -84,16 +84,16 @@ Deve aparecer algo como `Python 3.12.4` (qualquer versão 3.10 ou mais nova serv
 Com o terminal na pasta `catalogo-produtos`, rode:
 
 ```bash
-python -m venv .venv
+python -m venv venv
 ```
 
-Isso cria, dentro do projeto, uma pasta oculta chamada `.venv` com uma cópia isolada do Python. (`-m venv` diz "execute o módulo `venv`", e `.venv` é o nome que damos à pasta.) Leva alguns segundos. Agora **ative** o ambiente:
+Isso cria, dentro do projeto, uma pasta chamada `venv` com uma cópia isolada do Python. (`-m venv` diz "execute o módulo `venv`", e o segundo `venv` é o nome que damos à pasta.) Leva alguns segundos. Agora **ative** o ambiente:
 
 ```bash
-.venv\Scripts\activate
+venv\Scripts\activate
 ```
 
-O começo da linha do terminal passa a mostrar `(.venv)`, como em `(.venv) PS C:\Users\SeuNome\Desktop\catalogo-produtos>`. Esse prefixo é o sinal de que o ambiente está ativo: tudo o que for instalado agora vai para dentro da pasta `.venv`, sem tocar no resto do computador.
+O começo da linha do terminal passa a mostrar `(venv)`, como em `(venv) PS C:\Users\SeuNome\Desktop\catalogo-produtos>`. Esse prefixo é o sinal de que o ambiente está ativo: tudo o que for instalado agora vai para dentro da pasta `venv`, sem tocar no resto do computador.
 
 !!! warning "Erro de 'execução de scripts desabilitada'"
     No PowerShell, o Windows pode recusar a ativação com uma mensagem parecida com *"a execução de scripts foi desabilitada neste sistema"* (em inglês, *"running scripts is disabled on this system"*). Para liberar, rode uma vez:
@@ -102,10 +102,10 @@ O começo da linha do terminal passa a mostrar `(.venv)`, como em `(.venv) PS C:
     Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
     ```
 
-    Responda `S` (ou `Y`) se ele perguntar, feche o terminal do VS Code, abra outro com `Ctrl + '` e repita o `.venv\Scripts\activate`.
+    Responda `S` (ou `Y`) se ele perguntar, feche o terminal do VS Code, abra outro com `Ctrl + '` e repita o `venv\Scripts\activate`.
 
 !!! tip "Sempre que abrir o projeto"
-    O ambiente virtual **não fica ativo sozinho**. Toda vez que abrir um terminal novo para trabalhar no projeto, ative-o de novo com `.venv\Scripts\activate`. Se o `(.venv)` não estiver no começo da linha, o Flask não será encontrado.
+    O ambiente virtual **não fica ativo sozinho**. Toda vez que abrir um terminal novo para trabalhar no projeto, ative-o de novo com `venv\Scripts\activate`. Se o `(venv)` não estiver no começo da linha, o Flask não será encontrado.
 
 ### O Git e o ambiente virtual
 
@@ -115,25 +115,25 @@ Rode o `git status`:
 git status
 ```
 
-A pasta `.venv/` aparece como **não rastreada**. (Nas versões mais novas do Python, a partir da 3.13, o próprio ambiente virtual se esconde do Git, e a pasta pode não aparecer. Mesmo assim, siga a instrução abaixo: o `.gitignore` do projeto deve avisar, e vale para qualquer versão.) Ela tem milhares de arquivos, é pesada e pode ser recriada a qualquer momento, então não deve ir para o GitHub. Esse é o aviso que o Capítulo 1 deu: o `.gitignore` ia crescer. Abra o `.gitignore` e acrescente, ao final:
+A pasta `venv/` aparece como **não rastreada**. (Nas versões mais novas do Python, a partir da 3.13, o próprio ambiente virtual se esconde do Git, e a pasta pode não aparecer. Mesmo assim, siga a instrução abaixo: o `.gitignore` do projeto deve avisar, e vale para qualquer versão.) Ela tem milhares de arquivos, é pesada e pode ser recriada a qualquer momento, então não deve ir para o GitHub. Esse é o aviso que o Capítulo 1 deu: o `.gitignore` ia crescer. Abra o `.gitignore` e acrescente, ao final:
 
 ```text
 # Ambiente virtual: pode ser recriado a qualquer momento com o requirements.txt
-.venv/
+venv/
 
 # Arquivos temporários que o Python cria sozinho
 __pycache__/
 *.pyc
 ```
 
-Salve e rode `git status` de novo: a `.venv/` **sumiu** da lista (e o `.gitignore`, modificado, apareceu). A pasta `__pycache__` ainda não existe, mas o Python a cria sozinho quando executa o código, e já fica avisado.
+Salve e rode `git status` de novo: a `venv/` **sumiu** da lista (e o `.gitignore`, modificado, apareceu). A pasta `__pycache__` ainda não existe, mas o Python a cria sozinho quando executa o código, e já fica avisado.
 
 !!! tip "Se você fez o Capítulo 2.1"
-    O Capítulo 2.1 (opcional) já acrescentou ao `.gitignore` as linhas `__pycache__/` e `*.pyc`, porque o `import` do Tópico 8 cria essa pasta. Nesse caso, acrescente só o `.venv/` (e o comentário dele) e não repita as outras duas.
+    O Capítulo 2.1 (opcional) já acrescentou ao `.gitignore` as linhas `__pycache__/` e `*.pyc`, porque o `import` do Tópico 8 cria essa pasta. Nesse caso, acrescente só o `venv/` (e o comentário dele) e não repita as outras duas.
 
 ### Instalando o Flask
 
-Com o `(.venv)` ativo, instale:
+Com o `(venv)` ativo, instale:
 
 ```bash
 pip install flask
@@ -152,7 +152,7 @@ O comando mostra o nome, a versão e o local da instalação. Se aparecerem esse
 
 ### O `requirements.txt`
 
-Uma pessoa que receber o seu projeto (ou você mesmo, em outro computador, ou depois de um `git clone`) não terá a pasta `.venv`, porque ela ficou de fora do Git. Como saber o que instalar? O projeto precisa de uma **lista das suas dependências**, e por convenção ela se chama `requirements.txt`. Você não escreve essa lista à mão, o `pip` a gera:
+Uma pessoa que receber o seu projeto (ou você mesmo, em outro computador, ou depois de um `git clone`) não terá a pasta `venv`, porque ela ficou de fora do Git. Como saber o que instalar? O projeto precisa de uma **lista das suas dependências**, e por convenção ela se chama `requirements.txt`. Você não escreve essa lista à mão, o `pip` a gera:
 
 ```bash
 pip freeze > requirements.txt
@@ -173,8 +173,8 @@ Werkzeug==3.1.9
 Você instalou só o Flask, mas ele trouxe as outras seis. Para reconstruir o ambiente em qualquer lugar, bastam estes dois comandos (você os usará sempre que clonar um projeto Python):
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -225,7 +225,7 @@ São poucas linhas, mas cada uma tem um papel:
 
 ### Ligando o servidor
 
-Com o `(.venv)` ativo, rode no terminal:
+Com o `(venv)` ativo, rode no terminal:
 
 ```bash
 python app.py
@@ -353,7 +353,7 @@ O combinado é uma segunda pasta especial, a `static`: **tudo o que está nela o
 
 ```text
 catalogo-produtos/
-├── .venv/              (ignorada pelo Git)
+├── venv/              (ignorada pelo Git)
 ├── static/
 │   ├── estilo.css
 │   └── produto.js
@@ -670,7 +670,7 @@ git push
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, a pasta `templates` (`index.html`, `cadastro.html` e `produto.html`), a pasta `static` (`estilo.css` e `produto.js`), o `requirements.txt`, o `.gitignore` e a pasta `treino`. O ambiente virtual **não** vai no zip: depois de descompactar, crie-o com os três comandos do Tópico 2 (`python -m venv .venv`, `.venv\Scripts\activate` e `pip install -r requirements.txt`).
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, a pasta `templates` (`index.html`, `cadastro.html` e `produto.html`), a pasta `static` (`estilo.css` e `produto.js`), o `requirements.txt`, o `.gitignore` e a pasta `treino`. O ambiente virtual **não** vai no zip: depois de descompactar, crie-o com os três comandos do Tópico 2 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`).
 
 ➡️ [Baixar p1_cap_03.zip](../arquivos/p1_cap_03.zip)
 
@@ -683,11 +683,11 @@ Tente responder mentalmente antes de abrir.
 ??? question "Qual é a diferença entre uma página estática e uma dinâmica?"
     A estática é um arquivo pronto: todo mundo que a abre vê o mesmo conteúdo. A dinâmica é montada na hora do pedido por um programa (aqui, o Flask), e pode mudar conforme quem pede e quais dados existem.
 
-??? question "Para que serve o ambiente virtual, e por que a pasta `.venv/` fica no `.gitignore`?"
+??? question "Para que serve o ambiente virtual, e por que a pasta `venv/` fica no `.gitignore`?"
     Ele dá a cada projeto o seu próprio Python, com as suas próprias bibliotecas, sem misturar com os outros projetos. A pasta é pesada e pode ser recriada a qualquer momento, então não vai para o GitHub.
 
 ??? question "Como uma pessoa que clonou o seu projeto instala as bibliotecas que ele usa?"
-    Cria o ambiente virtual (`python -m venv .venv`), ativa (`.venv\Scripts\activate`) e roda `pip install -r requirements.txt`. O arquivo foi gerado por você com `pip freeze > requirements.txt`.
+    Cria o ambiente virtual (`python -m venv venv`), ativa (`venv\Scripts\activate`) e roda `pip install -r requirements.txt`. O arquivo foi gerado por você com `pip freeze > requirements.txt`.
 
 ??? question "O que faz a linha `@app.route('/sobre')` acima de uma função?"
     É um decorador: entrega a função ao Flask e diz que ela deve ser executada quando o navegador pedir o endereço `/sobre`. O que a função retorna é a resposta.
@@ -703,13 +703,13 @@ Tente responder mentalmente antes de abrir.
 ## ✅ Quiz de Fixação
 
 <quiz>
-Você instalou o Flask com o `(.venv)` ativo. Qual é a vantagem do ambiente virtual?
+Você instalou o Flask com o `(venv)` ativo. Qual é a vantagem do ambiente virtual?
 - [ ] Ele deixa o Python mais rápido
 > Não. O ambiente virtual não muda a velocidade de execução, só o lugar onde as bibliotecas são instaladas.
 - [x] Cada projeto tem as suas próprias bibliotecas, sem interferir nos outros projetos nem no resto do computador
-> Correto. O que é instalado com o ambiente ativo vai para a pasta `.venv` do projeto.
+> Correto. O que é instalado com o ambiente ativo vai para a pasta `venv` do projeto.
 - [ ] Ele envia as bibliotecas para o GitHub automaticamente
-> Não. Pelo contrário: a pasta `.venv/` fica no `.gitignore` e não vai para o GitHub. Quem recebe o projeto recria o ambiente com o `requirements.txt`.
+> Não. Pelo contrário: a pasta `venv/` fica no `.gitignore` e não vai para o GitHub. Quem recebe o projeto recria o ambiente com o `requirements.txt`.
 - [ ] Ele dispensa o `requirements.txt`
 > Não. O ambiente virtual não é versionado, então o `requirements.txt` é justamente o que permite recriá-lo em outro lugar.
 </quiz>
@@ -720,7 +720,7 @@ Quais das afirmações sobre o `requirements.txt` e o `.gitignore` do projeto es
 > Correto. Ele lista também as bibliotecas que o Flask trouxe como dependência.
 - [x] O `pip install -r requirements.txt` instala tudo o que está listado no arquivo
 > Correto. É o comando usado depois de clonar o projeto e criar um novo ambiente virtual.
-- [x] A linha `.venv/` no `.gitignore` impede que o ambiente virtual seja enviado ao GitHub
+- [x] A linha `venv/` no `.gitignore` impede que o ambiente virtual seja enviado ao GitHub
 > Correto. O Git deixa de listar a pasta no `git status` e ela não entra nos commits.
 - [ ] O `requirements.txt` deve ficar no `.gitignore`, porque é um arquivo gerado
 > Não. Ele precisa ir para o GitHub: é a lista que permite a outra pessoa recriar o ambiente.

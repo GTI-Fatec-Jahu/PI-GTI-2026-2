@@ -31,7 +31,7 @@ Todo projeto novo segue o mesmo roteiro. A tabela resume as etapas, e cada link 
 | Etapa | Onde foi ensinada |
 |---|---|
 | Pasta do projeto e VS Code | [Capítulo 1, Tópico 1](Capitulo_01_Git_GitHub_HTML5_e_CSS.md#topico-1-o-que-vamos-construir-e-o-ambiente) |
-| Ambiente virtual (`.venv`) | [Capítulo 3, Tópico 2](Capitulo_03_Flask.md#topico-2-ambiente-virtual-e-instalacao-do-flask) |
+| Ambiente virtual (`venv`) | [Capítulo 3, Tópico 2](Capitulo_03_Flask.md#topico-2-ambiente-virtual-e-instalacao-do-flask) |
 | `pip install` e `requirements.txt` | [Capítulo 3, Tópico 2](Capitulo_03_Flask.md#o-requirementstxt) |
 | `.gitignore` | [Capítulo 1, Tópico 2](Capitulo_01_Git_GitHub_HTML5_e_CSS.md#o-que-o-git-nao-deve-guardar) |
 | `git init`, `add` e `commit` | [Capítulo 1, Tópico 2](Capitulo_01_Git_GitHub_HTML5_e_CSS.md#topico-2-git-o-historico-do-projeto-no-seu-computador) |
@@ -52,15 +52,15 @@ code .
 O VS Code reabre dentro da pasta vazia. No terminal dele, crie e ative o ambiente virtual:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 ```
 
-O `(.venv)` aparece no começo da linha do terminal. Se o PowerShell recusar a ativação, o aviso do [Capítulo 3](Capitulo_03_Flask.md#criando-o-ambiente-virtual) mostra o `Set-ExecutionPolicy`.
+O `(venv)` aparece no começo da linha do terminal. Se o PowerShell recusar a ativação, o aviso do [Capítulo 3](Capitulo_03_Flask.md#criando-o-ambiente-virtual) mostra o `Set-ExecutionPolicy`.
 
 ### Os pacotes do projeto
 
-Com o `(.venv)` ativo, instale **de uma vez** todos os pacotes que o Projeto 2 vai usar:
+Com o `(venv)` ativo, instale **de uma vez** todos os pacotes que o Projeto 2 vai usar:
 
 ```bash
 pip install flask flask-wtf mysql-connector-python python-dotenv
@@ -90,7 +90,7 @@ Crie o arquivo `.gitignore`. Ele já nasce com tudo o que este projeto deixa de 
 
 ```text
 # Ambiente virtual: pode ser recriado a qualquer momento com o requirements.txt
-.venv/
+venv/
 
 # Arquivos temporários que o Python cria sozinho
 __pycache__/
@@ -135,7 +135,7 @@ git init
 git status
 ```
 
-Estão na lista o `.gitignore`, o `app.py` e o `requirements.txt`. A `.venv` não aparece, porque o `.gitignore` a esconde. Registre este ponto **só no computador**, o repositório do GitHub vem no próximo tópico:
+Estão na lista o `.gitignore`, o `app.py` e o `requirements.txt`. A pasta `venv` não aparece, porque o `.gitignore` a esconde. Registre este ponto **só no computador**, o repositório do GitHub vem no próximo tópico:
 
 ```bash
 git add .
@@ -287,8 +287,8 @@ Como o `.env` não vai para o GitHub, quem baixar o projeto não sabe quais linh
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=
-DB_NAME=gestao
+DB_PASSWORD=SUA_SENHA_AQUI
+DB_NAME=NOME_BANCO_DADOS
 
 # Troque por um texto longo e só seu. Ele assina o cookie da session.
 SECRET_KEY=troque-por-um-texto-longo-e-so-seu
@@ -296,10 +296,10 @@ SECRET_KEY=troque-por-um-texto-longo-e-so-seu
 
 | Variável | O que guarda |
 |---|---|
-| `DB_HOST` | O endereço do servidor do banco. `127.0.0.1` é o próprio computador |
+| `DB_HOST` | O endereço do servidor do banco. `127.0.0.1` é o próprio computador, como no [Capítulo 10](Capitulo_10_Banco_de_Dados.md#o-que-e-o-127001) |
 | `DB_PORT` | A porta do MySQL. A do XAMPP é a `3306` |
-| `DB_USER` e `DB_PASSWORD` | Quem entra e com qual senha. O `root` do XAMPP **não tem senha**, então a linha fica vazia |
-| `DB_NAME` | O banco a usar: `gestao` |
+| `DB_USER` e `DB_PASSWORD` | Quem entra e com qual senha. O modelo traz o marcador `SUA_SENHA_AQUI`, que você troca no `.env`. O `root` do XAMPP **não tem senha**, então a linha fica vazia |
+| `DB_NAME` | O banco a usar. O modelo traz o marcador `NOME_BANCO_DADOS`, que você troca no `.env` por `gestao` |
 | `SECRET_KEY` | O texto que assina o cookie da `session`, como no [Capítulo 8](Capitulo_08_Session.md#a-secret_key). Não é usada agora, mas o `flash` e o CSRF do Capítulo 12 dependem dela |
 
 Agora crie o `.env` **a partir do modelo**, no terminal:
@@ -308,7 +308,14 @@ Agora crie o `.env` **a partir do modelo**, no terminal:
 copy .env.example .env
 ```
 
-Abra o `.env` e troque o valor do `SECRET_KEY` por um texto só seu. Para gerar um bom, rode no terminal e copie o resultado:
+Abra o `.env`. Ele é uma cópia do modelo, e os dois **marcadores** do Capítulo 10 vieram junto. Troque-os pelos valores do seu computador, **no `.env`** (o `.env.example` continua com os marcadores, porque é só o modelo): a senha do `root` do XAMPP é vazia, então não deixe nada depois do `=`, e o banco é o `gestao`:
+
+```text
+DB_PASSWORD=
+DB_NAME=gestao
+```
+
+Troque também o valor do `SECRET_KEY` por um texto só seu. Para gerar um bom, rode no terminal e copie o resultado:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
@@ -370,7 +377,7 @@ python -c "import os; from dotenv import load_dotenv; load_dotenv(); print(os.ge
 python -c "import db; print('db.py carregado')"
 ```
 
-O primeiro comando mostra `gestao`: o Python leu o `.env`. (Se aparecer `None`, o `.env` não está na raiz do projeto.) O segundo confirma que o `db.py` carrega sem o `RuntimeError`.
+O primeiro comando mostra `gestao`: o Python leu o `.env`. (Se aparecer `None`, o `.env` não está na raiz do projeto. Se aparecer `NOME_BANCO_DADOS`, o marcador não foi trocado.) O segundo confirma que o `db.py` carrega sem o `RuntimeError`.
 
 ### A configuração e o pool
 
@@ -384,7 +391,10 @@ CONFIGURACAO = {
     'password': os.getenv('DB_PASSWORD', ''),
     'database': os.getenv('DB_NAME'),
     'charset': 'utf8mb4',
-    'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
+    'sql_mode': (
+        'STRICT_TRANS_TABLES,NO_ZERO_DATE,'
+        'ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+    ),
     'time_zone': '-03:00',  # horário de Brasília, igual em qualquer computador
     'use_pure': True,  # conector em Python puro, evita erros com XAMPP e MySQL juntos
 }
@@ -401,7 +411,7 @@ Cada chave do dicionário é um argumento que o conector entende:
 | `user` e `password` | `DB_USER` e `DB_PASSWORD` do `.env` | Quem entra no banco. O `''` é o padrão de uma senha vazia |
 | `database` | `DB_NAME` do `.env` | O banco usado nas consultas: `gestao` |
 | `charset` | Fixo no código | `utf8mb4`: o texto viaja com acentos, sem virar `?` |
-| `sql_mode` | Fixo no código | O MariaDB do XAMPP vem sem o **modo estrito**: um nome longo demais seria **cortado em silêncio**. Com `STRICT_TRANS_TABLES`, o banco recusa com um erro. É a terceira barreira, depois do HTML e do Python |
+| `sql_mode` | Fixo no código | As mesmas quatro regras de validação do [Capítulo 10](Capitulo_10_Banco_de_Dados.md#o-sql_mode-quatro-regras-de-validacao) |
 | `time_zone` | Fixo no código | O fuso da conexão. `NOW()` e as colunas `criado_em` e `atualizado_em` usam esse fuso. Com `-03:00`, o horário gravado é o de Brasília em qualquer computador ou servidor |
 | `use_pure` | Fixo no código | `True` usa o conector em Python puro. Em computadores com o XAMPP e o MySQL da Oracle instalados juntos, a extensão em C falha com erros como `Authentication plugin 'caching_sha2_password' is not supported` ou `Lost connection to MySQL server` |
 | `pool_name` e `pool_size` | Fixo no código | O nome do pool e quantas conexões ele mantém abertas (5) |
@@ -537,10 +547,11 @@ novo_id = execute_insert(
 | Mensagem | Causa | O que fazer |
 |---|---|---|
 | `RuntimeError: Não encontrei o arquivo .env` | O `.env` não existe na raiz do projeto | Rode `copy .env.example .env` |
-| `ModuleNotFoundError: No module named 'dotenv'` (ou `'mysql'`) | O pacote não está instalado no ambiente ativo | Ative o `.venv` e rode o `pip install` do Tópico 1 |
+| `ModuleNotFoundError: No module named 'dotenv'` (ou `'mysql'`) | O pacote não está instalado no ambiente ativo | Ative o `venv` e rode o `pip install` do Tópico 1 |
 | `2003: Can't connect to MySQL server` | O MySQL do XAMPP está desligado, ou a porta do `.env` está errada | Clique em **Start** no MySQL e confira o `DB_PORT` |
-| `1045 Access denied for user` | `DB_USER` ou `DB_PASSWORD` não batem com os do banco | Confira o `.env`. No XAMPP, a senha do `root` é vazia |
+| `1045 Access denied for user` | `DB_USER` ou `DB_PASSWORD` não batem com os do banco, ou o marcador `SUA_SENHA_AQUI` ficou no `.env` | Confira o `.env`. No XAMPP, a senha do `root` é vazia (`DB_PASSWORD=`) |
 | `1049 Unknown database 'gestao'` | O `banco.sql` não foi importado, ou o `DB_NAME` está errado | Volte ao Tópico 3 e confira o `.env` |
+| `1049 Unknown database 'nome_banco_dados'` | O marcador `NOME_BANCO_DADOS` ficou no `.env` | Troque por `DB_NAME=gestao` |
 | `1146 Table 'gestao.perfis' doesn't exist` | O banco existe, mas está sem as tabelas | Importe o `banco.sql` de novo |
 | `Authentication plugin 'caching_sha2_password' is not supported` | A extensão em C do conector se confunde com o MySQL da Oracle | Confira se o `use_pure` está `True` |
 
@@ -869,7 +880,10 @@ CONFIGURACAO = {
     'password': os.getenv('DB_PASSWORD', ''),
     'database': os.getenv('DB_NAME'),
     'charset': 'utf8mb4',
-    'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
+    'sql_mode': (
+        'STRICT_TRANS_TABLES,NO_ZERO_DATE,'
+        'ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+    ),
     'time_zone': '-03:00',  # horário de Brasília, igual em qualquer computador
     'use_pure': True,  # conector em Python puro, evita erros com XAMPP e MySQL juntos
 }
@@ -978,7 +992,7 @@ O `testar_conexao.py` e o `.env.example` estão nos Tópicos 6 e 4, e os templat
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv .venv`, `.venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. Depois, abra o `.env` e troque os marcadores `SUA_SENHA_AQUI` (por nada, no XAMPP) e `NOME_BANCO_DADOS` (por `gestao`), como no Tópico 4. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
 
 ➡️ [Baixar p2_cap_11.zip](../arquivos/p2_cap_11.zip)
 

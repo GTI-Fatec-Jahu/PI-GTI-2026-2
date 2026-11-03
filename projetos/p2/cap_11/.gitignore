@@ -1,5 +1,5 @@
 # Ambiente virtual: pode ser recriado a qualquer momento com o requirements.txt
-.venv/
+venv/
 
 # Arquivos temporários que o Python cria sozinho
 __pycache__/

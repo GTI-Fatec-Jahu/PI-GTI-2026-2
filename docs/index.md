@@ -16,23 +16,23 @@ aprofundar.
 
 | Capítulo | Tema | Status |
 |---|---|---|
-| 1 | Git, GitHub, HTML5 e CSS | ✅ [Disponível](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) |
-| 2 | Clone, pull, formulário, CSS e JavaScript | ✅ [Disponível](capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) |
-| 2.1 | Python essencial (opcional) | ✅ [Disponível](capitulos/Capitulo_02_1_Python_Essencial.md) |
-| 3 | Flask | ✅ [Disponível](capitulos/Capitulo_03_Flask.md) |
-| 4 | Bootstrap com Flask | ✅ [Disponível](capitulos/Capitulo_04_Bootstrap_com_Flask.md) |
-| 5 | Variáveis, filtros, `if` e `for` | ✅ [Disponível](capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md) |
-| 6 | Herança de templates, `include` e páginas de erro | ✅ [Disponível](capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) |
-| 7 | Formulários | ✅ [Disponível](capitulos/Capitulo_07_Formularios.md) |
-| 8 | Session | ✅ [Disponível](capitulos/Capitulo_08_Session.md) |
-| 9 | Validação e flash | ✅ [Disponível](capitulos/Capitulo_09_Validacao_e_Flash.md) |
-| 10 | Banco de dados | ✅ [Disponível](capitulos/Capitulo_10_Banco_de_Dados.md) |
+| [1](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) | [Git, GitHub, HTML5 e CSS](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) | ✅ [Disponível](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) |
+| [2](capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) | [Clone, pull, formulário, CSS e JavaScript](capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) | ✅ [Disponível](capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) |
+| [2.1](capitulos/Capitulo_02_1_Python_Essencial.md) | [Python essencial (opcional)](capitulos/Capitulo_02_1_Python_Essencial.md) | ✅ [Disponível](capitulos/Capitulo_02_1_Python_Essencial.md) |
+| [3](capitulos/Capitulo_03_Flask.md) | [Flask](capitulos/Capitulo_03_Flask.md) | ✅ [Disponível](capitulos/Capitulo_03_Flask.md) |
+| [4](capitulos/Capitulo_04_Bootstrap_com_Flask.md) | [Bootstrap com Flask](capitulos/Capitulo_04_Bootstrap_com_Flask.md) | ✅ [Disponível](capitulos/Capitulo_04_Bootstrap_com_Flask.md) |
+| [5](capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md) | [Variáveis, filtros, `if` e `for`](capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md) | ✅ [Disponível](capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md) |
+| [6](capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) | [Herança de templates, `include` e páginas de erro](capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) | ✅ [Disponível](capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) |
+| [7](capitulos/Capitulo_07_Formularios.md) | [Formulários](capitulos/Capitulo_07_Formularios.md) | ✅ [Disponível](capitulos/Capitulo_07_Formularios.md) |
+| [8](capitulos/Capitulo_08_Session.md) | [Session](capitulos/Capitulo_08_Session.md) | ✅ [Disponível](capitulos/Capitulo_08_Session.md) |
+| [9](capitulos/Capitulo_09_Validacao_e_Flash.md) | [Validação e flash](capitulos/Capitulo_09_Validacao_e_Flash.md) | ✅ [Disponível](capitulos/Capitulo_09_Validacao_e_Flash.md) |
+| [10](capitulos/Capitulo_10_Banco_de_Dados.md) | [Banco de dados](capitulos/Capitulo_10_Banco_de_Dados.md) | ✅ [Disponível](capitulos/Capitulo_10_Banco_de_Dados.md) |
 
 ## Projeto 2 — Sistema de Gestão
 
 | Capítulo | Tema | Status |
 |---|---|---|
-| 11 | Projeto novo e banco de dados | ✅ [Disponível](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) |
+| [11](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | [Projeto novo e banco de dados](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | ✅ [Disponível](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) |
 | 12 | INSERT e SELECT de perfis | 🔒 Em breve |
 | 12.1 | Busca, filtro e paginação (opcional) | 🔒 Em breve |
 | 13 | UPDATE e DELETE de perfis | 🔒 Em breve |

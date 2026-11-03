@@ -5,8 +5,8 @@ Uso (na raiz do repositório):
     python projetos/gerar_zips.py p1/cap_01    # só uma
 
 A pasta projetos/p1/cap_01/ vira docs/arquivos/p1_cap_01.zip. Dentro do zip, os arquivos
-ficam em uma pasta com o mesmo nome do zip (p1_cap_01/). Nunca entram .env, .venv,
-__pycache__ nem .git.
+ficam em uma pasta com o mesmo nome do zip (p1_cap_01/). Nunca entram .env, venv (nem
+.venv), __pycache__ nem .git.
 """
 
 import sys
@@ -17,7 +17,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 PROJETOS = RAIZ / "projetos"
 DESTINO = RAIZ / "docs" / "arquivos"
 
-PASTAS_IGNORADAS = {".venv", "__pycache__", ".git"}
+PASTAS_IGNORADAS = {"venv", ".venv", "__pycache__", ".git"}
 ARQUIVOS_IGNORADOS = {".env"}
 
 

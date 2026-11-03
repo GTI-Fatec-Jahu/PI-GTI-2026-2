@@ -54,7 +54,7 @@ def index():
     busca = request.args.get('busca', '').strip()
 
     produtos = execute_query(
-        'SELECT id, nome, categoria, preco FROM produtos WHERE nome LIKE %s ORDER BY id',
+        'SELECT id_produto, nome, categoria, preco FROM produtos WHERE nome LIKE %s ORDER BY id_produto',
         ('%' + busca + '%',),
         fetch=True,
     )
@@ -131,7 +131,7 @@ def contato():
 @app.route('/produto/<int:produto_id>')
 def produto(produto_id):
     produto_encontrado = execute_one(
-        'SELECT id, nome, categoria, preco FROM produtos WHERE id = %s',
+        'SELECT id_produto, nome, categoria, preco FROM produtos WHERE id_produto = %s',
         (produto_id,),
     )
 
@@ -143,12 +143,12 @@ def produto(produto_id):
 
 @app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
 def produto_excluir(produto_id):
-    excluido = execute_one('SELECT id, nome FROM produtos WHERE id = %s', (produto_id,))
+    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (produto_id,))
 
     if excluido is None:
         abort(404)
 
-    execute_query('DELETE FROM produtos WHERE id = %s', (produto_id,))
+    execute_query('DELETE FROM produtos WHERE id_produto = %s', (produto_id,))
 
     nome = excluido['nome']
     flash(f'Produto "{nome}" excluído.', 'success')
