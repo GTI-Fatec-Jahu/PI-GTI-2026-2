@@ -113,11 +113,11 @@ pela `session` (8) e termina no MySQL (10).
 
 | Cap. | Tema | O que ensina |
 |---|---|---|
-| 11 | Projeto novo e banco | Checklist do projeto do zero (pasta, venv, pip, `.gitignore`, `git init`, commit, novo repositório); importar `banco.sql` (**só as três tabelas, sem dados**); `.env` com `python-dotenv` e `.env.example`; `db.py`; `testar_conexao.py`; layout base com Bootstrap e 404/500 |
+| 11 | Projeto novo e banco | Checklist do projeto do zero, **enxuto e com links para os capítulos onde cada etapa foi ensinada** (pasta, venv, um único `pip install` com todos os pacotes do projeto, `.gitignore`, `git init`, commit, novo repositório); importar `banco.sql` (**só as três tabelas, sem dados**); `.env` com `python-dotenv` e `.env.example`; `db.py` explicado em detalhe, já com `execute_query`, `execute_one` e `execute_insert` (só escrito, sem inserir dados); `testar_conexao.py`; layout base com Bootstrap e 404/500 |
 | 12 | INSERT e SELECT de perfis | Módulos simples (`db.py` com `execute_*`, `validacoes.py`), consultas parametrizadas (`%s`), `flash`, PRG, CSRF, erro `1062` (duplicado). Os alunos criam os perfis **Administrador, Gerente e Usuário** |
 | 12.1 | Busca, filtro e paginação (opcional) | `LIKE`, `WHERE 1=1`, `LIMIT`/`OFFSET`, com `perfis_30.sql` (único capítulo em que se popula o banco para ensinar) |
 | 13 | UPDATE e DELETE de perfis | Rotas de edição e exclusão por POST, modal de confirmação do Bootstrap, erro `1451` (perfil em uso) demonstrado com um `INSERT` de usuário rodado no phpMyAdmin |
-| 13.1 | Soft-delete (opcional) | `deletado_em`: excluir vira `UPDATE`, restaurar, filtrar os não excluídos |
+| 13.1 | Soft-delete (opcional) | `deletado_em` (a coluna já existe desde o `banco.sql` do 11, sem `ALTER TABLE`): excluir vira `UPDATE`, restaurar, filtrar os não excluídos |
 | 14 | INSERT relacional de usuário | `<select>` de perfis vindo do banco, hash de senha (`generate_password_hash`), validação de CPF, celular, CEP e data em `validacoes.py`, opcionais vazios viram `NULL`, e-mail e CPF únicos |
 | 15 | SELECT relacional de usuário | `JOIN` com `perfis`, badges por perfil, página de detalhe, filtros Jinja de data e CPF. A senha nunca é selecionada |
 | 16 | UPDATE e DELETE de usuário | Edição com senha opcional, unicidade ignorando o próprio registro, exclusão com modal |
@@ -135,17 +135,25 @@ tabelas**, com `perfis` antes de `usuarios` por causa da chave estrangeira. **N�
 os alunos criam perfis e usuários pelo próprio sistema.
 
 ```sql
-CREATE TABLE perfis (
+-- DROP DATABASE IF EXISTS gestao;   -- o aluno tira o "--" só se quiser recomeçar do zero
+
+CREATE DATABASE IF NOT EXISTS gestao
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE gestao;
+
+CREATE TABLE IF NOT EXISTS perfis (
     id_perfil     BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome          VARCHAR(100) NOT NULL UNIQUE,
     descricao     VARCHAR(255),
     criado_em     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deletado_em   TIMESTAMP NULL DEFAULT NULL          -- soft-delete (Capítulo 13.1)
+    deletado_em   DATETIME NULL                         -- soft-delete (Capítulo 13.1)
 );
 
-CREATE TABLE usuarios (
-    id_usuario      BIGINT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome            VARCHAR(255) NOT NULL,
     email           VARCHAR(255) NOT NULL UNIQUE,
     senha           VARCHAR(255) NOT NULL,      -- guarda o HASH, nunca a senha
@@ -161,12 +169,14 @@ CREATE TABLE usuarios (
     estado          CHAR(2),
     criado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     atualizado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deletado_em     TIMESTAMP NULL DEFAULT NULL,        -- soft-delete (Capítulo 13.1)
-    CONSTRAINT fk_usuarios_perfil FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)
+    deletado_em     DATETIME NULL,                      -- soft-delete (Capítulo 13.1)
+    CONSTRAINT fk_usuarios_perfis
+        FOREIGN KEY (perfil_id) REFERENCES perfis (id_perfil)
         ON DELETE RESTRICT
+        ON UPDATE CASCADE
 );
 
-CREATE TABLE produtos (
+CREATE TABLE IF NOT EXISTS produtos (
     id_produto    BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome          VARCHAR(255) NOT NULL,
     descricao     TEXT,
@@ -182,6 +192,15 @@ CREATE TABLE produtos (
 
 `ativo` existe **só em `produtos`**; `deletado_em` só em `perfis` e `usuarios`. No caminho
 principal a exclusão é `DELETE` de verdade; `deletado_em` só é usado no Capítulo 13.1.
+
+> ⚠️ **Nunca use `ALTER TABLE` em nenhum ponto do material do curso.** O `banco.sql` do
+> Capítulo 11 já traz todas as colunas que qualquer capítulo vá usar (inclusive `deletado_em`),
+> e os capítulos seguintes só fazem `INSERT`, `SELECT`, `UPDATE` e `DELETE`. Se um capítulo
+> precisar de uma coluna nova, ela entra no `banco.sql`, não num `ALTER`.
+
+O `banco.sql` usa `CREATE ... IF NOT EXISTS` (importar de novo **não apaga nada**) e traz, na
+primeira linha, `-- DROP DATABASE IF EXISTS gestao;` comentado: o aluno tira o `--` só se
+quiser recomeçar do zero.
 
 **Dados prontos para baixar** (únicos casos em que o banco é populado, todos em
 `docs/arquivos/`): `produtos_exemplo.sql` (Capítulo 10, banco `catalogo` com a tabela mínima

@@ -983,7 +983,7 @@ O XAMPP traz o MariaDB (o servidor do banco), o phpMyAdmin (para mexer no banco 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 9 — Validação e flash](Capitulo_09_Validacao_e_Flash.md) · 🔒 Capítulo 11 — em breve.
+⬅️ [Capítulo 9 — Validação e flash](Capitulo_09_Validacao_e_Flash.md) · ➡️ [Capítulo 11 — Projeto novo e banco](Capitulo_11_Projeto_Novo_e_Banco.md)
 
 ---
 

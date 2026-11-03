@@ -32,7 +32,7 @@ aprofundar.
 
 | Capítulo | Tema | Status |
 |---|---|---|
-| 11 | Projeto novo e banco de dados | 🔒 Em breve |
+| 11 | Projeto novo e banco de dados | ✅ [Disponível](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) |
 | 12 | INSERT e SELECT de perfis | 🔒 Em breve |
 | 12.1 | Busca, filtro e paginação (opcional) | 🔒 Em breve |
 | 13 | UPDATE e DELETE de perfis | 🔒 Em breve |
