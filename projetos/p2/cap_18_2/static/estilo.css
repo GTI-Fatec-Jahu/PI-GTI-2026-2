@@ -1,0 +1,29 @@
+/* Regras próprias do sistema. O resto do visual vem do Bootstrap. */
+
+body {
+  background-color: #f4f6f8;
+}
+
+/* Cor da barra de navegação */
+.navbar {
+  background-color: #1f4e79;
+}
+
+/* Foto do produto na lista: quadrado de 56 px, com o recorte centralizado */
+.foto-produto {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 0.375rem;
+}
+
+/* Quadrado cinza para o produto sem foto */
+.foto-vazia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9ecef;
+  color: #6c757d;
+  font-size: 0.7rem;
+  text-align: center;
+}

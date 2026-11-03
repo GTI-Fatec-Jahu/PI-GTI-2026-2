@@ -2286,7 +2286,7 @@ O cadastro de produto trouxe três ideias novas. O preço é um `Decimal`, conve
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · 🔒 Capítulo 18.2 — em breve · 🔒 Capítulo 19 — em breve.
+⬅️ [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · ➡️ [Capítulo 18.2 — SELECT de produtos (opcional)](Capitulo_18_2_SELECT_de_Produtos.md) · 🔒 Capítulo 19 — em breve.
 
 ---
 
