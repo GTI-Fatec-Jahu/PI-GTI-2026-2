@@ -32,8 +32,8 @@ o repositório, não substitui o julgamento dele.
 
 ## Terminologia
 
-- **Capítulo** é a unidade de conteúdo (1 a 20 e os subcapítulos: 2.1, 12.1, 13.1, 17.1,
-  18.1 a 18.4). **Tópico** é cada seção interna de um capítulo (`## Tópico 3 — ...`).
+- **Capítulo** é a unidade de conteúdo (1 a 20 e os subcapítulos: 2.1, 12.1, 13.1, 14.1,
+  17.1, 18.1 a 18.4). **Tópico** é cada seção interna de um capítulo (`## Tópico 3 — ...`).
 - Nunca use "aula", "parte" nem "passo" no texto para o aluno. "Horas-aula" (carga
   horária) continua valendo.
 - **Projeto 1** (Catálogo de Produtos, Capítulos 1 a 10) e **Projeto 2** (Sistema de Gestão,
@@ -70,7 +70,10 @@ o repositório, não substitui o julgamento dele.
   `onsubmit`. A validação fica com os atributos do HTML5 (`required`, `pattern`, `type`). **Não
   entram** `addEventListener` nem condicionais em JS. Única exceção, autorizada pelo professor:
   `evento.preventDefault()` no `onsubmit` do Capítulo 2 (o formulário envia para `#`, e o
-  recarregamento limparia o console).
+  recarregamento limparia o console). Os **subcapítulos opcionais** podem ir além, com
+  autorização do professor: o 13 (modal) usa uma função chamada por `onclick` que recebe o id
+  (`.textContent`, `.action`), e o **14.1 (ViaCEP)** usa `fetch` com `async/await`, `if` e
+  `try/catch`, sempre dentro de uma função chamada por `onclick`. **Nunca** `addEventListener`.
 - **Instalação de pacotes:** sempre `pip install pacote`, **sem número de versão** (ex.:
   `pip install mysql-connector-python`). Quem instala é o aluno, e quem fixa as versões é o
   `pip freeze > requirements.txt`. A versão em que o material foi escrito e testado pode ser
@@ -127,7 +130,8 @@ pela `session` (8) e termina no MySQL (10).
 | 12.1 | Busca, filtro e paginação (opcional) | `LIKE`, `WHERE 1=1`, `LIMIT`/`OFFSET`, com `perfis_30.sql` (único capítulo em que se popula o banco para ensinar) |
 | 13 | UPDATE e DELETE de perfis | Rotas de edição e exclusão por POST, modal de confirmação do Bootstrap, erro `1451` (perfil em uso) demonstrado com um `INSERT` de usuário rodado no phpMyAdmin |
 | 13.1 | Soft-delete (opcional) | `deletado_em` (a coluna já existe desde o `banco.sql` do 11, sem `ALTER TABLE`): excluir vira `UPDATE`, restaurar, filtrar os não excluídos |
-| 14 | INSERT relacional de usuário | `<select>` de perfis vindo do banco, hash de senha (`generate_password_hash`), validação de CPF, celular, CEP e data em `validacoes.py`, opcionais vazios viram `NULL`, e-mail e CPF únicos |
+| 14 | INSERT relacional de usuário | `<select>` de perfis vindo do banco, hash de senha (`generate_password_hash`), validação de CPF, celular, CEP e data em `validacoes.py`, opcionais vazios viram `NULL`, e-mail e CPF únicos. O formulário devolve o digitado com `dados=request.form`. O redirect vai para `/usuarios`, uma **página provisória sem consulta ao banco** (a lista é do 15) |
+| 14.1 | Consulta de CEP (opcional) | API e JSON, botão **Buscar** com `onclick`, `fetch` com `async/await` no ViaCEP, preenche endereço, cidade e UF, trata CEP incompleto, inexistente e falha de rede (`try/catch`). O servidor não muda: continua validando tudo |
 | 15 | SELECT relacional de usuário | `JOIN` com `perfis`, badges por perfil, página de detalhe, filtros Jinja de data e CPF. A senha nunca é selecionada |
 | 16 | UPDATE e DELETE de usuário | Edição com senha opcional, unicidade ignorando o próprio registro, exclusão com modal |
 | 17 | Login | `check_password_hash`, `session`, logout, `if 'usuario_id' not in session` em cada rota protegida, menu que muda se logado |
@@ -366,7 +370,7 @@ fases **nesta ordem**. Não pule a Fase 1.
 
 > ⚠️ **Capítulo e subcapítulos nascem juntos.** Ao pedir o Capítulo X, **todos** os subcapítulos
 > X.Y da tabela "Sequência dos capítulos" são processados no mesmo pedido (2 → 2.1; 12 → 12.1;
-> 13 → 13.1; 17 → 17.1; 18 → 18.1 a 18.4). Eles entram juntos na Fase 1 (resumo e perguntas
+> 13 → 13.1; 14 → 14.1; 17 → 17.1; 18 → 18.1 a 18.4). Eles entram juntos na Fase 1 (resumo e perguntas
 > cobrem cada arquivo), são escritos na Fase 2 e verificados na Fase 3, cada um com o seu zip e
 > o seu commit. **Nunca entregue o capítulo deixando o subcapítulo como "🔒 Em breve"**; se não
 > for possível entregá-lo com qualidade completa, diga isso explicitamente. Um pedido só do

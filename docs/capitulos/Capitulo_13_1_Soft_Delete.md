@@ -520,7 +520,7 @@ A exclusão lógica guarda o registro e marca a data da exclusão em `deletado_e
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 13 — UPDATE e DELETE de perfis](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) · 🔒 Capítulo 14 — em breve.
+⬅️ [Capítulo 13 — UPDATE e DELETE de perfis](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) · ➡️ [Capítulo 14 — INSERT relacional de usuário](Capitulo_14_INSERT_Relacional_de_Usuario.md)
 
 ---
 

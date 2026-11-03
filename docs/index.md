@@ -37,7 +37,7 @@ aprofundar.
 | [12.1](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) | [Busca, filtro e paginação (opcional)](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) | ✅ [Disponível](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) |
 | [13](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) | [UPDATE e DELETE de perfis](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) | ✅ [Disponível](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) |
 | [13.1](capitulos/Capitulo_13_1_Soft_Delete.md) | [Soft-delete (opcional)](capitulos/Capitulo_13_1_Soft_Delete.md) | ✅ [Disponível](capitulos/Capitulo_13_1_Soft_Delete.md) |
-| 14 | INSERT relacional de usuário | 🔒 Em breve |
+| [14](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) | [INSERT relacional de usuário](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) |
 | 15 | SELECT relacional de usuário | 🔒 Em breve |
 | 16 | UPDATE e DELETE de usuário | 🔒 Em breve |
 | 17 | Login | 🔒 Em breve |

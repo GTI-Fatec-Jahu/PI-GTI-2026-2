@@ -1035,7 +1035,7 @@ O recurso `perfis` ficou completo. A edição reaproveita o `perfil_form.html` c
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 12 — INSERT e SELECT de perfis](Capitulo_12_INSERT_e_SELECT_de_Perfis.md) · ➡️ [Capítulo 13.1 — Soft-delete (opcional)](Capitulo_13_1_Soft_Delete.md) · 🔒 Capítulo 14 — em breve.
+⬅️ [Capítulo 12 — INSERT e SELECT de perfis](Capitulo_12_INSERT_e_SELECT_de_Perfis.md) · ➡️ [Capítulo 13.1 — Soft-delete (opcional)](Capitulo_13_1_Soft_Delete.md) · ➡️ [Capítulo 14 — INSERT relacional de usuário](Capitulo_14_INSERT_Relacional_de_Usuario.md)
 
 ---
 

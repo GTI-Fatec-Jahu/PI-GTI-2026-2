@@ -1,0 +1,10 @@
+/* Regras próprias do sistema. O resto do visual vem do Bootstrap. */
+
+body {
+  background-color: #f4f6f8;
+}
+
+/* Cor da barra de navegação */
+.navbar {
+  background-color: #1f4e79;
+}
