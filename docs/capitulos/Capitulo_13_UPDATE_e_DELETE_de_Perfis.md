@@ -210,7 +210,7 @@ git push
 
 A edição precisa conferir **os mesmos campos** do cadastro: nome obrigatório, entre 3 e 100 caracteres, descrição de até 255 e nome que ainda não existe. Essas conferências hoje estão escritas dentro da `perfil_novo`. Copiá-las para uma segunda rota seria repetir cerca de vinte linhas, e o dia em que uma regra mudar você corrigiria uma rota e esqueceria a outra. A saída é mover as conferências para **uma função**, e as duas rotas a chamam.
 
-Há uma única diferença entre os dois casos, e ela está no nome repetido: na edição, o **próprio** perfil não conta como repetido. Quem abre o Gerente e só corrige a descrição envia o nome `Gerente`, que já existe, e é dele mesmo. A função recebe o código do perfil que está sendo editado (`id_atual`), e o `SELECT` passa a ignorá-lo com `id_perfil <> %s`.
+Há uma única diferença entre os dois casos, e ela está no nome repetido: na edição, o **próprio** perfil não conta como repetido. Quem abre o Gerente e só corrige a descrição envia o nome `Gerente`, que já existe, e é dele mesmo. A função recebe o código do perfil que está sendo editado (`id_perfil`), e o `SELECT` passa a ignorá-lo com `id_perfil <> %s`.
 
 !!! note "SQL: `<>` é “diferente de”"
     O `WHERE nome = %s AND id_perfil <> %s` procura um perfil com **aquele nome** e com um código **diferente** do informado. Se o único perfil com esse nome for o próprio, o `SELECT` não devolve nada, e não há repetição.
@@ -218,7 +218,7 @@ Há uma única diferença entre os dois casos, e ela está no nome repetido: na 
 No `app.py`, **acima** da `perfil_novo`, escreva a função. Ela não tem `@app.route`: não é uma rota, é só um pedaço do código que as rotas chamam.
 
 ```python
-def conferir_perfil(nome, descricao, id_atual):
+def conferir_perfil(nome, descricao, id_perfil):
     erros = []
 
     erro = validar_nome_perfil(nome)
@@ -232,7 +232,7 @@ def conferir_perfil(nome, descricao, id_atual):
     if not erros:
         existente = execute_one(
             'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_atual),
+            (nome, id_perfil),
         )
         if existente:
             erros.append('Já existe um perfil com este nome.')
@@ -249,7 +249,7 @@ Agora a `perfil_novo` usa a função. Dentro do `if request.method == 'POST':`, 
         erros = conferir_perfil(nome, descricao, 0)
 ```
 
-O `0` é o `id_atual` do cadastro: nenhum perfil tem o código `0`, então a condição `id_perfil <> 0` não exclui ninguém, e o `SELECT` procura o nome em todos os perfis, como antes. O resto da rota (o `if erros:`, o `INSERT` e o `try/except`) não muda.
+O `0` é o `id_perfil` do cadastro: nenhum perfil tem o código `0`, então a condição `id_perfil <> 0` não exclui ninguém, e o `SELECT` procura o nome em todos os perfis, como antes. O resto da rota (o `if erros:`, o `INSERT` e o `try/except`) não muda.
 
 **Salve e teste antes de seguir.** Uma reorganização só é segura se o comportamento continua igual. Cadastre um perfil `Teste`, cadastre `Teste` de novo (deve aparecer `Já existe um perfil com este nome.`) e cadastre `ab` (mínimo de 3 caracteres). Tudo deve funcionar como no Capítulo 12. Se algo quebrou, o problema está na troca que você acabou de fazer, e é mais fácil achá-lo agora do que depois de escrever mais código em cima. Deixe o perfil `Teste` na lista: ele será usado mais adiante.
 
@@ -658,7 +658,7 @@ def lista_perfis():
     return render_template('perfis.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_atual):
+def conferir_perfil(nome, descricao, id_perfil):
     erros = []
 
     erro = validar_nome_perfil(nome)
@@ -672,7 +672,7 @@ def conferir_perfil(nome, descricao, id_atual):
     if not erros:
         existente = execute_one(
             'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_atual),
+            (nome, id_perfil),
         )
         if existente:
             erros.append('Já existe um perfil com este nome.')

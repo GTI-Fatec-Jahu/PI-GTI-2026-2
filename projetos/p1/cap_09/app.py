@@ -147,11 +147,11 @@ def contato():
     return render_template('contato.html', dados=dados)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:
@@ -160,12 +160,12 @@ def produto(produto_id):
     return render_template('produto.html', produto=produto_encontrado)
 
 
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             excluido = item
         else:
             restantes.append(item)

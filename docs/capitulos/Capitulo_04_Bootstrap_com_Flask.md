@@ -576,7 +576,7 @@ O `url_for` recebe o **nome da função** da rota e devolve o endereço dela. Se
 (No `cadastro.html`, esse link é o que tem a classe `active`.) Salve e clique em **Cadastrar**: a página abre, agora em `/novo-produto`. O `{{ }}` é o mesmo do Capítulo 3: o que está dentro é calculado e o resultado entra no HTML. Olhe o código-fonte da página (`Ctrl + U`): o link é `href="/novo-produto"`, o endereço que o Flask escolheu.
 
 !!! note "Python: argumento nomeado e o nome da função"
-    O `url_for` recebe o **nome da função** como texto (`'cadastro'`), e não o endereço (`'/cadastro'`). É um erro comum escrever o endereço. Quando a rota tem variável, o valor vai com o nome dela, no formato `nome=valor`: `url_for('produto', produto_id=3)`. Isso se chama **argumento nomeado**, e você já usou o formato em `render_template('produto.html', produto=produto_encontrado)` e em `app.run(debug=True)`.
+    O `url_for` recebe o **nome da função** como texto (`'cadastro'`), e não o endereço (`'/cadastro'`). É um erro comum escrever o endereço. Quando a rota tem variável, o valor vai com o nome dela, no formato `nome=valor`: `url_for('produto', id_produto=3)`. Isso se chama **argumento nomeado**, e você já usou o formato em `render_template('produto.html', produto=produto_encontrado)` e em `app.run(debug=True)`.
 
 Faça o mesmo com os outros links do menu e com o nome do catálogo, nos três arquivos. A função da página inicial se chama `index`:
 
@@ -624,15 +624,15 @@ Salve e recarregue as páginas: nada muda na tela, e é esse o objetivo. O resul
 
 ### O `url_for` para a rota com variável
 
-A tabela do `index.html` ainda tem os seis links `/produto/1` a `/produto/6` escritos à mão. A rota `produto` espera o número com o nome `produto_id`, e o `url_for` o recebe como argumento nomeado. Troque o link de cada produto, mudando só o número:
+A tabela do `index.html` ainda tem os seis links `/produto/1` a `/produto/6` escritos à mão. A rota `produto` espera o número com o nome `id_produto`, e o `url_for` o recebe como argumento nomeado. Troque o link de cada produto, mudando só o número:
 
 ```html
-            <td><a href="{{ url_for('produto', produto_id=1) }}">Caneta esferográfica azul</a></td>
-            <td><a href="{{ url_for('produto', produto_id=2) }}">Caderno universitário 96 folhas</a></td>
-            <td><a href="{{ url_for('produto', produto_id=3) }}">Mouse sem fio</a></td>
-            <td><a href="{{ url_for('produto', produto_id=4) }}">Teclado USB</a></td>
-            <td><a href="{{ url_for('produto', produto_id=5) }}">Garrafa térmica 500 ml</a></td>
-            <td><a href="{{ url_for('produto', produto_id=6) }}">Mochila escolar</a></td>
+            <td><a href="{{ url_for('produto', id_produto=1) }}">Caneta esferográfica azul</a></td>
+            <td><a href="{{ url_for('produto', id_produto=2) }}">Caderno universitário 96 folhas</a></td>
+            <td><a href="{{ url_for('produto', id_produto=3) }}">Mouse sem fio</a></td>
+            <td><a href="{{ url_for('produto', id_produto=4) }}">Teclado USB</a></td>
+            <td><a href="{{ url_for('produto', id_produto=5) }}">Garrafa térmica 500 ml</a></td>
+            <td><a href="{{ url_for('produto', id_produto=6) }}">Mochila escolar</a></td>
 ```
 
 Salve, clique em cada produto e confira. O resumo do que o `url_for` substituiu:
@@ -641,7 +641,7 @@ Salve, clique em cada produto e confira. O resumo do que o `url_for` substituiu:
 |---|---|
 | `href="/"` | `href="{{ url_for('index') }}"` |
 | `href="/cadastro"` | `href="{{ url_for('cadastro') }}"` |
-| `href="/produto/3"` | `href="{{ url_for('produto', produto_id=3) }}"` |
+| `href="/produto/3"` | `href="{{ url_for('produto', id_produto=3) }}"` |
 | `href="/static/estilo.css"` | `href="{{ url_for('static', filename='estilo.css') }}"` |
 | `src="/static/produto.js"` | `src="{{ url_for('static', filename='produto.js') }}"` |
 
@@ -699,32 +699,32 @@ O `templates/index.html` completo ao final do capítulo:
         </thead>
         <tbody>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=1) }}">Caneta esferográfica azul</a></td>
+            <td><a href="{{ url_for('produto', id_produto=1) }}">Caneta esferográfica azul</a></td>
             <td>Papelaria</td>
             <td class="text-end">R$ 2,50</td>
           </tr>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=2) }}">Caderno universitário 96 folhas</a></td>
+            <td><a href="{{ url_for('produto', id_produto=2) }}">Caderno universitário 96 folhas</a></td>
             <td>Papelaria</td>
             <td class="text-end">R$ 18,90</td>
           </tr>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=3) }}">Mouse sem fio</a></td>
+            <td><a href="{{ url_for('produto', id_produto=3) }}">Mouse sem fio</a></td>
             <td>Informática</td>
             <td class="text-end">R$ 59,90</td>
           </tr>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=4) }}">Teclado USB</a></td>
+            <td><a href="{{ url_for('produto', id_produto=4) }}">Teclado USB</a></td>
             <td>Informática</td>
             <td class="text-end">R$ 89,90</td>
           </tr>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=5) }}">Garrafa térmica 500 ml</a></td>
+            <td><a href="{{ url_for('produto', id_produto=5) }}">Garrafa térmica 500 ml</a></td>
             <td>Casa</td>
             <td class="text-end">R$ 49,90</td>
           </tr>
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=6) }}">Mochila escolar</a></td>
+            <td><a href="{{ url_for('produto', id_produto=6) }}">Mochila escolar</a></td>
             <td>Acessórios</td>
             <td class="text-end">R$ 129,00</td>
           </tr>
@@ -812,7 +812,7 @@ Tente responder mentalmente antes de abrir.
 ??? question "Por que o título da página de detalhe é `<h1 class="card-title h2">`?"
     O elemento (`<h1>`) diz o que o conteúdo é: o título principal da página. A classe `h2` só muda a aparência, dando a ele o tamanho de um `<h2>`. O HTML guarda o significado, e a classe cuida do visual.
 
-??? question "O que o `url_for('produto', produto_id=3)` devolve, e qual a vantagem sobre escrever `/produto/3`?"
+??? question "O que o `url_for('produto', id_produto=3)` devolve, e qual a vantagem sobre escrever `/produto/3`?"
     Devolve o endereço da rota da função `produto` com o número 3, ou seja, `/produto/3`. Se o endereço da rota mudar no `app.py`, os templates continuam certos, porque o endereço é montado pelo Flask em vez de escrito à mão em cada link.
 
 ---

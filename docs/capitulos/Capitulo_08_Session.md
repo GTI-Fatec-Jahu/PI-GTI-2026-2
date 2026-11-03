@@ -237,7 +237,7 @@ A página de detalhe também precisa ler a lista nova. Na rota `produto`, troque
 ```python
     produto_encontrado = None
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 ```
 
@@ -354,8 +354,8 @@ git push
 A lista agora tem cadastro e listagem. Falta a exclusão. Como ela **apaga** algo, segue a regra do Capítulo 7: usa POST, e nunca um link comum. No `app.py`, escreva a rota **depois** da rota `produto`, primeiro só o esqueleto:
 
 ```python
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
     return redirect(url_for('index'))
 ```
 
@@ -375,7 +375,7 @@ E a célula, depois da célula do preço. Cada linha da tabela ganha um **formul
 ```html
           <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
           <td class="text-end">
-            <form action="{{ url_for('produto_excluir', produto_id=produto.id) }}" method="post">
+            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>
           </td>
@@ -394,12 +394,12 @@ Salve, recarregue o catálogo e clique em **Excluir** em qualquer linha. A pági
 Na rota `produto_excluir`, percorra a lista e monte uma lista nova **sem** o produto excluído, o mesmo padrão da lista `encontrados` da busca:
 
 ```python
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             excluido = item
         else:
             restantes.append(item)
@@ -572,7 +572,7 @@ Confira também o painel **Network**: o pedido é um POST, a resposta é `400`, 
 O token vai em um campo escondido (`type="hidden"`), que não aparece na tela mas viaja junto com o formulário. Comece pelo botão **Excluir**, em `templates/index.html`, logo depois da abertura do `<form>`:
 
 ```html
-            <form action="{{ url_for('produto_excluir', produto_id=produto.id) }}" method="post">
+            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>
@@ -715,11 +715,11 @@ def contato():
     return render_template('contato.html', dados=dados)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:
@@ -728,12 +728,12 @@ def produto(produto_id):
     return render_template('produto.html', produto=produto_encontrado)
 
 
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             excluido = item
         else:
             restantes.append(item)
@@ -811,14 +811,14 @@ O `templates/index.html`:
         {% for produto in produtos %}
         <tr>
           <td>{{ loop.index }}</td>
-          <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+          <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
           <td>{{ produto.categoria|default('Sem categoria') }}</td>
           <td>
             {% include '_faixa_preco.html' %}
           </td>
           <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
           <td class="text-end">
-            <form action="{{ url_for('produto_excluir', produto_id=produto.id) }}" method="post">
+            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>

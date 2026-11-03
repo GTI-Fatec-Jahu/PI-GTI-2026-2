@@ -29,9 +29,9 @@ for item in produtos:
         print(item['nome'])
 
 
-def busca_produto(produto_id):
+def busca_produto(id_produto):
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             return item
     return None
 

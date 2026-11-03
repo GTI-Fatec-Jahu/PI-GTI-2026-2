@@ -26,11 +26,11 @@ def cadastro():
     return render_template('cadastro.html', categorias=categorias)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:

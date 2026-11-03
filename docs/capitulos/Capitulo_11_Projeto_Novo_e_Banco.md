@@ -170,24 +170,24 @@ O banco do Projeto 2 se chama **`gestao`** e tem três tabelas. Cada usuário pe
 erDiagram
     perfis ||--o{ usuarios : "perfil_id"
     perfis {
-        bigint id_perfil PK
-        varchar nome UK
-        varchar descricao
+        BIGINT id_perfil PK
+        VARCHAR nome UK
+        VARCHAR descricao
     }
     usuarios {
-        bigint id_usuario PK
-        varchar nome
-        varchar email UK
-        varchar senha
-        varchar cpf UK
-        bigint perfil_id FK
+        BIGINT id_usuario PK
+        VARCHAR nome
+        VARCHAR email UK
+        VARCHAR senha
+        VARCHAR cpf UK
+        BIGINT perfil_id FK
     }
     produtos {
-        bigint id_produto PK
-        varchar nome
-        decimal preco
-        int estoque
-        tinyint ativo
+        BIGINT id_produto PK
+        VARCHAR nome
+        DECIMAL preco
+        INT estoque
+        TINYINT ativo
     }
 ```
 

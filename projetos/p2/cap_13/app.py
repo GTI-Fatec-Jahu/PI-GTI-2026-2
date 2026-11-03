@@ -38,7 +38,7 @@ def lista_perfis():
     return render_template('perfis.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_atual):
+def conferir_perfil(nome, descricao, id_perfil):
     erros = []
 
     erro = validar_nome_perfil(nome)
@@ -52,7 +52,7 @@ def conferir_perfil(nome, descricao, id_atual):
     if not erros:
         existente = execute_one(
             'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_atual),
+            (nome, id_perfil),
         )
         if existente:
             erros.append('Já existe um perfil com este nome.')

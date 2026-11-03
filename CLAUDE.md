@@ -233,8 +233,17 @@ funcionarem seja qual for o `id` que o aluno gerou.
   `url_for` e a variável Python que carrega a PK usam o **nome da própria PK** (`id_perfil`,
   `id_usuario`, `id_produto`): `url_for('perfil_editar', id_perfil=perfil.id_perfil)`. O nome
   `<singular>_id` (`perfil_id`) é **só da chave estrangeira** (`usuarios.perfil_id`) e do campo
-  do formulário que a escolhe. Isso vale para o Projeto 2; no Projeto 1 (Capítulos 3 a 9) o
-  `produto_id` acompanha a chave `id` de uma lista em memória, que não é uma PK.
+  do formulário que a escolhe. Vale para os dois projetos (no Projeto 1, `/produto/<int:id_produto>`).
+  Variáveis genéricas, sem nome de tabela (`novo_id`, `maior_id`), são livres. A chave `id` dos
+  dicionários das listas em memória do Projeto 1 (Capítulos 2.1 a 9) não é coluna de tabela e
+  fica como está: o Capítulo 10 explica a troca por `id_produto`.
+- **SQL em maiúsculas, nomes nossos em minúsculas:** tudo o que pertence à linguagem SQL
+  (comandos, cláusulas, funções, tipos e restrições: `SELECT`, `FROM`, `WHERE`, `COUNT(*)`,
+  `NOW()`, `BIGINT UNSIGNED`, `NOT NULL`, `IS NULL`) vai em MAIÚSCULAS. Tudo o que é escolha do
+  projeto (banco, tabelas, colunas, apelidos como `AS total`, nomes de restrição) vai em
+  minúsculas. Vale nos `.sql`, nas strings do Python, nos blocos de código e nos trechos entre
+  crases do texto. Os nomes de charset e collation (`utf8mb4`, `utf8mb4_unicode_ci`) ficam como
+  o MySQL os define.
 - **Senha: sempre hash** (`werkzeug.security`). Nunca em texto puro, nunca em `print` ou log,
   nunca devolvida ao formulário. As telas leem usuários por um `SELECT_USUARIO` que **deixa
   `senha` de fora**; só o login lê o hash.

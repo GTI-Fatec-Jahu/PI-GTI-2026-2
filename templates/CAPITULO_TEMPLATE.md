@@ -12,7 +12,10 @@ Regras que valem o capítulo inteiro:
 - Todo conceito Python novo é explicado no primeiro uso, numa caixa curta (!!! note).
 - Todo tópico que muda o código termina com o bloco de commit. O primeiro commit do projeto é
   só local; do segundo em diante inclui `git push`.
-- Subcapítulos (2.1, 12.1, 13.1, 17.1, 18.x) omitem o quiz.
+- Subcapítulos (2.1, 12.1, 13.1, 14.1, 17.1, 18.x) omitem o quiz.
+- Nomes: tabela no plural, PK `id_<singular>`, FK `<singular>_id`. A variável ou o parâmetro de rota que
+  guarda o valor de uma PK leva o nome da PK (`id_perfil`). SQL em MAIÚSCULAS (comandos, cláusulas,
+  funções, tipos); nomes de banco, tabela, coluna e apelido em minúsculas.
 -->
 
 # Capítulo NN — [Título do Capítulo]

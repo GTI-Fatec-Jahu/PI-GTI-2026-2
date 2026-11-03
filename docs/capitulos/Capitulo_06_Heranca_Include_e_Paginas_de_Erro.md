@@ -529,11 +529,11 @@ def cadastro():
     return render_template('cadastro.html', categorias=categorias)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:
@@ -638,7 +638,7 @@ O `templates/index.html`:
         {% for produto in produtos %}
         <tr>
           <td>{{ loop.index }}</td>
-          <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+          <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
           <td>{{ produto.categoria|default('Sem categoria') }}</td>
           <td>
             {% include '_faixa_preco.html' %}

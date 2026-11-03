@@ -128,11 +128,11 @@ def contato():
     return render_template('contato.html', dados=dados)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = execute_one(
         'SELECT id_produto, nome, categoria, preco FROM produtos WHERE id_produto = %s',
-        (produto_id,),
+        (id_produto,),
     )
 
     if produto_encontrado is None:
@@ -141,14 +141,14 @@ def produto(produto_id):
     return render_template('produto.html', produto=produto_encontrado)
 
 
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
-    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (produto_id,))
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
+    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (id_produto,))
 
     if excluido is None:
         abort(404)
 
-    execute_query('DELETE FROM produtos WHERE id_produto = %s', (produto_id,))
+    execute_query('DELETE FROM produtos WHERE id_produto = %s', (id_produto,))
 
     nome = excluido['nome']
     flash(f'Produto "{nome}" excluído.', 'success')

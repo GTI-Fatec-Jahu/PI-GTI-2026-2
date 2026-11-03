@@ -55,7 +55,7 @@
           {% for produto in produtos %}
           <tr>
             <td>{{ loop.index }}</td>
-            <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+            <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
             <td>{{ produto.categoria|default('Sem categoria') }}</td>
             <td>
               {% if produto.preco <= 20 %}

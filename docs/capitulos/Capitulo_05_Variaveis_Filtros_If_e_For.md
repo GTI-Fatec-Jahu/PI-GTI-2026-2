@@ -160,7 +160,7 @@ Agora o que vale: trocar as seis linhas escritas à mão por uma só. **Apague**
         <tbody>
           {% for produto in produtos %}
           <tr>
-            <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+            <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
             <td>{{ produto.categoria }}</td>
             <td class="text-end">R$ {{ produto.preco }}</td>
           </tr>
@@ -170,7 +170,7 @@ Agora o que vale: trocar as seis linhas escritas à mão por uma só. **Apague**
 
 Salve e recarregue. A tabela voltou, com os seis produtos e os links de cada um. Repare em dois detalhes:
 
-- O link usa `produto_id=produto.id`. No Capítulo 4 você escreveu o número à mão (`produto_id=1`, `produto_id=2`...). Agora o `id` vem do próprio produto. O `'produto'` **entre aspas** é o nome da função da rota. O `produto` **sem aspas** é a variável do `for`. São coisas diferentes que, por acaso, têm o mesmo nome.
+- O link usa `id_produto=produto.id`. No Capítulo 4 você escreveu o número à mão (`id_produto=1`, `id_produto=2`...). Agora o `id` vem do próprio produto. O `'produto'` **entre aspas** é o nome da função da rota. O `produto` **sem aspas** é a variável do `for`. São coisas diferentes que, por acaso, têm o mesmo nome.
 - Os preços aparecem como `R$ 2.5`, `R$ 18.9` e `R$ 129.0`: com ponto, e sem o zero final. Antes, escritos à mão, eram `R$ 2,50`. O Tópico 4 arruma isso.
 
 ### O alívio: um produto novo sem mexer no HTML
@@ -491,11 +491,11 @@ def cadastro():
     return render_template('cadastro.html', categorias=categorias)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:
@@ -568,7 +568,7 @@ O `templates/index.html`:
           {% for produto in produtos %}
           <tr>
             <td>{{ loop.index }}</td>
-            <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+            <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
             <td>{{ produto.categoria|default('Sem categoria') }}</td>
             <td>
               {% if produto.preco <= 20 %}
@@ -683,7 +683,7 @@ Tente responder mentalmente antes de abrir.
 ??? question "Como o template recebe a lista `produtos` do Python?"
     Pela rota, com `render_template('index.html', produtos=produtos)`. O nome à esquerda do `=` é a variável que o template enxerga, e o valor à direita é a lista do Python. Se a rota não enviar o dado, o template não tem como usá-lo.
 
-??? question "Em `url_for('produto', produto_id=produto.id)`, por que aparece `produto` duas vezes?"
+??? question "Em `url_for('produto', id_produto=produto.id)`, por que aparece `produto` duas vezes?"
     O primeiro, **entre aspas**, é o nome da função da rota. O segundo, **sem aspas**, é a variável do `for`, o produto da volta atual. São duas coisas diferentes que têm o mesmo nome.
 
 ??? question "Para que serve o `{% else %}` dentro de um `{% for %}`?"

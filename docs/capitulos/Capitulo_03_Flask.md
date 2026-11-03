@@ -486,9 +486,9 @@ Salve e recarregue o navegador: nada muda na tela. A lista existe, mas nenhuma r
 Queremos uma página por produto: `/produto/1`, `/produto/2` e assim por diante. É a rota com variável do Tópico 3, agora com um detalhe: o número do produto deve ser **inteiro**. Acrescente, acima do `if __name__ ...`:
 
 ```python
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
-    return f'<h1>Produto {produto_id}</h1>'
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
+    return f'<h1>Produto {id_produto}</h1>'
 ```
 
 Salve e entre em **http://127.0.0.1:5000/produto/3**. Depois em `/produto/abc`. O primeiro mostra "Produto 3". O segundo dá **Not Found**: o `int:` antes do nome diz ao Flask que só aceita números inteiros, e qualquer outra coisa nem chega à função. Já a `/produto/99` mostra "Produto 99", embora esse produto não exista. A rota ainda não consulta a lista.
@@ -498,11 +498,11 @@ Salve e entre em **http://127.0.0.1:5000/produto/3**. Depois em `/produto/abc`. 
 Troque a função `produto` por esta, que percorre a lista procurando o produto com aquele `id`:
 
 ```python
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     return f'<p>{produto_encontrado}</p>'
@@ -511,7 +511,7 @@ def produto(produto_id):
 Salve e entre em `/produto/3`: aparece o dicionário inteiro do mouse, com chaves e aspas. Entre em `/produto/99`: aparece `None`.
 
 !!! note "Python: `for`, `if` e `None`"
-    O `for item in produtos:` repete o bloco indentado **uma vez para cada elemento** da lista, e a cada volta `item` é um dos produtos. O `if item['id'] == produto_id:` só executa o que está dentro se o `id` do item for igual ao número pedido (`==` compara). O `None` é o valor do Python para "nada": a variável começa como `None` e só passa a guardar um produto se o `if` encontrar um.
+    O `for item in produtos:` repete o bloco indentado **uma vez para cada elemento** da lista, e a cada volta `item` é um dos produtos. O `if item['id'] == id_produto:` só executa o que está dentro se o `id` do item for igual ao número pedido (`==` compara). O `None` é o valor do Python para "nada": a variável começa como `None` e só passa a guardar um produto se o `if` encontrar um.
 
 ### Quando o produto não existe
 
@@ -637,11 +637,11 @@ def cadastro():
     return render_template('cadastro.html')
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = None
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             produto_encontrado = item
 
     if produto_encontrado is None:
@@ -692,7 +692,7 @@ Tente responder mentalmente antes de abrir.
 ??? question "O que faz a linha `@app.route('/sobre')` acima de uma função?"
     É um decorador: entrega a função ao Flask e diz que ela deve ser executada quando o navegador pedir o endereço `/sobre`. O que a função retorna é a resposta.
 
-??? question "Na rota `/produto/<int:produto_id>`, o que acontece com o endereço `/produto/abc`?"
+??? question "Na rota `/produto/<int:id_produto>`, o que acontece com o endereço `/produto/abc`?"
     O Flask responde 404. O `int:` faz a rota aceitar só números inteiros, então `abc` nem chega à função. O texto entre `< >` vira o parâmetro da função, com o mesmo nome.
 
 ??? question "Qual a diferença entre as pastas `templates` e `static`?"
@@ -730,12 +730,12 @@ Quais das afirmações sobre o `requirements.txt` e o `.gitignore` do projeto es
 A rota abaixo está no `app.py`. O que o Flask responde a um pedido para `/produto/abc`?
 
 ```python
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     ...
 ```
 
-- [ ] Executa a função com `produto_id` igual a `'abc'`
+- [ ] Executa a função com `id_produto` igual a `'abc'`
 > Não. O `int:` faz a rota aceitar só números inteiros, e `abc` não é um.
 - [ ] Mostra um erro 500, de falha no servidor
 > Não. Nenhum erro acontece dentro da função, porque ela nem chega a ser chamada.
@@ -773,7 +773,7 @@ A rota `produto` termina com `return render_template('produto.html', produto=pro
 
 ## 📝 Resumo
 
-Você deu ao catálogo o seu primeiro servidor: criou o ambiente virtual, instalou o Flask, registrou as dependências no `requirements.txt` e ampliou o `.gitignore`. Escreveu rotas com `@app.route`, viu que uma parte variável do endereço vira parâmetro da função, e separou o HTML do Python com `render_template`, guardando as páginas em `templates` e o CSS e o JavaScript em `static`. Os produtos passaram a viver em uma lista de dicionários, e a rota `/produto/<int:produto_id>` mostra a página de cada um, respondendo 404 quando ele não existe. Ficaram dois incômodos de propósito (os dados escritos em dois lugares e o topo copiado em cada página), que os próximos capítulos resolvem, a começar pelo Bootstrap e pela função `url_for` no Capítulo 4.
+Você deu ao catálogo o seu primeiro servidor: criou o ambiente virtual, instalou o Flask, registrou as dependências no `requirements.txt` e ampliou o `.gitignore`. Escreveu rotas com `@app.route`, viu que uma parte variável do endereço vira parâmetro da função, e separou o HTML do Python com `render_template`, guardando as páginas em `templates` e o CSS e o JavaScript em `static`. Os produtos passaram a viver em uma lista de dicionários, e a rota `/produto/<int:id_produto>` mostra a página de cada um, respondendo 404 quando ele não existe. Ficaram dois incômodos de propósito (os dados escritos em dois lugares e o topo copiado em cada página), que os próximos capítulos resolvem, a começar pelo Bootstrap e pela função `url_for` no Capítulo 4.
 
 ---
 

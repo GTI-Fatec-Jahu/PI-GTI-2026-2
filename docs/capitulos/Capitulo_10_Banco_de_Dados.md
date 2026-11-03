@@ -580,10 +580,10 @@ Salve e abra o catálogo. Em vez da lista, a página de depuração mostra um er
 jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'id'
 ```
 
-Cada linha do banco chega como um dicionário cujas chaves são os **nomes das colunas**, e a coluna agora se chama `id_produto`. O `index.html`, porém, ainda pede `produto.id`, a chave que a lista da `session` usava. Abra o `templates/index.html` e troque, nos **dois** lugares em que aparece (o link do nome do produto e o formulário do botão **Excluir**):
+Cada linha do banco chega como um dicionário cujas chaves são os **nomes das colunas**, e a coluna agora se chama `id_produto`. O `index.html`, porém, ainda pede `produto.id`, a chave que a lista da `session` usava. Abra o `templates/index.html` e troque o `produto.id` por `produto.id_produto` nos **dois** lugares em que ele aparece (o link do nome do produto e o formulário do botão **Excluir**). O nome antes do `=` já é `id_produto`, o parâmetro da rota, e não muda:
 
 ```html
-produto_id=produto.id_produto
+id_produto=produto.id_produto
 ```
 
 Salve e recarregue: os **mesmos sete produtos** aparecem, mas agora vêm da tabela `produtos`. A busca, por outro lado, ficou sem efeito: a variável `busca` ainda é lida, mas a consulta não a usa.
@@ -626,11 +626,11 @@ Teste: busque por `' OR '1'='1`. A tabela mostra **Nenhum produto encontrado**, 
 A rota `produto` precisava percorrer a lista inteira para achar o produto. Com o banco, o `WHERE` faz essa busca. Troque o corpo da rota:
 
 ```python
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = execute_one(
         'SELECT id_produto, nome, categoria, preco FROM produtos WHERE id_produto = %s',
-        (produto_id,),
+        (id_produto,),
     )
 
     if produto_encontrado is None:
@@ -695,14 +695,14 @@ As três dores dos capítulos anteriores acabaram: a lista não some, não depen
 A rota `produto_excluir` percorria a lista da `session` para separar o produto excluído dos que ficam. Com o banco, ela confere se o produto existe e manda o `DELETE`. Troque o corpo:
 
 ```python
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
-    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (produto_id,))
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
+    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (id_produto,))
 
     if excluido is None:
         abort(404)
 
-    execute_query('DELETE FROM produtos WHERE id_produto = %s', (produto_id,))
+    execute_query('DELETE FROM produtos WHERE id_produto = %s', (id_produto,))
 
     nome = excluido['nome']
     flash(f'Produto "{nome}" excluído.', 'success')
@@ -933,11 +933,11 @@ def contato():
     return render_template('contato.html', dados=dados)
 
 
-@app.route('/produto/<int:produto_id>')
-def produto(produto_id):
+@app.route('/produto/<int:id_produto>')
+def produto(id_produto):
     produto_encontrado = execute_one(
         'SELECT id_produto, nome, categoria, preco FROM produtos WHERE id_produto = %s',
-        (produto_id,),
+        (id_produto,),
     )
 
     if produto_encontrado is None:
@@ -946,14 +946,14 @@ def produto(produto_id):
     return render_template('produto.html', produto=produto_encontrado)
 
 
-@app.route('/produto/<int:produto_id>/excluir', methods=['POST'])
-def produto_excluir(produto_id):
-    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (produto_id,))
+@app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
+def produto_excluir(id_produto):
+    excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (id_produto,))
 
     if excluido is None:
         abort(404)
 
-    execute_query('DELETE FROM produtos WHERE id_produto = %s', (produto_id,))
+    execute_query('DELETE FROM produtos WHERE id_produto = %s', (id_produto,))
 
     nome = excluido['nome']
     flash(f'Produto "{nome}" excluído.', 'success')
@@ -1017,7 +1017,7 @@ Tente responder mentalmente antes de abrir.
 ## ✅ Quiz de Fixação
 
 <quiz>
-Qual é a vantagem de passar os valores em uma tupla (`WHERE id_produto = %s`, `(produto_id,)`) em vez de montar o SQL com f-string?
+Qual é a vantagem de passar os valores em uma tupla (`WHERE id_produto = %s`, `(id_produto,)`) em vez de montar o SQL com f-string?
 - [ ] A consulta fica mais rápida
 > Não. A velocidade é praticamente a mesma. O motivo é outro.
 - [x] O conector trata o valor sempre como dado, e o texto digitado nunca vira comando SQL

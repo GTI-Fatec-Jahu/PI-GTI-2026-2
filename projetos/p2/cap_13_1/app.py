@@ -50,7 +50,7 @@ def lixeira_perfis():
     return render_template('perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_atual):
+def conferir_perfil(nome, descricao, id_perfil):
     erros = []
 
     erro = validar_nome_perfil(nome)
@@ -64,7 +64,7 @@ def conferir_perfil(nome, descricao, id_atual):
     if not erros:
         existente = execute_one(
             'SELECT id_perfil, deletado_em FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_atual),
+            (nome, id_perfil),
         )
         if existente:
             if existente['deletado_em'] is None:

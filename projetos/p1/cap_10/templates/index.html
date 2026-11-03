@@ -44,14 +44,14 @@
         {% for produto in produtos %}
         <tr>
           <td>{{ loop.index }}</td>
-          <td><a href="{{ url_for('produto', produto_id=produto.id_produto) }}">{{ produto.nome }}</a></td>
+          <td><a href="{{ url_for('produto', id_produto=produto.id_produto) }}">{{ produto.nome }}</a></td>
           <td>{{ produto.categoria|default('Sem categoria') }}</td>
           <td>
             {% include '_faixa_preco.html' %}
           </td>
           <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
           <td class="text-end">
-            <form action="{{ url_for('produto_excluir', produto_id=produto.id_produto) }}" method="post">
+            <form action="{{ url_for('produto_excluir', id_produto=produto.id_produto) }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>

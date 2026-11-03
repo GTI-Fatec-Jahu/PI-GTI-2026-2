@@ -838,9 +838,9 @@ Salve e rode: `Produtos de Informática:`, `Mouse sem fio` e `Teclado USB`.
 Para fechar, junte tudo em uma função que procura um produto pelo `id`: percorre a lista com o `for`, compara com o `if` e devolve com o `return`. Acrescente:
 
 ```python
-def busca_produto(produto_id):
+def busca_produto(id_produto):
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             return item
     return None
 
@@ -883,9 +883,9 @@ for item in produtos:
         print(item['nome'])
 
 
-def busca_produto(produto_id):
+def busca_produto(id_produto):
     for item in produtos:
-        if item['id'] == produto_id:
+        if item['id'] == id_produto:
             return item
     return None
 
