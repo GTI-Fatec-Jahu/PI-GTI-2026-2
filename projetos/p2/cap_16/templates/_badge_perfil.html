@@ -1,0 +1,7 @@
+{% if usuario.perfil == 'Administrador' %}
+  <span class="badge text-bg-danger">Administrador</span>
+{% elif usuario.perfil == 'Gerente' %}
+  <span class="badge text-bg-warning">Gerente</span>
+{% else %}
+  <span class="badge text-bg-secondary">{{ usuario.perfil }}</span>
+{% endif %}

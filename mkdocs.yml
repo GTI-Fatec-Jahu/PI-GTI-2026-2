@@ -73,3 +73,4 @@ nav:
       - "Capítulo 14 — INSERT relacional de usuário": capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md
       - "Capítulo 14.1 — Consulta de CEP (opcional)": capitulos/Capitulo_14_1_Consulta_de_CEP.md
       - "Capítulo 15 — SELECT relacional de usuário": capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md
+      - "Capítulo 16 — UPDATE e DELETE de usuário": capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md

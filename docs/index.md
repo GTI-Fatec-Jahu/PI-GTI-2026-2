@@ -40,7 +40,7 @@ aprofundar.
 | [14](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) | [INSERT relacional de usuário](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md) |
 | [14.1](capitulos/Capitulo_14_1_Consulta_de_CEP.md) | [Consulta de CEP (opcional)](capitulos/Capitulo_14_1_Consulta_de_CEP.md) | ✅ [Disponível](capitulos/Capitulo_14_1_Consulta_de_CEP.md) |
 | [15](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) | [SELECT relacional de usuário](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md) |
-| 16 | UPDATE e DELETE de usuário | 🔒 Em breve |
+| [16](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) | [UPDATE e DELETE de usuário](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) | ✅ [Disponível](capitulos/Capitulo_16_UPDATE_e_DELETE_de_Usuario.md) |
 | 17 | Login | 🔒 Em breve |
 | 17.1 | Controle de permissão (opcional) | 🔒 Em breve |
 | 18 | CRUD de produtos | 🔒 Em breve |

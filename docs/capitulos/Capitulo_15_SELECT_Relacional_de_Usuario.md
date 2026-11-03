@@ -616,7 +616,7 @@ Falta um detalhe do menu. Abra o detalhe de um usuário: o item **Usuários** es
             <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
 ```
 
-Salve e recarregue o detalhe: o menu **Usuários** está aceso. Faça agora o caminho completo: **Novo usuário**, cadastre um (o redirect já cai na lista de verdade, com a faixa verde), clique em **Ver** e volte pelo botão. Este capítulo termina sem botões de editar e excluir no detalhe: eles chegam no Capítulo 16.
+Salve e recarregue o detalhe: o menu **Usuários** está aceso. Faça agora o caminho completo: **Novo usuário**, cadastre um (o redirect já cai na lista de verdade, com a faixa verde), clique em **Ver** e volte pelo botão. Este capítulo termina sem botões de editar e excluir: eles chegam à lista no Capítulo 16.
 
 | Situação | Quem trata | O que a pessoa vê |
 |---|---|---|
@@ -1275,13 +1275,13 @@ Alguém abre `/usuarios/99999`, um código que não existe, em uma rota **sem** 
 
 ## 📝 Resumo
 
-A lista de usuários nasceu com um `SELECT` simples e quatro defeitos visíveis, e cada um virou uma ferramenta: o `JOIN` traz o nome do perfil, e o `AS` evita que duas colunas `nome` se sobrescrevam no dicionário. Os filtros `data_br`, `data_hora_br` e `cpf_oculto`, registrados com `@app.template_filter`, escrevem as datas à brasileira, mostram o mínimo do CPF na lista e tratam o `NULL` em um lugar só. A constante `SELECT_USUARIO` guarda a consulta para a lista e o detalhe, e deixa a senha de fora de propósito. O `include` do badge acaba com o `if` repetido, e o `abort(404)` responde corretamente a um código que não existe. O Capítulo 16 acrescenta a edição e a exclusão de usuários, os botões que faltam nesta lista e neste detalhe.
+A lista de usuários nasceu com um `SELECT` simples e quatro defeitos visíveis, e cada um virou uma ferramenta: o `JOIN` traz o nome do perfil, e o `AS` evita que duas colunas `nome` se sobrescrevam no dicionário. Os filtros `data_br`, `data_hora_br` e `cpf_oculto`, registrados com `@app.template_filter`, escrevem as datas à brasileira, mostram o mínimo do CPF na lista e tratam o `NULL` em um lugar só. A constante `SELECT_USUARIO` guarda a consulta para a lista e o detalhe, e deixa a senha de fora de propósito. O `include` do badge acaba com o `if` repetido, e o `abort(404)` responde corretamente a um código que não existe. O Capítulo 16 acrescenta a edição e a exclusão de usuários, os botões que faltam nesta lista.
 
 ---
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 14 — INSERT relacional de usuário](Capitulo_14_INSERT_Relacional_de_Usuario.md) · 🔒 Capítulo 16 — em breve.
+⬅️ [Capítulo 14 — INSERT relacional de usuário](Capitulo_14_INSERT_Relacional_de_Usuario.md) · ➡️ [Capítulo 16 — UPDATE e DELETE de usuário](Capitulo_16_UPDATE_e_DELETE_de_Usuario.md)
 
 ---
 
