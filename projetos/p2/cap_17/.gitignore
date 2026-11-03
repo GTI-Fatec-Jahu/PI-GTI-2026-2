@@ -1,0 +1,16 @@
+# Ambiente virtual: pode ser recriado a qualquer momento com o requirements.txt
+venv/
+
+# Arquivos temporários que o Python cria sozinho
+__pycache__/
+*.pyc
+
+# Segredos: senha do banco e secret_key. Nunca vão para o GitHub (o modelo é o .env.example)
+.env
+
+# Configurações locais do VS Code
+.vscode/
+
+# Arquivos que o sistema operacional cria sozinho
+Thumbs.db
+.DS_Store

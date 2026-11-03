@@ -1584,7 +1584,7 @@ O recurso `usuarios` ficou completo, com o **Editar** e o **Excluir** na própri
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 15 — SELECT relacional de usuário](Capitulo_15_SELECT_Relacional_de_Usuario.md) · 🔒 Capítulo 17 — em breve.
+⬅️ [Capítulo 15 — SELECT relacional de usuário](Capitulo_15_SELECT_Relacional_de_Usuario.md) · ➡️ [Capítulo 17 — Login](Capitulo_17_Login.md)
 
 ---
 
