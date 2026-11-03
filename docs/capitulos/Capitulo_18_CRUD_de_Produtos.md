@@ -3258,7 +3258,7 @@ Um produto trouxe campos novos: o preço é um `Decimal` (exato, convertido do f
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 17 — Login](Capitulo_17_Login.md) · 🔒 Capítulo 18.1 — em breve · 🔒 Capítulo 19 — em breve.
+⬅️ [Capítulo 17 — Login](Capitulo_17_Login.md) · ➡️ [Capítulo 18.1 — INSERT de produtos (opcional)](Capitulo_18_1_INSERT_de_Produtos.md) · 🔒 Capítulo 19 — em breve.
 
 ---
 
