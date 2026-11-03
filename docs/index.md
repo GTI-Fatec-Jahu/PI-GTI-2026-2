@@ -19,7 +19,7 @@ aprofundar.
 | 1 | Git, GitHub, HTML5 e CSS | ✅ [Disponível](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) |
 | 2 | Clone, pull, formulário, CSS e JavaScript | ✅ [Disponível](capitulos/Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md) |
 | 2.1 | Python essencial (opcional) | 🔒 Em breve |
-| 3 | Flask | 🔒 Em breve |
+| 3 | Flask | ✅ [Disponível](capitulos/Capitulo_03_Flask.md) |
 | 4 | Bootstrap com Flask | 🔒 Em breve |
 | 5 | Variáveis, filtros, `if` e `for` | 🔒 Em breve |
 | 6 | Templates | 🔒 Em breve |

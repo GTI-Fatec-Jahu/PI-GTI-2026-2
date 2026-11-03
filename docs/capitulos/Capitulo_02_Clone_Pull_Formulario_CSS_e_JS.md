@@ -1013,7 +1013,7 @@ Você fechou o ciclo do Git: apagou o projeto do computador e o trouxe de volta 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 1 — Git, GitHub, HTML5 e CSS](Capitulo_01_Git_GitHub_HTML5_e_CSS.md) · 🔒 Capítulo 3 — em breve.
+⬅️ [Capítulo 1 — Git, GitHub, HTML5 e CSS](Capitulo_01_Git_GitHub_HTML5_e_CSS.md) · ➡️ [Capítulo 3 — Flask](Capitulo_03_Flask.md)
 
 ---
 
