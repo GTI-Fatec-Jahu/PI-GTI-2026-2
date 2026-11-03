@@ -1,0 +1,7 @@
+{% if produto.preco <= 20 %}
+<span class="badge bg-success">Econômico</span>
+{% elif produto.preco <= 100 %}
+<span class="badge bg-primary">Intermediário</span>
+{% else %}
+<span class="badge bg-warning text-dark">Premium</span>
+{% endif %}

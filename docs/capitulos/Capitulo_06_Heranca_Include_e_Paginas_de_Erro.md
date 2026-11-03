@@ -861,7 +861,7 @@ Você tirou o menu e o rodapé de dentro de cada página e os colocou no `base.h
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 5 — Variáveis, filtros, if e for](Capitulo_05_Variaveis_Filtros_If_e_For.md) · 🔒 Capítulo 7 — em breve.
+⬅️ [Capítulo 5 — Variáveis, filtros, if e for](Capitulo_05_Variaveis_Filtros_If_e_For.md) · ➡️ [Capítulo 7 — Formulários](Capitulo_07_Formularios.md)
 
 ---
 
