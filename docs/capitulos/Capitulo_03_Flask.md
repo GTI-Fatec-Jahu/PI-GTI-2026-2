@@ -128,6 +128,9 @@ __pycache__/
 
 Salve e rode `git status` de novo: a `.venv/` **sumiu** da lista (e o `.gitignore`, modificado, apareceu). A pasta `__pycache__` ainda não existe, mas o Python a cria sozinho quando executa o código, e já fica avisado.
 
+!!! tip "Se você fez o Capítulo 2.1"
+    O Capítulo 2.1 (opcional) já acrescentou ao `.gitignore` as linhas `__pycache__/` e `*.pyc`, porque o `import` do Tópico 8 cria essa pasta. Nesse caso, acrescente só o `.venv/` (e o comentário dele) e não repita as outras duas.
+
 ### Instalando o Flask
 
 Com o `(.venv)` ativo, instale:
