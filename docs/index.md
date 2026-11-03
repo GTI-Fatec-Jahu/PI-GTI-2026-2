@@ -3,4 +3,45 @@
 **Fatec Jahu · Tecnologia em Gestão da Tecnologia da Informação (GTI) · 2º Semestre/2026**
 **Professor:** Ronan Adriel Zenatti
 
-🚧 **Material em reestruturação.** O conteúdo da disciplina está sendo refeito com uma nova sequência didática. Os tópicos serão publicados aqui conforme ficarem prontos.
+Este é o guia de estudos da disciplina. O conteúdo é dividido em **capítulos**, cada um com
+explicações em pequenos passos, o código do projeto ao final e exercícios de revisão
+(flashcards e quiz). Alguns capítulos têm **subcapítulos opcionais**, para quem quer
+aprofundar.
+
+🚧 **Material em construção.** Os capítulos são publicados aqui conforme ficam prontos.
+
+---
+
+## Projeto 1 — Catálogo de Produtos
+
+| Capítulo | Tema | Status |
+|---|---|---|
+| 1 | Git, GitHub, HTML5 e CSS | ✅ [Disponível](capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md) |
+| 2 | Clone, pull, formulário, CSS e JavaScript | 🔒 Em breve |
+| 2.1 | Python essencial (opcional) | 🔒 Em breve |
+| 3 | Flask | 🔒 Em breve |
+| 4 | Bootstrap com Flask | 🔒 Em breve |
+| 5 | Variáveis, filtros, `if` e `for` | 🔒 Em breve |
+| 6 | Templates | 🔒 Em breve |
+| 7 | Formulários | 🔒 Em breve |
+| 8 | Session | 🔒 Em breve |
+| 9 | Validação e flash | 🔒 Em breve |
+| 10 | Banco de dados | 🔒 Em breve |
+
+## Projeto 2 — Sistema de Gestão
+
+| Capítulo | Tema | Status |
+|---|---|---|
+| 11 | Projeto novo e banco de dados | 🔒 Em breve |
+| 12 | INSERT e SELECT de perfis | 🔒 Em breve |
+| 12.1 | Busca, filtro e paginação (opcional) | 🔒 Em breve |
+| 13 | UPDATE e DELETE de perfis | 🔒 Em breve |
+| 13.1 | Soft-delete (opcional) | 🔒 Em breve |
+| 14 | INSERT relacional de usuário | 🔒 Em breve |
+| 15 | SELECT relacional de usuário | 🔒 Em breve |
+| 16 | UPDATE e DELETE de usuário | 🔒 Em breve |
+| 17 | Login | 🔒 Em breve |
+| 17.1 | Controle de permissão (opcional) | 🔒 Em breve |
+| 18 | CRUD de produtos | 🔒 Em breve |
+| 19 | Relatórios | 🔒 Em breve |
+| 20 | Publicação | 🔒 Em breve |

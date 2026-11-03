@@ -52,3 +52,5 @@ plugins:
 # anterior está em old/mkdocs.yml. As entradas novas entram aqui conforme a nova sequência.
 nav:
   - Início: index.md
+  - Projeto 1 — Catálogo de Produtos:
+      - "Capítulo 1 — Git, GitHub, HTML5 e CSS": capitulos/Capitulo_01_Git_GitHub_HTML5_e_CSS.md
