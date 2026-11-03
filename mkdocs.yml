@@ -60,3 +60,4 @@ nav:
       - "Capítulo 5 — Variáveis, filtros, if e for": capitulos/Capitulo_05_Variaveis_Filtros_If_e_For.md
       - "Capítulo 6 — Herança de templates, include e páginas de erro": capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md
       - "Capítulo 7 — Formulários": capitulos/Capitulo_07_Formularios.md
+      - "Capítulo 8 — Session": capitulos/Capitulo_08_Session.md

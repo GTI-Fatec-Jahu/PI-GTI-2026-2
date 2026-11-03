@@ -1125,7 +1125,7 @@ O navegador e o Flask conversam por pedidos e respostas, e o painel **Network** 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 6 — Herança de templates, include e páginas de erro](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) · 🔒 Capítulo 8 — em breve.
+⬅️ [Capítulo 6 — Herança de templates, include e páginas de erro](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) · ➡️ [Capítulo 8 — Session](Capitulo_08_Session.md)
 
 ---
 

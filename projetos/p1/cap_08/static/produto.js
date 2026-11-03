@@ -1,0 +1,10 @@
+// Lê os campos do formulário e mostra os valores no console do navegador.
+function mostrarProduto() {
+  const nome = document.getElementById("nome").value;
+  const categoria = document.getElementById("categoria").value;
+  const preco = document.getElementById("preco").value;
+
+  console.log("Nome:", nome);
+  console.log("Categoria:", categoria);
+  console.log("Preço:", preco);
+}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+  {# O título vem da rota index(), no app.py #}
+  <h1>{{ titulo }}</h1>
+  <p class="lead">Papelaria, informática, casa e acessórios para o dia a dia.</p>
+
+  <section id="produtos" class="mb-5">
+    <h2>Produtos</h2>
+
+    <form action="{{ url_for('index') }}" method="get" class="row g-2 mb-3">
+      <div class="col-sm-8 col-lg-5">
+        <label for="busca" class="visually-hidden">Buscar pelo nome</label>
+        <input type="search" class="form-control" id="busca" name="busca" placeholder="Buscar pelo nome" value="{{ busca }}">
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </div>
+    </form>
+
+    {% if busca %}
+    <p class="text-body-secondary">
+      {{ produtos|length }} resultado(s) para "<strong>{{ busca }}</strong>".
+      <a href="{{ url_for('index') }}">Limpar a busca</a>
+    </p>
+    {% else %}
+    <p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
+    {% endif %}
+
+    <table class="table table-striped table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Nº</th>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Faixa</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produto in produtos %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><a href="{{ url_for('produto', produto_id=produto.id) }}">{{ produto.nome }}</a></td>
+          <td>{{ produto.categoria|default('Sem categoria') }}</td>
+          <td>
+            {% include '_faixa_preco.html' %}
+          </td>
+          <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
+          <td class="text-end">
+            <form action="{{ url_for('produto_excluir', produto_id=produto.id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-body-secondary">Nenhum produto encontrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section id="categorias">
+    <h2>Categorias</h2>
+    <div class="row g-3">
+      {% for categoria in categorias %}
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">{{ categoria }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
