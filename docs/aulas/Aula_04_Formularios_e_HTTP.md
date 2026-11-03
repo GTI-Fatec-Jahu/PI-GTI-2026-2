@@ -232,17 +232,17 @@ Salve os dois arquivos e acesse `http://localhost:5000/cadastro`. Você já vê 
   <input
     type="text"
     class="form-control"
-    {# form-control: estiliza o input com visual Bootstrap #}
     id="nome"
     name="nome"
-    {# id deve bater com o 'for' do label acima #}
-    {# name é a chave que o Flask usa: request.form['nome'] #}
     placeholder="Digite seu nome completo"
     required
-    {# required: o navegador não permite enviar se vazio #}
     minlength="3"
-    {# minlength: mínimo de 3 caracteres #}
   >
+  {# form-control: estiliza o input com visual Bootstrap #}
+  {# id: deve bater com o 'for' do label acima #}
+  {# name: é a chave que o Flask usa: request.form['nome'] #}
+  {# required: o navegador não permite enviar se vazio #}
+  {# minlength: mínimo de 3 caracteres #}
 </div>
 ```
 
@@ -258,15 +258,16 @@ Salve e recarregue. Tente clicar em "Enviar" sem digitar nada — como ainda nã
   </label>
   <input
     type="email"
-    {# type="email": navegador valida formato de e-mail automaticamente #}
     class="form-control"
     id="email"
     name="email"
     placeholder="seu@email.com"
     required
   >
-  {# form-text: texto auxiliar menor abaixo do campo #}
+  {# type="email": navegador valida formato de e-mail automaticamente #}
+
   <div class="form-text">Nunca compartilharemos seu e-mail.</div>
+  {# form-text: texto auxiliar menor abaixo do campo #}
 </div>
 ```
 
@@ -279,15 +280,15 @@ Salve e recarregue: agora o formulário tem dois campos de texto, cada um com se
 <div class="mb-3">
   <label for="cidade" class="form-label">Cidade</label>
   <select class="form-select" id="cidade" name="cidade">
-  {# form-select: estiliza o select com visual Bootstrap #}
     <option value="">-- Selecione --</option>
-    {# value="" para a opção padrão: permite verificar se o usuário selecionou algo #}
     <option value="jahu">Jaú</option>
     <option value="bauru">Bauru</option>
     <option value="botucatu">Botucatu</option>
     <option value="marilia">Marília</option>
     <option value="outra">Outra</option>
   </select>
+  {# form-select: estiliza o select com visual Bootstrap #}
+  {# value="" na opção padrão: permite verificar se o usuário selecionou algo #}
 </div>
 ```
 
@@ -301,11 +302,11 @@ Salve e recarregue: clique no select e veja as cinco opções aparecerem, com "-
   <label class="form-label">Perfil de Acesso</label>
   <div>
     <div class="form-check form-check-inline">
-    {# form-check-inline: radio buttons lado a lado #}
       <input class="form-check-input" type="radio"
              name="perfil" id="perfil_usuario" value="usuario" checked>
-      {# checked: opção marcada por padrão #}
       <label class="form-check-label" for="perfil_usuario">Usuário</label>
+      {# form-check-inline (no div): radio buttons lado a lado #}
+      {# checked: opção marcada por padrão #}
     </div>
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio"
@@ -768,9 +769,9 @@ Agora vamos ensinar o template a reaproveitar os dados enviados. Isso é feito c
   name="nome"
   placeholder="Digite seu nome completo"
   value="{{ nome | default('') }}"
-  {# value: preenche o campo com o dado enviado anteriormente.
-     Se 'nome' não existir (primeiro acesso), usa string vazia. #}
 >
+{# value: preenche o campo com o dado enviado anteriormente.
+   Se 'nome' não existir (primeiro acesso), usa string vazia. #}
 ```
 
 Salve, force um erro (deixe o e-mail vazio) e observe que agora o campo Nome mantém o que você digitou, mesmo com a página recarregada pelo erro.
@@ -793,13 +794,13 @@ Salve, force um erro (deixe o e-mail vazio) e observe que agora o campo Nome man
 ```html
 <select class="form-select" id="cidade" name="cidade">
   <option value="">-- Selecione --</option>
-  {# Para o select, comparamos o valor de cada option com o recebido #}
   <option value="jahu"     {% if cidade == 'jahu'     %}selected{% endif %}>Jaú</option>
   <option value="bauru"    {% if cidade == 'bauru'    %}selected{% endif %}>Bauru</option>
   <option value="botucatu" {% if cidade == 'botucatu' %}selected{% endif %}>Botucatu</option>
   <option value="marilia"  {% if cidade == 'marilia'  %}selected{% endif %}>Marília</option>
   <option value="outra"    {% if cidade == 'outra'    %}selected{% endif %}>Outra</option>
 </select>
+{# Para o select, comparamos o valor de cada option com o recebido #}
 ```
 
 **Passo 8 — repopular o Radio de perfil.** Mesma lógica, comparando o valor de cada radio com o perfil recebido (o padrão `usuario` cobre o primeiro acesso):
@@ -999,17 +1000,17 @@ Vamos construir esse padrão em uma nova rota, `/cadastro-avancado`, também aos
 <div class="mb-3">
   <label for="nome" class="form-label">Nome Completo</label>
 
-  {# A classe is-invalid é adicionada condicionalmente pelo Jinja2 #}
-  {# 'erros.nome' é a mensagem de erro deste campo específico, se houver #}
   <input
     type="text"
     class="form-control {% if erros.nome %}is-invalid{% elif nome %}is-valid{% endif %}"
-    {# is-invalid: borda vermelha quando há erro #}
-    {# is-valid: borda verde quando o campo está preenchido corretamente #}
     id="nome"
     name="nome"
     value="{{ nome | default('') }}"
   >
+  {# A classe é escolhida condicionalmente pelo Jinja2 #}
+  {# 'erros.nome' é a mensagem de erro deste campo específico, se houver #}
+  {# is-invalid: borda vermelha quando há erro #}
+  {# is-valid: borda verde quando o campo está preenchido corretamente #}
 
   {# invalid-feedback: exibido apenas quando o input tem a classe is-invalid #}
   {% if erros.nome %}
@@ -1129,8 +1130,8 @@ def busca():
         name="q"
         placeholder="Digite para buscar..."
         value="{{ termo }}"
-        {# value re-popula o campo com o termo atual — para o usuário saber o que buscou #}
       >
+      {# value re-popula o campo com o termo atual — para o usuário saber o que buscou #}
     </div>
 
     <div class="col-md-2 d-flex align-items-end">

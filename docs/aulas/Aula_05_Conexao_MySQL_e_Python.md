@@ -171,7 +171,7 @@ Uma cooperativa quer uma tabela `ponto_coleta` para pontos de coleta seletiva: n
 
 ### Instalação do MySQL Community Server
 
-Acesse **dev.mysql.com/downloads/mysql** e baixe o **MySQL Community Server** para Windows. Durante a instalação, selecione a opção **"Developer Default"** para instalar o servidor, o **MySQL Workbench** (interface gráfica), o shell e os conectores em um único processo.
+Acesse **dev.mysql.com/downloads/mysql** e baixe o **MySQL Community Server** para Windows. Durante a instalação, selecione a opção **"Server only"** para instalar apenas o servidor. O **MySQL Workbench** (interface gráfica) será instalado separadamente, via `winget`, na próxima seção, na versão indicada para a melhor compatibilidade com o `mariadb`.
 
 Na tela de configuração de senha, defina uma senha para o usuário `root`. **Anote essa senha em um lugar seguro** — ela será necessária em todos os momentos que você precisar conectar ao banco. Mantenha a porta padrão **3306** sem alteração.
 
@@ -185,7 +185,17 @@ A resposta esperada é algo como `mysql  Ver 8.0.xx for Win64`. Se o comando nã
 
 ### MySQL Workbench
 
-O **MySQL Workbench** é a ferramenta gráfica oficial para administrar instâncias MySQL. Com ele você cria bancos e tabelas, escreve e executa queries SQL, e visualiza dados em grade sem precisar usar o terminal. Abra o Workbench, clique em **"Local instance MySQL80"** e insira a senha do `root` quando solicitado.
+O **MySQL Workbench** é a ferramenta gráfica oficial para administrar instâncias MySQL. Com ele você cria bancos e tabelas, escreve e executa queries SQL, e visualiza dados em grade sem precisar usar o terminal.
+
+Instale o Workbench pelo **winget** (gerenciador de pacotes do Windows), na versão **8.0.47**, que tem a melhor compatibilidade com o `mariadb`. Abra o PowerShell e execute:
+
+```powershell
+winget install -e --id Oracle.MySQLWorkbench -v "8.0.47"
+```
+
+O `-e` exige correspondência exata do pacote e o `-v` fixa a versão. Não instale a versão mais recente (a 26.x): ela não é a que usamos nesta disciplina. Ao terminar, procure **MySQL Workbench** no menu Iniciar para confirmar que foi instalado.
+
+Abra o Workbench, clique em **"Local instance MySQL80"** e insira a senha do `root` quando solicitado.
 
 ### Criando o banco de dados do projeto
 
