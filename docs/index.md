@@ -25,7 +25,7 @@ aprofundar.
 | 6 | Herança de templates, `include` e páginas de erro | ✅ [Disponível](capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md) |
 | 7 | Formulários | ✅ [Disponível](capitulos/Capitulo_07_Formularios.md) |
 | 8 | Session | ✅ [Disponível](capitulos/Capitulo_08_Session.md) |
-| 9 | Validação e flash | 🔒 Em breve |
+| 9 | Validação e flash | ✅ [Disponível](capitulos/Capitulo_09_Validacao_e_Flash.md) |
 | 10 | Banco de dados | 🔒 Em breve |
 
 ## Projeto 2 — Sistema de Gestão

@@ -957,7 +957,7 @@ A variável global do Capítulo 7 é compartilhada por todos os visitantes e som
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 7 — Formulários](Capitulo_07_Formularios.md) · 🔒 Capítulo 9 — em breve.
+⬅️ [Capítulo 7 — Formulários](Capitulo_07_Formularios.md) · ➡️ [Capítulo 9 — Validação e flash](Capitulo_09_Validacao_e_Flash.md)
 
 ---
 

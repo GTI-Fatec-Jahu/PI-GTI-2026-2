@@ -61,3 +61,4 @@ nav:
       - "Capítulo 6 — Herança de templates, include e páginas de erro": capitulos/Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md
       - "Capítulo 7 — Formulários": capitulos/Capitulo_07_Formularios.md
       - "Capítulo 8 — Session": capitulos/Capitulo_08_Session.md
+      - "Capítulo 9 — Validação e flash": capitulos/Capitulo_09_Validacao_e_Flash.md

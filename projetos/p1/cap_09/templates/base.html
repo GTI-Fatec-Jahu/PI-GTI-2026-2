@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo_aba %}Catálogo de Produtos{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+              aria-label="Abrir o menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'index' or request.endpoint == 'produto' %}active{% endif %}" href="{{ url_for('index') }}#produtos">Produtos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'cadastro' %}active{% endif %}" href="{{ url_for('cadastro') }}">Cadastrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'contato' %}active{% endif %}" href="{{ url_for('contato') }}">Contato</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+      {{ mensagem }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    {% endfor %}
+
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="text-center text-body-secondary py-3">
+    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>
