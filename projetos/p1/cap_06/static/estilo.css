@@ -1,0 +1,16 @@
+/* Regras próprias do catálogo. O resto do visual vem do Bootstrap. */
+
+body {
+  background-color: #f4f6f8;
+}
+
+/* Cor da barra de navegação (o azul do cabeçalho do Capítulo 1) */
+.navbar {
+  background-color: #1f4e79;
+}
+
+/* Borda vermelha em campo inválido (Capítulo 2) */
+.form-control:user-invalid,
+.form-select:user-invalid {
+  border-color: #c0392b;
+}

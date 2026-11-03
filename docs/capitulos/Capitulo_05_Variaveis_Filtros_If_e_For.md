@@ -769,7 +769,7 @@ Você fez o template ler os dados do Python: o `render_template` envia variávei
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 4 — Bootstrap com Flask](Capitulo_04_Bootstrap_com_Flask.md) · 🔒 Capítulo 6 — em breve.
+⬅️ [Capítulo 4 — Bootstrap com Flask](Capitulo_04_Bootstrap_com_Flask.md) · ➡️ [Capítulo 6 — Herança de templates, include e páginas de erro](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md)
 
 ---
 
