@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastrar Produto</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+  <header>
+    <h1>Catálogo de Produtos</h1>
+    <p>Papelaria, informática, casa e acessórios para o dia a dia.</p>
+    <nav>
+      <a href="index.html#produtos">Produtos</a>
+      <a href="index.html#categorias">Categorias</a>
+      <a href="cadastro.html">Cadastrar</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="cadastro">
+      <h2>Cadastrar produto</h2>
+
+      <form action="#" onsubmit="cadastrarProduto(event)">
+
+        <div class="campo">
+          <label for="nome">Nome do produto</label>
+          <input type="text" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" required minlength="3">
+        </div>
+
+        <div class="campo">
+          <label for="categoria">Categoria</label>
+          <select id="categoria" name="categoria" required>
+            <option value="">Selecione...</option>
+            <option value="Papelaria">Papelaria</option>
+            <option value="Informática">Informática</option>
+            <option value="Casa">Casa</option>
+            <option value="Acessórios">Acessórios</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="preco">Preço (R$)</label>
+          <input type="number" id="preco" name="preco" placeholder="0,00" min="0.01" step="0.01" required>
+        </div>
+
+        <button type="submit">Cadastrar produto</button>
+        <button type="reset" class="secundario">Limpar</button>
+        <button type="button" class="secundario" onclick="mostrarProduto()">Ver no console</button>
+
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+  </footer>
+
+  <script src="produto.js"></script>
+
+</body>
+</html>

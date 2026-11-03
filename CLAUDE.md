@@ -68,7 +68,9 @@ o repositório, não substitui o julgamento dele.
 - **JavaScript (Capítulos 1 e 2):** o escopo é só como acionar JS: `<script>` inline e arquivo
   externo, `document.getElementById`, `.value`, `console.log` e disparo por `onclick` ou
   `onsubmit`. A validação fica com os atributos do HTML5 (`required`, `pattern`, `type`). **Não
-  entram** `addEventListener`, `preventDefault` nem condicionais em JS.
+  entram** `addEventListener` nem condicionais em JS. Única exceção, autorizada pelo professor:
+  `evento.preventDefault()` no `onsubmit` do Capítulo 2 (o formulário envia para `#`, e o
+  recarregamento limparia o console).
 - **Segredos:** até o Capítulo 10, a senha do banco e a `secret_key` ficam no código, com aviso
   de que é provisório. O `.env` entra no Capítulo 11. São projetos de sala, sem dados reais.
 

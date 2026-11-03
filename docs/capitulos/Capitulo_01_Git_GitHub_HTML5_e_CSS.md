@@ -1281,7 +1281,7 @@ Você montou o ambiente (VS Code e terminal), criou o repositório do Catálogo 
 
 ## 🔗 Navegação
 
-🔒 Capítulo 2 — em breve.
+➡️ [Capítulo 2 — Clone, pull, formulário, CSS e JavaScript](Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md)
 
 ---
 
