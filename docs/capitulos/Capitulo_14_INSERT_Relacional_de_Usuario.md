@@ -1922,7 +1922,7 @@ O cadastro de usuário reúne o que os capítulos anteriores ensinaram e acresce
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 13 — UPDATE e DELETE de perfis](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) · ➡️ [Capítulo 14.1 — Consulta de CEP (opcional)](Capitulo_14_1_Consulta_de_CEP.md) · 🔒 Capítulo 15 — em breve.
+⬅️ [Capítulo 13 — UPDATE e DELETE de perfis](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) · ➡️ [Capítulo 14.1 — Consulta de CEP (opcional)](Capitulo_14_1_Consulta_de_CEP.md) · ➡️ [Capítulo 15 — SELECT relacional de usuário](Capitulo_15_SELECT_Relacional_de_Usuario.md)
 
 ---
 

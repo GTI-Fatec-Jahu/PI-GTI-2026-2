@@ -72,3 +72,4 @@ nav:
       - "Capítulo 13.1 — Soft-delete (opcional)": capitulos/Capitulo_13_1_Soft_Delete.md
       - "Capítulo 14 — INSERT relacional de usuário": capitulos/Capitulo_14_INSERT_Relacional_de_Usuario.md
       - "Capítulo 14.1 — Consulta de CEP (opcional)": capitulos/Capitulo_14_1_Consulta_de_CEP.md
+      - "Capítulo 15 — SELECT relacional de usuário": capitulos/Capitulo_15_SELECT_Relacional_de_Usuario.md
