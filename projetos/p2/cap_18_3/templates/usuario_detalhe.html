@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{{ usuario.nome }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">{{ usuario.nome }}</h1>
+    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+
+          <h2 class="h5 mb-3">Dados principais</h2>
+          <dl class="row">
+            <dt class="col-sm-4">E-mail</dt>
+            <dd class="col-sm-8">{{ usuario.email }}</dd>
+
+            <dt class="col-sm-4">Perfil</dt>
+            <dd class="col-sm-8">
+              {% include '_badge_perfil.html' %}
+              <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
+            </dd>
+
+            <dt class="col-sm-4">Celular</dt>
+            <dd class="col-sm-8">{{ usuario.celular|default('—', true) }}</dd>
+          </dl>
+
+          <h2 class="h5 mb-3">Dados pessoais</h2>
+          <dl class="row">
+            <dt class="col-sm-4">Data de nascimento</dt>
+            <dd class="col-sm-8">{{ usuario.data_nascimento|data_br }}</dd>
+
+            <dt class="col-sm-4">CPF</dt>
+            <dd class="col-sm-8">{{ usuario.cpf|default('—', true) }}</dd>
+          </dl>
+
+          <h2 class="h5 mb-3">Endereço</h2>
+          <dl class="row">
+            <dt class="col-sm-4">CEP</dt>
+            <dd class="col-sm-8">{{ usuario.cep|default('—', true) }}</dd>
+
+            <dt class="col-sm-4">Endereço</dt>
+            <dd class="col-sm-8">{{ usuario.endereco|default('—', true) }}</dd>
+
+            <dt class="col-sm-4">Número</dt>
+            <dd class="col-sm-8">{{ usuario.numero|default('—', true) }}</dd>
+
+            <dt class="col-sm-4">Complemento</dt>
+            <dd class="col-sm-8">{{ usuario.complemento|default('—', true) }}</dd>
+
+            <dt class="col-sm-4">Cidade</dt>
+            <dd class="col-sm-8">{{ usuario.cidade|default('—', true) }}</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">{{ usuario.estado|default('—', true) }}</dd>
+          </dl>
+
+          <h2 class="h5 mb-3">Registro</h2>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Cadastrado em</dt>
+            <dd class="col-sm-8">{{ usuario.criado_em|data_hora_br }}</dd>
+
+            <dt class="col-sm-4">Última alteração</dt>
+            <dd class="col-sm-8">{{ usuario.atualizado_em|data_hora_br }}</dd>
+          </dl>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

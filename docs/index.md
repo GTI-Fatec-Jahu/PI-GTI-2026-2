@@ -46,5 +46,6 @@ aprofundar.
 | [18](capitulos/Capitulo_18_CRUD_de_Produtos.md) | [CRUD de produtos](capitulos/Capitulo_18_CRUD_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_CRUD_de_Produtos.md) |
 | [18.1](capitulos/Capitulo_18_1_INSERT_de_Produtos.md) | [INSERT de produtos (opcional)](capitulos/Capitulo_18_1_INSERT_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_1_INSERT_de_Produtos.md) |
 | [18.2](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) | [SELECT de produtos (opcional)](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) |
+| [18.3](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) | [UPDATE de produtos (opcional)](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) |
 | 19 | Relatórios | 🔒 Em breve |
 | 20 | Publicação | 🔒 Em breve |
