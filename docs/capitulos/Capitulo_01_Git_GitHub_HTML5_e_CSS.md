@@ -49,22 +49,18 @@ Acesse **code.visualstudio.com**, baixe a versão para Windows e instale aceitan
 
 ### Criando a pasta do projeto
 
-Um projeto vive em uma pasta própria. Abra o VS Code e, no menu, escolha **Terminal → New Terminal** (atalho `Ctrl + '`). Digite:
+Um projeto vive em uma pasta própria. Abra o VS Code e, no menu, escolha **Terminal → New Terminal** (atalho `Ctrl + '`). O terminal sempre abre na pasta do seu usuário (algo como `C:\Users\SeuNome`), e a Área de Trabalho fica dentro dela, com o nome `Desktop`. Digite:
 
 ```bash
-mkdir C:\projetos
-cd C:\projetos
+cd Desktop
 mkdir catalogo-produtos
 cd catalogo-produtos
 code .
 ```
 
-- `mkdir` cria uma pasta (de *make directory*);
 - `cd` entra em uma pasta (de *change directory*);
+- `mkdir` cria uma pasta (de *make directory*);
 - `code .` abre o VS Code na pasta atual. O ponto (`.`) significa "aqui".
-
-!!! warning "Por que `C:\projetos` e não a Área de Trabalho?"
-    Em muitos computadores a Área de Trabalho e a pasta Documentos são sincronizadas pelo OneDrive. Sincronizador e Git disputam os mesmos arquivos e o resultado costuma ser pasta corrompida. Uma pasta fora do OneDrive evita o problema.
 
 O VS Code reabre dentro de `catalogo-produtos`, vazia. Esse é o ponto de partida do Projeto 1.
 
@@ -588,7 +584,7 @@ Este exemplo apresenta a tag de imagem e a estrutura de um formulário. Os formu
 
   <h1>Entre em Contato</h1>
 
-  <img src="https://loremflickr.com/150/150/portrait" alt="Foto de perfil" width="150">
+  <img src="https://picsum.photos/150" alt="Foto de perfil" width="150">
   <!-- img = exibe uma imagem.
        src = caminho ou endereço da imagem (de "source").
        alt = texto alternativo: aparece se a imagem não carregar e é lido
@@ -601,7 +597,7 @@ Este exemplo apresenta a tag de imagem e a estrutura de um formulário. Os formu
 </html>
 ```
 
-Salve e abra. A imagem vem do **LoremFlickr** (loremflickr.com), um serviço que devolve uma foto de tema `portrait` (retrato) a partir do acervo do Flickr, em tamanho 150 por 150. Por isso o computador precisa estar conectado à internet, e a foto muda a cada vez que a página é carregada.
+Salve e abra. A imagem vem do **Picsum** (picsum.photos), um serviço que devolve uma foto de exemplo no tamanho pedido na própria URL (`150` é a largura e a altura, em pixels). Por isso o computador precisa estar conectado à internet, e a foto muda a cada vez que a página é carregada.
 
 !!! note "Quando a imagem não aparece"
     Serviços de imagem de terceiros às vezes ficam fora do ar. Se isso acontecer, o navegador mostra o texto do `alt` ("Foto de perfil") no lugar da imagem. É exatamente para isso que o `alt` serve, e por isso ele nunca deve ser omitido.
@@ -673,7 +669,7 @@ Salve e recarregue. Clicar no botão ainda não faz nada de útil, porque falta 
 
   <h1>Entre em Contato</h1>
 
-  <img src="https://loremflickr.com/150/150/portrait" alt="Foto de perfil" width="150">
+  <img src="https://picsum.photos/150" alt="Foto de perfil" width="150">
 
   <h2>Envie uma mensagem</h2>
 
