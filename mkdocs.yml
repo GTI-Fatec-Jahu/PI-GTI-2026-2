@@ -68,3 +68,4 @@ nav:
       - "Capítulo 11 — Projeto novo e banco": capitulos/Capitulo_11_Projeto_Novo_e_Banco.md
       - "Capítulo 12 — INSERT e SELECT de perfis": capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md
       - "Capítulo 12.1 — Busca, filtro e paginação (opcional)": capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md
+      - "Capítulo 13 — UPDATE e DELETE de perfis": capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md

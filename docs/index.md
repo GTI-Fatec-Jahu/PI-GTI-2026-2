@@ -35,7 +35,7 @@ aprofundar.
 | [11](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | [Projeto novo e banco de dados](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) | ✅ [Disponível](capitulos/Capitulo_11_Projeto_Novo_e_Banco.md) |
 | [12](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) | [INSERT e SELECT de perfis](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) | ✅ [Disponível](capitulos/Capitulo_12_INSERT_e_SELECT_de_Perfis.md) |
 | [12.1](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) | [Busca, filtro e paginação (opcional)](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) | ✅ [Disponível](capitulos/Capitulo_12_1_Busca_Filtro_e_Paginacao.md) |
-| 13 | UPDATE e DELETE de perfis | 🔒 Em breve |
+| [13](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) | [UPDATE e DELETE de perfis](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) | ✅ [Disponível](capitulos/Capitulo_13_UPDATE_e_DELETE_de_Perfis.md) |
 | 13.1 | Soft-delete (opcional) | 🔒 Em breve |
 | 14 | INSERT relacional de usuário | 🔒 Em breve |
 | 15 | SELECT relacional de usuário | 🔒 Em breve |

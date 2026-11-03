@@ -943,7 +943,7 @@ O sistema ganhou o primeiro recurso completo de leitura e criação: a rota `lis
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 11 — Projeto novo e banco](Capitulo_11_Projeto_Novo_e_Banco.md) · ➡️ [Capítulo 12.1 — Busca, filtro e paginação (opcional)](Capitulo_12_1_Busca_Filtro_e_Paginacao.md) · 🔒 Capítulo 13 — em breve.
+⬅️ [Capítulo 11 — Projeto novo e banco](Capitulo_11_Projeto_Novo_e_Banco.md) · ➡️ [Capítulo 12.1 — Busca, filtro e paginação (opcional)](Capitulo_12_1_Busca_Filtro_e_Paginacao.md) · ➡️ [Capítulo 13 — UPDATE e DELETE de perfis](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md)
 
 ---
 
