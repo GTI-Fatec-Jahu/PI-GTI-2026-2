@@ -9,6 +9,8 @@ CONFIGURACAO = {
     'database': 'catalogo',
     'charset': 'utf8mb4',
     'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
+    'time_zone': '-03:00',  # horário de Brasília, igual em qualquer computador
+    'use_pure': True,  # conector em Python puro, evita erros com XAMPP e MySQL juntos
 }
 
 pool = pooling.MySQLConnectionPool(pool_name='catalogo_pool', pool_size=5, **CONFIGURACAO)

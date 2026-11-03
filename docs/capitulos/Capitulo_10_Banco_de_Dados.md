@@ -11,6 +11,7 @@
 Ao final deste capítulo você deverá ser capaz de:
 
 - Instalar o XAMPP, ligar o MySQL (MariaDB) e o Apache e abrir o phpMyAdmin
+- Instalar o MySQL Workbench pelo `winget` e conectá-lo ao banco do XAMPP
 - Importar o `produtos_exemplo.sql` e conferir o banco `catalogo` e a tabela `produtos` no phpMyAdmin
 - Instalar o `mysql-connector-python` e conectar o Python ao banco
 - Criar o módulo `db.py`, com pool de conexões e as funções `execute_query` e `execute_one`
@@ -106,6 +107,27 @@ Com o Apache e o MySQL ligados, abra **http://localhost/phpmyadmin** no navegado
 !!! warning "`root` sem senha é só para a sua máquina"
     Usuário `root` sem senha é o padrão do XAMPP e serve para um computador de estudo, que não é acessível de fora. Em um servidor de verdade, o banco tem usuário e senha próprios. O Capítulo 11 mostra onde guardar a senha de forma correta.
 
+### O MySQL Workbench
+
+O phpMyAdmin é um site. O **MySQL Workbench** é um programa instalado no computador, a ferramenta gráfica oficial do MySQL: um editor de SQL com os resultados em uma grade. Os dois olham para o **mesmo** banco, e tudo o que o capítulo faz em um funciona no outro.
+
+Instale o Workbench pelo **winget**, o gerenciador de pacotes do Windows. Abra o PowerShell e execute:
+
+```powershell
+winget install -e --id Oracle.MySQLWorkbench -v "8.0.47"
+```
+
+O `-e` exige o pacote exato, e o `-v` fixa a versão. Use a **8.0.47**, que é a que esta disciplina usa por ser a mais compatível com o MariaDB do XAMPP. Não instale a mais recente (a série 26). Ao terminar, procure **MySQL Workbench** no menu Iniciar.
+
+O Workbench não encontra o banco do XAMPP sozinho: a "Local instance MySQL80" só existe quando o MySQL Server da Oracle está instalado. Crie a conexão à mão, com o **MySQL do XAMPP ligado**:
+
+1. Na tela inicial, clique no **+** ao lado de **MySQL Connections**.
+2. Em **Connection Name**, escreva `XAMPP`. Em **Hostname**, `127.0.0.1`, e em **Port**, `3306`. Em **Username**, `root`.
+3. Clique em **Test Connection**. Quando pedir a senha, deixe o campo **vazio** e confirme. Se aparecer um aviso de versão incompatível do servidor (o XAMPP traz o MariaDB, não o MySQL da Oracle), clique em **Continue Anyway**.
+4. Clique em **OK** e abra a conexão `XAMPP` com um duplo clique.
+
+Para escrever SQL, abra uma aba de consulta (ícone de folha com raio) e execute o comando com `Ctrl + Enter`. O Workbench tem uma trava, o *Safe Updates*: ele recusa, com o erro `1175`, um `UPDATE` ou `DELETE` cujo `WHERE` não use a chave primária. Nos comandos deste capítulo o `WHERE` usa o `id`, então a trava não atrapalha, e vale deixá-la ligada.
+
 Este tópico não muda o código, então não há commit.
 
 ---
@@ -162,7 +184,7 @@ Clique em **produtos** e explore as abas:
 
 ### Praticando SQL no phpMyAdmin
 
-Clique na aba **SQL**. Digite cada comando, clique em **Executar** (*Go*) e observe o resultado antes de passar ao próximo. Primeiro uma consulta:
+Clique na aba **SQL**. Digite cada comando, clique em **Executar** (*Go*) e observe o resultado antes de passar ao próximo. Se preferir o Workbench, abra a conexão `XAMPP`, escolha o banco com `USE catalogo;` e execute cada comando com `Ctrl + Enter`. Primeiro uma consulta:
 
 ```sql
 SELECT nome, preco FROM produtos WHERE categoria = 'Informática' ORDER BY preco;
@@ -217,6 +239,9 @@ pip freeze > requirements.txt
 
 Abra o `requirements.txt`: ele ganhou a linha `mysql-connector-python` (a versão varia).
 
+!!! note "Versão usada como base"
+    O `pip install` traz sempre a versão mais recente. Este material foi escrito e testado com o `mysql-connector-python` **26.10.0**. Se uma versão futura se comportar de outro jeito que o texto, compare com o `requirements.txt` do zip do capítulo.
+
 ### A primeira conexão
 
 Antes de organizar o código, veja uma conexão acontecer. Crie na raiz do projeto um arquivo **temporário** `teste_banco.py`, só com a conexão e o fechamento:
@@ -229,13 +254,14 @@ conexao = mysql.connector.connect(
     user='root',
     password='',
     database='catalogo',
+    use_pure=True,
 )
 print('Conectado ao banco catalogo.')
 
 conexao.close()
 ```
 
-Rode `python teste_banco.py`. Se aparecer `Conectado ao banco catalogo.`, o Python está falando com o MariaDB. O `host='127.0.0.1'` é o endereço do próprio computador, o mesmo do Flask, e o `password` vazio é o do `root` do XAMPP.
+Rode `python teste_banco.py`. Se aparecer `Conectado ao banco catalogo.`, o Python está falando com o MariaDB. O `host='127.0.0.1'` é o endereço do próprio computador, o mesmo do Flask, e o `password` vazio é o do `root` do XAMPP. O `use_pure=True` pede ao conector a implementação em Python puro, e a tabela de configuração, logo adiante, explica por quê.
 
 Agora peça os produtos. Acrescente antes do `conexao.close()`:
 
@@ -293,6 +319,8 @@ CONFIGURACAO = {
     'database': 'catalogo',
     'charset': 'utf8mb4',
     'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
+    'time_zone': '-03:00',  # horário de Brasília, igual em qualquer computador
+    'use_pure': True,  # conector em Python puro, evita erros com XAMPP e MySQL juntos
 }
 
 pool = pooling.MySQLConnectionPool(pool_name='catalogo_pool', pool_size=5, **CONFIGURACAO)
@@ -303,6 +331,8 @@ pool = pooling.MySQLConnectionPool(pool_name='catalogo_pool', pool_size=5, **CON
 | `host`, `user`, `password`, `database` | Onde está o banco, quem entra e qual banco usar. |
 | `charset` | `utf8mb4`: o texto viaja com acentos, sem virar `?`. |
 | `sql_mode` | O MariaDB do XAMPP vem sem o **modo estrito**: um nome com mais de 100 caracteres seria **cortado em silêncio**. Com `STRICT_TRANS_TABLES` o banco recusa com um erro. É a terceira barreira depois do HTML e do Python. |
+| `time_zone` | O fuso horário da conexão. `NOW()` e as colunas `TIMESTAMP` usam esse fuso. Sem ele, vale o do servidor, que pode ser outro (um servidor na nuvem costuma usar UTC, 3 horas à frente de Brasília). Com `-03:00`, o horário gravado é o mesmo em qualquer computador. Ainda não usamos datas no catálogo, mas o Projeto 2 grava `criado_em` em todas as tabelas. |
+| `use_pure` | O conector tem duas implementações: uma extensão em C, mais rápida, e uma em **Python puro**. Em computadores que têm o XAMPP e o MySQL da Oracle instalados juntos, a extensão em C costuma falhar com erros como `Authentication plugin 'caching_sha2_password' is not supported` ou `Lost connection to MySQL server`, mesmo com o banco funcionando no phpMyAdmin. Com `True`, o conector usa sempre o Python puro. A diferença de velocidade não importa em um projeto deste tamanho. |
 | `pool_name`, `pool_size` | O nome do pool e quantas conexões ele mantém abertas (5). |
 
 !!! note "Python: o `**`"
@@ -425,6 +455,7 @@ Se algo der errado, estas são as mensagens mais comuns:
 | `2003: Can't connect to MySQL server` | O MySQL do XAMPP está desligado | Clique em **Start** na linha do MySQL |
 | `1049 Unknown database 'catalogo'` | O `produtos_exemplo.sql` não foi importado | Volte ao Tópico 2 |
 | `1045 Access denied for user 'root'` | A senha na `CONFIGURACAO` não bate com a do `root` | Confira se o `password` está vazio |
+| `Authentication plugin 'caching_sha2_password' is not supported` ou `Lost connection to MySQL server` | O computador tem o MySQL da Oracle e o XAMPP, e a extensão em C do conector se confunde | Confira se o `use_pure` está `True` na `CONFIGURACAO` |
 
 Registre no Git:
 
@@ -625,6 +656,8 @@ CONFIGURACAO = {
     'database': 'catalogo',
     'charset': 'utf8mb4',
     'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
+    'time_zone': '-03:00',  # horário de Brasília, igual em qualquer computador
+    'use_pure': True,  # conector em Python puro, evita erros com XAMPP e MySQL juntos
 }
 
 pool = pooling.MySQLConnectionPool(pool_name='catalogo_pool', pool_size=5, **CONFIGURACAO)

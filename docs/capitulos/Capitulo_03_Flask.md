@@ -144,6 +144,9 @@ pip show flask
 
 O comando mostra o nome, a versão e o local da instalação. Se aparecerem esses dados, o Flask está pronto.
 
+!!! note "Versão usada como base"
+    O `pip install flask` traz sempre a versão mais recente. Este material foi escrito e testado com o Flask **3.1.3**. Se uma versão futura se comportar de outro jeito que o texto, compare com o `requirements.txt` do zip do capítulo.
+
 ### O `requirements.txt`
 
 Uma pessoa que receber o seu projeto (ou você mesmo, em outro computador, ou depois de um `git clone`) não terá a pasta `.venv`, porque ela ficou de fora do Git. Como saber o que instalar? O projeto precisa de uma **lista das suas dependências**, e por convenção ela se chama `requirements.txt`. Você não escreve essa lista à mão, o `pip` a gera:

@@ -71,6 +71,15 @@ o repositório, não substitui o julgamento dele.
   entram** `addEventListener` nem condicionais em JS. Única exceção, autorizada pelo professor:
   `evento.preventDefault()` no `onsubmit` do Capítulo 2 (o formulário envia para `#`, e o
   recarregamento limparia o console).
+- **Instalação de pacotes:** sempre `pip install pacote`, **sem número de versão** (ex.:
+  `pip install mysql-connector-python`). Quem instala é o aluno, e quem fixa as versões é o
+  `pip freeze > requirements.txt`. A versão em que o material foi escrito e testado pode ser
+  **citada** numa nota ("Versão usada como base"), só para facilitar o diagnóstico de erros
+  futuros. Exceção autorizada: o MySQL Workbench, instalado por `winget` com `-v "8.0.47"`
+  (a série 26 não é compatível com o MariaDB do XAMPP).
+- **Conexão MySQL (Capítulo 10 em diante):** o `db.py` mantém `use_pure: True` (alunos com
+  XAMPP e MySQL da Oracle instalados juntos tiveram erros com a extensão C), `time_zone:
+  '-03:00'` e `sql_mode` estrito.
 - **Segredos:** até o Capítulo 10, a senha do banco e a `secret_key` ficam no código, com aviso
   de que é provisório. O `.env` entra no Capítulo 11. São projetos de sala, sem dados reais.
 

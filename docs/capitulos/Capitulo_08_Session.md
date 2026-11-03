@@ -532,6 +532,9 @@ pip freeze > requirements.txt
 
 Abra o `requirements.txt`: ele ganhou **duas** linhas novas, `Flask-WTF` e `WTForms` (as versões variam).
 
+!!! note "Versão usada como base"
+    Este material foi escrito e testado com o Flask-WTF **1.3.0** (e o WTForms 3.3.2 que vem com ele). Se uma versão futura se comportar de outro jeito que o texto, compare com o `requirements.txt` do zip do capítulo.
+
 !!! note "Por que o WTForms veio junto?"
     O `WTForms` é uma biblioteca para descrever formulários como classes do Python. Neste projeto **não a usamos**: os formulários continuam em HTML puro, lidos com `request.form`. Mas o `Flask-WTF` a declara como dependência, e o próprio código do `CSRFProtect` usa peças dela por dentro. O `pip` instala as duas, e a linha do `WTForms` no `requirements.txt` é esperada. Você só vai usar o `CSRFProtect` e o `csrf_token()`.
 
