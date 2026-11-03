@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">{{ titulo }}</h1>
+    <a href="{{ url_for('relatorios') }}" class="btn btn-outline-secondary">Voltar</a>
+  </div>
+
+  <section class="mb-5">
+    <h2 class="h4">Resumo do catálogo</h2>
+    <p class="text-body-secondary">As unidades, o valor e o preço médio consideram só os produtos ativos.</p>
+
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+          <th scope="row">Produtos cadastrados</th>
+          <td class="text-end">{{ contagem.total }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Ativos</th>
+          <td class="text-end">{{ contagem.ativos }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Inativos</th>
+          <td class="text-end">{{ contagem.total - contagem.ativos }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Unidades em estoque</th>
+          <td class="text-end">{{ resumo.unidades }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Valor em estoque</th>
+          <td class="text-end">{{ resumo.valor|moeda }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Preço médio</th>
+          <td class="text-end">{{ resumo.preco_medio|moeda }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="h4">Produtos ativos por categoria</h2>
+    <p class="text-body-secondary">Ordenado pelo valor em estoque, do maior para o menor.</p>
+
+    <table class="table table-striped table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Categoria</th>
+          <th class="text-end">Produtos</th>
+          <th class="text-end">Unidades</th>
+          <th class="text-end">Valor em estoque</th>
+          <th class="text-end">Preço médio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linha in por_categoria %}
+        <tr>
+          <td>{{ linha.categoria|default('Sem categoria', true) }}</td>
+          <td class="text-end">{{ linha.produtos }}</td>
+          <td class="text-end">{{ linha.unidades }}</td>
+          <td class="text-end">{{ linha.valor|moeda }}</td>
+          <td class="text-end">{{ linha.preco_medio|moeda }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-body-secondary py-4">Nenhum produto ativo cadastrado ainda.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="h4">Estoque baixo</h2>
+    <p class="text-body-secondary">Produtos ativos com menos de {{ limite }} unidades.</p>
+
+    <table class="table table-striped table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Código</th>
+          <th>Produto</th>
+          <th>Categoria</th>
+          <th>Estoque</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produto in estoque_baixo %}
+        <tr>
+          <td>{{ produto.id_produto }}</td>
+          <td>{{ produto.nome }}</td>
+          <td>{{ produto.categoria|default('Sem categoria', true) }}</td>
+          <td>
+            {% if produto.estoque == 0 %}
+              <span class="badge text-bg-danger">Sem estoque</span>
+            {% else %}
+              <span class="badge text-bg-warning">{{ produto.estoque }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center text-body-secondary py-4">Nenhum produto com estoque baixo.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

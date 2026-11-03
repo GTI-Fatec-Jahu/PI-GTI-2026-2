@@ -1395,7 +1395,7 @@ A edição reaproveita o formulário do cadastro, que passou a receber a variáv
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 18.2 — SELECT de produtos](Capitulo_18_2_SELECT_de_Produtos.md) · ➡️ [Capítulo 18.4 — DELETE de produtos (opcional)](Capitulo_18_4_DELETE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · 🔒 Capítulo 19 — em breve.
+⬅️ [Capítulo 18.2 — SELECT de produtos](Capitulo_18_2_SELECT_de_Produtos.md) · ➡️ [Capítulo 18.4 — DELETE de produtos (opcional)](Capitulo_18_4_DELETE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · ➡️ [Capítulo 19 — Relatórios](Capitulo_19_Relatorios.md)
 
 ---
 

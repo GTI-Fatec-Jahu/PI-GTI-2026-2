@@ -1140,7 +1140,7 @@ A lista lê as colunas de `produtos` por uma constante (`SELECT_PRODUTO`), e que
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 18.1 — INSERT de produtos](Capitulo_18_1_INSERT_de_Produtos.md) · ➡️ [Capítulo 18.3 — UPDATE de produtos (opcional)](Capitulo_18_3_UPDATE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · 🔒 Capítulo 19 — em breve.
+⬅️ [Capítulo 18.1 — INSERT de produtos](Capitulo_18_1_INSERT_de_Produtos.md) · ➡️ [Capítulo 18.3 — UPDATE de produtos (opcional)](Capitulo_18_3_UPDATE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · ➡️ [Capítulo 19 — Relatórios](Capitulo_19_Relatorios.md)
 
 ---
 

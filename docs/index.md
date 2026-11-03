@@ -48,5 +48,5 @@ aprofundar.
 | [18.2](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) | [SELECT de produtos (opcional)](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_2_SELECT_de_Produtos.md) |
 | [18.3](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) | [UPDATE de produtos (opcional)](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_3_UPDATE_de_Produtos.md) |
 | [18.4](capitulos/Capitulo_18_4_DELETE_de_Produtos.md) | [DELETE de produtos (opcional)](capitulos/Capitulo_18_4_DELETE_de_Produtos.md) | ✅ [Disponível](capitulos/Capitulo_18_4_DELETE_de_Produtos.md) |
-| 19 | Relatórios | 🔒 Em breve |
+| [19](capitulos/Capitulo_19_Relatorios.md) | [Relatórios](capitulos/Capitulo_19_Relatorios.md) | ✅ [Disponível](capitulos/Capitulo_19_Relatorios.md) |
 | 20 | Publicação | 🔒 Em breve |

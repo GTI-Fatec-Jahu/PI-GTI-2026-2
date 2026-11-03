@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <h1 class="h2 mb-3">{{ titulo }}</h1>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">Usuários</h2>
+          <p class="card-text">Quantos usuários há por perfil, por estado e por mês de cadastro.</p>
+          <a href="{{ url_for('relatorio_usuarios') }}" class="btn btn-primary">Abrir relatório</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">Produtos</h2>
+          <p class="card-text">Estoque, valor em estoque, preço médio e produtos com estoque baixo.</p>
+          <a href="{{ url_for('relatorio_produtos') }}" class="btn btn-primary">Abrir relatório</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

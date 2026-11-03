@@ -1173,7 +1173,7 @@ A exclusão é uma rota que aceita só `POST`, com o token CSRF, e responde 404 
 
 ## 🔗 Navegação
 
-⬅️ [Capítulo 18.3 — UPDATE de produtos](Capitulo_18_3_UPDATE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · 🔒 Capítulo 19 — em breve.
+⬅️ [Capítulo 18.3 — UPDATE de produtos](Capitulo_18_3_UPDATE_de_Produtos.md) · [Capítulo 18 — CRUD de produtos](Capitulo_18_CRUD_de_Produtos.md) · ➡️ [Capítulo 19 — Relatórios](Capitulo_19_Relatorios.md)
 
 ---
 
