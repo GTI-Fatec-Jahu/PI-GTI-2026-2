@@ -26,7 +26,7 @@ aprofundar.
 | 7 | Formulários | ✅ [Disponível](capitulos/Capitulo_07_Formularios.md) |
 | 8 | Session | ✅ [Disponível](capitulos/Capitulo_08_Session.md) |
 | 9 | Validação e flash | ✅ [Disponível](capitulos/Capitulo_09_Validacao_e_Flash.md) |
-| 10 | Banco de dados | 🔒 Em breve |
+| 10 | Banco de dados | ✅ [Disponível](capitulos/Capitulo_10_Banco_de_Dados.md) |
 
 ## Projeto 2 — Sistema de Gestão
 
