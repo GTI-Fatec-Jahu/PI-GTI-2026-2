@@ -57,10 +57,10 @@ O Capítulo 15 deixou duas linhas do molde sem construir. Este capítulo as cons
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template | Capítulo |
 |---|---|---|---|---|---|
-| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios.html` | 15 |
-| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuario_form.html` | 14 |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuario_detalhe.html` | 15 |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `usuario_editar` | `usuario_form.html` | **16** |
+| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios/usuarios_lista.html` | 15 |
+| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuarios/usuario_form.html` | 14 |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | 15 |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `usuario_editar` | `usuarios/usuario_form.html` | **16** |
 | `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário e volta para a lista | `usuario_excluir` | (nenhum) | **16** |
 
 Como no Capítulo 13, o `editar` usa o **mesmo template** do `novo`, e o `excluir` não tem template: ele só faz o que foi pedido e redireciona. O caminho do navegador na edição:
@@ -90,7 +90,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', dados=usuario, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=usuario, perfis=perfis, ufs=UFS)
 ```
 
 É o `usuario_detalhe` do Capítulo 15 com duas diferenças: a rota também busca os perfis, para o `<select>`, e entrega o usuário ao formulário com o nome `dados`, que é como o `usuario_form.html` do Capítulo 14 espera receber os valores. A consulta é a mesma constante, `SELECT_USUARIO`, e continua sem a senha.
@@ -135,18 +135,18 @@ Salve e recarregue as duas edições. O Bruno mostra o perfil **Gerente** seleci
 O formulário já aparece preenchido, mas ainda diz **Novo usuário**, o botão diz **Salvar usuário** e o `action` aponta para o cadastro. Como no Capítulo 13, o mesmo `usuario_form.html` vai servir aos dois modos, e a variável `acao` (`'criar'` ou `'editar'`) diz em qual deles ele está. Primeiro as rotas entregam a informação. Na `usuario_editar`, o `render_template` do final passa a ser:
 
 ```python
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 ```
 
 E, na `usuario_novo`, o `render_template` do final passa a ser:
 
 ```python
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 ```
 
-Salve e recarregue as duas telas: nada mudou, o template só **recebeu** a informação. Agora ele a usa. No `templates/usuario_form.html`, troque o título da aba e o `<h1>`:
+Salve e recarregue as duas telas: nada mudou, o template só **recebeu** a informação. Agora ele a usa. No `templates/usuarios/usuario_form.html`, troque o título da aba e o `<h1>`:
 
 ```html
 {% block titulo_aba %}{% if acao == 'editar' %}Editar usuário{% else %}Novo usuário{% endif %} — Sistema de Gestão{% endblock %}
@@ -210,19 +210,19 @@ Salve e confira os dois modos. No cadastro, o rótulo é **Senha**, e o navegado
 
 ### Os caminhos até o formulário
 
-Para chegar à edição sem digitar o endereço, a coluna **Ações** da lista ganha um botão. No `usuarios.html`, dentro da célula de ações, **depois** do link **Ver**:
+Para chegar à edição sem digitar o endereço, a coluna **Ações** da lista ganha um botão. No `usuarios_lista.html`, dentro da célula de ações, **depois** do link **Ver**:
 
 ```html
           <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
 ```
 
-E, no `base.html`, o item **Usuários** do menu precisa continuar aceso durante a edição. Acrescente `'usuario_editar'` à lista do `request.endpoint`:
+E, no `base_menu.html`, o menu **Usuários** precisa continuar aceso durante a edição. Acrescente `'usuario_editar'` à lista do `request.endpoint`, no botão do menu suspenso:
 
 ```html
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
 ```
 
-Salve e navegue: **Usuários**, **Editar** em uma linha, o formulário preenchido, **Cancelar** de volta à lista. Agora clique em **Salvar alterações**: a página mostra **Method Not Allowed** (405). O endereço de destino está certo (`/usuarios/3/editar`), mas a rota `usuario_editar` ainda só aceita `GET`. É a deixa para os próximos tópicos, e antes dela vem uma arrumação.
+Salve e navegue: **Usuários > Listar Usuários**, **Editar** em uma linha, o formulário preenchido, **Cancelar** de volta à lista. Agora clique em **Salvar alterações**: a página mostra **Method Not Allowed** (405). O endereço de destino está certo (`/usuarios/3/editar`), mas a rota `usuario_editar` ainda só aceita `GET`. É a deixa para os próximos tópicos, e antes dela vem uma arrumação.
 
 ```bash
 git add .
@@ -416,7 +416,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 ```
 
@@ -636,7 +636,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 ```
 
@@ -691,7 +691,7 @@ O `SELECT` inicial responde 404 para um código que não existe e traz o **nome*
 
 ### O modal de confirmação
 
-O botão da lista não pode excluir com um clique só. O desenho é o do Capítulo 13: **um único modal** do Bootstrap, reaproveitado por todas as linhas, que uma função JavaScript preenche com o usuário clicado. No `usuarios.html`, no final do `{% block conteudo %}`, depois da `</table>`, acrescente o HTML do modal:
+O botão da lista não pode excluir com um clique só. O desenho é o do Capítulo 13: **um único modal** do Bootstrap, reaproveitado por todas as linhas, que uma função JavaScript preenche com o usuário clicado. No `usuarios_lista.html`, no final do `{% block conteudo %}`, depois da `</table>`, acrescente o HTML do modal:
 
 ```html
   <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
@@ -732,7 +732,7 @@ A função precisa achar o **nome** do usuário. Na célula do nome, o texto tra
           <span id="nome_usuario_{{ usuario.id_usuario }}">{{ usuario.nome }}</span><br>
 ```
 
-Para o usuário de código 3, o HTML gerado é `<span id="nome_usuario_3">Daniel Silva</span>`. Por último, a função. O `base.html` já tem o `{% block scripts %}`. No **final** do `usuarios.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
+Para o usuário de código 3, o HTML gerado é `<span id="nome_usuario_3">Daniel Silva</span>`. Por último, a função. O `base_menu.html` já tem o `{% block scripts %}`. No **final** do `usuarios_lista.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
 
 ```html
 {% block scripts %}
@@ -833,11 +833,21 @@ def cpf_oculto(cpf):
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -850,7 +860,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -908,7 +918,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -954,7 +964,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -991,7 +1001,7 @@ def perfil_excluir(id_perfil):
 def lista_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -1161,7 +1171,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -1171,7 +1181,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -1234,7 +1244,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -1267,10 +1277,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/usuario_form.html`:
+O `templates/usuarios/usuario_form.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{% if acao == 'editar' %}Editar usuário{% else %}Novo usuário{% endif %} — Sistema de Gestão{% endblock %}
 
@@ -1404,10 +1414,10 @@ O `templates/usuario_form.html`:
 {% endblock %}
 ```
 
-O `templates/usuarios.html`:
+O `templates/usuarios/usuarios_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1440,7 +1450,7 @@ O `templates/usuarios.html`:
         <td>{{ usuario.cpf|cpf_oculto }}</td>
         <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
-        <td>{% include '_badge_perfil.html' %}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end">
           <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
           <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
@@ -1488,13 +1498,13 @@ O `templates/usuarios.html`:
 {% endblock %}
 ```
 
-A única mudança no `base.html` é o `'usuario_editar'` na lista do item **Usuários** do menu (Tópico 1). Os demais arquivos (`db.py`, `validacoes.py`, `index.html`, `perfis.html`, `perfil_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 15.
+A única mudança nos layouts é o `'usuario_editar'` na lista do menu **Usuários**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 15.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e os três usuários pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e os três usuários pelo formulário.
 
 ➡️ [Baixar p2_cap_16.zip](../arquivos/p2_cap_16.zip)
 
