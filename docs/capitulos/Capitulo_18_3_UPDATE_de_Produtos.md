@@ -67,9 +67,7 @@ SET nome = %s, descricao = %s, categoria = %s, preco = %s, estoque = %s, ativo =
 WHERE id_produto = %s;
 ```
 
-O `WHERE id_produto = %s` é obrigatório: sem ele, o `UPDATE` altera **todas** as linhas da tabela, sem perguntar e sem "desfazer". A rota de edição é a mesma ideia da `produto_novo` com duas diferenças: ela precisa **buscar o produto** pelo código que vem no endereço (`/produtos/3/editar`) e **preencher o formulário** com os valores dele. E o formulário é o mesmo, o `produto_form.html`, que passa a servir para criar e para editar.
-
-O caminho do navegador na edição:
+O `WHERE id_produto = %s` é obrigatório: sem ele, o `UPDATE` altera **todas** as linhas da tabela, sem perguntar e sem "desfazer". A rota de edição é a mesma ideia da `inserir_produto` com duas diferenças: ela precisa **buscar o produto** pelo código que vem no endereço (`/produtos/3/editar`) e **preencher o formulário** com os valores dele. E o formulário é o mesmo, o `produto_form.html`, que passa a servir para criar e para editar. O caminho do navegador na edição:
 
 ```mermaid
 flowchart LR
@@ -83,207 +81,6 @@ flowchart LR
     P -->|"sucesso: redirect + flash"| L
 ```
 
-### Buscar o produto pelo código
-
-No `app.py`, acrescente a rota `produto_editar` **depois** da `produto_novo` e antes dos `@app.errorhandler`. Por enquanto, ela busca o produto e entrega o resultado do banco ao formulário:
-
-```python
-@app.route('/produtos/<int:id_produto>/editar')
-def produto_editar(id_produto):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    produto = execute_one(SELECT_PRODUTO + ' WHERE id_produto = %s', (id_produto,))
-    if produto is None:
-        abort(404)
-
-    return render_template('produtos/produto_form.html', dados=produto, categorias=CATEGORIAS)
-```
-
-O `<int:id_produto>` é a variável de rota: o Flask pega o número do endereço e o entrega à função, com o mesmo nome. O `execute_one` devolve **um** produto (um dicionário) ou `None`, e o `abort(404)` mostra a página 404 quando o código não existe. Salve e abra, pela barra de endereço, `http://127.0.0.1:5000/produtos/` + o código do Notebook (a primeira coluna da lista) + `/editar`. O formulário aparece com o nome, o preço e o estoque, mas com três defeitos:
-
-- O **preço** aparece como `3499.90`, e não `3.499,90`.
-- O **interruptor** aparece desligado, mesmo para um produto ativo.
-- Abra a edição do **Teclado Mecânico**: o campo da descrição mostra a palavra **None**. Quem clicasse em salvar gravaria esse texto no banco.
-
-Os três têm a mesma raiz: o formulário foi escrito para receber valores **em texto**, como os do `request.form`. O `ativo` do banco é o **número** `1`, e o `dados.ativo == '1'` do formulário compara com o **texto** `'1'`, então nunca é verdadeiro. O `NULL` chega como `None`, que o Jinja escreve como a palavra "None" dentro do campo. E o preço chega como `Decimal`.
-
-### Entregar ao formulário os mesmos valores do `request.form`
-
-A saída é montar um dicionário `dados` com tudo como texto, e o `None` como texto vazio. Para isso, o `app.py` já tem a função `texto_ou_vazio` (do Capítulo 16). Se o seu não tiver, acrescente-a **abaixo** da `vazio_para_none`:
-
-```python
-def texto_ou_vazio(valor):
-    if valor is None:
-        return ''
-
-    return str(valor)
-```
-
-!!! note "Python: `str()`"
-    O `str()` converte um valor em texto: `str(1)` devolve `'1'`, e `str(3499.90)` devolve `'3499.90'`. A função é o contrário da `vazio_para_none`: aquela troca `''` por `None` na hora de **gravar**, e esta troca `None` por `''` na hora de **mostrar**.
-
-O preço precisa de mais um ajuste: ele deve aparecer como `3.499,90`, o formato que o campo e o `pattern` esperam. O `formatar_numero` (o mesmo que o filtro `moeda` usa, sem o `R$`) resolve. Se o seu `app.py` ainda não o tem, ele é este, e fica depois do filtro `cpf_oculto`:
-
-```python
-def formatar_numero(valor):
-    # 1234.5 vira '1.234,50': o Python escreve 1,234.50, e as trocas acertam a pontuação
-    texto = f'{valor:,.2f}'
-    texto = texto.replace(',', 'X').replace('.', ',').replace('X', '.')
-
-    return texto
-```
-
-Agora a rota monta o dicionário, um valor de cada vez. Na `produto_editar`, **entre** o `if produto is None:` e o `return`, acrescente:
-
-```python
-    dados = {}
-    for chave in produto:
-        dados[chave] = texto_ou_vazio(produto[chave])
-    dados['preco'] = formatar_numero(produto['preco'])
-```
-
-E no `return`, troque `dados=produto` por `dados=dados`:
-
-```python
-    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
-```
-
-O `for chave in produto` percorre as **chaves** do dicionário (`nome`, `preco`, `ativo`...), e `dados[chave] = ...` copia cada valor, já convertido em texto. A última linha corrige o preço. Salve, recarregue a edição do Notebook e do Teclado: o preço é `3.499,90`, o interruptor está ligado, e a descrição do teclado está **vazia**.
-
-### O formulário serve para criar e para editar
-
-O mesmo template precisa saber em qual dos dois modos está, para trocar o título, o botão e o **destino** do formulário (`action`). A solução é uma variável `acao`, que a rota entrega com o valor `'criar'` ou `'editar'`. No `produto_form.html`, troque o começo do arquivo, até a abertura do `<form>`, por:
-
-```html
-{% extends 'layout/base_menu.html' %}
-
-{% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
-
-{% block conteudo %}
-  {% if acao == 'editar' %}
-    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
-  {% else %}
-    {% set destino = url_for('produto_novo') %}
-  {% endif %}
-
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %}</h1>
-
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-body">
-
-          <form action="{{ destino }}" method="post" enctype="multipart/form-data">
-```
-
-O `{% set destino = ... %}` guarda o endereço em uma variável do template. E o texto do botão de salvar:
-
-```html
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar produto{% endif %}</button>
-```
-
-Agora a rota entrega `acao`, `id_produto` e a foto atual (para o formulário mostrar a foto que o produto já tem). Na `produto_editar`, o `return` fica:
-
-```python
-    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
-                           categorias=CATEGORIAS, foto_atual=produto['foto'])
-```
-
-E na `produto_novo`, o `return` passa as mesmas variáveis, com valores vazios:
-
-```python
-    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
-                           categorias=CATEGORIAS, foto_atual=None)
-```
-
-Na edição, o formulário mostra a foto atual e oferece uma caixa para removê-la. Troque o bloco do campo **Foto** do formulário por:
-
-```html
-            <div class="mb-3">
-              <label for="foto" class="form-label">{% if foto_atual %}Trocar a foto (opcional){% else %}Foto (opcional){% endif %}</label>
-              {% if foto_atual %}
-                <div class="d-flex align-items-center gap-3 mb-2">
-                  <img src="{{ url_for('static', filename=foto_atual) }}" alt="Foto atual do produto" class="foto-produto">
-                  <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" id="remover_foto" name="remover_foto" value="1">
-                    <label class="form-check-label" for="remover_foto">Remover a foto atual</label>
-                  </div>
-                </div>
-              {% endif %}
-              <input type="file" class="form-control" id="foto" name="foto" accept=".jpg,.jpeg,.png,.webp">
-              <div class="form-text">Arquivo jpg, jpeg, png ou webp, com até 2 MB.</div>
-            </div>
-```
-
-O bloco `{% if foto_atual %}` só aparece quando o produto tem foto. Para o botão **Editar** chegar ao formulário, acrescente a coluna **Ações** na lista. No `produtos_lista.html`, acrescente o cabeçalho depois de **Situação** (e acerte o `colspan` da linha da lista vazia para `7`):
-
-```html
-        <th class="text-end">Ações</th>
-```
-
-E a célula, depois da célula da situação:
-
-```html
-        <td class="text-end">
-          <a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-        </td>
-```
-
-Note o nome do argumento do `url_for`: `id_produto=produto.id_produto`, o mesmo nome da variável de rota e da coluna. Salve e recarregue a lista: cada linha tem o botão **Editar**. Clique no do Notebook: o título é **Editar produto**, o botão é **Salvar alterações**, os campos vêm preenchidos, e, no produto que tem foto, a miniatura aparece com a caixa **Remover a foto atual**. O botão **Salvar alterações** ainda mostra **Method Not Allowed**: falta o `POST`.
-
-### Salvar a edição
-
-A rota passa a aceitar o `POST`. Algumas peças já existem prontas: ler o formulário, ler a foto e conferir. Antes, falta ensinar o formulário a ler a caixa **Remover a foto atual**. Em `ler_formulario_produto`, acrescente **antes** do `return campos`:
-
-```python
-    if form.get('remover_foto') == '1':
-        campos['remover_foto'] = True
-    else:
-        campos['remover_foto'] = False
-```
-
-Troque a primeira linha da rota e o final dela. Primeiro o `methods`:
-
-```python
-@app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
-```
-
-E, entre a montagem do `dados` e o `return`, o tratamento do `POST`. Comece **sem mexer na foto**, só com o `UPDATE` dos campos:
-
-```python
-    if request.method == 'POST':
-        campos = ler_formulario_produto(request.form)
-        foto = ler_foto(request.files)
-
-        erros = conferir_produto(campos, foto)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            execute_query(
-                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
-                'preco = %s, estoque = %s, ativo = %s WHERE id_produto = %s',
-                (
-                    campos['nome'],
-                    vazio_para_none(campos['descricao']),
-                    vazio_para_none(campos['categoria']),
-                    converter_preco(campos['preco']),
-                    int(campos['estoque']),
-                    campos['ativo'],
-                    id_produto,
-                ),
-            )
-            flash(f'Produto "{campos["nome"]}" atualizado.', 'success')
-            return redirect(url_for('lista_produtos'))
-
-        dados = request.form
-```
-
-O `dados = request.form` do final faz o formulário voltar com o digitado quando há erros, e sobrepõe o `dados` montado a partir do banco. Salve e teste: edite o preço do Teclado Mecânico para `139,90` e o estoque para `8`. A lista mostra `R$ 139,90` e o selo de **Em estoque (8)**. Edite de novo, apague o nome e salve: a mensagem de erro aparece, o formulário volta com o que você digitou, e o banco **não** foi alterado.
-
 ### A foto na edição
 
 A foto é opcional na edição também, e há três situações:
@@ -294,10 +91,13 @@ A foto é opcional na edição também, e há três situações:
 | Marcou **Remover a foto atual** | Grava `NULL` e **apaga o arquivo antigo** do disco |
 | Não mexeu na foto | **Não toca** na coluna `foto` |
 
-A terceira linha é a que complica: o `UPDATE` fixo de cima sempre incluiria `foto = %s`, e, sem foto nova, teria de gravar o caminho antigo de volta. É mais simples montar o comando **por partes**: a base do `UPDATE` é fixa, e o pedaço `, foto = %s` só entra quando a foto muda. Primeiro, a função que apaga o arquivo do disco. Acrescente no `app.py`, **depois** da `salvar_foto`:
+A terceira linha é a que complica: um `UPDATE` fixo sempre incluiria `foto = %s`, e, sem foto nova, teria de gravar o caminho antigo de volta. É mais simples montar o comando **por partes**, como o `UPDATE` de usuário do Capítulo 16 fazia com a senha: a base do `UPDATE` é fixa, e o pedaço `, foto = %s` só entra quando a foto muda.
+
+Primeiro, a função que apaga o arquivo do disco. Acrescente na seção **PRODUTOS** do `app.py`, **depois** da `salvar_foto`:
 
 ```python
 def apagar_foto(caminho):
+    # Remove do disco a foto gravada no banco (se o produto não tem foto, não faz nada)
     if caminho is None:
         return
 
@@ -306,816 +106,13 @@ def apagar_foto(caminho):
         os.remove(arquivo)
 ```
 
-A função recebe o caminho gravado no banco (`uploads/ab12cd34.png`), junta com a pasta `static` e remove o arquivo, se ele existir. O `if caminho is None: return` cobre o produto que nunca teve foto. Agora troque o `execute_query` do `else` da `produto_editar` por este bloco:
+A função recebe o caminho gravado no banco (`uploads/ab12cd34.png`), junta com a pasta `static` e remove o arquivo, se ele existir. O `if caminho is None: return` cobre o produto que nunca teve foto: o `return` sozinho encerra a função sem devolver nada.
+
+### A rota de edição
+
+Acrescente a rota `produto_editar` **depois** da `inserir_produto`. O `abort` já está importado desde o Capítulo 13:
 
 ```python
-            sql = (
-                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
-                'preco = %s, estoque = %s, ativo = %s'
-            )
-            params = [
-                campos['nome'],
-                vazio_para_none(campos['descricao']),
-                vazio_para_none(campos['categoria']),
-                converter_preco(campos['preco']),
-                int(campos['estoque']),
-                campos['ativo'],
-            ]
-
-            trocou_foto = False
-            if foto is not None:
-                sql += ', foto = %s'
-                params.append(salvar_foto(foto))
-                trocou_foto = True
-            elif campos['remover_foto']:
-                sql += ', foto = %s'
-                params.append(None)
-                trocou_foto = True
-
-            sql += ' WHERE id_produto = %s'
-            params.append(id_produto)
-
-            execute_query(sql, params)
-
-            if trocou_foto:
-                apagar_foto(produto['foto'])
-```
-
-!!! note "Python: montar o SQL por partes"
-    O `sql` é um texto, e o `sql += ', foto = %s'` **acrescenta** um pedaço ao final dele. O `params` é uma **lista** de valores, e o `params.append(valor)` acrescenta um item ao final. Os dois crescem juntos, e cada `%s` no texto tem o seu valor na lista, na mesma ordem. O SQL continua sem receber nenhum dado da pessoa dentro do texto: os pedaços acrescentados são fixos, e os valores só entram pela lista. Se uma foto nova e a caixa **Remover** vierem juntas, vale a foto nova (o `if` vem antes do `elif`).
-
-O arquivo antigo só é apagado **depois** do `execute_query`, pelo `apagar_foto(produto['foto'])`: se o `UPDATE` falhasse, a foto antiga continuaria no lugar. O `produto['foto']` é o valor que o `SELECT` do começo da rota trouxe, antes da alteração.
-
-### Testar a edição
-
-Salve e confira, nesta ordem:
-
-| Teste | O que deve acontecer |
-|---|---|
-| Editar o nome do produto que tem foto, sem mexer na foto | O nome muda, a miniatura continua, e o arquivo continua na pasta `static/uploads` |
-| Escolher uma foto nova no mesmo produto | A miniatura muda, e o arquivo antigo **some** da pasta (só o novo fica) |
-| Marcar **Remover a foto atual** e salvar | Aparece o quadrado "sem foto", e a pasta fica sem o arquivo |
-| Enviar um `.gif` ou um `.pdf` como foto | A mensagem da extensão aparece, e a foto atual continua |
-| Apagar o preço e salvar | `Informe o preço.`, com os outros campos mantidos |
-| Digitar o código `9999` no endereço, `/produtos/9999/editar` | A página 404 |
-| Desmarcar o interruptor **Produto ativo** e salvar | A lista mostra **Inativo** |
-| Esvaziar a descrição e salvar | No phpMyAdmin, a coluna `descricao` mostra `NULL` |
-
-Para registrar:
-
-```bash
-git add .
-git commit -m "Adiciona a edição de produto com troca e remoção de foto"
-git push
-```
-
----
-
-## Os arquivos completos do capítulo
-
-O `app.py`:
-
-```python
-import os
-import uuid
-
-from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
-from flask_wtf.csrf import CSRFProtect
-from mysql.connector import Error
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-
-from db import execute_query, execute_one, execute_insert
-from validacoes import (
-    UFS, CATEGORIAS, validar_nome_perfil, validar_descricao_perfil,
-    validar_nome_usuario, validar_email, validar_senha, validar_celular,
-    validar_cpf, validar_data_nascimento, validar_cep, validar_estado,
-    validar_tamanho, formatar_celular, formatar_cpf, formatar_cep,
-    validar_nome_produto, validar_categoria, validar_preco, validar_estoque,
-    converter_preco, validar_extensao_foto,
-)
-
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-
-CSRFProtect(app)
-
-# As fotos dos produtos ficam em static/uploads. O Flask recusa (erro 413) pedidos com mais de 2 MB.
-PASTA_UPLOADS = os.path.join(app.root_path, 'static', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-
-os.makedirs(PASTA_UPLOADS, exist_ok=True)
-
-# As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
-# lido do banco não tem como vazar para a página.
-SELECT_USUARIO = (
-    'SELECT u.id_usuario, u.nome, u.email, u.celular, u.data_nascimento, u.cpf, '
-    'u.perfil_id, u.cep, u.endereco, u.numero, u.complemento, u.cidade, u.estado, '
-    'u.criado_em, u.atualizado_em, p.nome AS perfil, p.descricao AS perfil_descricao '
-    'FROM usuarios u '
-    'JOIN perfis p ON p.id_perfil = u.perfil_id'
-)
-
-# As colunas que as telas de produto leem
-SELECT_PRODUTO = (
-    'SELECT id_produto, nome, descricao, categoria, preco, estoque, foto, ativo, '
-    'criado_em, atualizado_em '
-    'FROM produtos'
-)
-
-
-@app.template_filter('data_br')
-def data_br(valor):
-    if valor is None:
-        return '—'
-
-    return valor.strftime('%d/%m/%Y')
-
-
-@app.template_filter('data_hora_br')
-def data_hora_br(valor):
-    if valor is None:
-        return '—'
-
-    return valor.strftime('%d/%m/%Y às %H:%M')
-
-
-@app.template_filter('cpf_oculto')
-def cpf_oculto(cpf):
-    if cpf is None:
-        return '—'
-
-    return '***.' + cpf[4:11] + '-**'
-
-
-def formatar_numero(valor):
-    # 1234.5 vira '1.234,50': o Python escreve 1,234.50, e as trocas acertam a pontuação
-    texto = f'{valor:,.2f}'
-    texto = texto.replace(',', 'X').replace('.', ',').replace('X', '.')
-
-    return texto
-
-
-@app.template_filter('moeda')
-def moeda(valor):
-    return 'R$ ' + formatar_numero(valor)
-
-
-@app.route('/')
-def index():
-    return redirect(url_for('login'))
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if 'id_usuario' in session:
-        return redirect(url_for('dashboard'))
-
-    email = ''
-
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        senha = request.form.get('senha', '')
-
-        usuario = execute_one(
-            'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
-            'FROM usuarios u '
-            'JOIN perfis p ON p.id_perfil = u.perfil_id '
-            'WHERE u.email = %s',
-            (email,),
-        )
-
-        if usuario is not None and check_password_hash(usuario['senha'], senha):
-            session.clear()
-            session['id_usuario'] = usuario['id_usuario']
-            session['nome'] = usuario['nome']
-            session['perfil'] = usuario['perfil']
-            flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('dashboard'))
-
-        flash('E-mail ou senha incorretos.', 'danger')
-
-    return render_template('login.html', email=email)
-
-
-@app.route('/logout', methods=['POST'])
-def logout():
-    session.clear()
-    flash('Você saiu do sistema.', 'success')
-
-    return redirect(url_for('login'))
-
-
-@app.route('/dashboard')
-def dashboard():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
-    usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
-    produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
-
-    return render_template('dashboard.html', titulo='Sistema de Gestão',
-                           total_perfis=perfis['total'],
-                           total_usuarios=usuarios['total'],
-                           total_produtos=produtos['total'])
-
-
-@app.route('/perfis')
-def lista_perfis():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    perfis = execute_query(
-        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
-        fetch=True,
-    )
-
-    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
-
-
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    nome = ''
-    descricao = ''
-
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
-
-        erros = conferir_perfil(nome, descricao, 0)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
-
-            try:
-                novo_id = execute_insert(
-                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
-                )
-                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-
-    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
-                           nome=nome, descricao=descricao)
-
-
-@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    perfil = execute_one(
-        'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    nome = perfil['nome']
-    descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
-
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
-
-        erros = conferir_perfil(nome, descricao, id_perfil)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
-
-            try:
-                execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
-                )
-                flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-
-    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
-                           nome=nome, descricao=descricao)
-
-
-@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    usuarios = execute_one(
-        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (id_perfil,),
-    )
-    if usuarios['total'] > 0:
-        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
-
-    try:
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
-        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
-    except Error as erro:
-        if erro.errno == 1451:
-            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
-        else:
-            raise
-
-    return redirect(url_for('lista_perfis'))
-
-
-@app.route('/usuarios')
-def lista_usuarios():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
-
-    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
-
-
-def vazio_para_none(valor):
-    if valor == '':
-        return None
-
-    return valor
-
-
-def texto_ou_vazio(valor):
-    if valor is None:
-        return ''
-
-    return str(valor)
-
-
-def conferir_perfil_do_usuario(perfil_txt):
-    try:
-        id_perfil = int(perfil_txt)
-    except ValueError:
-        return 'Selecione um perfil.'
-
-    perfil = execute_one(
-        'SELECT id_perfil FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        return 'Selecione um perfil válido.'
-
-    return None
-
-
-def ler_formulario(form):
-    campos = {}
-    campos['nome'] = form.get('nome', '').strip()
-    campos['email'] = form.get('email', '').strip().lower()
-    campos['senha'] = form.get('senha', '')
-    campos['confirmacao'] = form.get('confirmacao', '')
-    campos['celular'] = form.get('celular', '').strip()
-    campos['data_nascimento'] = form.get('data_nascimento', '').strip()
-    campos['cpf'] = form.get('cpf', '').strip()
-    campos['perfil_id'] = form.get('perfil_id', '')
-    campos['cep'] = form.get('cep', '').strip()
-    campos['endereco'] = form.get('endereco', '').strip()
-    campos['numero'] = form.get('numero', '').strip()
-    campos['complemento'] = form.get('complemento', '').strip()
-    campos['cidade'] = form.get('cidade', '').strip()
-    campos['estado'] = form.get('estado', '')
-
-    return campos
-
-
-def conferir_usuario(campos, id_usuario):
-    erros = []
-
-    erro = validar_nome_usuario(campos['nome'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_email(campos['email'])
-    if erro:
-        erros.append(erro)
-    else:
-        existente = execute_one(
-            'SELECT id_usuario FROM usuarios WHERE email = %s AND id_usuario <> %s',
-            (campos['email'], id_usuario),
-        )
-        if existente:
-            erros.append('Já existe um usuário com este e-mail.')
-
-    if id_usuario == 0 or campos['senha'] != '' or campos['confirmacao'] != '':
-        erro = validar_senha(campos['senha'], campos['confirmacao'])
-        if erro:
-            erros.append(erro)
-
-    erro = conferir_perfil_do_usuario(campos['perfil_id'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_celular(campos['celular'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cpf(campos['cpf'])
-    if erro:
-        erros.append(erro)
-    else:
-        cpf_formatado = formatar_cpf(campos['cpf'])
-        if cpf_formatado != '':
-            existente = execute_one(
-                'SELECT id_usuario FROM usuarios WHERE cpf = %s AND id_usuario <> %s',
-                (cpf_formatado, id_usuario),
-            )
-            if existente:
-                erros.append('Já existe um usuário com este CPF.')
-
-    erro = validar_data_nascimento(campos['data_nascimento'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cep(campos['cep'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['endereco'], 'endereço', 255)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['numero'], 'número', 20)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['complemento'], 'complemento', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['cidade'], 'cidade', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_estado(campos['estado'])
-    if erro:
-        erros.append(erro)
-
-    return erros
-
-
-@app.route('/usuarios/novo', methods=['GET', 'POST'])
-def usuario_novo():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    if request.method == 'POST':
-        campos = ler_formulario(request.form)
-
-        erros = conferir_usuario(campos, 0)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            try:
-                novo_id = execute_insert(
-                    'INSERT INTO usuarios (nome, email, senha, celular, data_nascimento, cpf, '
-                    'perfil_id, cep, endereco, numero, complemento, cidade, estado) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                    (
-                        campos['nome'],
-                        campos['email'],
-                        generate_password_hash(campos['senha']),
-                        vazio_para_none(formatar_celular(campos['celular'])),
-                        vazio_para_none(campos['data_nascimento']),
-                        vazio_para_none(formatar_cpf(campos['cpf'])),
-                        int(campos['perfil_id']),
-                        vazio_para_none(formatar_cep(campos['cep'])),
-                        vazio_para_none(campos['endereco']),
-                        vazio_para_none(campos['numero']),
-                        vazio_para_none(campos['complemento']),
-                        vazio_para_none(campos['cidade']),
-                        vazio_para_none(campos['estado']),
-                    ),
-                )
-                flash(f'Usuário "{campos["nome"]}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_usuarios'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
-                else:
-                    raise
-
-    perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
-
-    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
-                           dados=request.form, perfis=perfis, ufs=UFS)
-
-
-@app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
-    if usuario is None:
-        abort(404)
-
-    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
-
-
-@app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
-    if usuario is None:
-        abort(404)
-
-    dados = {}
-    for chave in usuario:
-        dados[chave] = texto_ou_vazio(usuario[chave])
-
-    if request.method == 'POST':
-        campos = ler_formulario(request.form)
-
-        erros = conferir_usuario(campos, id_usuario)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
-            )
-            params = [
-                campos['nome'],
-                campos['email'],
-                vazio_para_none(formatar_celular(campos['celular'])),
-                vazio_para_none(campos['data_nascimento']),
-                vazio_para_none(formatar_cpf(campos['cpf'])),
-                int(campos['perfil_id']),
-                vazio_para_none(formatar_cep(campos['cep'])),
-                vazio_para_none(campos['endereco']),
-                vazio_para_none(campos['numero']),
-                vazio_para_none(campos['complemento']),
-                vazio_para_none(campos['cidade']),
-                vazio_para_none(campos['estado']),
-            ]
-
-            if campos['senha'] != '':
-                sql += ', senha = %s'
-                params.append(generate_password_hash(campos['senha']))
-
-            sql += ' WHERE id_usuario = %s'
-            params.append(id_usuario)
-
-            try:
-                execute_query(sql, params)
-                flash(f'Usuário "{campos["nome"]}" atualizado.', 'success')
-                return redirect(url_for('lista_usuarios'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
-                else:
-                    raise
-
-        dados = request.form
-
-    perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
-
-    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
-                           dados=dados, perfis=perfis, ufs=UFS)
-
-
-@app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    if id_usuario == session['id_usuario']:
-        flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('lista_usuarios'))
-
-    usuario = execute_one(
-        'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
-        (id_usuario,),
-    )
-    if usuario is None:
-        abort(404)
-
-    execute_query('DELETE FROM usuarios WHERE id_usuario = %s', (id_usuario,))
-    flash(f'Usuário "{usuario["nome"]}" excluído.', 'success')
-
-    return redirect(url_for('lista_usuarios'))
-
-
-@app.route('/produtos')
-def lista_produtos():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    produtos = execute_query(SELECT_PRODUTO + ' ORDER BY nome', fetch=True)
-
-    return render_template('produtos/produtos_lista.html', titulo='Produtos', produtos=produtos)
-
-
-def ler_formulario_produto(form):
-    campos = {}
-    campos['nome'] = form.get('nome', '').strip()
-    campos['descricao'] = form.get('descricao', '').strip()
-    campos['preco'] = form.get('preco', '').strip()
-    campos['estoque'] = form.get('estoque', '').strip()
-    campos['categoria'] = form.get('categoria', '')
-
-    if form.get('ativo') == '1':
-        campos['ativo'] = 1
-    else:
-        campos['ativo'] = 0
-
-    if form.get('remover_foto') == '1':
-        campos['remover_foto'] = True
-    else:
-        campos['remover_foto'] = False
-
-    return campos
-
-
-def ler_foto(arquivos):
-    foto = arquivos.get('foto')
-
-    if foto is None or foto.filename == '':
-        return None
-
-    return foto
-
-
-def extensao_da_foto(nome_arquivo):
-    nome_seguro = secure_filename(nome_arquivo)
-
-    if '.' not in nome_seguro:
-        return ''
-
-    return nome_seguro.rsplit('.', 1)[1].lower()
-
-
-def salvar_foto(foto):
-    nome_arquivo = uuid.uuid4().hex + '.' + extensao_da_foto(foto.filename)
-    foto.save(os.path.join(PASTA_UPLOADS, nome_arquivo))
-
-    return 'uploads/' + nome_arquivo
-
-
-def apagar_foto(caminho):
-    if caminho is None:
-        return
-
-    arquivo = os.path.join(app.root_path, 'static', caminho)
-    if os.path.exists(arquivo):
-        os.remove(arquivo)
-
-
-def conferir_produto(campos, foto):
-    erros = []
-
-    erro = validar_nome_produto(campos['nome'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['descricao'], 'descrição', 2000)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_preco(campos['preco'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_estoque(campos['estoque'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_categoria(campos['categoria'])
-    if erro:
-        erros.append(erro)
-
-    if foto is not None:
-        erro = validar_extensao_foto(extensao_da_foto(foto.filename))
-        if erro:
-            erros.append(erro)
-
-    return erros
-
-
-@app.route('/produtos/novo', methods=['GET', 'POST'])
-def produto_novo():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
-
-    dados = {'estoque': '0', 'ativo': '1'}
-
-    if request.method == 'POST':
-        campos = ler_formulario_produto(request.form)
-        foto = ler_foto(request.files)
-
-        erros = conferir_produto(campos, foto)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            caminho_foto = None
-            if foto is not None:
-                caminho_foto = salvar_foto(foto)
-
-            novo_id = execute_insert(
-                'INSERT INTO produtos (nome, descricao, categoria, preco, estoque, foto, ativo) '
-                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                (
-                    campos['nome'],
-                    vazio_para_none(campos['descricao']),
-                    vazio_para_none(campos['categoria']),
-                    converter_preco(campos['preco']),
-                    int(campos['estoque']),
-                    caminho_foto,
-                    campos['ativo'],
-                ),
-            )
-            flash(f'Produto "{campos["nome"]}" cadastrado (código {novo_id}).', 'success')
-            return redirect(url_for('lista_produtos'))
-
-        dados = request.form
-
-    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
-                           categorias=CATEGORIAS, foto_atual=None)
-
-
 @app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
 def produto_editar(id_produto):
     if 'id_usuario' not in session:
@@ -1123,35 +120,52 @@ def produto_editar(id_produto):
         return redirect(url_for('login'))
 
     produto = execute_one(SELECT_PRODUTO + ' WHERE id_produto = %s', (id_produto,))
+
     if produto is None:
         abort(404)
 
-    dados = {}
-    for chave in produto:
-        dados[chave] = texto_ou_vazio(produto[chave])
+    # No GET, o formulário começa com a linha do banco; o preço vai no formato 1.234,56
+    dados = produto
     dados['preco'] = formatar_numero(produto['preco'])
 
     if request.method == 'POST':
-        campos = ler_formulario_produto(request.form)
-        foto = ler_foto(request.files)
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'descricao': request.form.get('descricao', '').strip() or None,
+            'preco': request.form.get('preco', '').strip(),
+            'estoque': request.form.get('estoque', '').strip(),
+            'categoria': request.form.get('categoria', '') or None,
+        }
 
-        erros = conferir_produto(campos, foto)
+        # O checkbox desmarcado não é enviado: "não veio" quer dizer inativo
+        if request.form.get('ativo') == '1':
+            dados['ativo'] = 1
+        else:
+            dados['ativo'] = 0
+
+        # Sem arquivo escolhido, o campo chega com o nome vazio
+        foto = request.files.get('foto')
+        if foto is not None and foto.filename == '':
+            foto = None
+
+        erros = validar_produto(dados, foto)
 
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
         else:
+            # O UPDATE é montado em partes: a coluna foto só entra quando a foto muda
             sql = (
                 'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
                 'preco = %s, estoque = %s, ativo = %s'
             )
             params = [
-                campos['nome'],
-                vazio_para_none(campos['descricao']),
-                vazio_para_none(campos['categoria']),
-                converter_preco(campos['preco']),
-                int(campos['estoque']),
-                campos['ativo'],
+                dados['nome'],
+                dados['descricao'],
+                dados['categoria'],
+                converter_preco(dados['preco']),
+                int(dados['estoque']),
+                dados['ativo'],
             ]
 
             trocou_foto = False
@@ -1159,7 +173,7 @@ def produto_editar(id_produto):
                 sql += ', foto = %s'
                 params.append(salvar_foto(foto))
                 trocou_foto = True
-            elif campos['remover_foto']:
+            elif request.form.get('remover_foto') == '1':
                 sql += ', foto = %s'
                 params.append(None)
                 trocou_foto = True
@@ -1169,54 +183,63 @@ def produto_editar(id_produto):
 
             execute_query(sql, params)
 
+            # O arquivo antigo só sai do disco depois de o UPDATE dar certo
             if trocou_foto:
                 apagar_foto(produto['foto'])
 
-            flash(f'Produto "{campos["nome"]}" atualizado.', 'success')
-            return redirect(url_for('lista_produtos'))
-
-        dados = request.form
+            flash(f'Produto "{dados["nome"]}" atualizado.', 'success')
+            return redirect(url_for('listar_produtos'))
 
     return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])
-
-
-@app.errorhandler(404)
-def pagina_nao_encontrada(erro):
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(413)
-def arquivo_grande_demais(erro):
-    return render_template('413.html'), 413
-
-
-@app.errorhandler(500)
-def erro_no_servidor(erro):
-    return render_template('500.html'), 500
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
 ```
 
-O `templates/produtos/produto_form.html`, que agora serve para criar e para editar:
+Parte por parte:
+
+**Buscar o produto.** O `<int:id_produto>` é a variável de rota: o Flask pega o número do endereço e o entrega à função, com o mesmo nome. O `execute_one` devolve **um** produto (um dicionário) ou `None`, e o `abort(404)` mostra a página 404 quando o código não existe.
+
+**`dados = produto`.** No GET, o dicionário do formulário **é a própria linha do banco**, como na edição de usuário: as chaves do `SELECT_PRODUTO` têm os nomes dos campos do formulário. A descrição `NULL` chega como `None`, e o `or ''` do `<textarea>` a mostra vazia; o `ativo` chega como o número `1` ou `0`, e o `{% if dados.ativo == 1 %}` do formulário já compara com número. Só o **preço** precisa de ajuste: ele chega como `Decimal` (`3499.90`), e o campo e o `pattern` esperam `3.499,90`. A `formatar_numero` da lista resolve, sem o `R$`.
+
+**O POST** coleta o formulário exatamente como a `inserir_produto` (copie o bloco de lá) e chama a mesma `validar_produto`.
+
+**O `UPDATE` por partes.** O `sql` é um texto, e o `sql += ', foto = %s'` **acrescenta** um pedaço ao final dele; o `params` é uma **lista** de valores, e o `params.append(valor)` acrescenta um item. Os dois crescem juntos, e cada `%s` no texto tem o seu valor na lista, na mesma ordem. Os pedaços acrescentados ao texto são fixos, escritos no código: o que a pessoa digitou só entra pela lista. Se uma foto nova e a caixa **Remover** vierem juntas, vale a foto nova (o `if` vem antes do `elif`). O `WHERE` entra por último, depois de tudo o que está no `SET`.
+
+**A foto antiga.** O arquivo antigo só é apagado **depois** do `execute_query`: se o `UPDATE` falhasse, a foto antiga continuaria no lugar. O `produto['foto']` é o valor que o `SELECT` do começo da rota trouxe, antes da alteração.
+
+**O `render_template`** entrega `acao='editar'`, o `id_produto` (para o formulário montar o endereço de envio) e a `foto_atual`, para o formulário mostrar a foto que o produto já tem.
+
+### O formulário nos dois modos
+
+A rota de cadastro também passa a informar o modo. Na `inserir_produto`, troque a última linha:
+
+```python
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
+```
+
+por:
+
+```python
+    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
+                           categorias=CATEGORIAS, foto_atual=None)
+```
+
+Agora o template. As mudanças estão em cinco pontos espalhados pelo arquivo, então troque o `templates/produtos/produto_form.html` **inteiro** por esta versão:
 
 ```html
 {% extends 'layout/base_menu.html' %}
 
-{% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
+{% block titulo_aba %}{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }} — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
   {% if acao == 'editar' %}
     {% set destino = url_for('produto_editar', id_produto=id_produto) %}
   {% else %}
-    {% set destino = url_for('produto_novo') %}
+    {% set destino = url_for('inserir_produto') %}
   {% endif %}
 
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %}</h1>
+  <h1 class="h2 mb-4">{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }}</h1>
 
-  <div class="row">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
@@ -1231,7 +254,7 @@ O `templates/produtos/produto_form.html`, que agora serve para criar e para edit
 
             <div class="mb-3">
               <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao }}</textarea>
+              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao or '' }}</textarea>
             </div>
 
             <div class="row">
@@ -1258,7 +281,7 @@ O `templates/produtos/produto_form.html`, que agora serve para criar e para edit
             </div>
 
             <div class="mb-3">
-              <label for="foto" class="form-label">{% if foto_atual %}Trocar a foto (opcional){% else %}Foto (opcional){% endif %}</label>
+              <label for="foto" class="form-label">{{ 'Trocar a foto (opcional)' if foto_atual else 'Foto (opcional)' }}</label>
               {% if foto_atual %}
                 <div class="d-flex align-items-center gap-3 mb-2">
                   <img src="{{ url_for('static', filename=foto_atual) }}" alt="Foto atual do produto" class="foto-produto">
@@ -1273,13 +296,906 @@ O `templates/produtos/produto_form.html`, que agora serve para criar e para edit
             </div>
 
             <div class="form-check form-switch mb-4">
-              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == '1' %}checked{% endif %}>
+              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == 1 %}checked{% endif %}>
               <label class="form-check-label" for="ativo">Produto ativo</label>
             </div>
 
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar produto{% endif %}</button>
-              <a href="{{ url_for('lista_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar produto' }}</button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+```
+
+O que mudou em relação ao formulário do cadastro:
+
+1. **O título da aba, o `<h1>` e o botão de enviar** usam o `if` em uma linha (`{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }}`), como os formulários de perfil e de usuário.
+2. **O destino** é escolhido no começo do bloco `conteudo`, com o `{% set %}`, e usado no `<form action="{{ destino }}">`.
+3. **A foto**: o rótulo vira **Trocar a foto (opcional)** quando o produto já tem foto, e o bloco `{% if foto_atual %}` mostra a miniatura atual (com a classe `foto-produto` da lista) e a caixa **Remover a foto atual**, que a rota lê como `remover_foto`. No cadastro, a `foto_atual` é `None`, e o bloco não aparece.
+
+### Os caminhos até a edição
+
+O botão amarelo existe na lista desde a construção dela, com o `href="#"`. No `produtos_lista.html`, troque, na célula de ações, a linha do botão de editar:
+
+```html
+<a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+```
+
+por:
+
+```html
+<a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+```
+
+Note o nome do argumento do `url_for`: `id_produto=produto.id_produto`, o mesmo nome da variável de rota e da coluna. O menu **Produtos** já fica destacado na edição: o `'produto_editar'` está na lista do `request.endpoint` desde que o menu foi criado.
+
+### Testar a edição
+
+Salve e confira, nesta ordem, sempre entrando pelo botão amarelo da lista:
+
+| Teste | O que deve acontecer |
+|---|---|
+| Abrir a edição do Notebook | Título **Editar produto**, preço `3.499,90`, interruptor ligado, botão **Salvar alterações** |
+| Abrir a edição do Teclado Mecânico | A descrição vem **vazia**, e não com a palavra `None` |
+| Editar o preço do Teclado para `139,90` e o estoque para `8` | A lista mostra `R$ 139,90` e o selo **Em estoque (8)** |
+| Editar o nome do Mouse (que tem foto), sem mexer na foto | O nome muda, a miniatura continua, e o arquivo continua na pasta `static/uploads` |
+| Escolher uma foto nova no Mouse | A miniatura muda, e o arquivo antigo **some** da pasta (só o novo fica) |
+| Marcar **Remover a foto atual** e salvar | Aparece o quadrado "sem foto", e a pasta fica sem o arquivo |
+| Enviar um `.gif` ou um `.pdf` como foto | A mensagem da extensão aparece, e a foto atual continua |
+| Apagar o preço e salvar | `Informe o preço.`, com os outros campos mantidos, ainda em modo de edição |
+| Digitar o código `9999` no endereço, `/produtos/9999/editar` | A página 404 |
+| Desmarcar o interruptor **Produto ativo** e salvar | A lista mostra **Inativo** |
+| Esvaziar a descrição e salvar | No phpMyAdmin, a coluna `descricao` mostra `NULL` |
+
+```bash
+git add .
+git commit -m "Adiciona a edição de produto com troca e remoção de foto"
+git push
+```
+
+---
+
+## Os arquivos completos do capítulo
+
+O `app.py`:
+
+```python
+import os
+import uuid
+
+from dotenv import load_dotenv
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from flask_wtf.csrf import CSRFProtect
+from mysql.connector import Error
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
+from validacoes.validacoes_produto import CATEGORIAS, converter_preco, extensao_da_foto, validar_produto
+from validacoes.validacoes_usuario import UFS, formatar_cep, formatar_celular, formatar_cpf, validar_usuario
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
+
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
+CSRFProtect(app)
+
+# As fotos dos produtos ficam em static/uploads. O Flask recusa (erro 413) pedidos com mais de 2 MB.
+PASTA_UPLOADS = os.path.join(app.root_path, 'static', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+
+os.makedirs(PASTA_UPLOADS, exist_ok=True)
+
+# As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
+# lido do banco não tem como vazar para a página.
+SELECT_USUARIO = (
+    'SELECT u.id_usuario, u.nome, u.email, u.celular, u.data_nascimento, u.cpf, '
+    'u.perfil_id, u.cep, u.endereco, u.numero, u.complemento, u.cidade, u.estado, '
+    'u.criado_em, u.atualizado_em, p.nome AS perfil, p.descricao AS perfil_descricao '
+    'FROM usuarios u '
+    'JOIN perfis p ON p.id_perfil = u.perfil_id'
+)
+
+# As colunas que as telas de produto leem
+SELECT_PRODUTO = (
+    'SELECT id_produto, nome, descricao, categoria, preco, estoque, foto, ativo, '
+    'criado_em, atualizado_em '
+    'FROM produtos'
+)
+
+
+# ==============================================================================
+# FILTROS DO JINJA
+# ==============================================================================
+
+@app.template_filter('data_br')
+def data_br(valor):
+    # date ou datetime vira 14/03/1988; um campo vazio vira um traço
+    if valor is None:
+        return '—'
+
+    return valor.strftime('%d/%m/%Y')
+
+
+@app.template_filter('data_hora_br')
+def data_hora_br(valor):
+    if valor is None:
+        return '—'
+
+    return valor.strftime('%d/%m/%Y às %H:%M')
+
+
+@app.template_filter('cpf_oculto')
+def cpf_oculto(cpf):
+    # 529.982.247-25 vira ***.982.247-**: a lista mostra só o meio do CPF
+    if cpf is None:
+        return '—'
+
+    return '***.' + cpf[4:11] + '-**'
+
+
+def formatar_numero(valor):
+    # 1234.5 vira '1.234,50': o Python escreve 1,234.50, e as trocas acertam a pontuação
+    texto = f'{valor:,.2f}'
+    texto = texto.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+    return texto
+
+
+@app.template_filter('moeda')
+def moeda(valor):
+    return 'R$ ' + formatar_numero(valor)
+
+
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
+@app.route('/')
+def index():
+    # A raiz não mostra nada: só leva para a tela de login
+    return redirect(url_for('login'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # Quem já entrou não precisa ver a tela de login
+    if 'id_usuario' in session:
+        return redirect(url_for('dashboard'))
+
+    email = ''
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        senha = request.form.get('senha', '')
+
+        # Só o login lê a coluna senha (o hash)
+        usuario = execute_one(
+            'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
+            'FROM usuarios u '
+            'JOIN perfis p ON p.id_perfil = u.perfil_id '
+            'WHERE u.email = %s',
+            (email,),
+        )
+
+        if usuario is not None and check_password_hash(usuario['senha'], senha):
+            # Guarda na session quem entrou (o cookie assinado pela secret_key)
+            session.clear()
+            session['id_usuario'] = usuario['id_usuario']
+            session['nome'] = usuario['nome']
+            session['perfil'] = usuario['perfil']
+            flash(f'Você entrou como {usuario["nome"]}.', 'success')
+            return redirect(url_for('dashboard'))
+
+        # A mesma mensagem para e-mail inexistente e senha errada
+        flash('E-mail ou senha incorretos.', 'danger')
+
+    return render_template('login.html', email=email)
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    flash('Você saiu do sistema.', 'success')
+
+    return redirect(url_for('login'))
+
+
+@app.route('/dashboard')
+def dashboard():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Conta as linhas de cada tabela para os cartões da Home
+    perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
+    usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
+    produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
+
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
+                           total_perfis=perfis['total'],
+                           total_usuarios=usuarios['total'],
+                           total_produtos=produtos['total'])
+
+
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
+@app.route('/perfis')
+def listar_perfis():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Busca a lista de perfis na tabela do banco
+    perfis = execute_query(
+        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
+        fetch=True,
+    )
+
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
+
+
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Inicializa variáveis para cada campo do formulário
+    nome = ''
+    descricao = ''
+
+    # Executado apenas no envio do formulário (POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('nome', '').strip()
+
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
+
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
+            try:
+                novo_id = execute_insert(
+                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
+                    (nome, descricao),
+                )
+
+                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
+                           nome=nome, descricao=descricao)
+
+
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
+def perfil_editar(id_perfil):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Busca o perfil pelo código que veio no endereço
+    perfil = execute_one(
+        'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
+        (id_perfil,),
+    )
+
+    # Código que não existe: mostra a página 404
+    if perfil is None:
+        abort(404)
+
+    # O formulário começa com os valores que estão no banco
+    nome = perfil['nome']
+    descricao = perfil['descricao']
+
+    # Executado apenas no envio do formulário (POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('nome', '').strip()
+
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
+
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
+            try:
+                # O WHERE garante que só este perfil seja alterado
+                execute_query(
+                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    (nome, descricao, id_perfil),
+                )
+
+                flash(f'Perfil "{nome}" atualizado.', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
+                           nome=nome, descricao=descricao)
+
+
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
+    perfil = execute_one(
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
+        (id_perfil,),
+    )
+
+    # Código que não existe: mostra a página 404
+    if perfil is None:
+        abort(404)
+
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
+    usuarios = execute_one(
+        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
+        (id_perfil,),
+    )
+
+    if usuarios['total'] > 0:
+        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
+        return redirect(url_for('listar_perfis'))
+
+    try:
+        # O WHERE garante que só este perfil seja excluído
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
+        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
+    except Error as erro:
+        if erro.errno == 1451:
+            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
+        else:
+            raise
+
+    return redirect(url_for('listar_perfis'))
+
+
+# ==============================================================================
+# USUÁRIOS
+# ==============================================================================
+
+@app.route('/usuarios')
+def listar_usuarios():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
+    usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
+
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
+
+
+@app.route('/usuarios/inserir', methods=['GET', 'POST'])
+def inserir_usuario():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Com muitos campos, o formulário inteiro fica em um dicionário (vazio no GET)
+    dados = {}
+
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário (os opcionais com 'or None')
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),  # a senha não leva strip: espaço pode fazer parte dela
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
+
+        # 2. A validação recebe o dicionário inteiro
+        erros = validar_usuario(dados)
+
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+        else:
+            try:
+                novo_id = execute_insert(
+                    'INSERT INTO usuarios (nome, email, senha, celular, data_nascimento, cpf, '
+                    'perfil_id, cep, endereco, numero, complemento, cidade, estado) '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                    (
+                        dados['nome'],
+                        dados['email'],
+                        generate_password_hash(dados['senha']),  # grava o hash, nunca a senha
+                        formatar_celular(dados['celular']),      # celular, CPF e CEP vão formatados
+                        dados['data_nascimento'],
+                        formatar_cpf(dados['cpf']),
+                        dados['perfil_id'],
+                        formatar_cep(dados['cep']),
+                        dados['endereco'],
+                        dados['numero'],
+                        dados['complemento'],
+                        dados['cidade'],
+                        dados['estado'],
+                    ),
+                )
+
+                flash(f'Usuário "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_usuarios'))
+
+            # Duas colunas UNIQUE: o 1062 pode ser do e-mail ou do CPF
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
+                else:
+                    raise
+
+    # As opções do <select> de perfil vêm da tabela perfis
+    perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
+
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
+                           dados=dados, perfis=perfis, ufs=UFS)
+
+
+@app.route('/usuarios/<int:id_usuario>')
+def usuario_detalhe(id_usuario):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
+    if usuario is None:
+        abort(404)
+
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
+
+
+@app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
+def usuario_editar(id_usuario):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
+    if usuario is None:
+        abort(404)
+
+    # No GET, o formulário começa com a linha que veio do banco
+    dados = usuario
+
+    if request.method == 'POST':
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
+
+        # O id_usuario faz o próprio usuário não contar como repetido e torna a senha opcional
+        erros = validar_usuario(dados, id_usuario)
+
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+        else:
+            # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
+            sql = (
+                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
+                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
+                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+            )
+            params = [
+                dados['nome'],
+                dados['email'],
+                formatar_celular(dados['celular']),
+                dados['data_nascimento'],
+                formatar_cpf(dados['cpf']),
+                dados['perfil_id'],
+                formatar_cep(dados['cep']),
+                dados['endereco'],
+                dados['numero'],
+                dados['complemento'],
+                dados['cidade'],
+                dados['estado'],
+            ]
+
+            if dados['senha']:
+                sql += ', senha = %s'
+                params.append(generate_password_hash(dados['senha']))
+
+            sql += ' WHERE id_usuario = %s'
+            params.append(id_usuario)
+
+            try:
+                execute_query(sql, params)
+
+                flash(f'Usuário "{dados["nome"]}" atualizado.', 'success')
+                return redirect(url_for('listar_usuarios'))
+
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
+                else:
+                    raise
+
+    perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
+
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
+                           dados=dados, perfis=perfis, ufs=UFS)
+
+
+@app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
+def usuario_excluir(id_usuario):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # Quem está logado não pode excluir a si mesmo
+    if id_usuario == session['id_usuario']:
+        flash('Você não pode excluir o seu próprio usuário.', 'danger')
+        return redirect(url_for('listar_usuarios'))
+
+    usuario = execute_one(
+        'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
+        (id_usuario,),
+    )
+
+    if usuario is None:
+        abort(404)
+
+    # Nenhuma tabela depende de usuarios: não há contagem nem erro 1451
+    execute_query('DELETE FROM usuarios WHERE id_usuario = %s', (id_usuario,))
+    flash(f'Usuário "{usuario["nome"]}" excluído.', 'success')
+
+    return redirect(url_for('listar_usuarios'))
+
+
+# ==============================================================================
+# PRODUTOS
+# ==============================================================================
+
+@app.route('/produtos')
+def listar_produtos():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    produtos = execute_query(SELECT_PRODUTO + ' ORDER BY nome', fetch=True)
+
+    return render_template('produtos/produtos_lista.html', titulo='Produtos', produtos=produtos)
+
+
+def salvar_foto(foto):
+    # O arquivo ganha um nome novo e único; o banco guarda o caminho relativo à pasta static
+    nome_arquivo = uuid.uuid4().hex + '.' + extensao_da_foto(foto.filename)
+    foto.save(os.path.join(PASTA_UPLOADS, nome_arquivo))
+
+    return 'uploads/' + nome_arquivo
+
+
+def apagar_foto(caminho):
+    # Remove do disco a foto gravada no banco (se o produto não tem foto, não faz nada)
+    if caminho is None:
+        return
+
+    arquivo = os.path.join(app.root_path, 'static', caminho)
+    if os.path.exists(arquivo):
+        os.remove(arquivo)
+
+
+@app.route('/produtos/inserir', methods=['GET', 'POST'])
+def inserir_produto():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    # No GET, o formulário abre com o estoque em 0 e o produto ativo
+    dados = {'estoque': 0, 'ativo': 1}
+
+    if request.method == 'POST':
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'descricao': request.form.get('descricao', '').strip() or None,
+            'preco': request.form.get('preco', '').strip(),
+            'estoque': request.form.get('estoque', '').strip(),
+            'categoria': request.form.get('categoria', '') or None,
+        }
+
+        # O checkbox desmarcado não é enviado: "não veio" quer dizer inativo
+        if request.form.get('ativo') == '1':
+            dados['ativo'] = 1
+        else:
+            dados['ativo'] = 0
+
+        # Sem arquivo escolhido, o campo chega com o nome vazio
+        foto = request.files.get('foto')
+        if foto is not None and foto.filename == '':
+            foto = None
+
+        erros = validar_produto(dados, foto)
+
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+        else:
+            # A foto só vai para o disco depois de os dados passarem na validação
+            caminho_foto = None
+            if foto is not None:
+                caminho_foto = salvar_foto(foto)
+
+            novo_id = execute_insert(
+                'INSERT INTO produtos (nome, descricao, categoria, preco, estoque, foto, ativo) '
+                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (
+                    dados['nome'],
+                    dados['descricao'],
+                    dados['categoria'],
+                    converter_preco(dados['preco']),  # '1.234,56' vira Decimal('1234.56')
+                    int(dados['estoque']),
+                    caminho_foto,
+                    dados['ativo'],
+                ),
+            )
+
+            flash(f'Produto "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
+            return redirect(url_for('listar_produtos'))
+
+    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
+                           categorias=CATEGORIAS, foto_atual=None)
+
+
+@app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
+def produto_editar(id_produto):
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    produto = execute_one(SELECT_PRODUTO + ' WHERE id_produto = %s', (id_produto,))
+
+    if produto is None:
+        abort(404)
+
+    # No GET, o formulário começa com a linha do banco; o preço vai no formato 1.234,56
+    dados = produto
+    dados['preco'] = formatar_numero(produto['preco'])
+
+    if request.method == 'POST':
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'descricao': request.form.get('descricao', '').strip() or None,
+            'preco': request.form.get('preco', '').strip(),
+            'estoque': request.form.get('estoque', '').strip(),
+            'categoria': request.form.get('categoria', '') or None,
+        }
+
+        # O checkbox desmarcado não é enviado: "não veio" quer dizer inativo
+        if request.form.get('ativo') == '1':
+            dados['ativo'] = 1
+        else:
+            dados['ativo'] = 0
+
+        # Sem arquivo escolhido, o campo chega com o nome vazio
+        foto = request.files.get('foto')
+        if foto is not None and foto.filename == '':
+            foto = None
+
+        erros = validar_produto(dados, foto)
+
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+        else:
+            # O UPDATE é montado em partes: a coluna foto só entra quando a foto muda
+            sql = (
+                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
+                'preco = %s, estoque = %s, ativo = %s'
+            )
+            params = [
+                dados['nome'],
+                dados['descricao'],
+                dados['categoria'],
+                converter_preco(dados['preco']),
+                int(dados['estoque']),
+                dados['ativo'],
+            ]
+
+            trocou_foto = False
+            if foto is not None:
+                sql += ', foto = %s'
+                params.append(salvar_foto(foto))
+                trocou_foto = True
+            elif request.form.get('remover_foto') == '1':
+                sql += ', foto = %s'
+                params.append(None)
+                trocou_foto = True
+
+            sql += ' WHERE id_produto = %s'
+            params.append(id_produto)
+
+            execute_query(sql, params)
+
+            # O arquivo antigo só sai do disco depois de o UPDATE dar certo
+            if trocou_foto:
+                apagar_foto(produto['foto'])
+
+            flash(f'Produto "{dados["nome"]}" atualizado.', 'success')
+            return redirect(url_for('listar_produtos'))
+
+    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
+                           categorias=CATEGORIAS, foto_atual=produto['foto'])
+
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
+
+@app.errorhandler(404)
+def pagina_nao_encontrada(erro):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(413)
+def arquivo_grande_demais(erro):
+    return render_template('413.html'), 413
+
+
+@app.errorhandler(500)
+def erro_no_servidor(erro):
+    return render_template('500.html'), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+O `templates/produtos/produto_form.html`, que agora serve para criar e para editar:
+
+```html
+{% extends 'layout/base_menu.html' %}
+
+{% block titulo_aba %}{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  {% if acao == 'editar' %}
+    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
+  {% else %}
+    {% set destino = url_for('inserir_produto') %}
+  {% endif %}
+
+  <h1 class="h2 mb-4">{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }}</h1>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+
+          <form action="{{ destino }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome do produto</label>
+              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Mouse sem fio" value="{{ dados.nome }}" required minlength="3" maxlength="255">
+            </div>
+
+            <div class="mb-3">
+              <label for="descricao" class="form-label">Descrição (opcional)</label>
+              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao or '' }}</textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="preco" class="form-label">Preço</label>
+                <div class="input-group">
+                  <span class="input-group-text">R$</span>
+                  <input type="text" inputmode="decimal" class="form-control" id="preco" name="preco" placeholder="0,00" value="{{ dados.preco }}" required pattern="([0-9]{1,3}(\.[0-9]{3})+|[0-9]+)(,[0-9]{1,2})?" title="Use vírgula nos centavos, por exemplo 1.234,56">
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="estoque" class="form-label">Estoque</label>
+                <input type="number" class="form-control" id="estoque" name="estoque" value="{{ dados.estoque }}" required min="0" max="1000000" step="1">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="categoria" class="form-label">Categoria (opcional)</label>
+                <select class="form-select" id="categoria" name="categoria">
+                  <option value="">Sem categoria</option>
+                  {% for categoria in categorias %}
+                    <option value="{{ categoria }}" {% if dados.categoria == categoria %}selected{% endif %}>{{ categoria }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="foto" class="form-label">{{ 'Trocar a foto (opcional)' if foto_atual else 'Foto (opcional)' }}</label>
+              {% if foto_atual %}
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <img src="{{ url_for('static', filename=foto_atual) }}" alt="Foto atual do produto" class="foto-produto">
+                  <div class="form-check mb-0">
+                    <input class="form-check-input" type="checkbox" id="remover_foto" name="remover_foto" value="1">
+                    <label class="form-check-label" for="remover_foto">Remover a foto atual</label>
+                  </div>
+                </div>
+              {% endif %}
+              <input type="file" class="form-control" id="foto" name="foto" accept=".jpg,.jpeg,.png,.webp">
+              <div class="form-text">Arquivo jpg, jpeg, png ou webp, com até 2 MB.</div>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == 1 %}checked{% endif %}>
+              <label class="form-check-label" for="ativo">Produto ativo</label>
+            </div>
+
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar produto' }}</button>
             </div>
 
           </form>
@@ -1301,7 +1217,7 @@ O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('produto_novo') }}" class="btn btn-primary">Novo produto</a>
+    <a href="{{ url_for('inserir_produto') }}" class="btn btn-primary">Novo produto</a>
   </div>
 
   <table class="table table-striped table-hover align-middle">
@@ -1328,8 +1244,8 @@ O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
         </td>
         <td>{{ produto.id_produto }}</td>
         <td>
-          <span id="nome_produto_{{ produto.id_produto }}">{{ produto.nome }}</span><br>
-          <small class="text-body-secondary">{{ produto.categoria|default('Sem categoria', true) }}</small>
+          {{ produto.nome }}<br>
+          <small class="text-body-secondary">{{ produto.categoria if produto.categoria else 'Sem categoria' }}</small>
         </td>
         <td>{{ produto.preco|moeda }}</td>
         <td>
@@ -1348,8 +1264,9 @@ O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
             <span class="badge text-bg-secondary">Inativo</span>
           {% endif %}
         </td>
-        <td class="text-end">
-          <a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
@@ -1362,7 +1279,7 @@ O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
 {% endblock %}
 ```
 
-Os demais arquivos (`validacoes.py`, `db.py`, os layouts, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.2.
+Os demais arquivos (a pasta `validacoes`, o `db.py`, os layouts, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.2.
 
 ---
 
@@ -1378,8 +1295,8 @@ Compare com o seu projeto, ou use como ponto de partida do Capítulo 18.4. O zip
 
 Tente responder mentalmente antes de abrir.
 
-??? question "Por que o formulário de edição mostrava a palavra `None` e o interruptor desligado, antes da `texto_ou_vazio`?"
-    Porque o formulário foi escrito para os valores em **texto** do `request.form`. O `NULL` do banco chega como `None`, que o Jinja escreve como a palavra "None"; e o `ativo` chega como o número `1`, que nunca é igual ao texto `'1'` do `dados.ativo == '1'`. A solução é montar o `dados` com tudo em texto e o `None` como texto vazio.
+??? question "Por que a linha do banco pode ir direto para o formulário de edição, como `dados`?"
+    Porque o formulário já foi escrito para isso: a descrição `NULL` chega como `None`, e o `or ''` do `<textarea>` a mostra vazia (sem ele, apareceria a palavra "None"); o `ativo` chega como o número `1` ou `0`, e o `{% if dados.ativo == 1 %}` compara com número. Só o preço precisa de ajuste, com a `formatar_numero`, porque chega como `Decimal` e o campo espera `3.499,90`.
 
 ??? question "Por que o `UPDATE` da edição é montado por partes (`sql +=` e `params.append`)?"
     Porque a coluna `foto` só entra no comando quando a foto muda (arquivo novo ou remoção). Sem mudança, o `UPDATE` nem toca nela. Os pedaços acrescentados ao SQL são fixos, e os valores só entram pela lista de parâmetros, então o comando continua protegido.
@@ -1394,7 +1311,7 @@ Tente responder mentalmente antes de abrir.
 
 ## 📝 Resumo
 
-A edição reaproveita o formulário do cadastro, que passou a receber a variável `acao` para trocar título, botão e destino. A rota busca o produto pelo código do endereço (404 se não existir) e monta o `dados` com tudo em texto: o `None` vira vazio, e o preço volta ao formato `3.499,90`. O `POST` repete a mesma conferência do cadastro e monta o `UPDATE` por partes, porque a foto é opcional: arquivo novo ou a caixa **Remover** acrescentam a coluna `foto` ao comando, e só então o arquivo antigo é apagado do disco, depois de o banco aceitar a alteração. O `WHERE` garante que só o produto do endereço muda. A exclusão chega no Capítulo 18.4.
+A edição reaproveita o formulário do cadastro, que passou a receber a variável `acao` para trocar título, botão e destino. A rota busca o produto pelo código do endereço (404 se não existir) e entrega a própria linha do banco ao formulário como `dados`, com o preço de volta ao formato `3.499,90` (o `or ''` do formulário cuida do `None`). O `POST` repete a mesma conferência do cadastro e monta o `UPDATE` por partes, porque a foto é opcional: arquivo novo ou a caixa **Remover** acrescentam a coluna `foto` ao comando, e só então o arquivo antigo é apagado do disco, depois de o banco aceitar a alteração. O `WHERE` garante que só o produto do endereço muda. A exclusão chega no Capítulo 18.4.
 
 ---
 
