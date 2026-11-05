@@ -5,7 +5,7 @@
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ usuario.nome }}</h1>
-    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
+    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
   </div>
 
   <div class="row">
@@ -21,11 +21,11 @@
             <dt class="col-sm-4">Perfil</dt>
             <dd class="col-sm-8">
               {% include 'usuarios/_badge_perfil.html' %}
-              <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
+              <span class="text-body-secondary">{{ usuario.perfil_descricao or '' }}</span>
             </dd>
 
             <dt class="col-sm-4">Celular</dt>
-            <dd class="col-sm-8">{{ usuario.celular|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.celular if usuario.celular else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Dados pessoais</h2>
@@ -34,28 +34,28 @@
             <dd class="col-sm-8">{{ usuario.data_nascimento|data_br }}</dd>
 
             <dt class="col-sm-4">CPF</dt>
-            <dd class="col-sm-8">{{ usuario.cpf|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cpf if usuario.cpf else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Endereço</h2>
           <dl class="row">
             <dt class="col-sm-4">CEP</dt>
-            <dd class="col-sm-8">{{ usuario.cep|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cep if usuario.cep else '—' }}</dd>
 
             <dt class="col-sm-4">Endereço</dt>
-            <dd class="col-sm-8">{{ usuario.endereco|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.endereco if usuario.endereco else '—' }}</dd>
 
             <dt class="col-sm-4">Número</dt>
-            <dd class="col-sm-8">{{ usuario.numero|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.numero if usuario.numero else '—' }}</dd>
 
             <dt class="col-sm-4">Complemento</dt>
-            <dd class="col-sm-8">{{ usuario.complemento|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.complemento if usuario.complemento else '—' }}</dd>
 
             <dt class="col-sm-4">Cidade</dt>
-            <dd class="col-sm-8">{{ usuario.cidade|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cidade if usuario.cidade else '—' }}</dd>
 
             <dt class="col-sm-4">Estado</dt>
-            <dd class="col-sm-8">{{ usuario.estado|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.estado if usuario.estado else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Registro</h2>
