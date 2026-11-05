@@ -59,7 +59,7 @@
       <tbody>
         {% for linha in por_categoria %}
         <tr>
-          <td>{{ linha.categoria|default('Sem categoria', true) }}</td>
+          <td>{{ linha.categoria if linha.categoria else 'Sem categoria' }}</td>
           <td class="text-end">{{ linha.produtos }}</td>
           <td class="text-end">{{ linha.unidades }}</td>
           <td class="text-end">{{ linha.valor|moeda }}</td>
@@ -92,7 +92,7 @@
         <tr>
           <td>{{ produto.id_produto }}</td>
           <td>{{ produto.nome }}</td>
-          <td>{{ produto.categoria|default('Sem categoria', true) }}</td>
+          <td>{{ produto.categoria if produto.categoria else 'Sem categoria' }}</td>
           <td>
             {% if produto.estoque == 0 %}
               <span class="badge text-bg-danger">Sem estoque</span>

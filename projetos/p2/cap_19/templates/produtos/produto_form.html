@@ -1,17 +1,17 @@
 {% extends 'layout/base_menu.html' %}
 
-{% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
+{% block titulo_aba %}{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }} — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
   {% if acao == 'editar' %}
     {% set destino = url_for('produto_editar', id_produto=id_produto) %}
   {% else %}
-    {% set destino = url_for('produto_novo') %}
+    {% set destino = url_for('inserir_produto') %}
   {% endif %}
 
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %}</h1>
+  <h1 class="h2 mb-4">{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }}</h1>
 
-  <div class="row">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
@@ -26,7 +26,7 @@
 
             <div class="mb-3">
               <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao }}</textarea>
+              <textarea class="form-control" id="descricao" name="descricao" rows="3" maxlength="2000">{{ dados.descricao or '' }}</textarea>
             </div>
 
             <div class="row">
@@ -53,7 +53,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="foto" class="form-label">{% if foto_atual %}Trocar a foto (opcional){% else %}Foto (opcional){% endif %}</label>
+              <label for="foto" class="form-label">{{ 'Trocar a foto (opcional)' if foto_atual else 'Foto (opcional)' }}</label>
               {% if foto_atual %}
                 <div class="d-flex align-items-center gap-3 mb-2">
                   <img src="{{ url_for('static', filename=foto_atual) }}" alt="Foto atual do produto" class="foto-produto">
@@ -68,13 +68,13 @@
             </div>
 
             <div class="form-check form-switch mb-4">
-              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == '1' %}checked{% endif %}>
+              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == 1 %}checked{% endif %}>
               <label class="form-check-label" for="ativo">Produto ativo</label>
             </div>
 
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar produto{% endif %}</button>
-              <a href="{{ url_for('lista_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar produto' }}</button>
             </div>
 
           </form>

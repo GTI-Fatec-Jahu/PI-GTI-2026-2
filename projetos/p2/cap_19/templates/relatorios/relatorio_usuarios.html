@@ -54,7 +54,7 @@
       <tbody>
         {% for linha in por_estado %}
         <tr>
-          <td>{{ linha.estado|default('Não informado', true) }}</td>
+          <td>{{ linha.estado if linha.estado else 'Não informado' }}</td>
           <td class="text-end">{{ linha.total }}</td>
         </tr>
         {% else %}

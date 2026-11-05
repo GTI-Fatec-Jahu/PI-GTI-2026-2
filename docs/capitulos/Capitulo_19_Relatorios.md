@@ -97,9 +97,13 @@ Nenhuma delas grava nada: relatório só lê, por isso só existe `GET`.
 
 ### A entrada e o menu
 
-Comece pela porta de entrada, ainda **provisória**: sem consulta ao banco, como foi a página `/produtos` no Capítulo 18. No `app.py`, acrescente a rota **depois** da `produto_excluir` e **antes** dos `@app.errorhandler`:
+Comece pela porta de entrada, ainda **provisória**: sem consulta ao banco, como foi a página `/produtos` no Capítulo 18. No `app.py`, crie uma seção nova, **RELATÓRIOS**, depois da seção **PRODUTOS** e antes da seção das telas de erros, com a rota:
 
 ```python
+# ==============================================================================
+# RELATÓRIOS
+# ==============================================================================
+
 @app.route('/relatorios')
 def relatorios():
     if 'id_usuario' not in session:
@@ -128,9 +132,9 @@ O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17
 Agora o menu. No `templates/layout/base_menu.html`, acrescente o item **Relatórios** **depois** do menu Produtos, ainda no primeiro `<ul class="navbar-nav me-auto">`:
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['relatorios', 'relatorio_usuarios', 'relatorio_produtos'] %}active{% endif %}" href="{{ url_for('relatorios') }}">Relatórios</a>
-          </li>
+<li class="nav-item">
+  <a class="nav-link {% if request.endpoint in ['relatorios', 'relatorio_usuarios', 'relatorio_produtos'] %}active{% endif %}" href="{{ url_for('relatorios') }}">Relatórios</a>
+</li>
 ```
 
 Ele é um link simples, e não um menu suspenso como os de Perfis, Usuários e Produtos, porque os relatórios têm uma única porta de entrada, a página que você acabou de criar. A lista de endpoints faz o item ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas. Salve, recarregue e clique em **Relatórios**: a página provisória aparece, com o item do menu destacado.
@@ -169,7 +173,7 @@ GROUP BY perfil_id;
 | 2 | 6 |
 | 3 | 18 |
 
-Em vez de 27 linhas, o resultado tem **uma por perfil**. Mas o relatório mostra o número do perfil, e ninguém lê "perfil 3 tem 18 usuários". O nome está na tabela `perfis`, e para buscá-lo você já conhece o `JOIN` (veja o [Capítulo 15, Tópico 2](Capitulo_15_SELECT_Relacional_de_Usuario.md#topico-2-o-nome-do-perfil-com-join)):
+Em vez de 27 linhas, o resultado tem **uma por perfil**. Mas o relatório mostra o número do perfil, e ninguém lê "perfil 3 tem 18 usuários". O nome está na tabela `perfis`, e para buscá-lo você já conhece o `JOIN` (veja o [Capítulo 15, Tópico 2](Capitulo_15_SELECT_Relacional_de_Usuario.md#topico-1-a-consulta-com-join)):
 
 ```sql
 SELECT p.nome AS perfil, COUNT(*) AS total
@@ -254,17 +258,17 @@ Cada linha chega ao template como um dicionário, com as chaves `perfil` e `tota
 É o molde das outras tabelas: um `{% for %}` com o `{% else %}` para o estado vazio. A coluna de números vai alinhada à direita (`text-end`), como se faz em qualquer relatório. Falta o link na entrada. No `relatorios.html`, **apague o aviso azul** (o `<div class="alert alert-info">` inteiro) e coloque no lugar o primeiro cartão:
 
 ```html
-  <div class="row g-3">
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 card-title">Usuários</h2>
-          <p class="card-text">Quantos usuários há por perfil, por estado e por mês de cadastro.</p>
-          <a href="{{ url_for('relatorio_usuarios') }}" class="btn btn-primary">Abrir relatório</a>
-        </div>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 card-title">Usuários</h2>
+        <p class="card-text">Quantos usuários há por perfil, por estado e por mês de cadastro.</p>
+        <a href="{{ url_for('relatorio_usuarios') }}" class="btn btn-primary">Abrir relatório</a>
       </div>
     </div>
   </div>
+</div>
 ```
 
 Salve, abra **http://127.0.0.1:5000/relatorios** e clique em **Abrir relatório**. A tabela mostra **Usuário 18**, **Gerente 6** e **Administrador 3**.
@@ -274,12 +278,12 @@ Salve, abra **http://127.0.0.1:5000/relatorios** e clique em **Abrir relatório*
 Uma linha de total ajuda a conferir o relatório: a soma dos grupos tem de dar o número de usuários. No `relatorio_usuarios.html`, **depois** do `</tbody>` e antes do `</table>`, acrescente:
 
 ```html
-      <tfoot>
-        <tr class="fw-bold">
-          <td>Total</td>
-          <td class="text-end">{{ por_perfil|sum(attribute='total') }}</td>
-        </tr>
-      </tfoot>
+<tfoot>
+  <tr class="fw-bold">
+    <td>Total</td>
+    <td class="text-end">{{ por_perfil|sum(attribute='total') }}</td>
+  </tr>
+</tfoot>
 ```
 
 !!! note "Jinja: `sum(attribute='total')`"
@@ -330,7 +334,7 @@ Agora o `Visitante` mostra **0**. Leve a versão certa para a rota: na `relatori
 Salve e recarregue o relatório: **Visitante 0** aparece na última linha, e o total continua **27**. Acrescente uma frase de ajuda abaixo do `<h2>`, para quem lê o relatório entender:
 
 ```html
-    <p class="text-body-secondary">Todos os perfis aparecem, inclusive os que ainda não têm nenhum usuário.</p>
+<p class="text-body-secondary">Todos os perfis aparecem, inclusive os que ainda não têm nenhum usuário.</p>
 ```
 
 !!! note "`COUNT(*)` ou `COUNT(coluna)`?"
@@ -384,46 +388,40 @@ O estado é um campo **opcional** do cadastro, e quem não o informou tem `NULL`
 E, no `relatorio_usuarios.html`, depois do `</section>` do primeiro relatório e antes do `{% endblock %}`, a segunda seção:
 
 ```html
-  <section class="mb-5">
-    <h2 class="h4">Usuários por estado</h2>
-    <p class="text-body-secondary">O estado é opcional no cadastro, então quem não o informou aparece em uma linha própria.</p>
+<section class="mb-5">
+  <h2 class="h4">Usuários por estado</h2>
+  <p class="text-body-secondary">O estado é opcional no cadastro, então quem não o informou aparece em uma linha própria.</p>
 
-    <table class="table table-striped table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Estado</th>
-          <th class="text-end">Usuários</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for linha in por_estado %}
-        <tr>
-          <td>{{ linha.estado }}</td>
-          <td class="text-end">{{ linha.total }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="2" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="fw-bold">
-          <td>Total</td>
-          <td class="text-end">{{ por_estado|sum(attribute='total') }}</td>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Estado</th>
+        <th class="text-end">Usuários</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linha in por_estado %}
+      <tr>
+        <td>{{ linha.estado if linha.estado else 'Não informado' }}</td>
+        <td class="text-end">{{ linha.total }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="2" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr class="fw-bold">
+        <td>Total</td>
+        <td class="text-end">{{ por_estado|sum(attribute='total') }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</section>
 ```
 
-Salve e recarregue. A linha dos 6 usuários sem estado mostra a palavra **None**, o incômodo que o [Capítulo 15](Capitulo_15_SELECT_Relacional_de_Usuario.md#topico-3-filtros-proprios-campos-vazios-datas-e-cpf) já resolveu com o filtro `default` e o segundo argumento `true`. Troque a célula do estado por:
-
-```html
-          <td>{{ linha.estado|default('Não informado', true) }}</td>
-```
-
-Salve e recarregue: a linha agora diz **Não informado**, e o total continua **27**.
+A célula do estado já nasce com o `if` em uma linha do Capítulo 12: o grupo dos 6 usuários sem estado chega com o estado `None`, que conta como falso, e a tela mostra **Não informado** em vez da palavra `None`. Salve e recarregue: a linha **Não informado** aparece com o 6, e o total continua **27**.
 
 ### Por mês: `DATE_FORMAT`
 
@@ -485,7 +483,7 @@ Leve para a rota. Acrescente a consulta depois da de `por_estado` e passe o resu
 
 Repare que a primeira linha do SQL usa **aspas duplas** por fora: dentro dela há aspas simples (`'%Y-%m'`), e as duas se misturariam se o texto também começasse com aspas simples.
 
-O banco entrega `2026-03`, e no Brasil se escreve `03/2026`. Reescrever o mês é função de um filtro próprio, como o `data_br` do Capítulo 15. No `app.py`, **depois** do filtro `moeda`, escreva:
+O banco entrega `2026-03`, e no Brasil se escreve `03/2026`. Reescrever o mês é função de um filtro próprio, como o `data_br` do Capítulo 15. No `app.py`, na seção **FILTROS DO JINJA**, **depois** do filtro `moeda`, escreva:
 
 ```python
 @app.template_filter('mes_br')
@@ -502,37 +500,37 @@ def mes_br(valor):
 E a terceira seção, no `relatorio_usuarios.html`, depois da seção do estado:
 
 ```html
-  <section class="mb-5">
-    <h2 class="h4">Cadastros por mês</h2>
-    <p class="text-body-secondary">Um mês em que ninguém se cadastrou não tem linha.</p>
+<section class="mb-5">
+  <h2 class="h4">Cadastros por mês</h2>
+  <p class="text-body-secondary">Um mês em que ninguém se cadastrou não tem linha.</p>
 
-    <table class="table table-striped table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Mês</th>
-          <th class="text-end">Cadastros</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for linha in por_mes %}
-        <tr>
-          <td>{{ linha.mes|mes_br }}</td>
-          <td class="text-end">{{ linha.total }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="2" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="fw-bold">
-          <td>Total</td>
-          <td class="text-end">{{ por_mes|sum(attribute='total') }}</td>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Mês</th>
+        <th class="text-end">Cadastros</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linha in por_mes %}
+      <tr>
+        <td>{{ linha.mes|mes_br }}</td>
+        <td class="text-end">{{ linha.total }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="2" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr class="fw-bold">
+        <td>Total</td>
+        <td class="text-end">{{ por_mes|sum(attribute='total') }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</section>
 ```
 
 Salve e recarregue. A terceira tabela mostra `02/2026`, `03/2026`, e assim por diante, sem o `06/2026`, e o total é **27** nas três tabelas. Os três totais iguais são a conferência: se um deles diferisse, a consulta estaria perdendo ou repetindo usuários.
@@ -651,15 +649,15 @@ A rota usa o `execute_one` (do [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.m
 Esta tabela é diferente das anteriores: não tem cabeçalho de colunas nem `for`, porque não lista linhas, e sim **indicadores**, um por linha. O `<th scope="row">` marca o rótulo de cada linha, e o Jinja faz a conta `contagem.total - contagem.ativos` na hora de escrever a página. Falta o cartão na entrada. No `relatorios.html`, dentro da `<div class="row g-3">`, **depois** do cartão de Usuários:
 
 ```html
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 card-title">Produtos</h2>
-          <p class="card-text">Estoque, valor em estoque, preço médio e produtos com estoque baixo.</p>
-          <a href="{{ url_for('relatorio_produtos') }}" class="btn btn-primary">Abrir relatório</a>
-        </div>
-      </div>
+<div class="col-md-6">
+  <div class="card h-100">
+    <div class="card-body">
+      <h2 class="h5 card-title">Produtos</h2>
+      <p class="card-text">Estoque, valor em estoque, preço médio e produtos com estoque baixo.</p>
+      <a href="{{ url_for('relatorio_produtos') }}" class="btn btn-primary">Abrir relatório</a>
     </div>
+  </div>
+</div>
 ```
 
 Salve, abra **http://127.0.0.1:5000/relatorios**, clique em **Abrir relatório** no cartão de Produtos e confira: **21** cadastrados, **19** ativos e **2** inativos. Agora a segunda consulta. Na rota, depois da `contagem`, acrescente o `resumo` e passe-o ao template:
@@ -680,18 +678,18 @@ Salve, abra **http://127.0.0.1:5000/relatorios**, clique em **Abrir relatório**
 E, no template, acrescente estas três linhas **depois** da linha dos **Inativos** e antes do `</tbody>`:
 
 ```html
-        <tr>
-          <th scope="row">Unidades em estoque</th>
-          <td class="text-end">{{ resumo.unidades }}</td>
-        </tr>
-        <tr>
-          <th scope="row">Valor em estoque</th>
-          <td class="text-end">{{ resumo.valor|moeda }}</td>
-        </tr>
-        <tr>
-          <th scope="row">Preço médio</th>
-          <td class="text-end">{{ resumo.preco_medio|moeda }}</td>
-        </tr>
+<tr>
+  <th scope="row">Unidades em estoque</th>
+  <td class="text-end">{{ resumo.unidades }}</td>
+</tr>
+<tr>
+  <th scope="row">Valor em estoque</th>
+  <td class="text-end">{{ resumo.valor|moeda }}</td>
+</tr>
+<tr>
+  <th scope="row">Preço médio</th>
+  <td class="text-end">{{ resumo.preco_medio|moeda }}</td>
+</tr>
 ```
 
 O `moeda` é o filtro do [Capítulo 18](Capitulo_18_CRUD_de_Produtos.md), que escreve `R$ 95.224,30`. Salve e recarregue: **393** unidades, **R$ 95.224,30** de valor em estoque e **R$ 747,54** de preço médio (o filtro já arredondou as seis casas para duas na hora de escrever).
@@ -750,7 +748,7 @@ Aproveite para trocar o `AVG(preco)` por `ROUND(AVG(preco), 2)`, como no teste d
 Salve e recarregue: os números são os mesmos de antes, porque a tabela tem produtos. A diferença é que, **vazia**, a página mostraria `0` e `R$ 0,00` em vez do erro. Acrescente a frase de ajuda abaixo do `<h2>` do resumo:
 
 ```html
-    <p class="text-body-secondary">As unidades, o valor e o preço médio consideram só os produtos ativos.</p>
+<p class="text-body-secondary">As unidades, o valor e o preço médio consideram só os produtos ativos.</p>
 ```
 
 !!! note "`COUNT` não tem esse problema"
@@ -816,37 +814,37 @@ Na rota, acrescente a consulta depois do `resumo` e passe o resultado ao templat
 E, no `relatorio_produtos.html`, depois do `</section>` do resumo e antes do `{% endblock %}`:
 
 ```html
-  <section class="mb-5">
-    <h2 class="h4">Produtos ativos por categoria</h2>
-    <p class="text-body-secondary">Ordenado pelo valor em estoque, do maior para o menor.</p>
+<section class="mb-5">
+  <h2 class="h4">Produtos ativos por categoria</h2>
+  <p class="text-body-secondary">Ordenado pelo valor em estoque, do maior para o menor.</p>
 
-    <table class="table table-striped table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Categoria</th>
-          <th class="text-end">Produtos</th>
-          <th class="text-end">Unidades</th>
-          <th class="text-end">Valor em estoque</th>
-          <th class="text-end">Preço médio</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for linha in por_categoria %}
-        <tr>
-          <td>{{ linha.categoria|default('Sem categoria', true) }}</td>
-          <td class="text-end">{{ linha.produtos }}</td>
-          <td class="text-end">{{ linha.unidades }}</td>
-          <td class="text-end">{{ linha.valor|moeda }}</td>
-          <td class="text-end">{{ linha.preco_medio|moeda }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="5" class="text-center text-body-secondary py-4">Nenhum produto ativo cadastrado ainda.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Categoria</th>
+        <th class="text-end">Produtos</th>
+        <th class="text-end">Unidades</th>
+        <th class="text-end">Valor em estoque</th>
+        <th class="text-end">Preço médio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linha in por_categoria %}
+      <tr>
+        <td>{{ linha.categoria if linha.categoria else 'Sem categoria' }}</td>
+        <td class="text-end">{{ linha.produtos }}</td>
+        <td class="text-end">{{ linha.unidades }}</td>
+        <td class="text-end">{{ linha.valor|moeda }}</td>
+        <td class="text-end">{{ linha.preco_medio|moeda }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-body-secondary py-4">Nenhum produto ativo cadastrado ainda.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 ```
 
 Salve e recarregue. Para conferir, some de cabeça (ou na calculadora) a coluna **Valor em estoque**: `68.183,80 + 14.735,40 + 4.834,00 + 3.391,00 + 2.292,10 + 1.788,00` dá **R$ 95.224,30**, o mesmo valor do resumo lá de cima. A tabela por categoria e o resumo olham para os mesmos dados de dois jeitos, e os números têm de bater.
@@ -900,41 +898,41 @@ Na rota, o limite vai por `%s`, como qualquer valor, e **não** colado no texto 
 Os valores de um `%s` vão em uma **tupla**, e com um valor só ela leva a vírgula no fim: `(LIMITE_ESTOQUE_BAIXO,)`. Sem a vírgula, os parênteses não formam uma tupla. Agora a seção, no `relatorio_produtos.html`, depois da seção por categoria:
 
 ```html
-  <section class="mb-5">
-    <h2 class="h4">Estoque baixo</h2>
-    <p class="text-body-secondary">Produtos ativos com menos de {{ limite }} unidades.</p>
+<section class="mb-5">
+  <h2 class="h4">Estoque baixo</h2>
+  <p class="text-body-secondary">Produtos ativos com menos de {{ limite }} unidades.</p>
 
-    <table class="table table-striped table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Código</th>
-          <th>Produto</th>
-          <th>Categoria</th>
-          <th>Estoque</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for produto in estoque_baixo %}
-        <tr>
-          <td>{{ produto.id_produto }}</td>
-          <td>{{ produto.nome }}</td>
-          <td>{{ produto.categoria|default('Sem categoria', true) }}</td>
-          <td>
-            {% if produto.estoque == 0 %}
-              <span class="badge text-bg-danger">Sem estoque</span>
-            {% else %}
-              <span class="badge text-bg-warning">{{ produto.estoque }}</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="4" class="text-center text-body-secondary py-4">Nenhum produto com estoque baixo.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
+  <table class="table table-striped table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Produto</th>
+        <th>Categoria</th>
+        <th>Estoque</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for produto in estoque_baixo %}
+      <tr>
+        <td>{{ produto.id_produto }}</td>
+        <td>{{ produto.nome }}</td>
+        <td>{{ produto.categoria if produto.categoria else 'Sem categoria' }}</td>
+        <td>
+          {% if produto.estoque == 0 %}
+            <span class="badge text-bg-danger">Sem estoque</span>
+          {% else %}
+            <span class="badge text-bg-warning">{{ produto.estoque }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="text-center text-body-secondary py-4">Nenhum produto com estoque baixo.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 ```
 
 Salve e recarregue. A tabela mostra os seis produtos acima, com **Sem estoque** em vermelho para o SSD e o número do estoque em amarelo para os outros.
@@ -959,7 +957,7 @@ git push
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. O zip tem o sistema completo, com os relatórios: o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `relatorios_dados.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com a subpasta `relatorios`) e a pasta `static` (com `static/uploads` vazia, só com o `.gitkeep`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos do início, rode `copy .env.example .env` e troque os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` e, depois dele, o `relatorios_dados.sql` no phpMyAdmin.
+Compare com o seu projeto. O zip tem o sistema completo, com os relatórios: o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `relatorios_dados.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com a subpasta `relatorios`) e a pasta `static` (com `static/uploads` vazia, só com o `.gitkeep`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos do início, rode `copy .env.example .env` e troque os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` e, depois dele, o `relatorios_dados.sql` no phpMyAdmin.
 
 ➡️ [Baixar p2_cap_19.zip](../arquivos/p2_cap_19.zip)
 
