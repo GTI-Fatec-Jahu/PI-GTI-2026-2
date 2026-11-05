@@ -11,18 +11,16 @@
 Ao final deste capítulo você deverá ser capaz de:
 
 - Reaproveitar o formulário de cadastro para a edição, com uma variável (`acao`) que diz ao template em qual modo ele está
-- Mover as conferências do perfil para uma função usada pelas rotas de cadastro e de edição
-- Gravar a edição com `UPDATE ... WHERE id_perfil = %s`, ignorando o próprio perfil na conferência do nome repetido
-- Explicar por que a existência do registro é conferida com `SELECT`, e não com `rowcount`
-- Explicar por que a exclusão aceita só `POST` e pedir a confirmação em um modal do Bootstrap
-- Acionar o modal com uma função JavaScript que recebe o código do perfil
-- Reconhecer o erro `1451` e impedir a exclusão de um perfil que tem usuários, com `SELECT COUNT(*)` antes e `except Error` como barreira final
+- Adaptar a validação do perfil para ignorar o próprio registro na conferência do nome repetido
+- Gravar a edição com `UPDATE ... WHERE id_perfil = %s` e explicar por que a existência do registro é conferida com `SELECT`, e não com `rowcount`
+- Explicar por que a exclusão aceita só `POST` e pedir a confirmação em um modal do Bootstrap, acionado por uma função JavaScript que recebe o código do perfil
+- Impedir a exclusão de um perfil que tem usuários, com `SELECT COUNT(*)` antes e o erro `1451` do banco como barreira final
 
-O Capítulo 12 entregou a metade do CRUD de perfis: **ler** (`SELECT`) e **criar** (`INSERT`). Faltam as duas operações mais delicadas, **alterar** (`UPDATE`) e **excluir** (`DELETE`), porque são as que podem estragar dados de verdade. Um `UPDATE` sem `WHERE` altera a tabela inteira (todos os perfis passariam a ter o mesmo nome), e um `DELETE` apaga sem volta. Por isso o foco deste capítulo não é só fazer funcionar, é fazer funcionar **com segurança**. Ao final, o recurso `perfis` fica completo, e o mesmo molde de rotas e de nomes será repetido para `usuarios` e `produtos`.
+O Capítulo 12 entregou a metade do CRUD de perfis: **ler** (`SELECT`) e **criar** (`INSERT`). Faltam as duas operações mais delicadas, **alterar** (`UPDATE`) e **excluir** (`DELETE`), porque são as que podem estragar dados de verdade. Um `UPDATE` sem `WHERE` altera a tabela inteira (todos os perfis passariam a ter o mesmo nome), e um `DELETE` apaga sem volta. Por isso o foco deste capítulo não é só fazer funcionar, é fazer funcionar **com segurança**. A boa notícia é que quase tudo já está pronto: a lista já tem os botões de editar e excluir esperando uma rota, a validação já está num arquivo próprio e o roteiro da rota (coletar, validar, mostrar os erros ou salvar) é o mesmo do cadastro. Ao final, o recurso `perfis` fica completo, e o mesmo molde de rotas e de nomes será repetido para `usuarios` e `produtos`.
 
 ## 📦 Ponto de partida
 
-Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, o `validacoes.py`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e os perfis **Administrador**, **Gerente** e **Usuário** cadastrados. O Capítulo 12.1 é opcional: este capítulo parte do código do 12, e os trechos mostram a lista simples do 12, sem a busca e a paginação.
+Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, a pasta `validacoes` (com o `validacoes_perfil.py`), a pasta `templates` (`layout/base_menu.html`, `layout/base_limpa.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e os perfis **Administrador**, **Gerente** e **Usuário** cadastrados. O Capítulo 12.1 é opcional: este capítulo parte do código do 12, e os trechos mostram a lista simples do 12, sem a busca e a paginação.
 
 Se o seu projeto não está funcionando, baixe o código do Capítulo 12 e descompacte. Depois de descompactar, crie o ambiente virtual e o `.env`, como no [Capítulo 11, Tópico 4](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env), importe o `banco.sql` no phpMyAdmin e cadastre os três perfis pelo formulário:
 
@@ -37,7 +35,7 @@ copy .env.example .env
 
 ---
 
-## Tópico 1 — Editar: o formulário já preenchido
+## Tópico 1 — Editar um perfil (UPDATE)
 
 ### Antes de começar
 
@@ -48,7 +46,7 @@ venv\Scripts\activate
 git status
 ```
 
-O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py`, deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git e para os testes) e abra **http://127.0.0.1:5000/perfis**. A lista mostra os três perfis do Capítulo 12.
+O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py`, deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git e para os testes) e abra **http://127.0.0.1:5000/perfis**. A lista mostra os três perfis do Capítulo 12. Cadastre também um perfil chamado `Teste`, com qualquer descrição: ele será editado e excluído nos testes, para os três perfis do sistema ficarem intactos.
 
 ### O mapa do recurso, agora completo
 
@@ -56,12 +54,12 @@ O Capítulo 12 mostrou o molde de nomes do recurso. Este capítulo acrescenta as
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template |
 |---|---|---|---|---|
-| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis/perfis_lista.html` |
-| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfis/perfil_form.html` |
+| `/perfis` | GET | Lista os perfis | `listar_perfis` | `perfis/perfis_lista.html` |
+| `/perfis/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_perfil` | `perfis/perfil_form.html` |
 | `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfis/perfil_form.html` |
 | `/perfis/<int:id_perfil>/excluir` | só POST | Exclui o perfil e volta para a lista | `perfil_excluir` | (nenhum) |
 
-Repare que o `editar` usa o **mesmo template** do `novo`, e que o `excluir` não tem template: ele não mostra nada, só faz o que foi pedido e redireciona. O caminho do navegador na edição é parecido com o do cadastro:
+Repare que o `editar` usa o **mesmo template** do cadastro, e que o `excluir` não tem template: ele não mostra nada, só faz o que foi pedido e redireciona. O caminho do navegador na edição é parecido com o do cadastro:
 
 ```mermaid
 flowchart LR
@@ -75,251 +73,249 @@ flowchart LR
     P -->|"sucesso: redirect + flash"| L
 ```
 
-### Buscar o perfil pelo código
+### A validação ignora o próprio perfil
 
-Na rota de edição, o código do perfil vem **no endereço** (`/perfis/3/editar`), como a variável de rota do [Capítulo 3](Capitulo_03_Flask.md). No `app.py`, acrescente a importação do `abort` na primeira linha do Flask:
+A edição confere **os mesmos campos** do cadastro, e a `validar_perfil` já faz isso. Há uma única diferença, e ela está no nome repetido: na edição, o **próprio** perfil não conta como repetido. Quem abre o Gerente e só corrige a descrição envia o nome `Gerente`, que já existe, e é dele mesmo. Por isso a função passa a receber também o código do perfil que está sendo editado (`id_perfil`), e o `SELECT` passa a ignorá-lo com `id_perfil <> %s`.
+
+Abra o `validacoes/validacoes_perfil.py`. São duas mudanças. A primeira é na linha do `def`. Troque:
 
 ```python
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+def validar_perfil(nome, descricao):
 ```
 
-E acrescente a rota `perfil_editar`, **depois** da `perfil_novo` e antes dos `@app.errorhandler`. Por enquanto ela só busca o perfil e mostra o formulário:
+por:
 
 ```python
-@app.route('/perfis/<int:id_perfil>/editar')
+def validar_perfil(nome, descricao, id_perfil=0):
+```
+
+A segunda é na seção do nome repetido, no fim do arquivo. Troque:
+
+```python
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    if not erros:
+        existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
+```
+
+por:
+
+```python
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    # O id_perfil <> %s ignora o próprio perfil na edição (no cadastro, o id_perfil vale 0)
+    if not erros:
+        existente = execute_one(
+            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
+            (nome, id_perfil),
+        )
+```
+
+O resto do arquivo não muda.
+
+- **O `id_perfil=0` no `def`** é um **valor padrão**: quem chama a função pode passar o terceiro valor ou deixá-lo de fora, e aí ele vale `0`. A rota de cadastro continua chamando `validar_perfil(nome, descricao)`, sem mudar nada, e a de edição vai chamar `validar_perfil(nome, descricao, id_perfil)`.
+- **O `id_perfil <> %s`**: nenhum perfil tem o código `0`, então, no cadastro, a condição não exclui ninguém, e o `SELECT` procura o nome em todos os perfis, como antes. Na edição, ela tira da busca o perfil que está sendo editado.
+
+!!! note "SQL: `<>` é “diferente de”"
+    O `WHERE nome = %s AND id_perfil <> %s` procura um perfil com **aquele nome** e com um código **diferente** do informado. Se o único perfil com esse nome for o próprio, o `SELECT` não devolve nada, e não há repetição.
+
+Salve e cadastre `Teste` de novo pelo formulário: a mensagem `Já existe um perfil com este nome.` continua aparecendo. O cadastro segue igual.
+
+### A rota de edição
+
+No `app.py`, acrescente o `abort` à importação do Flask (em ordem alfabética, logo depois do `Flask`):
+
+```python
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
+```
+
+E acrescente a rota `perfil_editar` na seção **PERFIS**, **depois** da `inserir_perfil`:
+
+```python
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
-    return render_template('perfis/perfil_form.html', nome=perfil['nome'], descricao=perfil['descricao'])
-```
-
-!!! note "Flask: `<int:id_perfil>` e `abort(404)`"
-    O `<int:id_perfil>` captura o pedaço do endereço, converte para número inteiro e entrega à função como o parâmetro `id_perfil`. O parâmetro leva o **mesmo nome da chave primária** da tabela, de propósito: o nome `perfil_id` fica reservado para a chave **estrangeira** da tabela `usuarios`. Um endereço como `/perfis/abc/editar` nem chega à função: o Flask já responde 404. O `execute_one` devolve o perfil encontrado ou `None`, e o `abort(404)` interrompe a rota e mostra a página 404 do Capítulo 11. A tupla `(id_perfil,)` tem a vírgula que o Python exige para uma tupla de um item.
-
-Salve. Na lista, descubra o código de um perfil (a primeira coluna) e abra, pela barra de endereço, `http://127.0.0.1:5000/perfis/` + o código + `/editar`. O formulário aparece **preenchido** com o nome e a descrição do perfil. Agora abra `/perfis/99999/editar`: a página 404, porque não existe perfil com esse código.
-
-Abra o formulário do **Gerente**, que você cadastrou sem descrição no Capítulo 12. O campo da descrição mostra a palavra **None**. É o mesmo problema da lista no Capítulo 12: a coluna aceita `NULL`, o Python entrega `None`, e o Jinja o escreve como texto. Aqui o `None` iria para dentro do campo, e quem clicasse em **Salvar** gravaria o texto "None" na descrição. A rota precisa trocar o `None` por um texto vazio antes de entregar ao template. Troque a última linha da rota por:
-
-```python
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
-    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
-```
+    # Executado apenas no envio do formulário (POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('nome', '').strip()
 
-Salve e recarregue o formulário do Gerente: o campo vem vazio. (A conferência é `is None`, e não `== None`: é o jeito do Python de perguntar se o valor é o "nada".)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
-### Uma variável para os dois modos: `acao`
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
 
-O formulário já aparece preenchido, mas ainda diz **Novo perfil**, o botão diz **Salvar perfil** e o `action` aponta para a rota de cadastro. Em vez de criar um segundo template quase igual (e ter de lembrar de mexer nos dois a cada campo novo), o `perfil_form.html` passa a servir aos dois modos. Uma variável, `acao`, diz em qual deles ele está: `'criar'` ou `'editar'`.
+        # 3. Se houver erros, exibe as mensagens
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
 
-Primeiro, as rotas entregam a informação. Na `perfil_editar`, a última linha passa a ser:
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
+            try:
+                # O WHERE garante que só este perfil seja alterado
+                execute_query(
+                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    (nome, descricao, id_perfil),
+                )
 
-```python
+                flash(f'Perfil "{nome}" atualizado.', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 ```
 
-E, na `perfil_novo`, o `render_template` do final passa a ser:
+Compare com a `inserir_perfil`: os passos 1 a 4 são os mesmos. O que muda está no começo, no `UPDATE` e no `render_template`.
+
+**O começo: buscar o perfil.** O código do perfil vem **no endereço** (`/perfis/3/editar`), como a variável de rota do [Capítulo 3](Capitulo_03_Flask.md). A rota busca o perfil com esse código e, se ele não existir, responde com a página 404. Se existir, as variáveis `nome` e `descricao` **começam com os valores do banco**: é assim que o formulário aparece preenchido no GET. No POST, elas são reescritas com o que veio do formulário, e, se houver erro, o formulário volta com o que a pessoa digitou, e não com o que estava no banco. Um perfil sem descrição traz `None` do banco, e o `or ''` que já está no `value` do formulário o mostra como um campo vazio.
+
+!!! note "Flask: `<int:id_perfil>` e `abort(404)`"
+    O `<int:id_perfil>` captura o pedaço do endereço, converte para número inteiro e entrega à função como o parâmetro `id_perfil`. O parâmetro leva o **mesmo nome da chave primária** da tabela, de propósito: o nome `perfil_id` fica reservado para a chave **estrangeira** da tabela `usuarios`. Um endereço como `/perfis/abc/editar` nem chega à função: o Flask já responde 404. O `execute_one` devolve o perfil encontrado ou `None`, e o `abort(404)` interrompe a rota e mostra a página 404 do Capítulo 11. O `is None` é o jeito do Python de perguntar se o valor é o "nada".
+
+**O `UPDATE`.** Olhe com atenção a última peça do comando: **`WHERE id_perfil = %s`**. É ela que restringe a alteração ao perfil certo. O `execute_query` sem `fetch` faz o `commit`, e o `try/except` do `1062` é o mesmo do cadastro: entre a consulta da validação e o `UPDATE`, outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade ([Capítulo 12, Tópico 4](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-rota-completa)).
+
+!!! danger "UPDATE sem WHERE altera a tabela inteira"
+    Sem o `WHERE`, o `UPDATE perfis SET nome = %s` trocaria o nome de **todos** os perfis para o mesmo valor. O banco não pergunta se você tem certeza. O código do perfil vem do **endereço** (`id_perfil`, já convertido para número pelo Flask), e não de um campo do formulário, que a pessoa poderia adulterar.
+
+**O `render_template`.** A rota entrega duas variáveis a mais: `acao='editar'`, que diz ao formulário em qual modo ele está, e o `id_perfil`, de que o formulário precisa para montar o endereço de envio. É o assunto da próxima seção.
+
+### O formulário nos dois modos: a variável `acao`
+
+O formulário precisa mudar conforme o modo: o título (**Novo perfil** ou **Editar perfil**), o texto do botão (**Salvar perfil** ou **Salvar alterações**) e, principalmente, o **destino do envio**: no cadastro, o `action` aponta para `inserir_perfil`; na edição, para `perfil_editar`, com o código do perfil. Em vez de criar um segundo template quase igual (e ter de lembrar de mexer nos dois a cada campo novo), o `perfil_form.html` passa a servir aos dois modos, guiado pela variável `acao`.
+
+Primeiro, a rota de cadastro também passa a informar o modo. Na `inserir_perfil`, troque a última linha:
+
+```python
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
+```
+
+por:
 
 ```python
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 ```
 
-Salve e recarregue as duas telas: nada mudou, o template só **recebeu** a informação. Agora ele a usa. No `templates/perfis/perfil_form.html`, troque o título da aba e o `<h1>`:
+Agora o template. São quatro pontos espalhados pelo arquivo, então troque o `templates/perfis/perfil_form.html` **inteiro** por esta versão:
 
 ```html
-{% block titulo_aba %}{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %} — Sistema de Gestão{% endblock %}
-```
+{% extends 'layout/base_menu.html' %}
 
-```html
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %}</h1>
-```
+{% block titulo_aba %}{{ 'Editar perfil' if acao == 'editar' else 'Novo perfil' }} — Sistema de Gestão{% endblock %}
 
-Salve e compare `/perfis/novo` com a edição de um perfil: o mesmo arquivo, dois títulos. O `action` do formulário é o mais importante: no cadastro aponta para `perfil_novo`, e na edição precisa apontar para `perfil_editar` **com o código do perfil**. No começo do `{% block conteudo %}`, guarde o destino em uma variável:
-
-```html
 {% block conteudo %}
-  {% if acao == 'editar' %}
+{% if acao == 'editar' %}
     {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
-  {% else %}
-    {% set destino = url_for('perfil_novo') %}
-  {% endif %}
+{% else %}
+    {% set destino = url_for('inserir_perfil') %}
+{% endif %}
+
+<h1 class="h2 mb-4">{{ 'Editar perfil' if acao == 'editar' else 'Novo perfil' }}</h1>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+
+                <form action="{{ destino }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do perfil</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador"
+                            value="{{ nome }}" required minlength="3" maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional)</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao"
+                            placeholder="Ex.: Acesso total ao sistema" value="{{ descricao or '' }}" maxlength="255">
+                            <!-- ADICIONAR or '' EM TODO CAMPO QUE NÃO É OBRIGATÓRIO -->
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar perfil' }}</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 ```
+
+Os campos são os mesmos do Capítulo 12. O que mudou:
+
+1. **O título da aba, o `<h1>` e o botão** usam o `if` em uma linha que você conheceu na descrição da lista: `{{ 'Editar perfil' if acao == 'editar' else 'Novo perfil' }}` escreve um texto ou o outro.
+2. **O destino do envio** é escolhido no começo do bloco `conteudo`, com um `if` comum e o `{% set %}` (caixa abaixo), e usado no `<form action="{{ destino }}">`.
 
 !!! note "Jinja: `{% set %}`"
     O `{% set destino = ... %}` cria uma variável **dentro do template**, como o `destino = ...` do Python. Aqui ela guarda um endereço escolhido pelo `if`. O Jinja só executa o ramo que vale: no cadastro, o `id_perfil` é `None`, mas o `url_for('perfil_editar', ...)` nem chega a rodar.
 
-E use a variável no formulário:
+Salve. Na lista, descubra o código do `Teste` (a primeira coluna) e abra, pela barra de endereço, `http://127.0.0.1:5000/perfis/` + o código + `/editar`: o formulário aparece **preenchido**, com o título **Editar perfil** e o botão **Salvar alterações**. Abra `/perfis/inserir`: o mesmo arquivo, com **Novo perfil** e **Salvar perfil**. Agora abra `/perfis/99999/editar`: a página 404, porque não existe perfil com esse código.
+
+### Os caminhos até a edição
+
+**Na lista.** O botão amarelo de editar existe desde o Capítulo 12, com o `href="#"`. Abra o `templates/perfis/perfis_lista.html`, procure na célula de ações a linha do botão de editar:
 
 ```html
-          <form action="{{ destino }}" method="post">
+<a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
-Salve, abra a edição de um perfil e clique em **Salvar perfil**. A página mostra **Method Not Allowed** (405). O endereço de destino está certo (`/perfis/3/editar`), mas a rota `perfil_editar` ainda só aceita `GET`. É a deixa para o próximo tópico. Falta só o texto do botão. Troque o botão de envio por:
+E troque **só o `href`**, para ele levar à rota `perfil_editar` com o código do perfil daquela linha:
 
 ```html
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar perfil{% endif %}</button>
+<a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
-Salve e confira os dois modos: o cadastro mostra **Salvar perfil**, e a edição mostra **Salvar alterações**.
-
-### Os caminhos até o formulário
-
-Para chegar à edição sem digitar o endereço, a lista ganha uma coluna **Ações**. No `perfis_lista.html`, acrescente o cabeçalho depois de `Criado em`:
+**No menu.** O menu **Perfis** precisa continuar destacado durante a edição. No `templates/layout/base_menu.html`, procure o botão do menu suspenso **Perfis** (busque por `dropdown-toggle`) e acrescente `'perfil_editar'` à lista do `request.endpoint`. Troque só o trecho do `{% if %}`:
 
 ```html
-        <th class="text-end">Ações</th>
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil'] %}active{% endif %}
 ```
 
-Na linha do `for`, depois da célula do `criado_em`:
+por:
 
 ```html
-        <td class="text-end">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-        </td>
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}
 ```
 
-E o `colspan` do `{% else %}` passa de `4` para `5`. Por fim, no `base_menu.html`, o menu **Perfis** precisa continuar destacado durante a edição. Acrescente `'perfil_editar'` à lista do `request.endpoint`, no botão do menu suspenso:
+### Testando a edição
 
-```html
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
-```
-
-Salve e navegue: **Perfis > Listar Perfis**, **Editar** em uma linha, o formulário preenchido, **Cancelar** de volta à lista.
-
-```bash
-git add .
-git commit -m "Adiciona o formulário de edição de perfil com a variável acao"
-git push
-```
-
----
-
-## Tópico 2 — Salvar a edição (UPDATE)
-
-### A dor: as mesmas conferências, de novo
-
-A edição precisa conferir **os mesmos campos** do cadastro: nome obrigatório, entre 3 e 100 caracteres, descrição de até 255 e nome que ainda não existe. Essas conferências hoje estão escritas dentro da `perfil_novo`. Copiá-las para uma segunda rota seria repetir cerca de vinte linhas, e o dia em que uma regra mudar você corrigiria uma rota e esqueceria a outra. A saída é mover as conferências para **uma função**, e as duas rotas a chamam.
-
-Há uma única diferença entre os dois casos, e ela está no nome repetido: na edição, o **próprio** perfil não conta como repetido. Quem abre o Gerente e só corrige a descrição envia o nome `Gerente`, que já existe, e é dele mesmo. A função recebe o código do perfil que está sendo editado (`id_perfil`), e o `SELECT` passa a ignorá-lo com `id_perfil <> %s`.
-
-!!! note "SQL: `<>` é “diferente de”"
-    O `WHERE nome = %s AND id_perfil <> %s` procura um perfil com **aquele nome** e com um código **diferente** do informado. Se o único perfil com esse nome for o próprio, o `SELECT` não devolve nada, e não há repetição.
-
-No `app.py`, **acima** da `perfil_novo`, escreva a função. Ela não tem `@app.route`: não é uma rota, é só um pedaço do código que as rotas chamam.
-
-```python
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-```
-
-!!! note "Python: uma função que devolve uma lista"
-    A função recebe três valores, junta as mensagens de erro em uma lista e a devolve com o `return`. Uma lista vazia significa que está tudo certo. É a mesma ideia do Capítulo 12, só que agora o código fica num lugar só. Quem a chama decide o que fazer com a lista.
-
-Agora a `perfil_novo` usa a função. Dentro do `if request.method == 'POST':`, **apague** tudo o que está entre as duas leituras do `request.form` e o `if erros:` (o `erros = []`, as duas validações e o `SELECT` do nome repetido) e deixe no lugar:
-
-```python
-        erros = conferir_perfil(nome, descricao, 0)
-```
-
-O `0` é o `id_perfil` do cadastro: nenhum perfil tem o código `0`, então a condição `id_perfil <> 0` não exclui ninguém, e o `SELECT` procura o nome em todos os perfis, como antes. O resto da rota (o `if erros:`, o `INSERT` e o `try/except`) não muda.
-
-**Salve e teste antes de seguir.** Uma reorganização só é segura se o comportamento continua igual. Cadastre um perfil `Teste`, cadastre `Teste` de novo (deve aparecer `Já existe um perfil com este nome.`) e cadastre `ab` (mínimo de 3 caracteres). Tudo deve funcionar como no Capítulo 12. Se algo quebrou, o problema está na troca que você acabou de fazer, e é mais fácil achá-lo agora do que depois de escrever mais código em cima. Deixe o perfil `Teste` na lista: ele será usado mais adiante.
-
-### A rota de edição recebe o POST
-
-Agora a `perfil_editar` aceita o envio. Troque a linha do `@app.route` para aceitar os dois métodos:
-
-```python
-@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-```
-
-E, **antes** do `return render_template(...)` do final da rota, acrescente o `if` do POST. Por enquanto ele só confere e avisa:
-
-```python
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
-
-        erros = conferir_perfil(nome, descricao, id_perfil)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            flash('Dados válidos. Ainda não gravei no banco.', 'success')
-```
-
-Repare que o `nome` e a `descricao` são **reescritos** com o que veio do formulário. Se houver erro, a rota cai no `render_template` do final e devolve o formulário com o que a pessoa digitou, e não com o que estava no banco. Salve e teste, na edição do perfil `Teste`:
-
-- Mude a descrição e salve: faixa verde `Dados válidos. Ainda não gravei no banco.`, e o banco continua igual.
-- Troque o nome por `administrador` (tudo minúsculo): faixa vermelha `Já existe um perfil com este nome.`, e o formulário continua **em modo de edição**, com `administrador` no campo. Lembre que a ordenação do banco ignora maiúsculas.
-- Envie o próprio nome, `Teste`, sem mudar nada: faixa verde. O próprio perfil **não** conta como repetido, por causa do `id_perfil <> %s`.
-
-### O UPDATE, com o WHERE que não pode faltar
-
-Os dados chegam conferidos. Falta trocar o aviso provisório pela gravação. Troque o `else` do final do `if erros:` por este:
-
-```python
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
-
-            try:
-                execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
-                )
-                flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-```
-
-O `if descricao == ''` é o mesmo do cadastro: campo opcional em branco vira `NULL`, nunca `''`. O `try/except` também: entre o `SELECT` da conferência e o `UPDATE` outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade ([Capítulo 12, Tópico 6](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#topico-6-nome-repetido-o-erro-1062)). Olhe com atenção a última peça do comando: **`WHERE id_perfil = %s`**. É ela que restringe a alteração ao perfil certo.
-
-!!! danger "UPDATE sem WHERE altera a tabela inteira"
-    Sem o `WHERE`, o `UPDATE perfis SET nome = %s` trocaria o nome de **todos** os perfis para o mesmo valor. O banco não pergunta se você tem certeza. O código do perfil vem do **endereço** (`id_perfil`, já convertido para número pelo Flask), e não de um campo do formulário, que a pessoa poderia adulterar. O restante segue o que você já sabe: valores em `%s`, `commit` dentro do `execute_query`, PRG com `redirect` e `flash`.
-
-Salve e faça os testes, nesta ordem:
+Salve e faça os testes, nesta ordem, sempre entrando pelo botão amarelo da lista:
 
 1. Edite a descrição do perfil `Teste` e salve: você volta para a lista, com a faixa verde `Perfil "Teste" atualizado.` e a nova descrição na tabela.
-2. Abra a edição de novo e clique em **Salvar alterações** **sem mudar nada**: o resultado é a faixa verde, e não um erro. A explicação está no quadro logo adiante.
-3. Apague a descrição e salve: na lista, a célula mostra o traço cinza. No phpMyAdmin (banco `gestao`, tabela `perfis`, aba **Procurar**), a descrição aparece como `NULL`.
-4. Ainda no phpMyAdmin, compare as colunas `criado_em` e `atualizado_em` do perfil `Teste`: a segunda mudou depois das edições, e a primeira continua igual. O próprio banco cuida disso (`ON UPDATE CURRENT_TIMESTAMP`, do `banco.sql` do Capítulo 11), sem nenhuma linha de Python. Na edição do item 2, em que nada mudou, o `atualizado_em` **não** muda.
-5. Acesse `/perfis/99999/editar`: a página 404, porque o perfil não existe.
+2. Abra a edição de novo e clique em **Salvar alterações** **sem mudar nada**: o resultado é a faixa verde, e não um erro. O próprio perfil **não** conta como repetido, por causa do `id_perfil <> %s`.
+3. Troque o nome por `administrador` (tudo minúsculo): faixa vermelha `Já existe um perfil com este nome.`, e o formulário continua **em modo de edição**, com `administrador` no campo.
+4. Apague a descrição e salve: na lista, a célula mostra o traço. No phpMyAdmin (banco `gestao`, tabela `perfis`, aba **Procurar**), a descrição aparece como `NULL`.
+5. Ainda no phpMyAdmin, compare as colunas `criado_em` e `atualizado_em` do perfil `Teste`: a segunda mudou depois das edições, e a primeira continua igual. O próprio banco cuida disso (`ON UPDATE CURRENT_TIMESTAMP`, do `banco.sql` do Capítulo 11), sem nenhuma linha de Python. Na edição do item 2, em que nada mudou, o `atualizado_em` **não** muda.
 6. Confira na lista que **só** o perfil editado mudou.
 
 ### Por que o SELECT vem antes, e não o `rowcount`
@@ -332,64 +328,15 @@ python -c "from db import execute_query; print(execute_query('UPDATE perfis SET 
 
 As duas linhas imprimem `0`. O MySQL conta as linhas **efetivamente modificadas**: um `UPDATE` que grava os mesmos valores que já estavam lá (a primeira linha) modifica zero linhas, exatamente como um `UPDATE` de um código que não existe (a segunda). Se a rota usasse `rowcount == 0` como "não encontrei", quem clicasse em **Salvar** sem mudar nada receberia um erro falso. Por isso a existência é verificada por um `SELECT`, e o `rowcount` não decide isso.
 
-A rota `perfil_editar` completa, para conferir com a sua:
-
-```python
-@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
-    perfil = execute_one(
-        'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    nome = perfil['nome']
-    descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
-
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
-
-        erros = conferir_perfil(nome, descricao, id_perfil)
-
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
-
-            try:
-                execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
-                )
-                flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-
-    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
-                           nome=nome, descricao=descricao)
-```
-
 ```bash
 git add .
-git commit -m "Move as conferências do perfil para uma função e grava a edição com UPDATE"
+git commit -m "Adiciona a edição de perfil com UPDATE e o formulário nos dois modos"
 git push
 ```
 
 ---
 
-## Tópico 3 — Excluir com segurança (DELETE)
+## Tópico 2 — Excluir com segurança (DELETE)
 
 ### O comando
 
@@ -407,6 +354,12 @@ A forma mais curta de implementar a exclusão seria um link na tabela, `<a href=
 
 A exclusão exige um clique humano **deliberado**, e a forma de garantir isso é o método `POST`, que só sai de um formulário quando alguém aperta o botão. É o mesmo princípio do formulário de cadastro, e a mesma proteção CSRF.
 
+### Um perfil com usuários não pode sair
+
+Há mais um cuidado. A tabela `usuarios` tem uma chave estrangeira para `perfis`, e o `banco.sql` do Capítulo 11 a criou com `ON DELETE RESTRICT`: o banco **recusa** excluir um perfil enquanto houver usuário apontando para ele, com o erro **1451** ("não dá para excluir esta linha, porque outras linhas dependem dela"). O banco protege os dados, mas, sem tratamento, quem usa o sistema veria uma página técnica.
+
+A rota trata isso como o cadastro tratou o nome repetido, com as mesmas duas defesas: **perguntar antes** (contar os usuários do perfil, para dar uma mensagem clara) e **reconhecer o erro do banco** (o `1451`, para o caso raro de alguém cadastrar um usuário no perfil entre a contagem e o `DELETE`).
+
 ### A rota que só aceita POST
 
 No `app.py`, acrescente a rota depois da `perfil_editar`:
@@ -414,88 +367,114 @@ No `app.py`, acrescente a rota depois da `perfil_editar`:
 ```python
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def perfil_excluir(id_perfil):
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
-    execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
-    flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
+    usuarios = execute_one(
+        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
+        (id_perfil,),
+    )
 
-    return redirect(url_for('lista_perfis'))
+    if usuarios['total'] > 0:
+        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
+        return redirect(url_for('listar_perfis'))
+
+    try:
+        # O WHERE garante que só este perfil seja excluído
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
+        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
+    except Error as erro:
+        if erro.errno == 1451:
+            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
+        else:
+            raise
+
+    return redirect(url_for('listar_perfis'))
 ```
 
-O `SELECT` inicial cumpre dois papéis: responde 404 para um código que não existe e traz o **nome**, para a mensagem dizer qual perfil foi excluído. O `methods=['POST']` é o que protege: sem ele, uma rota Flask aceita só `GET`, e com ele aceita **só** `POST`. Salve e digite, na barra de endereço, `http://127.0.0.1:5000/perfis/3/excluir` (com qualquer código). O navegador faz um `GET`, e a resposta é **Method Not Allowed** (405): a rota recusa quem não veio por um `POST`. É onde o robô de busca, o carregamento antecipado e a pré-visualização esbarram, e nada é excluído.
+Parte por parte:
 
-### O botão, dentro de um formulário
+- **O `methods=['POST']`** é o que protege: sem ele, uma rota Flask aceita só `GET`, e com ele aceita **só** `POST`.
+- **O `SELECT` inicial** cumpre dois papéis: responde 404 para um código que não existe e traz o **nome**, para a mensagem dizer qual perfil foi excluído.
+- **A contagem.** O `COUNT(*)` conta as linhas encontradas, e o `AS total` dá um nome à coluna do resultado, como no cartão do dashboard ([Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)). Se houver algum usuário, a rota avisa com a quantidade e **volta para a lista** sem tentar o `DELETE`.
+- **O `try/except` do `1451`.** É o mesmo desenho do `1062`: se o `errno` for `1451`, a rota avisa a pessoa, e qualquer **outro** erro do banco é repetido com o `raise` e vira a página 500. Aqui não há `return` dentro do `try`, porque os dois caminhos terminam no mesmo lugar: o `redirect` para a lista, no final da rota. Uma exclusão nunca desenha página, sempre volta para a lista (PRG).
 
-Para a pessoa acionar a rota, a coluna **Ações** da lista ganha um **formulário** com um botão, e não um link. No `perfis_lista.html`, dentro da célula de ações, **depois** do link **Editar**:
-
-```html
-          <form action="{{ url_for('perfil_excluir', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-          </form>
-```
-
-O `class="d-inline"` mantém o formulário na mesma linha do botão **Editar**, e o `csrf_token` é o mesmo de todo formulário POST do projeto. Salve e recarregue. Na linha do perfil `Teste` (que você cadastrou no tópico anterior), clique em **Excluir**: o perfil some da lista, com a faixa verde `Perfil "Teste" excluído.` Funciona. Mas note o problema: **um clique sem querer já exclui**, e não há como se arrepender. Falta uma etapa de confirmação. Cadastre o perfil `Teste` de novo, porque ele será usado nos próximos testes.
+Salve e digite, na barra de endereço, `http://127.0.0.1:5000/perfis/3/excluir` (com qualquer código). O navegador faz um `GET`, e a resposta é **Method Not Allowed** (405): a rota recusa quem não veio por um `POST`. É onde o robô de busca, o carregamento antecipado e a pré-visualização esbarram, e nada é excluído.
 
 ### O modal de confirmação
 
-O Bootstrap tem um componente pronto para isso, o **modal**: uma janela que aparece por cima da página e pede uma confirmação. Em vez de repetir um modal para cada linha da tabela, o `perfis_lista.html` terá **um só**, reaproveitado por todas as linhas. Primeiro o HTML do modal. No final do `{% block conteudo %}`, depois da `</table>`:
+Um botão que envia o `POST` direto teria outro problema: **um clique sem querer já exclui**, e não há como se arrepender. Por isso o botão vermelho da lista não envia nada: ele **abre uma janela de confirmação**, e só o botão dessa janela envia o `POST`.
+
+O Bootstrap tem um componente pronto para isso, o **modal**: uma janela que aparece por cima da página. Em vez de repetir um modal para cada linha da tabela, o `perfis_lista.html` terá **um só**, reaproveitado por todas as linhas. No `perfis_lista.html`, acrescente o modal no final do `{% block conteudo %}`, **depois** da `</table>` e antes do `{% endblock %}`:
 
 ```html
-  <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5" id="tituloModalExcluir">Excluir perfil</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <form id="formExcluir" action="" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <div class="modal-body">
-            <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Esta ação não pode ser desfeita.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-danger">Excluir</button>
-          </div>
-        </form>
+<div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="tituloModalExcluir">Excluir perfil</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
+      <form id="formExcluir" action="" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="modal-body">
+          <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Excluir</button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
 ```
 
-Os dois botões do rodapé são o ponto da confirmação: **Cancelar** (`data-bs-dismiss="modal"`) só fecha a janela, e **Excluir** (`type="submit"`) é o único que envia o `POST`. O formulário começa com o `action=""` vazio de propósito: o endereço certo depende do perfil clicado, e só será conhecido na hora do clique.
-
-Agora o botão da linha deixa de ser um formulário e passa a **abrir** o modal. Na célula de ações, **troque** o `<form>` inteiro de antes por este botão comum:
-
-```html
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">Excluir</button>
-```
-
-O `data-bs-toggle` e o `data-bs-target` são do Bootstrap: dizem "este botão abre o modal `#modalExcluir`". Salve, recarregue e clique em **Excluir**: a janela aparece, mas o nome do perfil está **vazio**. Clique em **Cancelar**: a janela fecha, e nada é excluído. Abra de novo e clique em **Excluir** dentro da janela: aparece **Method Not Allowed**, porque o `action` está vazio e o formulário enviou o `POST` para `/perfis`, uma rota que só aceita `GET`. O modal está pronto, e falta preenchê-lo com o perfil da linha clicada.
+Os dois botões do rodapé são o ponto da confirmação: **Cancelar** (`data-bs-dismiss="modal"`) só fecha a janela, e **Excluir** (`type="submit"`) é o único que envia o `POST`, com o `csrf_token` de todo formulário POST do projeto. O formulário começa com o `action=""` vazio de propósito: o endereço certo depende do perfil clicado, e só será conhecido na hora do clique. Quem preenche esse endereço, e o nome do perfil na janela, é uma função JavaScript.
 
 ### Uma função JavaScript que recebe o código
 
-Quem preenche o modal é uma **função JavaScript**, como a do [Capítulo 2](Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md#uma-funcao-que-so-roda-quando-chamada), chamada pelo `onclick` do botão. Ela recebe o **código** do perfil e faz duas coisas: escreve o nome na janela e aponta o formulário para a rota daquele perfil.
+A função é como a do [Capítulo 2](Capitulo_02_Clone_Pull_Formulario_CSS_e_JS.md#uma-funcao-que-so-roda-quando-chamada), chamada pelo `onclick` do botão. Ela recebe o **código** do perfil e faz duas coisas: escreve o nome na janela e aponta o formulário para a rota daquele perfil. São três alterações no `perfis_lista.html`.
 
-Primeiro, a função precisa achar o nome. Dê um `id` à célula do nome, que passa a incluir o código do perfil. Na linha do `for`, troque a célula do nome por:
-
-```html
-        <td id="nome_perfil_{{ perfil.id_perfil }}">{{ perfil.nome }}</td>
-```
-
-Para o perfil de código 3, o HTML gerado é `<td id="nome_perfil_3">Teste</td>`. Agora o botão **chama** a função, passando o código. Troque o botão da linha por:
+**Primeira: um `id` na célula do nome**, para a função achar o nome do perfil. Na linha do `for`, troque:
 
 ```html
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
+<td>{{ perfil.nome }}</td>
 ```
 
-O Jinja troca `{{ perfil.id_perfil }}` pelo número: no perfil 3, o navegador recebe `onclick="prepararExclusao(3)"`. Por último, a função. O `base_menu.html` já tem o `{% block scripts %}` depois do JavaScript do Bootstrap. No **final** do `perfis_lista.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
+por:
+
+```html
+<td id="nome_perfil_{{ perfil.id_perfil }}">{{ perfil.nome }}</td>
+```
+
+Para o perfil de código 3, o HTML gerado é `<td id="nome_perfil_3">Teste</td>`.
+
+**Segunda: o botão vermelho abre o modal e chama a função.** Na célula de ações, troque a linha do botão de excluir:
+
+```html
+<button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+```
+
+por:
+
+```html
+<button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
+```
+
+O `data-bs-toggle` e o `data-bs-target` são do Bootstrap: dizem "este botão abre o modal `#modalExcluir`". O `onclick` chama a função, e o Jinja troca `{{ perfil.id_perfil }}` pelo número: no perfil 3, o navegador recebe `onclick="prepararExclusao(3)"`.
+
+**Terceira: a função.** O `base_menu.html` já tem o `{% block scripts %}` depois do JavaScript do Bootstrap. No **final** do `perfis_lista.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
 
 ```html
 {% block scripts %}
@@ -516,7 +495,7 @@ O Jinja troca `{{ perfil.id_perfil }}` pelo número: no perfil 3, o navegador re
 
     A função recebe só o **código**, e não o nome: um nome com aspas, como `Chefe "Geral"`, quebraria o atributo `onclick`. Lendo o nome da própria célula, o problema não existe.
 
-Salve, recarregue a lista e clique em **Excluir** na linha do `Teste`: a janela mostra `Excluir o perfil Teste?`. Clique em **Cancelar**, depois em **Excluir** na linha de **outro** perfil: o texto muda, porque o mesmo modal foi reaproveitado. Para terminar, confirme a exclusão do `Teste`: o perfil some da lista, com a faixa verde. **Não** exclua os três perfis do sistema. Cadastre o `Teste` de novo, porque falta um tópico.
+Salve, recarregue a lista e clique no botão vermelho da linha do `Teste`: a janela mostra `Excluir o perfil Teste?`. Clique em **Cancelar**: a janela fecha, e nada é excluído. Clique no botão vermelho de **outro** perfil: o texto muda, porque o mesmo modal foi reaproveitado. Cancele de novo. Para terminar, abra a janela do `Teste` e confirme: o perfil some da lista, com a faixa verde `Perfil "Teste" excluído.` **Não** exclua os três perfis do sistema.
 
 ```bash
 git add .
@@ -526,13 +505,13 @@ git push
 
 ---
 
-## Tópico 4 — Perfil em uso: o erro 1451
+## Tópico 3 — Testando o perfil em uso (erro 1451)
 
 ### Um usuário para o teste
 
-O que acontece quando alguém tenta excluir um perfil que **tem usuários**? A tabela `usuarios` tem uma chave estrangeira para `perfis`, e o `banco.sql` do Capítulo 11 a criou com `ON DELETE RESTRICT`: o banco **recusa** excluir um perfil enquanto houver usuário apontando para ele. Para ver isso, é preciso um usuário. O cadastro de usuários só chega no Capítulo 14, então ele vai ser criado direto no phpMyAdmin, só para o teste.
+A rota já sabe tratar um perfil que **tem usuários**, mas falta ver isso acontecer. Para isso é preciso um usuário, e o cadastro de usuários só chega no Capítulo 14, então ele vai ser criado direto no phpMyAdmin, só para o teste.
 
-Antes, cadastre pelo sistema um perfil chamado `Visitante`. Depois abra o **phpMyAdmin**, selecione o banco `gestao`, clique na aba **SQL**, cole o comando e clique em **Executar**:
+Cadastre pelo sistema um perfil chamado `Visitante`. Depois abra o **phpMyAdmin**, selecione o banco `gestao`, clique na aba **SQL**, cole o comando e clique em **Executar**:
 
 ```sql
 INSERT INTO usuarios (nome, email, senha, perfil_id)
@@ -542,50 +521,17 @@ VALUES ('Usuário de Teste', 'teste@exemplo.com', 'hash-de-teste',
 
 O `SELECT` dentro dos parênteses busca o código do perfil `Visitante`, seja qual for. A `senha` aqui é um texto qualquer: este usuário não vai entrar no sistema, e a senha de verdade (um **hash**) só aparece no Capítulo 14. Confira na tabela `usuarios`: há uma linha.
 
-### O que o banco responde
+### As duas defesas em ação
 
-Na lista de perfis, clique em **Excluir** na linha do `Visitante` e confirme. A página de depuração do Flask aparece com algo assim:
+Na lista de perfis, clique no botão vermelho do `Visitante` e confirme. A faixa vermelha diz `O perfil "Visitante" tem 1 usuário(s) e não pode ser excluído.`, e o perfil continua na lista: a **contagem** barrou a exclusão antes do `DELETE`.
+
+Para ver a barreira final, a do banco, desligue a contagem por um instante: na `perfil_excluir`, coloque um `#` na frente das linhas que vão do `usuarios = execute_one(` até o `return redirect(...)` do `if` (no VS Code, selecione e aperte `Ctrl + ;`). Salve e tente excluir o `Visitante` de novo: agora o `DELETE` chega ao banco, que o recusa com o `1451`, e a faixa vermelha `O perfil "Visitante" está em uso e não pode ser excluído.` vem do `except`. Sem esse `except`, o que apareceria seria a página de depuração do Flask com o erro técnico:
 
 ```text
 mysql.connector.errors.IntegrityError: 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`gestao`.`usuarios`, CONSTRAINT `fk_usuarios_perfis` FOREIGN KEY (`perfil_id`) REFERENCES `perfis` (`id_perfil`) ON UPDATE CASCADE)
 ```
 
-Como no `1062` do Capítulo 12, duas coisas para notar. A boa: **o banco protegeu os dados**, o perfil continua na lista e o usuário não ficou sem perfil. A ruim: quem usa o sistema vê uma página técnica. O número **1451** é o código do MySQL para "não dá para excluir esta linha, porque outras linhas dependem dela". O `rollback()` do `execute_query` desfaz o que ficou pela metade, e o `raise` repete o erro para a rota. As defesas são as mesmas do cadastro: perguntar antes e reconhecer o erro.
-
-### Primeira defesa: contar os usuários antes
-
-Antes de excluir, a rota pergunta ao banco quantos usuários o perfil tem. Na `perfil_excluir`, **depois** do `if perfil is None:` e **antes** do `DELETE`:
-
-```python
-    usuarios = execute_one(
-        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (id_perfil,),
-    )
-    if usuarios['total'] > 0:
-        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
-```
-
-O `COUNT(*)` conta as linhas encontradas, e o `AS total` dá um nome à coluna do resultado, como no cartão do dashboard ([Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)). Se houver algum usuário, a rota avisa com a quantidade e **volta para a lista** sem tentar o `DELETE`. Salve e tente excluir o `Visitante` de novo: a faixa vermelha diz `O perfil "Visitante" tem 1 usuário(s) e não pode ser excluído.`, e a página de depuração não aparece mais.
-
-### Por que a contagem não basta
-
-Como no `SELECT` do nome repetido, passa um intervalo entre a contagem e o `DELETE`. Se outra pessoa cadastrar um usuário nesse perfil bem nessa hora, a contagem dá `0`, e o banco recusa o `DELETE` com o `1451`. A contagem dá a **mensagem amigável** na imensa maioria dos casos, e a garantia de verdade é a chave estrangeira do banco. Falta o `try/except`. No `app.py`, troque as duas linhas do `DELETE` e do `flash` do final da rota por:
-
-```python
-    try:
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
-        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
-    except Error as erro:
-        if erro.errno == 1451:
-            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
-        else:
-            raise
-```
-
-É o mesmo desenho do `1062`: se o `errno` for `1451`, a rota avisa a pessoa, e qualquer **outro** erro do banco é repetido com o `raise` e vira a página 500. Aqui não há `return` dentro do `try`, porque os dois caminhos terminam no mesmo lugar: o `redirect` para a lista, no final da rota.
-
-Para ver a barreira final funcionando, desligue a primeira defesa por um instante: coloque um `#` na frente das **sete** linhas que vão do `usuarios = execute_one(` até o `return redirect(...)` do `if` (no VS Code, selecione e aperte `Ctrl + ;`). Salve e tente excluir o `Visitante`: a faixa vermelha `O perfil "Visitante" está em uso e não pode ser excluído.` vem do `except`, não mais da contagem. **Tire os `#`** para restaurar a primeira defesa e salve.
+**Tire os `#`** para restaurar a contagem e salve.
 
 ### O perfil sai quando deixa de estar em uso
 
@@ -595,21 +541,17 @@ No phpMyAdmin, aba **SQL**, apague o usuário de teste:
 DELETE FROM usuarios WHERE email = 'teste@exemplo.com';
 ```
 
-Volte à lista e exclua o `Visitante` e o `Teste`: agora a exclusão funciona, porque nenhum usuário depende deles. Os perfis **Administrador**, **Gerente** e **Usuário** ficam, porque o sistema os usa até o fim do projeto.
+Volte à lista e exclua o `Visitante`: agora a exclusão funciona, porque nenhum usuário depende dele. Os perfis **Administrador**, **Gerente** e **Usuário** ficam, porque o sistema os usa até o fim do projeto.
 
 | Situação | Quem trata | O que a pessoa vê |
 |---|---|---|
 | Código de perfil que não existe | `SELECT` + `abort(404)` | A página 404 |
-| Nome repetido ao editar | `conferir_perfil` (e o `1062` do `UPDATE`) | Faixa vermelha: "Já existe um perfil com este nome." |
+| Nome repetido ao editar | `validar_perfil` (e o `1062` do `UPDATE`) | Faixa vermelha: "Já existe um perfil com este nome." |
 | Perfil com usuários (caso comum) | `SELECT COUNT(*)` antes do `DELETE` | Faixa vermelha com a quantidade de usuários |
 | Perfil com usuários (cadastro simultâneo) | Chave estrangeira, erro `1451` capturado | Faixa vermelha: "está em uso" |
 | Qualquer outro erro do banco | Ninguém na rota (o `raise` repete) | A página 500 |
 
-```bash
-git add .
-git commit -m "Impede a exclusão de perfil em uso com COUNT e com o erro 1451"
-git push
-```
+Este tópico só testou, sem mudar o código. Se o `git status` mostrar alguma alteração (por exemplo, um `#` esquecido), desfaça-a antes de seguir.
 
 ---
 
@@ -621,23 +563,29 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import validar_nome_perfil, validar_descricao_perfil
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -648,6 +596,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -658,8 +607,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -668,139 +622,154 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, 0)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, id_perfil)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
+                # O WHERE garante que só este perfil seja alterado
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
+                    (nome, descricao, id_perfil),
                 )
+
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def perfil_excluir(id_perfil):
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
         (id_perfil,),
     )
+
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
+        return redirect(url_for('listar_perfis'))
 
     try:
+        # O WHERE garante que só este perfil seja excluído
         execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
     except Error as erro:
         if erro.errno == 1451:
             flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
         else:
             raise
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
@@ -816,6 +785,43 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
+O `validacoes/validacoes_perfil.py`:
+
+```python
+from db import execute_one
+
+
+def validar_perfil(nome, descricao, id_perfil=0):
+    erros = []
+
+    # ================ VALIDAÇÕES PARA O CAMPO nome =====================
+    if not nome:
+        erros.append('Informe o nome do perfil.')
+    elif len(nome) < 3:
+        erros.append('O nome deve ter pelo menos 3 caracteres.')
+    elif len(nome) > 100:
+        erros.append('O nome deve ter no máximo 100 caracteres.')
+
+    # ================ VALIDAÇÕES PARA O CAMPO descricao =====================
+    # Como descricao pode ser None, checamos antes de usar len()
+    if descricao and len(descricao) > 255:
+        erros.append('A descrição deve ter no máximo 255 caracteres.')
+
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    # O id_perfil <> %s ignora o próprio perfil na edição (no cadastro, o id_perfil vale 0)
+    if not erros:
+        existente = execute_one(
+            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
+            (nome, id_perfil),
+        )
+
+        if existente:
+            erros.append('Já existe um perfil com este nome.')
+
+    return erros
+```
+
 O `templates/perfis/perfis_lista.html`:
 
 ```html
@@ -826,10 +832,10 @@ O `templates/perfis/perfis_lista.html`:
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('perfil_novo') }}" class="btn btn-primary">Novo perfil</a>
+    <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
@@ -844,17 +850,11 @@ O `templates/perfis/perfis_lista.html`:
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td id="nome_perfil_{{ perfil.id_perfil }}">{{ perfil.nome }}</td>
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
-        </td>
-        <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
-        <td class="text-end">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
+        <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
@@ -903,56 +903,58 @@ O `templates/perfis/perfil_form.html`:
 ```html
 {% extends 'layout/base_menu.html' %}
 
-{% block titulo_aba %}{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %} — Sistema de Gestão{% endblock %}
+{% block titulo_aba %}{{ 'Editar perfil' if acao == 'editar' else 'Novo perfil' }} — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
-  {% if acao == 'editar' %}
+{% if acao == 'editar' %}
     {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
-  {% else %}
-    {% set destino = url_for('perfil_novo') %}
-  {% endif %}
+{% else %}
+    {% set destino = url_for('inserir_perfil') %}
+{% endif %}
 
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %}</h1>
+<h1 class="h2 mb-4">{{ 'Editar perfil' if acao == 'editar' else 'Novo perfil' }}</h1>
 
-  <div class="row">
+<div class="row justify-content-center">
     <div class="col-lg-6">
-      <div class="card">
-        <div class="card-body">
+        <div class="card">
+            <div class="card-body">
 
-          <form action="{{ destino }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <form action="{{ destino }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do perfil</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador"
+                            value="{{ nome }}" required minlength="3" maxlength="100">
+                    </div>
 
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome do perfil</label>
-              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador" value="{{ nome }}" required minlength="3" maxlength="100">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional)</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao"
+                            placeholder="Ex.: Acesso total ao sistema" value="{{ descricao or '' }}" maxlength="255">
+                            <!-- ADICIONAR or '' EM TODO CAMPO QUE NÃO É OBRIGATÓRIO -->
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar perfil' }}</button>
+                    </div>
+
+                </form>
+
             </div>
-
-            <div class="mb-3">
-              <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Ex.: Acesso total ao sistema" value="{{ descricao }}" maxlength="255">
-            </div>
-
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar perfil{% endif %}</button>
-              <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
-            </div>
-
-          </form>
-
         </div>
-      </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 ```
 
-A única mudança nos layouts é o `'perfil_editar'` na lista do menu **Perfis**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
+A única mudança nos layouts é o `'perfil_editar'` na lista do menu **Perfis**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `base_limpa.html`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, a pasta `validacoes` (com o `validacoes_perfil.py`), o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpa.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
 
 ➡️ [Baixar p2_cap_13.zip](../arquivos/p2_cap_13.zip)
 
@@ -966,7 +968,7 @@ Tente responder mentalmente antes de abrir.
     Ela diz ao template se ele está no modo `'criar'` ou `'editar'`. Com ela, um único arquivo muda o título, o `action` do formulário e o texto do botão, em vez de existirem dois templates quase iguais para manter.
 
 ??? question "Por que a conferência do nome repetido usa `id_perfil <> %s` na edição?"
-    Porque, ao editar, o perfil já existe com aquele nome. Sem o `<>`, quem corrigisse só a descrição do Gerente receberia "Já existe um perfil com este nome", barrado pelo próprio perfil. Com o `<>`, o `SELECT` ignora o registro que está sendo editado. No cadastro, a rota passa `0`, um código que não existe, e a condição não exclui ninguém.
+    Porque, ao editar, o perfil já existe com aquele nome. Sem o `<>`, quem corrigisse só a descrição do Gerente receberia "Já existe um perfil com este nome", barrado pelo próprio perfil. Com o `<>`, o `SELECT` ignora o registro que está sendo editado. No cadastro, a `validar_perfil` usa o valor padrão `0`, um código que não existe, e a condição não exclui ninguém.
 
 ??? question "Por que a rota confere a existência com `SELECT`, e não olhando o `rowcount` do `UPDATE`?"
     Porque o `rowcount` conta só as linhas **modificadas**. Um `UPDATE` que grava os mesmos valores que já estavam lá devolve `0`, igual a um `UPDATE` de um código que não existe. Usar o `rowcount` daria um erro falso para quem clica em Salvar sem mudar nada.
@@ -1039,7 +1041,7 @@ Um perfil tem usuários e a rota `perfil_excluir` executa o `DELETE` direto, sem
 
 ## 📝 Resumo
 
-O recurso `perfis` ficou completo. A edição reaproveita o `perfil_form.html` com a variável `acao`, as conferências viraram a função `conferir_perfil` (que ignora o próprio perfil na busca do nome repetido) e o `UPDATE ... WHERE id_perfil = %s` grava a alteração, com a existência conferida por `SELECT` e não por `rowcount`. A exclusão aceita só `POST`, porque um `GET` pode ser disparado por robôs e por pré-visualizações, e pede a confirmação em um modal do Bootstrap, preenchido por uma função JavaScript que recebe o código do perfil. O perfil que tem usuários não é excluído: a rota conta os usuários antes e ainda reconhece o erro `1451` da chave estrangeira, as mesmas duas defesas do nome repetido no Capítulo 12. O Capítulo 13.1 mostra uma alternativa à exclusão de verdade, a lixeira, e o Capítulo 14 repete este molde de rotas para os usuários.
+O recurso `perfis` ficou completo. A edição reaproveita o `perfil_form.html` com a variável `acao`, a `validar_perfil` ganhou o `id_perfil` (com valor padrão `0`) para ignorar o próprio perfil na busca do nome repetido, e o `UPDATE ... WHERE id_perfil = %s` grava a alteração, com a existência conferida por `SELECT` e não por `rowcount`. A exclusão aceita só `POST`, porque um `GET` pode ser disparado por robôs e por pré-visualizações, e pede a confirmação em um modal do Bootstrap, preenchido por uma função JavaScript que recebe o código do perfil. Os botões amarelo e vermelho que a lista tinha desde o Capítulo 12 ganharam as suas rotas. O perfil que tem usuários não é excluído: a rota conta os usuários antes e ainda reconhece o erro `1451` da chave estrangeira, as mesmas duas defesas do nome repetido no Capítulo 12. O Capítulo 13.1 mostra uma alternativa à exclusão de verdade, a lixeira, e o Capítulo 14 repete este molde de rotas para os usuários.
 
 ---
 
