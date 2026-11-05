@@ -22,7 +22,7 @@ O Capítulo 12 entregou a metade do CRUD de perfis: **ler** (`SELECT`) e **criar
 
 ## 📦 Ponto de partida
 
-Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, o `validacoes.py`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `404.html` e `500.html`) e os perfis **Administrador**, **Gerente** e **Usuário** cadastrados. O Capítulo 12.1 é opcional: este capítulo parte do código do 12, e os trechos mostram a lista simples do 12, sem a busca e a paginação.
+Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, o `validacoes.py`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e os perfis **Administrador**, **Gerente** e **Usuário** cadastrados. O Capítulo 12.1 é opcional: este capítulo parte do código do 12, e os trechos mostram a lista simples do 12, sem a busca e a paginação.
 
 Se o seu projeto não está funcionando, baixe o código do Capítulo 12 e descompacte. Depois de descompactar, crie o ambiente virtual e o `.env`, como no [Capítulo 11, Tópico 4](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env), importe o `banco.sql` no phpMyAdmin e cadastre os três perfis pelo formulário:
 
@@ -56,9 +56,9 @@ O Capítulo 12 mostrou o molde de nomes do recurso. Este capítulo acrescenta as
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template |
 |---|---|---|---|---|
-| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis.html` |
-| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfil_form.html` |
-| `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfil_form.html` |
+| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis/perfis_lista.html` |
+| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfis/perfil_form.html` |
+| `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfis/perfil_form.html` |
 | `/perfis/<int:id_perfil>/excluir` | só POST | Exclui o perfil e volta para a lista | `perfil_excluir` | (nenhum) |
 
 Repare que o `editar` usa o **mesmo template** do `novo`, e que o `excluir` não tem template: ele não mostra nada, só faz o que foi pedido e redireciona. O caminho do navegador na edição é parecido com o do cadastro:
@@ -95,7 +95,7 @@ def perfil_editar(id_perfil):
     if perfil is None:
         abort(404)
 
-    return render_template('perfil_form.html', nome=perfil['nome'], descricao=perfil['descricao'])
+    return render_template('perfis/perfil_form.html', nome=perfil['nome'], descricao=perfil['descricao'])
 ```
 
 !!! note "Flask: `<int:id_perfil>` e `abort(404)`"
@@ -111,7 +111,7 @@ Abra o formulário do **Gerente**, que você cadastrou sem descrição no Capít
     if descricao is None:
         descricao = ''
 
-    return render_template('perfil_form.html', nome=nome, descricao=descricao)
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 ```
 
 Salve e recarregue o formulário do Gerente: o campo vem vazio. (A conferência é `is None`, e não `== None`: é o jeito do Python de perguntar se o valor é o "nada".)
@@ -123,18 +123,18 @@ O formulário já aparece preenchido, mas ainda diz **Novo perfil**, o botão di
 Primeiro, as rotas entregam a informação. Na `perfil_editar`, a última linha passa a ser:
 
 ```python
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 ```
 
 E, na `perfil_novo`, o `render_template` do final passa a ser:
 
 ```python
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 ```
 
-Salve e recarregue as duas telas: nada mudou, o template só **recebeu** a informação. Agora ele a usa. No `templates/perfil_form.html`, troque o título da aba e o `<h1>`:
+Salve e recarregue as duas telas: nada mudou, o template só **recebeu** a informação. Agora ele a usa. No `templates/perfis/perfil_form.html`, troque o título da aba e o `<h1>`:
 
 ```html
 {% block titulo_aba %}{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %} — Sistema de Gestão{% endblock %}
@@ -174,7 +174,7 @@ Salve e confira os dois modos: o cadastro mostra **Salvar perfil**, e a edição
 
 ### Os caminhos até o formulário
 
-Para chegar à edição sem digitar o endereço, a lista ganha uma coluna **Ações**. No `perfis.html`, acrescente o cabeçalho depois de `Criado em`:
+Para chegar à edição sem digitar o endereço, a lista ganha uma coluna **Ações**. No `perfis_lista.html`, acrescente o cabeçalho depois de `Criado em`:
 
 ```html
         <th class="text-end">Ações</th>
@@ -188,13 +188,13 @@ Na linha do `for`, depois da célula do `criado_em`:
         </td>
 ```
 
-E o `colspan` do `{% else %}` passa de `4` para `5`. Por fim, no `base.html`, o item **Perfis** do menu precisa continuar destacado durante a edição. Acrescente `'perfil_editar'` à lista do `request.endpoint`:
+E o `colspan` do `{% else %}` passa de `4` para `5`. Por fim, no `base_menu.html`, o menu **Perfis** precisa continuar destacado durante a edição. Acrescente `'perfil_editar'` à lista do `request.endpoint`, no botão do menu suspenso:
 
 ```html
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
 ```
 
-Salve e navegue: **Perfis**, **Editar** em uma linha, o formulário preenchido, **Cancelar** de volta à lista.
+Salve e navegue: **Perfis > Listar Perfis**, **Editar** em uma linha, o formulário preenchido, **Cancelar** de volta à lista.
 
 ```bash
 git add .
@@ -377,7 +377,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 ```
 
@@ -431,7 +431,7 @@ O `SELECT` inicial cumpre dois papéis: responde 404 para um código que não ex
 
 ### O botão, dentro de um formulário
 
-Para a pessoa acionar a rota, a coluna **Ações** da lista ganha um **formulário** com um botão, e não um link. No `perfis.html`, dentro da célula de ações, **depois** do link **Editar**:
+Para a pessoa acionar a rota, a coluna **Ações** da lista ganha um **formulário** com um botão, e não um link. No `perfis_lista.html`, dentro da célula de ações, **depois** do link **Editar**:
 
 ```html
           <form action="{{ url_for('perfil_excluir', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
@@ -444,7 +444,7 @@ O `class="d-inline"` mantém o formulário na mesma linha do botão **Editar**, 
 
 ### O modal de confirmação
 
-O Bootstrap tem um componente pronto para isso, o **modal**: uma janela que aparece por cima da página e pede uma confirmação. Em vez de repetir um modal para cada linha da tabela, o `perfis.html` terá **um só**, reaproveitado por todas as linhas. Primeiro o HTML do modal. No final do `{% block conteudo %}`, depois da `</table>`:
+O Bootstrap tem um componente pronto para isso, o **modal**: uma janela que aparece por cima da página e pede uma confirmação. Em vez de repetir um modal para cada linha da tabela, o `perfis_lista.html` terá **um só**, reaproveitado por todas as linhas. Primeiro o HTML do modal. No final do `{% block conteudo %}`, depois da `</table>`:
 
 ```html
   <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
@@ -495,7 +495,7 @@ Para o perfil de código 3, o HTML gerado é `<td id="nome_perfil_3">Teste</td>`
           <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
 ```
 
-O Jinja troca `{{ perfil.id_perfil }}` pelo número: no perfil 3, o navegador recebe `onclick="prepararExclusao(3)"`. Por último, a função. O `base.html` já tem o `{% block scripts %}` depois do JavaScript do Bootstrap. No **final** do `perfis.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
+O Jinja troca `{{ perfil.id_perfil }}` pelo número: no perfil 3, o navegador recebe `onclick="prepararExclusao(3)"`. Por último, a função. O `base_menu.html` já tem o `{% block scripts %}` depois do JavaScript do Bootstrap. No **final** do `perfis_lista.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
 
 ```html
 {% block scripts %}
@@ -566,7 +566,7 @@ Antes de excluir, a rota pergunta ao banco quantos usuários o perfil tem. Na `p
         return redirect(url_for('lista_perfis'))
 ```
 
-O `COUNT(*)` conta as linhas encontradas, e o `AS total` dá um nome à coluna do resultado, como no cartão do Início ([Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)). Se houver algum usuário, a rota avisa com a quantidade e **volta para a lista** sem tentar o `DELETE`. Salve e tente excluir o `Visitante` de novo: a faixa vermelha diz `O perfil "Visitante" tem 1 usuário(s) e não pode ser excluído.`, e a página de depuração não aparece mais.
+O `COUNT(*)` conta as linhas encontradas, e o `AS total` dá um nome à coluna do resultado, como no cartão do dashboard ([Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)). Se houver algum usuário, a rota avisa com a quantidade e **volta para a lista** sem tentar o `DELETE`. Salve e tente excluir o `Visitante` de novo: a faixa vermelha diz `O perfil "Visitante" tem 1 usuário(s) e não pode ser excluído.`, e a página de depuração não aparece mais.
 
 ### Por que a contagem não basta
 
@@ -638,11 +638,21 @@ CSRFProtect(app)
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -655,7 +665,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -713,7 +723,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -759,7 +769,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -806,10 +816,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/perfis.html`:
+O `templates/perfis/perfis_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -888,10 +898,10 @@ O `templates/perfis.html`:
 {% endblock %}
 ```
 
-O `templates/perfil_form.html`:
+O `templates/perfis/perfil_form.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{% if acao == 'editar' %}Editar perfil{% else %}Novo perfil{% endif %} — Sistema de Gestão{% endblock %}
 
@@ -936,13 +946,13 @@ O `templates/perfil_form.html`:
 {% endblock %}
 ```
 
-A única mudança no `base.html` é o `'perfil_editar'` na lista do item **Perfis** do menu (Tópico 1). Os demais arquivos (`db.py`, `validacoes.py`, `index.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
+A única mudança nos layouts é o `'perfil_editar'` na lista do menu **Perfis**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
 
 ➡️ [Baixar p2_cap_13.zip](../arquivos/p2_cap_13.zip)
 
