@@ -10,19 +10,18 @@
 
 Ao final deste capítulo você deverá ser capaz de:
 
-- Listar os perfis do banco em uma página, com `SELECT` e uma tabela do Bootstrap, e tratar a lista vazia
-- Criar um formulário de cadastro e proteger o envio com o token CSRF
-- Escrever uma função de validação por campo em um módulo próprio (`validacoes.py`) e importá-la no `app.py`
-- Gravar um perfil com `INSERT` parametrizado, guardando `NULL` quando o campo opcional vem vazio
-- Aplicar o padrão PRG e avisar o resultado com `flash`, mostrando o código que o banco gerou
-- Impedir um nome repetido de duas formas: conferindo com `SELECT` antes e reconhecendo o erro `1062` do banco
+- Listar os perfis do banco em uma tabela do Bootstrap com `SELECT`, já com todas as colunas, a data formatada e a coluna de ações
+- Criar um formulário de cadastro centralizado, protegido pelo token CSRF
+- Escrever todas as validações de um cadastro em um arquivo próprio (`validacoes/validacoes_perfil.py`), que devolve a lista de erros
+- Gravar um perfil com `INSERT` parametrizado, guardando `NULL` quando o campo opcional vem vazio (`or None`)
+- Aplicar o padrão PRG, avisar o resultado com `flash` e tratar o nome repetido (consulta antes e erro `1062` do banco)
 - Cadastrar os perfis **Administrador**, **Gerente** e **Usuário**, que o sistema usa até o fim do projeto
 
-O Capítulo 11 deixou o Projeto 2 de pé: banco `gestao` com as três tabelas vazias, `db.py` com as funções `execute_*`, os dois layouts (com menu e limpo), o login provisório e o dashboard. Falta o sistema **fazer** alguma coisa com elas. Este capítulo é o primeiro CRUD do projeto, e só a metade dele: **ler** (`SELECT`) e **criar** (`INSERT`) perfis. Alterar e excluir ficam para o Capítulo 13. Um perfil é o papel de quem usa o sistema (quem administra, quem gerencia, quem apenas consulta), e cada usuário do Capítulo 14 pertencerá a **um** deles. Quase tudo o que você vê aqui já apareceu no Projeto 1 (formulário, CSRF, validação, `flash`, PRG, `execute_*`), então cada etapa traz o link para a explicação completa. O que muda é o conjunto: agora os dados vão para um banco de verdade, e o banco também tem opinião sobre o que aceita.
+O Capítulo 11 deixou o Projeto 2 de pé: banco `gestao` com as três tabelas vazias, `db.py` com as funções `execute_*`, os dois layouts (com menu e limpo, já com o bloco de mensagens), a proteção CSRF ligada, o login provisório e o dashboard. Falta o sistema **fazer** alguma coisa com elas. Este capítulo é o primeiro CRUD do projeto, e só a metade dele: **ler** (`SELECT`) e **criar** (`INSERT`) perfis. Alterar e excluir ficam para o Capítulo 13. Um perfil é o papel de quem usa o sistema (quem administra, quem gerencia, quem apenas consulta), e cada usuário do Capítulo 14 pertencerá a **um** deles. Quase tudo o que você vê aqui já apareceu no Projeto 1 (formulário, CSRF, validação, `flash`, PRG, `execute_*`), então cada etapa traz o link para a explicação completa. O que muda é a organização: cada arquivo é escrito **de uma vez**, completo e comentado, e depois explicado parte por parte.
 
 ## 📦 Ponto de partida
 
-Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 11: com o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpo.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O `.env` também precisa existir, com o banco `gestao`.
+Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 11: com o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpa.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O `.env` também precisa existir, com o banco `gestao`.
 
 Se o seu projeto não está funcionando, baixe o código do Capítulo 11 e descompacte. Depois de descompactar, crie o ambiente virtual e o `.env`, como no [Capítulo 11, Tópico 4](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env), e importe o `banco.sql` no phpMyAdmin, como no [Tópico 3 do mesmo capítulo](Capitulo_11_Projeto_Novo_e_Banco.md#topico-3-o-banco-gestao):
 
@@ -56,16 +55,16 @@ Um **recurso** é a "coisa" que o sistema cadastra e consulta. Aqui, o perfil. O
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template |
 |---|---|---|---|---|
-| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis/perfis_lista.html` |
-| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfis/perfil_form.html` |
+| `/perfis` | GET | Lista os perfis | `listar_perfis` | `perfis/perfis_lista.html` |
+| `/perfis/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_perfil` | `perfis/perfil_form.html` |
 
-O Capítulo 13 acrescenta as rotas de editar e excluir. O caminho que o navegador percorre neste capítulo é este:
+As duas funções têm nome de **ação**, com o verbo no infinitivo na frente: `listar_perfis` lista, `inserir_perfil` insere. O Capítulo 13 acrescenta as rotas de editar e excluir (`perfil_editar` e `perfil_excluir`). O caminho que o navegador percorre neste capítulo é este:
 
 ```mermaid
 flowchart LR
     L["GET /perfis<br/>a lista"]
-    N["GET /perfis/novo<br/>formulário vazio"]
-    P["POST /perfis/novo<br/>confere e grava"]
+    N["GET /perfis/inserir<br/>formulário vazio"]
+    P["POST /perfis/inserir<br/>confere e grava"]
 
     L -->|"clicou em Novo perfil"| N
     N -->|"enviou o formulário"| P
@@ -77,28 +76,35 @@ Repare que o `POST` com erro **volta para o formulário** (sem `redirect`) e o `
 
 ### A rota que lê o banco
 
-No `app.py`, a rota vai precisar do `execute_query`. Troque a linha de importação do `db`:
+No `app.py`, troque a linha de importação do `db` para trazer também o `execute_query`:
 
 ```python
-from db import execute_query, execute_one
+from db import execute_one, execute_query
 ```
 
-E acrescente a rota `lista_perfis`, **antes** dos `@app.errorhandler`:
+E acrescente uma seção nova, **PERFIS**, entre a seção das páginas principais e a das telas de erros, com a rota `listar_perfis`:
 
 ```python
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
-        'SELECT id_perfil, nome, descricao FROM perfis ORDER BY nome',
+        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
     )
 
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 ```
 
-O `fetch=True` diz ao `execute_query` que é um `SELECT` e que ele deve devolver a **lista de linhas**, cada uma como um dicionário (Capítulo 11, Tópico 5). O `ORDER BY nome` deixa os perfis em ordem alfabética. A lista pode vir **vazia**, e é isso que vai acontecer agora, porque o banco ainda não tem nenhum perfil.
+O `SELECT` já traz as quatro colunas que a tabela vai mostrar: o código, o nome, a descrição e a data de criação (`criado_em`, que o próprio banco preenche ao gravar, como você viu no `banco.sql`). O `fetch=True` diz ao `execute_query` que é um `SELECT` e que ele deve devolver a **lista de linhas**, cada uma como um dicionário (Capítulo 11, Tópico 5). O `ORDER BY nome` deixa os perfis em ordem alfabética. A lista pode vir **vazia**, e é isso que vai acontecer agora, porque o banco ainda não tem nenhum perfil.
 
-Crie a pasta `templates/perfis` e, dentro dela, o `perfis_lista.html`, primeiro só com o título:
+### A tabela, com todas as colunas
+
+Crie a pasta `templates/perfis` e, dentro dela, o `perfis_lista.html`:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -107,20 +113,15 @@ Crie a pasta `templates/perfis` e, dentro dela, o `perfis_lista.html`, primeiro 
 
 {% block conteudo %}
   <h1 class="h2 mb-3">{{ titulo }}</h1>
-{% endblock %}
-```
 
-Salve e abra **http://127.0.0.1:5000/perfis**: o título aparece dentro do layout com menu. Ainda não há link no menu para chegar aqui, a página é aberta pelo endereço.
-
-Agora a tabela. Acrescente, abaixo do `<h1>`, o cabeçalho e o `for` com o `{% else %}` do [Capítulo 5](Capitulo_05_Variaveis_Filtros_If_e_For.md#quando-a-lista-esta-vazia-o-else-do-for):
-
-```html
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
         <th>Nome</th>
         <th>Descrição</th>
+        <th>Criado em</th>
+        <th class="text-end">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -128,30 +129,48 @@ Agora a tabela. Acrescente, abaixo do `<h1>`, o cabeçalho e o `for` com o `{% e
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td>{{ perfil.nome }}</td>
-        <td>{{ perfil.descricao }}</td>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
+        <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+        </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="3" class="text-center text-body-secondary py-4">Nenhum perfil cadastrado ainda.</td>
+        <td colspan="5" class="text-center text-body-secondary py-4">Nenhum perfil cadastrado ainda.</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+{% endblock %}
 ```
 
-Salve e recarregue. A tabela aparece com o cabeçalho e a mensagem **Nenhum perfil cadastrado ainda.** O `{% else %}` só roda quando a lista está vazia, e é exatamente o caso de um banco recém-criado. Todo sistema novo começa assim, e a tela precisa dizer isso em vez de mostrar uma tabela sem explicação.
+Salve e abra **http://127.0.0.1:5000/perfis**. A tabela aparece com o cabeçalho e a mensagem **Nenhum perfil cadastrado ainda.** Ainda não há link no menu para chegar aqui: por enquanto, a página é aberta pelo endereço. Cada coluna tem um detalhe:
+
+- **O `{% else %}` do `for`** ([Capítulo 5](Capitulo_05_Variaveis_Filtros_If_e_For.md#quando-a-lista-esta-vazia-o-else-do-for)) só roda quando a lista está vazia, que é exatamente o caso de um banco recém-criado. Todo sistema novo começa assim, e a tela precisa dizer isso em vez de mostrar uma tabela sem explicação. O `colspan="5"` faz essa célula ocupar as cinco colunas.
+- **A descrição** usa um **`if` em uma linha**, explicado logo abaixo. A coluna `descricao` aceita `NULL`, e um perfil sem descrição chegaria ao template como `None`. Sem o `if`, o Jinja escreveria a palavra **None** na tela.
+- **O "Criado em"** formata a data com o `strftime`, explicado logo abaixo.
+- **As ações** são dois botões pequenos (`btn-sm`): o **amarelo** (`btn-warning`), com o ícone de lápis, vai editar o perfil, e o **vermelho** (`btn-danger`), com o ícone de lixeira, vai excluí-lo. Os ícones vêm dos Bootstrap Icons, que o `base_menu.html` já carrega desde o Capítulo 11. Por enquanto os dois **não fazem nada** (o `href="#"` não leva a lugar nenhum e o botão não tem ação): eles ganham a rota de edição e a de exclusão no Capítulo 13. O `title` mostra o nome do botão quando o mouse para em cima, e o `text-nowrap` impede que os dois quebrem em duas linhas.
+- **O `align-middle`** na tabela centraliza o texto na vertical, para ele ficar alinhado com os botões.
+
+!!! note "Jinja: o `if` em uma linha (operador ternário)"
+    `{{ A if condição else B }}` escreve **A** quando a condição é verdadeira e **B** quando é falsa. É o mesmo `if/else` do Capítulo 5, só que dentro do `{{ }}` e em uma linha só, para escolher **um valor**. Em `{{ perfil.descricao if perfil.descricao else '—' }}`, um texto conta como verdadeiro e o `None` (ou um texto vazio) conta como falso: com descrição, aparece a descrição; sem, aparece um traço. O Python tem o mesmo formato: `texto = descricao if descricao else '—'`.
+
+!!! note "Python: a data e o `strftime`"
+    As colunas `TIMESTAMP` e `DATETIME` chegam ao Python como objetos de data e hora (`datetime`). Sem formatação, o Jinja mostraria `2026-11-03 10:15:42`, no formato do banco. O método `strftime` recebe um **modelo** e devolve o texto formatado: `%d` é o dia, `%m` o mês, `%Y` o ano com quatro dígitos, `%H` a hora e `%M` os minutos. Com `'%d/%m/%Y %H:%M'`, aparece `03/11/2026 10:15`. A hora fica na tela de propósito: num sistema, saber **quando** um registro foi criado ajuda a rastrear o que aconteceu.
 
 ### O menu Perfis
 
 No `templates/layout/base_menu.html`, acrescente o menu suspenso **Perfis** logo depois do item **Home**, dentro do primeiro `<ul class="navbar-nav me-auto">`:
 
 ```html
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
-            </ul>
-          </li>
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
+  </ul>
+</li>
 ```
 
 Um **menu suspenso** (dropdown) do Bootstrap é um item do menu que abre uma lista de links quando é clicado. O `<li class="nav-item dropdown">` é o item inteiro, o `<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">` é o botão que abre a lista, e o `<ul class="dropdown-menu">` guarda os links, cada um com a classe `dropdown-item`. O `href="#"` do botão é só um marcador: quem manda é o `data-bs-toggle`.
@@ -172,11 +191,12 @@ git push
 
 ### A rota, por enquanto só mostrando o formulário
 
-No `app.py`, acrescente a rota `perfil_novo` depois da `lista_perfis`:
+No `app.py`, na seção **PERFIS**, acrescente a rota `inserir_perfil` depois da `listar_perfis`:
 
 ```python
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
@@ -185,9 +205,9 @@ def perfil_novo():
 
 O `methods=['GET', 'POST']` faz a mesma função atender os dois pedidos, como no [Capítulo 7](Capitulo_07_Formularios.md#topico-3-formulario-post-a-pagina-de-contato). Por enquanto ela trata os dois do mesmo jeito: mostra o formulário. As variáveis `nome` e `descricao` já existem para o template poder **devolver o que a pessoa digitou** quando houver erro, como no Capítulo 9. No primeiro acesso, elas estão vazias.
 
-### O template, campo por campo
+### O template do formulário
 
-Crie o `templates/perfis/perfil_form.html` com o campo do nome:
+Crie o `templates/perfis/perfil_form.html`:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -195,468 +215,301 @@ Crie o `templates/perfis/perfil_form.html` com o campo do nome:
 {% block titulo_aba %}Novo perfil — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
-  <h1 class="h2 mb-4">Novo perfil</h1>
+<h1 class="h2 mb-4">Novo perfil</h1>
 
-  <div class="row">
+<div class="row justify-content-center">
     <div class="col-lg-6">
-      <div class="card">
-        <div class="card-body">
+        <div class="card">
+            <div class="card-body">
 
-          <form action="{{ url_for('perfil_novo') }}" method="post">
+                <form action="{{ url_for('inserir_perfil') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do perfil</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador"
+                            value="{{ nome }}" required minlength="3" maxlength="100">
+                    </div>
 
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome do perfil</label>
-              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador" value="{{ nome }}" required minlength="3" maxlength="100">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional)</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao"
+                            placeholder="Ex.: Acesso total ao sistema" value="{{ descricao or '' }}" maxlength="255">
+                            <!-- ADICIONAR or '' EM TODO CAMPO QUE NÃO É OBRIGATÓRIO -->
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar perfil</button>
+                    </div>
+
+                </form>
+
             </div>
-
-          </form>
-
         </div>
-      </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 ```
 
-Os limites do HTML (`minlength="3"` e `maxlength="100"`) combinam com os do banco (`VARCHAR(100)`) e com os da validação que o Tópico 4 escreve. Abra **http://127.0.0.1:5000/perfis/novo** e confira o campo. Agora a descrição, **abaixo** do `<div class="mb-3">` do nome:
+Abra **http://127.0.0.1:5000/perfis/inserir** e confira. Parte por parte:
+
+- **A centralização.** O `<div class="row justify-content-center">` é uma linha da grade do Bootstrap que coloca as colunas no **centro**, e o `<div class="col-lg-6">` é uma coluna com metade da largura no computador (6 de 12). Juntas, deixam o cartão do formulário no meio da tela. No celular, a coluna ocupa a largura toda. Todos os formulários do projeto seguem esse molde.
+- **O token CSRF.** A primeira linha dentro do `<form>` é o campo escondido com o token, o mesmo do [Capítulo 8, Tópico 5](Capitulo_08_Session.md#topico-5-csrf-o-formulario-precisa-provar-que-e-o-seu). O `CSRFProtect` está ligado desde o Capítulo 11, então **todo** formulário POST deste projeto leva essa linha. Sem ela, o envio é recusado com o erro 400.
+- **O nome** é obrigatório (`required`) e tem os limites do banco: no mínimo 3 caracteres e no máximo 100, porque a coluna é `VARCHAR(100)`. O `value="{{ nome }}"` devolve o que a pessoa digitou quando houver erro.
+- **A descrição** é opcional: **não** tem `required`, porque a coluna `descricao` aceita `NULL`. É a regra do projeto: o que é `NOT NULL` no banco é obrigatório no formulário, e o que aceita `NULL` é opcional. O limite de 255 vem do `VARCHAR(255)`.
+- **O `or ''` no `value` da descrição.** No próximo tópico, um campo opcional deixado em branco vai virar `None` no Python (para o banco gravar `NULL`). Sem o `or ''`, o Jinja escreveria a palavra **None** dentro da caixa de texto. O `or ''` diz: "se não houver valor, escreva vazio". Por isso o comentário: **todo campo que não é obrigatório leva `or ''`** no `value`. O nome é obrigatório e nunca chega como `None`, então dispensa.
+- **Os botões.** O `d-flex justify-content-between` empurra o primeiro botão para a esquerda e o último para a direita: o **Cancelar** (um link de volta para a lista) fica à esquerda, e o **Salvar** fica à direita, onde a pessoa termina de ler o formulário. Todos os formulários do projeto têm os botões nessa posição.
+
+Digite `Teste` no nome e clique em **Salvar perfil**: a página recarrega **vazia**. É esperado: a rota ainda ignora o que chega pelo POST. Para ver a proteção CSRF agindo, abra o `F12`, clique com o botão direito na linha `<input type="hidden" name="csrf_token" ...>` (aba **Elements**), escolha **Delete element** e envie de novo: aparece `Bad Request — The CSRF token is missing.` Recarregue a página para o token voltar.
+
+### Os dois caminhos até o formulário
+
+Agora que a rota `inserir_perfil` existe, a lista e o menu podem levar até ela.
+
+**Na lista.** Abra o `templates/perfis/perfis_lista.html` e procure a linha do título, logo depois do `{% block conteudo %}`:
 
 ```html
-            <div class="mb-3">
-              <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Ex.: Acesso total ao sistema" value="{{ descricao }}" maxlength="255">
-            </div>
+<h1 class="h2 mb-3">{{ titulo }}</h1>
 ```
 
-Esse campo **não** tem `required`, porque a coluna `descricao` do banco aceita `NULL`. É a regra do projeto: o que é `NOT NULL` no banco é obrigatório no formulário, e o que aceita `NULL` é opcional. O limite de 255 vem do `VARCHAR(255)`.
-
-Por fim, os botões, **depois** da descrição e ainda dentro do `<form>`:
+Troque **só essa linha** por um cabeçalho com o título à esquerda e o botão **Novo perfil** à direita:
 
 ```html
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">Salvar perfil</button>
-              <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
-            </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h2 mb-0">{{ titulo }}</h1>
+  <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
+</div>
 ```
 
-Salve e recarregue. Falta o caminho da lista até o formulário. No `perfis_lista.html`, troque o `<h1>` por um cabeçalho com o botão **Novo perfil**:
+**No menu.** Abra o `templates/layout/base_menu.html` e procure o bloco do menu **Perfis** que você criou no Tópico 1 (use `Ctrl+F` e busque por `Listar Perfis`). Há **duas** alterações nele, uma dentro do `<ul class="dropdown-menu">` e outra no botão que abre a lista.
+
+**Primeira alteração: o link novo.** Acrescente o segundo link do menu **Perfis** dentro do `<ul class="dropdown-menu">`, logo **depois** da linha do **Listar Perfis**:
 
 ```html
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('perfil_novo') }}" class="btn btn-primary">Novo perfil</a>
-  </div>
+<li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
 ```
 
-Salve, abra **Perfis > Listar Perfis** e clique em **Novo perfil**. Digite `Teste` no nome e clique em **Salvar perfil**: a página recarrega **vazia**. É esperado: a rota ainda ignora o que chega pelo POST.
-
-O menu também precisa do caminho até o formulário, e agora a rota `perfil_novo` existe. No `base_menu.html`, acrescente o segundo link do menu **Perfis**, logo depois do **Listar Perfis**:
+**Segunda alteração: a lista do `request.endpoint`.** Sem ela, o link funciona, mas o botão **Perfis** apagaria ao abrir o formulário, porque o `request.endpoint` ali vale `'inserir_perfil'`, e esse nome ainda não está na lista. Na primeira linha do bloco, a do `<a class="nav-link dropdown-toggle ...>`, inclua `'inserir_perfil'` dentro dos colchetes do `in [...]`, separado do anterior por vírgula. Troque só o trecho do `{% if %}`; o resto da linha fica igual:
 
 ```html
-              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+{% if request.endpoint in ['listar_perfis'] %}active{% endif %}
 ```
 
-E inclua `'perfil_novo'` na lista do `request.endpoint`, para o **Perfis** continuar destacado no formulário:
+por:
 
 ```html
-{% if request.endpoint in ['lista_perfis', 'perfil_novo'] %}active{% endif %}
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil'] %}active{% endif %}
 ```
 
-Salve, recarregue e confira o novo link em **Perfis > Cadastrar Perfil**.
+Com as duas alterações, o bloco inteiro do menu **Perfis** fica assim:
+
+```html
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
+    <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
+  </ul>
+</li>
+```
+
+Salve, abra **Perfis > Listar Perfis** e clique em **Novo perfil**; depois use **Perfis > Cadastrar Perfil**. Os dois levam ao formulário, e ele abre com o botão **Perfis** destacado, como na lista.
 
 ```bash
 git add .
-git commit -m "Adiciona o formulário de novo perfil e o link Cadastrar Perfil no menu"
+git commit -m "Adiciona o formulário de novo perfil e os links até ele"
 git push
 ```
 
 ---
 
-## Tópico 3 — CSRF: o formulário prova que é o seu
+## Tópico 3 — As validações em um arquivo próprio
 
-O formulário envia dados por POST, e todo POST do projeto precisa do token CSRF. O problema e a solução foram explicados no [Capítulo 8, Tópico 5](Capitulo_08_Session.md#topico-5-csrf-o-formulario-precisa-provar-que-e-o-seu); aqui é só repetir. O `flask-wtf` já está instalado desde o Capítulo 11. No `app.py`, acrescente a importação:
+### Por que um arquivo só para elas
+
+Antes de gravar, o servidor precisa **conferir** o que chegou, como no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md): o `required` e o `maxlength` do HTML são só um conforto para quem preenche, e qualquer pessoa pode desligá-los pelo `F12`. Desta vez as conferências não ficam no `app.py`. Cada tabela do projeto terá o **seu** arquivo de validações, dentro de uma pasta `validacoes`: o de perfis agora, o de usuários no Capítulo 14 e o de produtos no 18. Cada arquivo tem **uma função principal** que recebe os dados do formulário e devolve a **lista de erros**: vazia quando está tudo certo. Assim o `app.py` fica curto, só com o caminho do pedido, e as regras ficam todas num lugar só.
+
+### O arquivo `validacoes_perfil.py`
+
+Crie a pasta `validacoes` **na raiz do projeto**, ao lado do `app.py`, e dentro dela o arquivo `validacoes_perfil.py`:
 
 ```python
+from db import execute_one
+
+
+def validar_perfil(nome, descricao):
+    erros = []
+
+    # ================ VALIDAÇÕES PARA O CAMPO nome =====================
+    if not nome:
+        erros.append('Informe o nome do perfil.')
+    elif len(nome) < 3:
+        erros.append('O nome deve ter pelo menos 3 caracteres.')
+    elif len(nome) > 100:
+        erros.append('O nome deve ter no máximo 100 caracteres.')
+
+    # ================ VALIDAÇÕES PARA O CAMPO descricao =====================
+    # Como descricao pode ser None, checamos antes de usar len()
+    if descricao and len(descricao) > 255:
+        erros.append('A descrição deve ter no máximo 255 caracteres.')
+
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    if not erros:
+        existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
+
+        if existente:
+            erros.append('Já existe um perfil com este nome.')
+
+    return erros
+```
+
+A função começa com a lista `erros` vazia e, a cada regra que falha, acrescenta uma mensagem com o `append`. No fim, devolve a lista inteira, para quem preenche ver **todos** os problemas de uma vez, como no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-4-categoria-preco-e-varios-erros-de-uma-vez). Os comentários com `=====` separam as seções do arquivo, uma por campo. Seção por seção:
+
+1. **O nome.** O `if not nome` é verdadeiro quando o nome está vazio (um texto vazio conta como falso, e o `not` inverte). O `elif` ("senão, se") só é testado quando o anterior falhou: com o nome vazio, não faz sentido reclamar também do tamanho, então cada nome recebe **no máximo uma** mensagem. Os limites 3 e 100 são os mesmos do `minlength`, do `maxlength` e do `VARCHAR(100)`.
+2. **A descrição.** Ela é opcional e, como você vai ver no próximo tópico, chega aqui como `None` quando fica em branco. O `len(None)` daria erro, por isso o `if descricao and len(descricao) > 255`: o `and` só calcula o `len` quando a descrição existe. Vazia, não há o que conferir.
+3. **O nome repetido.** A coluna `nome` é `UNIQUE` no banco: dois perfis não podem ter o mesmo nome. Antes de gravar, a função **pergunta ao banco** se o nome já existe. O `if not erros:` só faz essa consulta quando as regras de cima passaram, para não gastar uma ida ao banco com um nome que já é inválido. O `execute_one` devolve a linha encontrada (um dicionário, que conta como verdadeiro) ou `None`, e a tupla `(nome,)` tem a vírgula que o Python exige para uma tupla de um item só. O banco usa a ordenação `utf8mb4_unicode_ci`, que ignora maiúsculas e acentos na comparação: `Gerente` e `gerente` contam como o mesmo nome.
+
+!!! note "Python: o seu próprio arquivo é um módulo"
+    Todo arquivo `.py` é um **módulo** e pode ser importado por outro. Quando ele está dentro de uma pasta, o nome da pasta vem na frente, separado por ponto: `from validacoes.validacoes_perfil import validar_perfil` abre o arquivo `validacoes/validacoes_perfil.py` e traz dele a função, para usá-la como se tivesse sido escrita ali. É o mesmo `from ... import ...` que você usa com o `db` (`from db import execute_one`), e o próprio `validacoes_perfil.py` faz isso na primeira linha, para consultar o banco. Os nomes de pastas e módulos do projeto não levam acento nem espaço.
+
+Teste a função antes de usá-la, no segundo terminal, com o `venv` ativo e na pasta do projeto:
+
+```bash
+python -c "from validacoes.validacoes_perfil import validar_perfil; print(validar_perfil('', None))"
+python -c "from validacoes.validacoes_perfil import validar_perfil; print(validar_perfil('ab', 'a' * 256))"
+python -c "from validacoes.validacoes_perfil import validar_perfil; print(validar_perfil('Gerente', None))"
+```
+
+O primeiro imprime `['Informe o nome do perfil.']`, o segundo imprime as **duas** mensagens (nome curto e descrição longa) e o terceiro imprime `[]`, a lista vazia: está tudo certo, e o banco ainda não tem nenhum `Gerente`.
+
+```bash
+git add .
+git commit -m "Cria o arquivo de validações de perfil"
+git push
+```
+
+---
+
+## Tópico 4 — Receber, conferir e gravar (INSERT e PRG)
+
+### A rota completa
+
+Agora a rota `inserir_perfil` passa a tratar o POST: lê os campos, chama a validação e, se estiver tudo certo, grava no banco. No `app.py`, troque as importações do começo do arquivo por estas (o Flask ganha o `flash` e o `request`; o `db`, o `execute_insert`; e entram o tipo de erro do conector e a sua função de validação):
+
+```python
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
+from mysql.connector import Error
+
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
 ```
 
-E ative a proteção logo depois da `secret_key`:
+Os nomes dentro de cada importação estão em ordem alfabética: assim fica fácil ver se um já está lá. Agora troque a rota `inserir_perfil` inteira por esta:
 
 ```python
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-
-CSRFProtect(app)
-```
-
-A `secret_key` agora tem um motivo extra para vir do `.env`: ela assina o cookie da `session`, e o token CSRF e o `flash` do próximo tópico dependem dele. Salve, abra o formulário, digite `Teste` e envie. Aparece:
-
-```text
-Bad Request
-The CSRF token is missing.
-```
-
-O erro 400 mostra a proteção funcionando: o POST chegou sem o token e o Flask o recusou antes de a rota rodar. O formulário precisa entregar o token. No `perfil_form.html`, logo abaixo da tag `<form>`:
-
-```html
-          <form action="{{ url_for('perfil_novo') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-```
-
-Salve, recarregue o formulário e envie de novo. Agora a página recarrega vazia, como antes: o POST passou pela proteção e a rota o ignorou. Todo formulário POST deste projeto leva essa linha.
-
-```bash
-git add .
-git commit -m "Ativa a proteção CSRF e adiciona o token ao formulário de perfil"
-git push
-```
-
----
-
-## Tópico 4 — Receber, conferir e avisar
-
-### O `flash` no layout
-
-O resultado de cada envio precisa aparecer na tela. Para isso, os layouts do Projeto 2 ganham o bloco de mensagens que você montou no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-2-flash-avisar-o-resultado-em-uma-linha). Como são dois layouts, o bloco entra nos dois: o login e as páginas de erro também precisam avisar. No `templates/layout/base_menu.html`, **dentro do `<main>`, antes do bloco `conteudo`**:
-
-```html
-  <main class="container my-4">
-    {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
-    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
-      {{ mensagem }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-    </div>
-    {% endfor %}
-
-    {% block conteudo %}{% endblock %}
-  </main>
-```
-
-E no `templates/layout/base_limpo.html`, **dentro da `<div class="col-12 col-md-8 col-lg-5">`, também antes do bloco `conteudo`**:
-
-```html
-    <div class="col-12 col-md-8 col-lg-5">
-      {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
-      <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
-        {{ mensagem }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-      {% endfor %}
-
-      {% block conteudo %}{% endblock %}
-    </div>
-```
-
-O tipo do `flash` (`success`, `danger`, `info`) vira a cor do alerta do Bootstrap.
-
-### O que chegou pelo POST
-
-Agora a rota lê o que foi enviado. No `app.py`, a primeira linha de importação do Flask passa a trazer o `request` e o `flash`:
-
-```python
-from flask import Flask, render_template, request, flash
-```
-
-E a rota `perfil_novo` ganha o `if` do POST. Por enquanto ela só lê os dois campos e mostra o que recebeu:
-
-```python
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        flash(f'Recebi o perfil "{nome}" com a descrição "{descricao}".', 'info')
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
-    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
-```
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
 
-O `request.form.get('nome', '')` e o `.strip()` são os do Capítulo 9: o campo ausente vira `''` em vez de erro 400, e os espaços das pontas somem. Salve e teste:
-
-- Nome `Teste`, descrição `Só para ver`: a faixa azul repete os dois, e **o formulário mantém** o que você digitou.
-- Nome com três espaços: a faixa mostra o nome `""`. O `.strip()` esvaziou. Se o formulário é aceito, o servidor ainda precisa **conferir** esse vazio.
-
-### Funções de validação em um módulo próprio
-
-Cada campo ganha a sua função de validação, que devolve a mensagem de erro ou `None`, como no Capítulo 9. Desta vez elas não ficam no `app.py`: o projeto terá validações de CPF, celular, CEP e preço, e um arquivo só para elas mantém o `app.py` enxuto. Crie o `validacoes.py` **na raiz do projeto**, ao lado do `app.py`, primeiro só com a função do nome:
-
-```python
-def validar_nome_perfil(nome):
-    if nome == '':
-        return 'Informe o nome do perfil.'
-
-    if len(nome) < 3:
-        return 'O nome deve ter pelo menos 3 caracteres.'
-
-    if len(nome) > 100:
-        return 'O nome deve ter no máximo 100 caracteres.'
-
-    return None
-```
-
-Teste no segundo terminal:
-
-```bash
-python -c "from validacoes import validar_nome_perfil; print(validar_nome_perfil(''))"
-python -c "from validacoes import validar_nome_perfil; print(validar_nome_perfil('Gerente'))"
-```
-
-O primeiro imprime `Informe o nome do perfil.` e o segundo imprime `None`.
-
-!!! note "Python: o seu próprio arquivo é um módulo"
-    Todo arquivo `.py` é um **módulo** e pode ser importado por outro. O `from validacoes import validar_nome_perfil` abre o arquivo `validacoes.py` (que precisa estar na mesma pasta) e traz dele a função, para usá-la como se tivesse sido escrita ali. É o mesmo `from ... import ...` que você usa com o `db` (`from db import execute_one`). Os nomes dos módulos do projeto não levam acento nem espaço.
-
-No `app.py`, importe a função (abaixo da importação do `db`):
-
-```python
-from validacoes import validar_nome_perfil
-```
-
-E troque, dentro do `if request.method == 'POST':`, o `flash` provisório pela chamada da função:
-
-```python
-        erro = validar_nome_perfil(nome)
-        if erro:
-            flash(erro, 'danger')
-        else:
-            flash('Dados válidos. Ainda não gravei no banco.', 'success')
-```
-
-Salve e teste três envios: nome com três espaços (`Informe o nome do perfil.`), nome `ab` (mínimo de 3 caracteres) e nome `Gerente` (faixa verde). Nos três, o formulário mantém o que foi digitado.
-
-### A descrição e todos os erros de uma vez
-
-A descrição é opcional, então só tem um limite: 255 caracteres. Acrescente ao `validacoes.py`:
-
-```python
-def validar_descricao_perfil(descricao):
-    if len(descricao) > 255:
-        return 'A descrição deve ter no máximo 255 caracteres.'
-
-    return None
-```
-
-Como o `maxlength` do HTML impede de digitar mais que isso, teste pelo terminal:
-
-```bash
-python -c "from validacoes import validar_descricao_perfil; print(validar_descricao_perfil('a' * 256))"
-```
-
-Aparece a mensagem. Agora a rota junta as mensagens das duas funções em uma lista, para quem preenche ver **todos** os problemas de uma vez, como no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-4-categoria-preco-e-varios-erros-de-uma-vez). Importe a segunda função:
-
-```python
-from validacoes import validar_nome_perfil, validar_descricao_perfil
-```
-
-E troque o bloco do `erro` por este, dentro do mesmo `if request.method == 'POST':`:
-
-```python
-        erros = []
-
-        erro = validar_nome_perfil(nome)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_descricao_perfil(descricao)
-        if erro:
-            erros.append(erro)
-
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
+
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
         else:
-            flash('Dados válidos. Ainda não gravei no banco.', 'success')
+            try:
+                novo_id = execute_insert(
+                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
+                    (nome, descricao),
+                )
+
+                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 ```
 
-Salve e teste: nome `ab` com a descrição `Teste` gera uma faixa vermelha. Para ver as duas faixas juntas, tire o `maxlength` da descrição pelo `F12` (aba **Elements**, **Edit as HTML**), como no Capítulo 9, e envie 256 caracteres. O servidor não depende do HTML: a mesma conferência vale para quem desligar o `required` ou o `maxlength`.
+Os comentários numerados são o roteiro de **todo** cadastro deste projeto: coletar, validar, mostrar os erros ou salvar. Siga-os na ordem.
 
-```bash
-git add .
-git commit -m "Valida o nome e a descrição do perfil no servidor"
-git push
-```
+**1. Coletar.** O `request.form.get('nome', '')` e o `.strip()` são os do Capítulo 9: o campo ausente vira `''` em vez de erro 400, e os espaços das pontas somem (um nome com três espaços vira `''` e cai no "Informe o nome"). A descrição ganha o `or None` no fim, explicado na caixa abaixo: um campo opcional deixado em branco chega como `''` (texto vazio), mas no banco o jeito certo de dizer "sem valor" é o **`NULL`**. A regra do projeto: campo opcional vazio vira `NULL`, nunca `''`. O `None` é o valor do Python para "nada", e o conector o grava como `NULL`.
 
----
+**2. Validar.** Uma linha só: a função do Tópico 3 devolve a lista de erros.
 
-## Tópico 5 — Gravando no banco (INSERT e PRG)
+**3. Mostrar os erros.** Cada mensagem vira um `flash` vermelho (`danger`), que o bloco de mensagens do layout desenha. A rota não faz `redirect`: ela cai no `render_template` do fim, que devolve o formulário com o `nome` e a `descricao` que a pessoa digitou.
 
-### O INSERT
+**4. Salvar.** O `execute_insert` (Capítulo 11) executa o `INSERT` e devolve o `id` que o `AUTO_INCREMENT` gerou. Os `%s` recebem os valores da tupla como **dados**, nunca como pedaço do comando. Depois de gravar vem o **PRG**: o `flash` verde e o `redirect` para a lista. Se a rota desenhasse a página em vez de redirecionar, um `F5` reenviaria o formulário e cadastraria o perfil de novo.
 
-Os dados chegam conferidos. Falta trocar o aviso provisório pela gravação. O `app.py` precisa do `execute_insert` (que devolve o `id` gerado), do `redirect` e do `url_for`. Atualize as duas importações:
+**O `try/except` e o erro 1062.** A validação já perguntou ao banco se o nome existe, mas entre essa pergunta e o `INSERT` passa um instante. Se duas pessoas cadastrarem `Supervisor` ao mesmo tempo, as duas perguntas respondem "não existe", e o banco, que tem a coluna `UNIQUE`, recusa o segundo `INSERT` com o erro **1062** ("valor repetido"). O `try` tenta gravar; se o banco recusar, o `except Error as erro` captura o erro, e o `erro.errno` diz qual foi. Sendo o `1062`, a pessoa vê a mesma mensagem da validação e o formulário volta com o que ela digitou. Sendo **outro** erro (banco desligado, SQL errado), o `raise` o deixa seguir, e ele aparece como uma falha de verdade (a página 500), em vez de ficar escondido. Em resumo: a consulta da validação dá a mensagem amigável no caso comum, e o `UNIQUE` do banco é a garantia final.
 
-```python
-from flask import Flask, render_template, request, redirect, url_for, flash
-```
+!!! note "Python: o `or` que escolhe um valor"
+    O `or` não serve só para condições. Em `valor = texto or None`, o Python olha o que está à esquerda: se for um texto com conteúdo, o resultado é esse texto; se for um texto vazio (que conta como falso), o resultado é o que está à direita, o `None`. Assim, `'Gerente' or None` dá `'Gerente'`, e `'' or None` dá `None`. É o mesmo truque do `{{ descricao or '' }}` do template, só que ao contrário: no Python o vazio vira `None` para o banco, e no template o `None` vira vazio para a tela.
 
-```python
-from db import execute_query, execute_one, execute_insert
-```
+!!! note "Python: `except Error as erro` e o `errno`"
+    O `except Error` captura qualquer erro do conector MySQL (o `Error` vem do `from mysql.connector import Error`, o mesmo que o `db.py` usa). O `as erro` dá um **nome** ao erro capturado, para a rota poder examiná-lo, e todo erro do banco traz o atributo `errno`, o número do erro do MySQL (`1062`, `1451`, `1146`...). Um `raise` sozinho, dentro do `except`, repete o erro que acabou de ser capturado.
 
-Troque o `else` do final do `if erros:` por este:
+Repare no desenho do `try`: o `return redirect(...)` fica **dentro** dele, logo depois de gravar. Quando o `INSERT` dá certo, a rota termina ali. Quando dá o `1062`, o `except` mostra o aviso e a rota **cai** no `render_template` do final, devolvendo o formulário sem `redirect`.
 
-```python
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
+| Situação | Quem trata | O que a pessoa vê |
+|---|---|---|
+| Nome vazio, curto ou longo demais | `validar_perfil` | Faixa vermelha com a regra |
+| Nome já existe (caso comum) | `validar_perfil`, com o `SELECT` | Faixa vermelha: "Já existe um perfil com este nome." |
+| Nome já existe (dois cadastros simultâneos) | `UNIQUE` do banco, erro `1062` capturado | A mesma faixa vermelha |
+| Qualquer outro erro do banco | Ninguém na rota (o `raise` repete) | A página 500 |
 
-            novo_id = execute_insert(
-                'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                (nome, descricao_gravada),
-            )
+### Testando
 
-            flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-            return redirect(url_for('lista_perfis'))
-```
+Salve e teste, nesta ordem:
 
-Linha a linha, na ordem em que acontece:
-
-1. **O `if descricao == ''`**: um campo opcional deixado em branco chega como `''` (texto vazio), mas no banco o jeito certo de dizer "sem valor" é o **`NULL`**. A regra do projeto: campo opcional vazio vira `NULL`, nunca `''`.
-2. **`None`**: o valor do Python para "nada". O conector o grava como `NULL`.
-3. **`execute_insert(sql, params)`**: a função do Capítulo 11. Os `%s` recebem os valores da tupla como **dados**, nunca como pedaço do comando, e a função devolve o `id` que o `AUTO_INCREMENT` gerou.
-4. **`flash` e `redirect`**: é o PRG. Depois de gravar, a rota **não** desenha a página, redireciona para a lista. Se desenhasse, um `F5` reenviaria o formulário e cadastraria o perfil de novo.
-
-Salve e cadastre o primeiro perfil: nome `Administrador`, descrição `Acesso total ao sistema`. Você cai na lista com a faixa verde (`Perfil "Administrador" cadastrado (código 1).`, ou outro número, se o banco já gerou códigos antes) e o perfil na tabela. Aperte `F5`: a faixa some e nada é cadastrado de novo. Volte ao **Home** pelo menu: o cartão de perfis mostra **1**.
-
-### O `None` que aparece na tela
-
-Cadastre o segundo perfil, **deixando a descrição vazia**: nome `Gerente`. Na lista, a célula da descrição mostra a palavra **None**. O Jinja escreve o `None` do Python como texto. Isso não é o que se quer ver na tela. Em `perfis_lista.html`, troque a célula da descrição por um `if`:
-
-```html
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
-        </td>
-```
-
-Salve e recarregue: o `Gerente` mostra um traço cinza. O `if perfil.descricao` é verdadeiro para um texto e falso para o `None`.
-
-Abra o **phpMyAdmin**, o banco `gestao`, a tabela `perfis` e a aba **Procurar** (*Browse*). A descrição do Gerente aparece como `NULL`, em itálico, e não como um texto vazio. As colunas `criado_em` e `atualizado_em` foram preenchidas pelo próprio banco, sem nenhuma linha de Python.
-
-### A coluna "Criado em"
-
-A lista pode mostrar quando o perfil foi criado. Acrescente `criado_em` ao `SELECT` da rota `lista_perfis`:
-
-```python
-        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
-```
-
-No `perfis_lista.html`, a coluna no cabeçalho (`<th>Criado em</th>`, depois de `Descrição`) e, na linha, depois da célula da descrição:
-
-```html
-        <td>{{ perfil.criado_em }}</td>
-```
-
-E o `colspan` do `{% else %}` passa de `3` para `4`. Salve e recarregue. A coluna mostra algo como `2026-11-03 10:15:42`, no formato do banco. Troque a célula por uma versão em dia/mês/ano:
-
-```html
-        <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
-```
-
-Agora aparece `03/11/2026`.
-
-!!! note "Python: datas e o `strftime`"
-    As colunas `TIMESTAMP` e `DATETIME` chegam ao Python como objetos do tipo `datetime`. Todo objeto de data tem o método `strftime`, que recebe um **modelo** e devolve o texto formatado: `%d` é o dia, `%m` o mês, `%Y` o ano com quatro dígitos, `%H` a hora e `%M` os minutos. `'%d/%m/%Y %H:%M'` daria `03/11/2026 10:15`. O Jinja deixa chamar o método direto no template.
+1. **Um nome com três espaços**: a faixa vermelha diz `Informe o nome do perfil.` O `required` do HTML não percebe, porque espaços contam como texto; o `.strip()` do servidor percebe.
+2. **O primeiro perfil**: nome `Administrador`, descrição `Acesso total ao sistema`. Você cai na lista com a faixa verde (`Perfil "Administrador" cadastrado (código 1).`, ou outro número, se o banco já gerou códigos antes), e o perfil aparece na tabela, com a data e a hora em que foi criado. Aperte `F5`: a faixa some e nada é cadastrado de novo. Volte ao **Home** pelo menu: o cartão de perfis mostra **1**.
+3. **Um perfil sem descrição**: nome `Gerente`, descrição em branco. Na lista, a célula da descrição mostra o traço `—` do `if` em uma linha. Abra o **phpMyAdmin**, o banco `gestao`, a tabela `perfis` e a aba **Procurar** (*Browse*): a descrição do Gerente aparece como `NULL`, em itálico, e não como um texto vazio. As colunas `criado_em` e `atualizado_em` foram preenchidas pelo próprio banco, sem nenhuma linha de Python.
+4. **Um nome repetido**: cadastre `gerente`, tudo minúsculo. A faixa vermelha diz `Já existe um perfil com este nome.` e o formulário mantém o que foi digitado.
+5. **Vários erros de uma vez**: nome `ab` com uma descrição qualquer gera uma faixa vermelha. Para ver as duas juntas, tire o `maxlength` da descrição pelo `F12` (aba **Elements**, **Edit as HTML**), como no Capítulo 9, e envie 256 caracteres. O servidor não depende do HTML: a mesma conferência vale para quem desligar o `required` ou o `maxlength`.
 
 ### Os três perfis do sistema
 
-Cadastre agora os que faltam e confira a lista. O **nome** precisa ser exatamente este, com a mesma grafia e acento, porque os capítulos seguintes procuram o perfil por ele:
+Cadastre agora o que falta e confira a lista. O **nome** precisa ser exatamente este, com a mesma grafia e acento, porque os capítulos seguintes procuram o perfil por ele:
 
 | Nome | Descrição sugerida |
 |---|---|
 | `Administrador` | Acesso total ao sistema (já cadastrado) |
-| `Gerente` | (cadastrado sem descrição, no experimento acima) |
+| `Gerente` | (cadastrado sem descrição, no teste acima) |
 | `Usuário` | Acesso básico ao sistema |
 
 Ao final, a lista tem **três** perfis em ordem alfabética: Administrador, Gerente e Usuário. O Gerente fica sem descrição por enquanto. O Capítulo 13 ensina a alterar um perfil já cadastrado.
 
 ```bash
 git add .
-git commit -m "Grava o perfil no banco com INSERT e redireciona para a lista"
-git push
-```
-
----
-
-## Tópico 6 — Nome repetido: o erro 1062
-
-### O que o banco faz sozinho
-
-A coluna `nome` da tabela `perfis` é `UNIQUE`: o banco recusa dois perfis com o mesmo nome. Veja o que acontece com a rota como ela está. Cadastre de novo um perfil chamado `Gerente`. A página de depuração do Flask aparece com algo assim:
-
-```text
-mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry 'Gerente' for key 'nome'
-```
-
-Duas coisas para notar. A boa: **o banco protegeu os dados**, nada foi duplicado. A ruim: quem usa o sistema vê uma página técnica (e, com o `debug` desligado, a página 500 do Capítulo 11, que não diz o que houve). O número **1062** é o código do MySQL para "valor repetido em coluna `UNIQUE`". O `rollback()` que o `execute_insert` faz no `except` desfaz o que ficou pela metade, e o `raise` repete o erro para a rota.
-
-A rota precisa receber esse aviso e responder com uma mensagem clara. Há duas formas de fazer isso, e o projeto usa as duas.
-
-### Primeira defesa: perguntar antes
-
-Antes de gravar, a rota pergunta ao banco se já existe um perfil com esse nome. No `app.py`, dentro do POST, **depois** da validação da descrição e **antes** do `if erros:`:
-
-```python
-        if not erros:
-            existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
-            if existente:
-                erros.append('Já existe um perfil com este nome.')
-```
-
-O `if not erros:` só consulta o banco quando o nome já passou nas outras conferências, para não gastar uma consulta com um dado que já é inválido. O `execute_one` devolve a linha encontrada (um dicionário, que conta como verdadeiro) ou `None`. A tupla `(nome,)` tem a vírgula que o Python exige para uma tupla de um item. Salve e cadastre `Gerente` de novo: agora a faixa vermelha diz `Já existe um perfil com este nome.` e o formulário mantém o que foi digitado. Teste também `gerente`, tudo minúsculo: o banco usa a ordenação `utf8mb4_unicode_ci`, que ignora maiúsculas, então o `WHERE nome = %s` e o `UNIQUE` tratam `Gerente` e `gerente` como o mesmo nome.
-
-### Por que a pergunta não basta
-
-Entre o `SELECT` e o `INSERT` passa um intervalo, pequeno, mas real. Se duas pessoas cadastrarem `Supervisor` no mesmo instante, as duas perguntas respondem "não existe", e os dois `INSERT` chegam ao banco: o primeiro grava, o segundo recebe o erro `1062`. A pergunta dá uma **mensagem amigável** na imensa maioria dos casos, mas a garantia de verdade é o `UNIQUE` do banco. O app precisa saber lidar com o erro quando ele acontecer.
-
-### Segunda defesa: reconhecer o erro 1062
-
-O erro do banco vira uma exceção do Python que a rota pode capturar com `try/except`, como você fez com o `float()` no Capítulo 9. Importe o tipo de erro do conector (o mesmo que o `db.py` usa), no começo do `app.py`:
-
-```python
-from mysql.connector import Error
-```
-
-E troque o `execute_insert` e o `flash` do final da rota por este bloco, ainda dentro do `else`:
-
-```python
-            try:
-                novo_id = execute_insert(
-                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
-                )
-                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-```
-
-!!! note "Python: `except Error as erro` e o `errno`"
-    O `except Error` captura qualquer erro do conector MySQL. O `as erro` dá um **nome** ao erro capturado, para a rota poder examiná-lo. Todo erro do banco traz o atributo `errno`, o número do erro do MySQL (`1062`, `1451`, `1146`...). Se for o `1062`, a rota avisa o usuário. Se for **outro** número, o `raise` sozinho repete o erro, e ele continua sendo uma falha de verdade (a página 500), porque não há nada de útil a dizer sobre um erro que a rota não esperava.
-
-Repare no desenho: o `return redirect(...)` fica **dentro** do `try`, logo depois de gravar. Quando o `INSERT` dá certo, a rota termina ali. Quando dá o `1062`, o `except` mostra o aviso e a rota **cai** no `render_template` do final, devolvendo o formulário com os valores digitados, sem `redirect`.
-
-Para ver a barreira final funcionando, desligue por um instante a primeira defesa: coloque um `#` na frente das quatro linhas do `if not erros:` (no VS Code, selecione e aperte `Ctrl + ;`). Salve e cadastre `Gerente` de novo: a faixa vermelha aparece vinda do `except`, não mais do `SELECT`. **Tire os `#`** para restaurar a primeira defesa e salve.
-
-| Situação | Quem trata | O que a pessoa vê |
-|---|---|---|
-| Nome vazio, curto ou longo demais | Funções de `validacoes.py` | Faixa vermelha com a regra |
-| Nome já existe (caso comum) | `SELECT` antes do `INSERT` | Faixa vermelha: "Já existe um perfil com este nome." |
-| Nome já existe (dois cadastros simultâneos) | `UNIQUE` do banco, erro `1062` capturado | A mesma faixa vermelha |
-| Qualquer outro erro do banco | Ninguém na rota (o `raise` repete) | A página 500 |
-
-```bash
-git add .
-git commit -m "Impede nome de perfil repetido com SELECT e com o erro 1062"
+git commit -m "Grava o perfil no banco com INSERT, PRG e tratamento do nome repetido"
 git push
 ```
 
@@ -670,23 +523,29 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import validar_nome_perfil, validar_descricao_perfil
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -697,6 +556,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -707,8 +567,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -717,54 +582,58 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = []
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
-        erro = validar_nome_perfil(nome)
-        if erro:
-            erros.append(erro)
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
 
-        erro = validar_descricao_perfil(descricao)
-        if erro:
-            erros.append(erro)
-
-        if not erros:
-            existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
-            if existente:
-                erros.append('Já existe um perfil com este nome.')
-
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
@@ -780,27 +649,37 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `validacoes.py`:
+O `validacoes/validacoes_perfil.py`:
 
 ```python
-def validar_nome_perfil(nome):
-    if nome == '':
-        return 'Informe o nome do perfil.'
-
-    if len(nome) < 3:
-        return 'O nome deve ter pelo menos 3 caracteres.'
-
-    if len(nome) > 100:
-        return 'O nome deve ter no máximo 100 caracteres.'
-
-    return None
+from db import execute_one
 
 
-def validar_descricao_perfil(descricao):
-    if len(descricao) > 255:
-        return 'A descrição deve ter no máximo 255 caracteres.'
+def validar_perfil(nome, descricao):
+    erros = []
 
-    return None
+    # ================ VALIDAÇÕES PARA O CAMPO nome =====================
+    if not nome:
+        erros.append('Informe o nome do perfil.')
+    elif len(nome) < 3:
+        erros.append('O nome deve ter pelo menos 3 caracteres.')
+    elif len(nome) > 100:
+        erros.append('O nome deve ter no máximo 100 caracteres.')
+
+    # ================ VALIDAÇÕES PARA O CAMPO descricao =====================
+    # Como descricao pode ser None, checamos antes de usar len()
+    if descricao and len(descricao) > 255:
+        erros.append('A descrição deve ter no máximo 255 caracteres.')
+
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    if not erros:
+        existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
+
+        if existente:
+            erros.append('Já existe um perfil com este nome.')
+
+    return erros
 ```
 
 O `templates/perfis/perfis_lista.html`:
@@ -813,16 +692,17 @@ O `templates/perfis/perfis_lista.html`:
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('perfil_novo') }}" class="btn btn-primary">Novo perfil</a>
+    <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
         <th>Nome</th>
         <th>Descrição</th>
         <th>Criado em</th>
+        <th class="text-end">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -830,18 +710,16 @@ O `templates/perfis/perfis_lista.html`:
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td>{{ perfil.nome }}</td>
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
+        <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
-        <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="4" class="text-center text-body-secondary py-4">Nenhum perfil cadastrado ainda.</td>
+        <td colspan="5" class="text-center text-body-secondary py-4">Nenhum perfil cadastrado ainda.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -857,47 +735,49 @@ O `templates/perfis/perfil_form.html`:
 {% block titulo_aba %}Novo perfil — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
-  <h1 class="h2 mb-4">Novo perfil</h1>
+<h1 class="h2 mb-4">Novo perfil</h1>
 
-  <div class="row">
+<div class="row justify-content-center">
     <div class="col-lg-6">
-      <div class="card">
-        <div class="card-body">
+        <div class="card">
+            <div class="card-body">
 
-          <form action="{{ url_for('perfil_novo') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <form action="{{ url_for('inserir_perfil') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do perfil</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador"
+                            value="{{ nome }}" required minlength="3" maxlength="100">
+                    </div>
 
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome do perfil</label>
-              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Administrador" value="{{ nome }}" required minlength="3" maxlength="100">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional)</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao"
+                            placeholder="Ex.: Acesso total ao sistema" value="{{ descricao or '' }}" maxlength="255">
+                            <!-- ADICIONAR or '' EM TODO CAMPO QUE NÃO É OBRIGATÓRIO -->
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar perfil</button>
+                    </div>
+
+                </form>
+
             </div>
-
-            <div class="mb-3">
-              <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Ex.: Acesso total ao sistema" value="{{ descricao }}" maxlength="255">
-            </div>
-
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">Salvar perfil</button>
-              <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Cancelar</a>
-            </div>
-
-          </form>
-
         </div>
-      </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 ```
 
-As mudanças nos layouts estão nos Tópicos 1, 2 e 4 (o menu suspenso **Perfis** no `base_menu.html` e o bloco do `flash` nos dois layouts). Os demais arquivos (`db.py`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) não mudaram.
+As mudanças no `base_menu.html` estão nos Tópicos 1 e 2 (o menu suspenso **Perfis**). Os demais arquivos (`db.py`, `base_limpa.html`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) não mudaram.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, a pasta `validacoes` (com o `validacoes_perfil.py`), o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpa.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
 
 ➡️ [Baixar p2_cap_12.zip](../arquivos/p2_cap_12.zip)
 
@@ -908,29 +788,29 @@ Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O
 Tente responder mentalmente antes de abrir.
 
 ??? question "Por que a descrição vazia é gravada como `NULL` e não como texto vazio?"
-    Porque, no projeto, o que aceita `NULL` no banco é opcional, e um campo opcional deixado em branco significa "sem valor". A rota troca o `''` por `None`, e o conector grava `NULL`. Um texto vazio seria um valor, só que invisível.
+    Porque, no projeto, o que aceita `NULL` no banco é opcional, e um campo opcional deixado em branco significa "sem valor". O `or None` troca o `''` por `None` assim que o campo é lido, e o conector grava `NULL`. Um texto vazio seria um valor, só que invisível.
 
-??? question "O que acontece se o formulário de perfil for enviado sem o `csrf_token`?"
-    O Flask-WTF recusa o POST com o erro 400 (`The CSRF token is missing`) antes de a rota rodar. Por isso todo formulário POST leva `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">`.
+??? question "Para que serve o `or ''` no `value` dos campos opcionais do formulário?"
+    Um campo opcional em branco vira `None` no Python. Sem o `or ''`, o Jinja escreveria a palavra `None` dentro da caixa de texto. O `or ''` escreve vazio quando não há valor.
+
+??? question "O que a função `validar_perfil` devolve?"
+    A lista de mensagens de erro, com uma mensagem para cada regra que falhou: tamanho do nome, tamanho da descrição e nome repetido. Quando está tudo certo, devolve a lista vazia (`[]`), e a rota segue para o `INSERT`.
 
 ??? question "Para que serve a função `execute_insert` aqui, se o `execute_query` também grava?"
     O `execute_insert` devolve o `id` que o banco gerou para a linha nova (o `lastrowid`), e a rota o usa na mensagem `Perfil "..." cadastrado (código N)`. O `execute_query` devolveria só o número de linhas afetadas, que num `INSERT` é sempre 1.
 
 ??? question "Por que conferir o nome repetido com `SELECT` e ainda capturar o erro `1062`?"
-    O `SELECT` dá uma mensagem amigável na maioria dos casos. Mas entre o `SELECT` e o `INSERT` outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade que não haverá duplicata. Capturar o `1062` trata esse caso raro com a mesma mensagem.
+    O `SELECT` da validação dá uma mensagem amigável na maioria dos casos. Mas entre o `SELECT` e o `INSERT` outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade que não haverá duplicata. Capturar o `1062` trata esse caso raro com a mesma mensagem.
 
-??? question "O que o `raise` faz no `else` do `except Error as erro`?"
-    Repete o erro capturado. Se o `errno` não for `1062`, a rota não sabe o que fazer com ele, e o erro segue para o Flask, que mostra a página 500. Esconder um erro inesperado faria o sistema parecer que deu certo.
-
-??? question "Por que a lista mostrava a palavra `None` na descrição, e como foi resolvido?"
-    O Jinja escreve o `None` do Python como texto. O `{% if perfil.descricao %}` trata o `None` como falso e mostra um traço no lugar.
+??? question "Como a lista mostra um traço quando o perfil não tem descrição?"
+    Com o `if` em uma linha do Jinja: `{{ perfil.descricao if perfil.descricao else '—' }}`. O `None` conta como falso, então aparece o traço no lugar da palavra `None`.
 
 ---
 
 ## ✅ Quiz de Fixação
 
 <quiz>
-O nome do perfil é conferido por um `SELECT` antes do `INSERT` e, mesmo assim, a rota captura o erro `1062`. Por que as duas defesas existem?
+O nome do perfil é conferido por um `SELECT` dentro da `validar_perfil` e, mesmo assim, a rota captura o erro `1062`. Por que as duas defesas existem?
 - [ ] Porque o `SELECT` é mais lento e o `1062` é mais rápido
 > Não. A velocidade não é o motivo. As duas têm papéis diferentes.
 - [ ] Porque o `UNIQUE` do banco só funciona quando o `SELECT` falha
@@ -944,11 +824,11 @@ O nome do perfil é conferido por um `SELECT` antes do `INSERT` e, mesmo assim, 
 <quiz>
 O formulário de perfil é enviado com o nome `Auditor` e a descrição em branco. O que a rota grava na coluna `descricao`?
 - [ ] Um texto vazio (`''`)
-> Não. O texto vazio seria um valor. A regra do projeto é que campo opcional vazio vire `NULL`.
+> Não. O `or None` troca o texto vazio por `None` assim que o campo é lido.
 - [ ] O texto `None`
 > Não. O `None` é o valor do Python. O conector o converte em `NULL` ao gravar, e não em um texto.
 - [x] `NULL`
-> Correto. A rota troca o `''` por `None`, e o conector grava `NULL` no banco.
+> Correto. O `'' or None` dá `None`, e o conector grava `NULL` no banco.
 - [ ] A rota recusa o cadastro, porque a descrição é obrigatória
 > Não. A coluna `descricao` aceita `NULL`, então o campo é opcional.
 </quiz>
@@ -981,7 +861,7 @@ No `except Error as erro`, a rota trata o `errno == 1062` e, nos demais casos, e
 
 ## 📝 Resumo
 
-O sistema ganhou o primeiro recurso completo de leitura e criação: a rota `lista_perfis` faz o `SELECT` e a tabela trata a lista vazia, e a rota `perfil_novo` mostra o formulário (GET) e recebe o envio (POST). O POST passa pelo token CSRF, pelas funções de `validacoes.py` (uma por campo, devolvendo a mensagem ou `None`) e pelo `INSERT` parametrizado, que grava `NULL` quando a descrição vem vazia. Depois de gravar, o `flash` e o `redirect` (PRG) levam à lista. O nome repetido é barrado duas vezes: por um `SELECT` antes, que dá a mensagem amigável, e pelo `UNIQUE` do banco, cujo erro `1062` a rota reconhece com `except Error`. O banco `gestao` agora tem os perfis Administrador, Gerente e Usuário, e o Capítulo 13 acrescenta a edição e a exclusão a esse mesmo molde.
+O sistema ganhou o primeiro recurso de leitura e criação. A rota `listar_perfis` faz o `SELECT` com todas as colunas que a tela usa, e a tabela já nasce completa: a lista vazia tratada pelo `{% else %}`, a descrição ausente trocada por um traço com o `if` em uma linha, a data com hora formatada pelo `strftime` e a coluna de ações com os botões de editar (amarelo) e excluir (vermelho), que ganham função no Capítulo 13. A rota `inserir_perfil` mostra o formulário centralizado (GET), com o token CSRF e os botões Cancelar à esquerda e Salvar à direita, e recebe o envio (POST) seguindo o roteiro coletar, validar, mostrar os erros ou salvar. As regras ficam todas em `validacoes/validacoes_perfil.py`, numa função que devolve a lista de erros, inclusive a consulta do nome repetido. O `or None` transforma a descrição vazia em `NULL`, o `or ''` do template evita o `None` na caixa de texto, e o `UNIQUE` do banco, com o erro `1062` capturado, é a barreira final contra nomes repetidos. O banco `gestao` agora tem os perfis Administrador, Gerente e Usuário, e o Capítulo 13 acrescenta a edição e a exclusão a esse mesmo molde.
 
 ---
 

@@ -1,23 +1,29 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import validar_nome_perfil, validar_descricao_perfil
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -28,6 +34,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -38,8 +45,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -48,54 +60,58 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = []
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
-        erro = validar_nome_perfil(nome)
-        if erro:
-            erros.append(erro)
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
 
-        erro = validar_descricao_perfil(descricao)
-        if erro:
-            erros.append(erro)
-
-        if not erros:
-            existente = execute_one('SELECT id_perfil FROM perfis WHERE nome = %s', (nome,))
-            if existente:
-                erros.append('Já existe um perfil com este nome.')
-
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
