@@ -642,7 +642,7 @@ def produto(id_produto):
 O `produto.html` também mostra o código do produto. No `templates/produto.html`, troque `{{ produto.id }}` por `{{ produto.id_produto }}`:
 
 ```html
-      <p class="card-text"><strong>Código:</strong> {{ produto.id_produto }}</p>
+<p class="card-text"><strong>Código:</strong> {{ produto.id_produto }}</p>
 ```
 
 Salve e clique no nome de um produto: a página de detalhe abre. Digite **http://127.0.0.1:5000/produto/999** e veja a página 404 do Capítulo 6: o `execute_one` devolveu `None`, e o `abort(404)` cuidou do resto.

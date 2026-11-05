@@ -153,16 +153,16 @@ Salve, cadastre `Régua`, `Papelaria`, `4` e observe: você cai no catálogo, ma
 No `templates/base.html`, troque o bloco inteiro do `session.pop` (de `{% set mensagem ... %}` até o `{% endif %}`) por este, ainda **dentro do `<main>`, antes do bloco `conteudo`**:
 
 ```html
-  <main class="container my-4">
-    {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
-    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
-      {{ mensagem }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-    </div>
-    {% endfor %}
+<main class="container my-4">
+  {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+  <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+    {{ mensagem }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+  {% endfor %}
 
-    {% block conteudo %}{% endblock %}
-  </main>
+  {% block conteudo %}{% endblock %}
+</main>
 ```
 
 !!! note "Jinja: `get_flashed_messages()` e o `for` com dois nomes"
@@ -286,7 +286,7 @@ Há quatro mudanças aqui:
 Falta o template mostrar o nome de volta. Em `templates/cadastro.html`, acrescente o `value` e o `maxlength` ao campo do nome:
 
 ```html
-              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" value="{{ nome }}" required minlength="3" maxlength="100">
+<input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" value="{{ nome }}" required minlength="3" maxlength="100">
 ```
 
 O `maxlength="100"` repete no navegador o limite que o servidor confere. O Jinja já escapa o que vai dentro do `{{ }}`, então um nome com aspas não quebra o HTML.
@@ -487,12 +487,12 @@ flowchart TD
 Em `templates/cadastro.html`, o `<select>` e o preço precisam mostrar o que foi digitado. No `<select>`, troque o nome da variável do `for` e marque a opção escolhida:
 
 ```html
-              <select class="form-select" id="categoria" name="categoria" required>
-                <option value="">Selecione...</option>
-                {% for opcao in categorias %}
-                <option value="{{ opcao }}" {% if opcao == categoria %}selected{% endif %}>{{ opcao }}</option>
-                {% endfor %}
-              </select>
+<select class="form-select" id="categoria" name="categoria" required>
+  <option value="">Selecione...</option>
+  {% for opcao in categorias %}
+  <option value="{{ opcao }}" {% if opcao == categoria %}selected{% endif %}>{{ opcao }}</option>
+  {% endfor %}
+</select>
 ```
 
 A variável do `for` passou de `categoria` para `opcao`. Se continuasse `categoria`, ela esconderia dentro do laço a variável `categoria` que veio da rota (o valor escolhido), e a comparação nunca daria certo. O `selected` é o atributo HTML que marca a opção que já vem escolhida.
@@ -500,7 +500,7 @@ A variável do `for` passou de `categoria` para `opcao`. Se continuasse `categor
 E no campo do preço, acrescente o `value`:
 
 ```html
-              <input type="number" class="form-control" id="preco" name="preco" placeholder="0,00" value="{{ preco }}" min="0.01" step="0.01" required>
+<input type="number" class="form-control" id="preco" name="preco" placeholder="0,00" value="{{ preco }}" min="0.01" step="0.01" required>
 ```
 
 Salve e teste:

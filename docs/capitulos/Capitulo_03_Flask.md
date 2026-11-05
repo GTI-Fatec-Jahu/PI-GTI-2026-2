@@ -368,7 +368,7 @@ catalogo-produtos/
 (Falta o `cadastro.html`, que entra daqui a pouco.) Um arquivo da pasta `static` é entregue no endereço `/static/` seguido do nome dele. Então, no `templates/index.html`, troque a linha do CSS:
 
 ```html
-  <link rel="stylesheet" href="/static/estilo.css">
+<link rel="stylesheet" href="/static/estilo.css">
 ```
 
 Ligue o servidor, recarregue a página e o catálogo recupera o visual do Capítulo 2. Abra também **http://127.0.0.1:5000/static/estilo.css**: o navegador mostra o texto do CSS. É assim que o Flask entrega os arquivos estáticos.
@@ -394,25 +394,25 @@ def cadastro():
 Mova o `cadastro.html` para a pasta `templates` (arrastando, como antes). Agora ajuste os links. No `templates/index.html`, o menu vira:
 
 ```html
-      <a href="/#produtos">Produtos</a>
-      <a href="/#categorias">Categorias</a>
-      <a href="/cadastro">Cadastrar</a>
+<a href="/#produtos">Produtos</a>
+<a href="/#categorias">Categorias</a>
+<a href="/cadastro">Cadastrar</a>
 ```
 
 O `/#produtos` quer dizer "vá para a página principal (`/`) e desça até o elemento `produtos`". Ele funciona de qualquer página, e é por isso que o `#produtos` sozinho não serve mais: na página de cadastro ele procuraria um elemento que não está lá. No `templates/cadastro.html` há cinco linhas para ajustar: a do CSS, as três do menu e a do JavaScript, no final:
 
 ```html
-  <link rel="stylesheet" href="/static/estilo.css">
+<link rel="stylesheet" href="/static/estilo.css">
 ```
 
 ```html
-      <a href="/#produtos">Produtos</a>
-      <a href="/#categorias">Categorias</a>
-      <a href="/cadastro">Cadastrar</a>
+<a href="/#produtos">Produtos</a>
+<a href="/#categorias">Categorias</a>
+<a href="/cadastro">Cadastrar</a>
 ```
 
 ```html
-  <script src="/static/produto.js"></script>
+<script src="/static/produto.js"></script>
 ```
 
 Salve tudo, recarregue e navegue: **Produtos**, **Categorias** e **Cadastrar** funcionam, e o formulário tem o estilo de antes. Abra o console (`F12`), preencha o formulário e clique em **Cadastrar produto**: o `produto.js` continua escrevendo as três linhas no console, agora entregue pelo Flask. O resumo do que mudou nos endereços:
@@ -581,13 +581,13 @@ Salve, abra `/produto/3` e veja o título **Mouse sem fio** na página e na aba 
 Complete a seção com as outras informações do produto:
 
 ```html
-    <section id="detalhe">
-      <h2>{{ produto.nome }}</h2>
-      <p><strong>Código:</strong> {{ produto.id }}</p>
-      <p><strong>Categoria:</strong> {{ produto.categoria }}</p>
-      <p><strong>Preço:</strong> R$ {{ produto.preco }}</p>
-      <p><a href="/">Voltar para o catálogo</a></p>
-    </section>
+<section id="detalhe">
+  <h2>{{ produto.nome }}</h2>
+  <p><strong>Código:</strong> {{ produto.id }}</p>
+  <p><strong>Categoria:</strong> {{ produto.categoria }}</p>
+  <p><strong>Preço:</strong> R$ {{ produto.preco }}</p>
+  <p><a href="/">Voltar para o catálogo</a></p>
+</section>
 ```
 
 Salve e confira `/produto/3` e `/produto/6`. Repare no preço: aparece `R$ 59.9` e `R$ 129.0`, e não `R$ 59,90` e `R$ 129,00`. O Python guarda o **número**, e o número não tem formato de moeda. Formatá-lo é trabalho do Capítulo 5, com os filtros do Jinja2.
@@ -597,17 +597,17 @@ Salve e confira `/produto/3` e `/produto/6`. Repare no preço: aparece `R$ 59.9`
 Falta chegar às páginas de detalhe sem digitar o endereço. No `templates/index.html`, transforme o nome de cada produto em um link para a página dele. A primeira linha da tabela fica assim:
 
 ```html
-            <td><a href="/produto/1">Caneta esferográfica azul</a></td>
+<td><a href="/produto/1">Caneta esferográfica azul</a></td>
 ```
 
 Faça o mesmo nas outras cinco, trocando o número e mantendo o nome que já estava ali:
 
 ```html
-            <td><a href="/produto/2">Caderno universitário 96 folhas</a></td>
-            <td><a href="/produto/3">Mouse sem fio</a></td>
-            <td><a href="/produto/4">Teclado USB</a></td>
-            <td><a href="/produto/5">Garrafa térmica 500 ml</a></td>
-            <td><a href="/produto/6">Mochila escolar</a></td>
+<td><a href="/produto/2">Caderno universitário 96 folhas</a></td>
+<td><a href="/produto/3">Mouse sem fio</a></td>
+<td><a href="/produto/4">Teclado USB</a></td>
+<td><a href="/produto/5">Garrafa térmica 500 ml</a></td>
+<td><a href="/produto/6">Mochila escolar</a></td>
 ```
 
 Salve, abra o catálogo e clique em cada produto. O `app.py` completo ao final do tópico:

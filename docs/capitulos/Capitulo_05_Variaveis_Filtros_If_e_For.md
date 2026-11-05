@@ -70,11 +70,11 @@ def index():
 No `templates/index.html`, troque o texto do `<title>` e o do `<h1>` por `{{ titulo }}`:
 
 ```html
-  <title>{{ titulo }}</title>
+<title>{{ titulo }}</title>
 ```
 
 ```html
-    <h1>{{ titulo }}</h1>
+<h1>{{ titulo }}</h1>
 ```
 
 Salve os dois arquivos e recarregue a página: nada mudou na tela, e é esse o objetivo. Agora volte ao `app.py`, troque o texto `'Catálogo de Produtos'` por `'Meu Catálogo'`, salve e recarregue: a aba e o título da página acompanham, sem você tocar no HTML. Desfaça a troca antes de seguir.
@@ -95,8 +95,8 @@ O Jinja2, o motor de templates do Flask, entende três marcações. Você já us
 Experimente o comentário. No `index.html`, logo acima do `<h1>`, acrescente:
 
 ```html
-    {# O título vem da rota index(), no app.py #}
-    <h1>{{ titulo }}</h1>
+{# O título vem da rota index(), no app.py #}
+<h1>{{ titulo }}</h1>
 ```
 
 Salve, recarregue e abra o código-fonte da página (`Ctrl + U`). Procure o comentário: ele **não está lá**. Um comentário do HTML (`<!-- ... -->`) seria enviado ao navegador e qualquer pessoa o veria no código-fonte. O `{# #}` é descartado pelo Flask antes do envio.
@@ -118,7 +118,7 @@ def index():
 Para ver o que chegou, coloque uma linha provisória no `index.html`, logo abaixo de `<h2>Produtos</h2>`:
 
 ```html
-      <p>{{ produtos }}</p>
+<p>{{ produtos }}</p>
 ```
 
 Salve e recarregue: a lista inteira aparece impressa, com colchetes, chaves e aspas, exatamente como o Python a escreve. Ela chegou, e os dicionários estão lá dentro. **Apague** a linha provisória.
@@ -140,11 +140,11 @@ git push
 O `{% for %}` do Jinja2 repete um pedaço do HTML **uma vez para cada item** de uma lista. Comece pelo mais simples: só os nomes. Logo abaixo de `<h2>Produtos</h2>` do `index.html`, escreva uma lista provisória:
 
 ```html
-      <ul>
-        {% for produto in produtos %}
-        <li>{{ produto.nome }}</li>
-        {% endfor %}
-      </ul>
+<ul>
+  {% for produto in produtos %}
+  <li>{{ produto.nome }}</li>
+  {% endfor %}
+</ul>
 ```
 
 Salve e recarregue. Acima da tabela aparece uma lista com os seis nomes. O `<li>` foi escrito **uma vez**, e o Jinja2 o repetiu seis vezes.
@@ -157,15 +157,15 @@ Salve e recarregue. Acima da tabela aparece uma lista com os seis nomes. O `<li>
 Agora o que vale: trocar as seis linhas escritas à mão por uma só. **Apague** a `<ul>` provisória e, dentro do `<tbody>`, **apague as seis `<tr>`**. No lugar delas, escreva:
 
 ```html
-        <tbody>
-          {% for produto in produtos %}
-          <tr>
-            <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
-            <td>{{ produto.categoria }}</td>
-            <td class="text-end">R$ {{ produto.preco }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
+<tbody>
+  {% for produto in produtos %}
+  <tr>
+    <td><a href="{{ url_for('produto', id_produto=produto.id) }}">{{ produto.nome }}</a></td>
+    <td>{{ produto.categoria }}</td>
+    <td class="text-end">R$ {{ produto.preco }}</td>
+  </tr>
+  {% endfor %}
+</tbody>
 ```
 
 Salve e recarregue. A tabela voltou, com os seis produtos e os links de cada um. Repare em dois detalhes:
@@ -218,15 +218,15 @@ def index():
 No `index.html`, na seção de categorias, **apague os quatro blocos** `<div class="col-sm-6 col-lg-3">...</div>` e escreva um só, dentro de um `for`:
 
 ```html
-      <div class="row g-3">
-        {% for categoria in categorias %}
-        <div class="col-sm-6 col-lg-3">
-          <div class="card">
-            <div class="card-body">{{ categoria }}</div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
+<div class="row g-3">
+  {% for categoria in categorias %}
+  <div class="col-sm-6 col-lg-3">
+    <div class="card">
+      <div class="card-body">{{ categoria }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 ```
 
 Salve e recarregue: os quatro cards continuam ali, agora montados pelo template. Veja a vantagem: no `app.py`, acrescente `'Esportes'` ao fim da lista de categorias, salve e recarregue. Surge um **quinto card**, que o grid coloca em uma nova linha. Deixe o `'Esportes'` por enquanto.
@@ -244,12 +244,12 @@ def cadastro():
 No `templates/cadastro.html`, **apague as quatro** `<option>` de categorias (a `<option value="">Selecione...</option>` fica) e escreva:
 
 ```html
-                <select class="form-select" id="categoria" name="categoria" required>
-                  <option value="">Selecione...</option>
-                  {% for categoria in categorias %}
-                  <option value="{{ categoria }}">{{ categoria }}</option>
-                  {% endfor %}
-                </select>
+<select class="form-select" id="categoria" name="categoria" required>
+  <option value="">Selecione...</option>
+  {% for categoria in categorias %}
+  <option value="{{ categoria }}">{{ categoria }}</option>
+  {% endfor %}
+</select>
 ```
 
 Salve e abra **http://127.0.0.1:5000/cadastro**. O `<select>` lista as quatro categorias **e também o Esportes**. Uma única lista no `app.py` alimenta os cards e o formulário. Agora **apague** o `'Esportes'` da lista, para o catálogo voltar às quatro categorias.
@@ -259,13 +259,13 @@ Salve e abra **http://127.0.0.1:5000/cadastro**. O `<select>` lista as quatro ca
 Dentro de um `for`, o Jinja2 oferece a variável `loop`, com informações sobre a volta atual. A mais usada é `loop.index`, o número da volta, **começando em 1**. Acrescente uma coluna de número à tabela do `index.html`. No cabeçalho, antes de `Nome`:
 
 ```html
-            <th>Nº</th>
+<th>Nº</th>
 ```
 
 E, na linha repetida, antes do `<td>` do nome:
 
 ```html
-            <td>{{ loop.index }}</td>
+<td>{{ loop.index }}</td>
 ```
 
 Salve e recarregue: os produtos aparecem numerados de 1 a 7. Repare que esse número é a posição na tabela, e não o `id` do produto.
@@ -281,11 +281,11 @@ produtos = []
 Como essa linha vem depois, ela substitui a lista por uma lista vazia. Salve e recarregue: a tabela aparece só com o cabeçalho, sem nenhuma explicação. O `for` aceita um `{% else %}`, que só é usado quando **não há nenhum item**. Acrescente-o antes do `{% endfor %}`:
 
 ```html
-          {% else %}
-          <tr>
-            <td colspan="4" class="text-center text-body-secondary">Nenhum produto cadastrado.</td>
-          </tr>
-          {% endfor %}
+{% else %}
+<tr>
+  <td colspan="4" class="text-center text-body-secondary">Nenhum produto cadastrado.</td>
+</tr>
+{% endfor %}
 ```
 
 O `colspan="4"` faz a célula ocupar as quatro colunas da tabela. Salve e recarregue: a mensagem aparece. **Apague** a linha provisória `produtos = []` e confira que os sete produtos voltaram. O `{% else %}` fica no template, pronto para quando a lista esvaziar.
@@ -309,7 +309,7 @@ Um **filtro** transforma um valor **na hora de exibi-lo**. Escreve-se depois de 
 Quantos produtos o catálogo tem? Em vez de contar à mão, o filtro `length` conta os itens de uma lista. No `index.html`, logo abaixo de `<h2>Produtos</h2>`:
 
 ```html
-      <p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
+<p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
 ```
 
 Salve e recarregue: "7 produtos no catálogo." Se acrescentar ou apagar um produto no `app.py`, o número acompanha.
@@ -329,7 +329,7 @@ E se um produto vier sem categoria? No `app.py`, **apague** de um produto o trec
 Salve e recarregue: a célula da categoria da caneta ficou **vazia**, e a tabela parece quebrada. O filtro `default` diz o que mostrar quando o valor não existe. Na tabela do `index.html`:
 
 ```html
-            <td>{{ produto.categoria|default('Sem categoria') }}</td>
+<td>{{ produto.categoria|default('Sem categoria') }}</td>
 ```
 
 Salve e recarregue: aparece **Sem categoria**. Agora devolva a categoria ao produto 1:
@@ -346,7 +346,7 @@ Salve e recarregue: aparece **Sem categoria**. Agora devolva a categoria ao prod
 Falta o problema dos preços: `R$ 2.5` e `R$ 129.0`. Um número com duas casas decimais se pede com o filtro `format`, que recebe um **modelo** de formatação:
 
 ```html
-            <td class="text-end">R$ {{ '%.2f'|format(produto.preco) }}</td>
+<td class="text-end">R$ {{ '%.2f'|format(produto.preco) }}</td>
 ```
 
 Salve e recarregue: os preços agora aparecem como `R$ 2.50` e `R$ 129.00`, sempre com duas casas.
@@ -357,7 +357,7 @@ Salve e recarregue: os preços agora aparecem como `R$ 2.50` e `R$ 129.00`, semp
 O ponto continua no lugar da vírgula. Para trocá-lo, use o filtro `replace`, que troca um pedaço do texto por outro. Como os filtros se aplicam **da esquerda para a direita**, é possível **encadeá-los**: o resultado do primeiro entra no segundo.
 
 ```html
-            <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
+<td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
 ```
 
 Leia na ordem: pegue o preço, formate com duas casas (`'2.50'`) e troque o ponto por vírgula (`'2,50'`). Salve e recarregue: `R$ 2,50`, `R$ 18,90`, `R$ 129,00`, como no Capítulo 4, mas agora vindo do dado.
@@ -365,7 +365,7 @@ Leia na ordem: pegue o preço, formate com duas casas (`'2.50'`) e troque o pont
 A página de detalhe tem o mesmo problema. No `produto.html`, troque a linha do preço:
 
 ```html
-        <p class="card-text"><strong>Preço:</strong> R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</p>
+<p class="card-text"><strong>Preço:</strong> R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</p>
 ```
 
 Salve e abra `/produto/1` e `/produto/6` para conferir.
@@ -390,19 +390,19 @@ git push
 Um `{% if %}` mostra um pedaço do HTML **só quando uma condição é verdadeira**, como o `if` do Python. Vamos classificar cada produto em uma faixa de preço e mostrar uma etiqueta colorida (um **badge** do Bootstrap). Na tabela do `index.html`, acrescente a coluna `Faixa` no cabeçalho, **antes** do `Preço`:
 
 ```html
-            <th>Faixa</th>
+<th>Faixa</th>
 ```
 
 E, na linha repetida, um `<td>` novo **antes** da célula do preço. Comece pelo `if` mais simples, com só duas saídas:
 
 ```html
-            <td>
-              {% if produto.preco > 100 %}
-              <span class="badge bg-warning text-dark">Premium</span>
-              {% else %}
-              <span class="badge bg-primary">Comum</span>
-              {% endif %}
-            </td>
+<td>
+  {% if produto.preco > 100 %}
+  <span class="badge bg-warning text-dark">Premium</span>
+  {% else %}
+  <span class="badge bg-primary">Comum</span>
+  {% endif %}
+</td>
 ```
 
 A tabela agora tem uma coluna a mais: troque também o `colspan="4"` da mensagem de lista vazia por `colspan="5"`. Salve e recarregue: só a **Mochila escolar** (R$ 129,00) é Premium, e os outros seis são Comum.
@@ -412,15 +412,15 @@ A tabela agora tem uma coluna a mais: troque também o `colspan="4"` da mensagem
 Duas faixas são pouco. O `{% elif %}` ("senão, se") acrescenta saídas intermediárias. Troque o `if` por três faixas: até R$ 20, de R$ 20 a R$ 100, e acima de R$ 100:
 
 ```html
-            <td>
-              {% if produto.preco <= 20 %}
-              <span class="badge bg-success">Econômico</span>
-              {% elif produto.preco <= 100 %}
-              <span class="badge bg-primary">Intermediário</span>
-              {% else %}
-              <span class="badge bg-warning text-dark">Premium</span>
-              {% endif %}
-            </td>
+<td>
+  {% if produto.preco <= 20 %}
+  <span class="badge bg-success">Econômico</span>
+  {% elif produto.preco <= 100 %}
+  <span class="badge bg-primary">Intermediário</span>
+  {% else %}
+  <span class="badge bg-warning text-dark">Premium</span>
+  {% endif %}
+</td>
 ```
 
 Salve e recarregue: a caneta e o caderno aparecem como **Econômico**, o mouse, o teclado, a garrafa e o fone como **Intermediário**, e a mochila como **Premium**.
@@ -444,16 +444,16 @@ Para ver o `if` obedecendo ao dado, troque no `app.py` o preço do mouse de `59.
 Abra o `templates/produto.html` e, logo **abaixo** da linha do preço, acrescente a faixa dentro do card:
 
 ```html
-        <p class="card-text">
-          <strong>Faixa:</strong>
-          {% if produto.preco <= 20 %}
-          <span class="badge bg-success">Econômico</span>
-          {% elif produto.preco <= 100 %}
-          <span class="badge bg-primary">Intermediário</span>
-          {% else %}
-          <span class="badge bg-warning text-dark">Premium</span>
-          {% endif %}
-        </p>
+<p class="card-text">
+  <strong>Faixa:</strong>
+  {% if produto.preco <= 20 %}
+  <span class="badge bg-success">Econômico</span>
+  {% elif produto.preco <= 100 %}
+  <span class="badge bg-primary">Intermediário</span>
+  {% else %}
+  <span class="badge bg-warning text-dark">Premium</span>
+  {% endif %}
+</p>
 ```
 
 Salve e abra `/produto/1` (Econômico) e `/produto/6` (Premium).
@@ -617,38 +617,38 @@ O `templates/index.html`:
 O `<main>` do `templates/produto.html`:
 
 ```html
-  <main class="container my-4">
-    <section id="detalhe" class="card">
-      <div class="card-body">
-        <h1 class="card-title h2">{{ produto.nome }}</h1>
-        <p class="card-text"><strong>Código:</strong> {{ produto.id }}</p>
-        <p class="card-text"><strong>Categoria:</strong> {{ produto.categoria }}</p>
-        <p class="card-text"><strong>Preço:</strong> R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</p>
-        <p class="card-text">
-          <strong>Faixa:</strong>
-          {% if produto.preco <= 20 %}
-          <span class="badge bg-success">Econômico</span>
-          {% elif produto.preco <= 100 %}
-          <span class="badge bg-primary">Intermediário</span>
-          {% else %}
-          <span class="badge bg-warning text-dark">Premium</span>
-          {% endif %}
-        </p>
-        <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o catálogo</a>
-      </div>
-    </section>
-  </main>
+<main class="container my-4">
+  <section id="detalhe" class="card">
+    <div class="card-body">
+      <h1 class="card-title h2">{{ produto.nome }}</h1>
+      <p class="card-text"><strong>Código:</strong> {{ produto.id }}</p>
+      <p class="card-text"><strong>Categoria:</strong> {{ produto.categoria }}</p>
+      <p class="card-text"><strong>Preço:</strong> R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</p>
+      <p class="card-text">
+        <strong>Faixa:</strong>
+        {% if produto.preco <= 20 %}
+        <span class="badge bg-success">Econômico</span>
+        {% elif produto.preco <= 100 %}
+        <span class="badge bg-primary">Intermediário</span>
+        {% else %}
+        <span class="badge bg-warning text-dark">Premium</span>
+        {% endif %}
+      </p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o catálogo</a>
+    </div>
+  </section>
+</main>
 ```
 
 E o `<select>` do `templates/cadastro.html`, que é o único trecho do arquivo que mudou:
 
 ```html
-                <select class="form-select" id="categoria" name="categoria" required>
-                  <option value="">Selecione...</option>
-                  {% for categoria in categorias %}
-                  <option value="{{ categoria }}">{{ categoria }}</option>
-                  {% endfor %}
-                </select>
+<select class="form-select" id="categoria" name="categoria" required>
+  <option value="">Selecione...</option>
+  {% for categoria in categorias %}
+  <option value="{{ categoria }}">{{ categoria }}</option>
+  {% endfor %}
+</select>
 ```
 
 !!! warning "Dois incômodos que continuam de propósito"

@@ -366,25 +366,25 @@ Salve e digite **http://127.0.0.1:5000/produto/1/excluir** na barra de endereço
 Em `templates/index.html`, acrescente o cabeçalho da coluna depois de `Preço`:
 
 ```html
-          <th class="text-end">Preço</th>
-          <th class="text-end">Ações</th>
+<th class="text-end">Preço</th>
+<th class="text-end">Ações</th>
 ```
 
 E a célula, depois da célula do preço. Cada linha da tabela ganha um **formulário próprio**, com um botão:
 
 ```html
-          <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
-          <td class="text-end">
-            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
-              <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-            </form>
-          </td>
+<td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
+<td class="text-end">
+  <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+    <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+  </form>
+</td>
 ```
 
 A linha vazia da tabela também precisa cobrir a coluna nova. Troque `colspan="5"` por `colspan="6"`:
 
 ```html
-          <td colspan="6" class="text-center text-body-secondary">Nenhum produto encontrado.</td>
+<td colspan="6" class="text-center text-body-secondary">Nenhum produto encontrado.</td>
 ```
 
 Salve, recarregue o catálogo e clique em **Excluir** em qualquer linha. A página recarrega e o produto continua lá: a rota só redireciona. Falta a exclusão de verdade.
@@ -449,14 +449,14 @@ E em `cadastro`, o mesmo, no fim do `if`:
 Agora a página que recebe o redirect precisa **mostrar e apagar** a mensagem. Como qualquer página pode ser a próxima, o lugar certo é o `base.html`, **dentro do `<main>`, antes do bloco `conteudo`**:
 
 ```html
-  <main class="container my-4">
-    {% set mensagem = session.pop('mensagem', None) %}
-    {% if mensagem %}
-    <div class="alert alert-success">{{ mensagem }}</div>
-    {% endif %}
+<main class="container my-4">
+  {% set mensagem = session.pop('mensagem', None) %}
+  {% if mensagem %}
+  <div class="alert alert-success">{{ mensagem }}</div>
+  {% endif %}
 
-    {% block conteudo %}{% endblock %}
-  </main>
+  {% block conteudo %}{% endblock %}
+</main>
 ```
 
 !!! note "Jinja: `{% set %}` e `session.pop()`"
@@ -572,10 +572,10 @@ Confira também o painel **Network**: o pedido é um POST, a resposta é `400`, 
 O token vai em um campo escondido (`type="hidden"`), que não aparece na tela mas viaja junto com o formulário. Comece pelo botão **Excluir**, em `templates/index.html`, logo depois da abertura do `<form>`:
 
 ```html
-            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-            </form>
+<form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+</form>
 ```
 
 !!! note "Flask-WTF: o `csrf_token()` nos templates"
@@ -586,15 +586,15 @@ Salve, recarregue o catálogo e exclua um produto: funciona de novo. Aperte `Ctr
 Faça o mesmo no `templates/cadastro.html`, depois do `<form>`:
 
 ```html
-          <form action="{{ url_for('cadastro') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<form action="{{ url_for('cadastro') }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 ```
 
 E no `templates/contato.html`:
 
 ```html
-          <form action="{{ url_for('contato') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<form action="{{ url_for('contato') }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 ```
 
 Salve e teste cada um: cadastre um produto e envie o formulário de contato. Os três voltam a funcionar. O formulário de **busca** não precisa do token, porque é um GET que só lê.

@@ -251,7 +251,7 @@ git remote -v
 Repetiremos esse ciclo ao longo de todo o curso. No `index.html`, logo abaixo do `<h1>`, acrescente uma linha:
 
 ```html
-  <p>Página em construção.</p>
+<p>Página em construção.</p>
 ```
 
 Salve. Veja o que o Git percebe:
@@ -361,15 +361,15 @@ Salve e abra no navegador. A aba mostra "Sobre Mim" (o `<title>`) e a página mo
 Depois do `<h1>`, acrescente um subtítulo e um parágrafo:
 
 ```html
-  <h2>Sobre mim</h2>
-  <!-- h2 = subtítulo: menor que o h1, organiza seções -->
+<h2>Sobre mim</h2>
+<!-- h2 = subtítulo: menor que o h1, organiza seções -->
 
-  <p>
-    Olá! Meu nome é João, tenho 22 anos e estou cursando Gestão da Tecnologia
-    da Informação na FATEC Jahu. Tenho interesse em desenvolvimento web e
-    banco de dados.
-  </p>
-  <!-- p = parágrafo: o navegador põe espaço antes e depois -->
+<p>
+  Olá! Meu nome é João, tenho 22 anos e estou cursando Gestão da Tecnologia
+  da Informação na FATEC Jahu. Tenho interesse em desenvolvimento web e
+  banco de dados.
+</p>
+<!-- p = parágrafo: o navegador põe espaço antes e depois -->
 ```
 
 Salve e recarregue (`F5`). O `<h2>` é menor que o `<h1>` e o parágrafo ganhou espaçamento sem você pedir.
@@ -377,16 +377,16 @@ Salve e recarregue (`F5`). O `<h2>` é menor que o `<h1>` e o parágrafo ganhou 
 Agora uma lista:
 
 ```html
-  <h2>Minhas habilidades</h2>
+<h2>Minhas habilidades</h2>
 
-  <ul>
-    <!-- ul = lista com marcadores. Use quando a ordem dos itens não importa. -->
-    <li>HTML e CSS</li>
-    <!-- li = cada item da lista -->
-    <li>Python (em aprendizado)</li>
-    <li>MySQL</li>
-    <li>Git e GitHub</li>
-  </ul>
+<ul>
+  <!-- ul = lista com marcadores. Use quando a ordem dos itens não importa. -->
+  <li>HTML e CSS</li>
+  <!-- li = cada item da lista -->
+  <li>Python (em aprendizado)</li>
+  <li>MySQL</li>
+  <li>Git e GitHub</li>
+</ul>
 ```
 
 Salve e recarregue: cada `<li>` virou um item com marcador.
@@ -394,14 +394,14 @@ Salve e recarregue: cada `<li>` virou um item com marcador.
 Por fim, um link:
 
 ```html
-  <h2>Contato</h2>
+<h2>Contato</h2>
 
-  <p>
-    Me encontre no GitHub:
-    <a href="https://github.com/joaosilva">github.com/joaosilva</a>
-    <!-- a = link. href = endereço de destino. O texto entre as tags é o
-         que o usuário clica. -->
-  </p>
+<p>
+  Me encontre no GitHub:
+  <a href="https://github.com/joaosilva">github.com/joaosilva</a>
+  <!-- a = link. href = endereço de destino. O texto entre as tags é o
+       que o usuário clica. -->
+</p>
 ```
 
 Salve e recarregue. O link aparece sublinhado e em azul (o estilo padrão do navegador) e leva ao endereço do `href`. O arquivo completo:
@@ -487,33 +487,33 @@ Uma tabela organiza dados em linhas e colunas e usa quatro tags que trabalham ju
 Salve e abra: só o cabeçalho aparece, porque ainda não há linhas de dados. Dentro do `<table>`, logo depois do `</thead>`, acrescente o corpo da tabela com a primeira linha:
 
 ```html
-    <tbody>
-      <!-- tbody = agrupa as linhas de dados -->
-      <tr>
-        <td>Segunda-feira</td>
-        <!-- td = célula de dado comum (de "table data") -->
-        <td>19h00 — 20h40</td>
-        <td>Programação para Internet</td>
-        <td>Ronan Zenatti</td>
-      </tr>
-    </tbody>
+<tbody>
+  <!-- tbody = agrupa as linhas de dados -->
+  <tr>
+    <td>Segunda-feira</td>
+    <!-- td = célula de dado comum (de "table data") -->
+    <td>19h00 — 20h40</td>
+    <td>Programação para Internet</td>
+    <td>Ronan Zenatti</td>
+  </tr>
+</tbody>
 ```
 
 Salve e recarregue. Uma linha de dados apareceu abaixo do cabeçalho, e o texto dos `<td>` não vem em negrito, ao contrário do dos `<th>`. Agora acrescente mais duas linhas dentro do `<tbody>`, logo depois da primeira `</tr>`:
 
 ```html
-      <tr>
-        <td>Quarta-feira</td>
-        <td>19h00 — 20h40</td>
-        <td>Programação para Internet</td>
-        <td>Ronan Zenatti</td>
-      </tr>
-      <tr>
-        <td>Quinta-feira</td>
-        <td>19h00 — 20h40</td>
-        <td>Redes de Computadores</td>
-        <td>Professor X</td>
-      </tr>
+<tr>
+  <td>Quarta-feira</td>
+  <td>19h00 — 20h40</td>
+  <td>Programação para Internet</td>
+  <td>Ronan Zenatti</td>
+</tr>
+<tr>
+  <td>Quinta-feira</td>
+  <td>19h00 — 20h40</td>
+  <td>Redes de Computadores</td>
+  <td>Professor X</td>
+</tr>
 ```
 
 Salve e recarregue. A grade tem três linhas completas. O arquivo completo:
@@ -605,54 +605,54 @@ Salve e abra. A imagem vem do **Picsum** (picsum.photos), um serviço que devolv
 Depois da imagem, abra o formulário com um campo de texto:
 
 ```html
-  <h2>Envie uma mensagem</h2>
+<h2>Envie uma mensagem</h2>
 
-  <form>
-    <!-- form = agrupa campos de entrada de dados. -->
+<form>
+  <!-- form = agrupa campos de entrada de dados. -->
 
-    <label for="nome">Seu nome:</label>
-    <!-- label = rótulo de um campo. O "for" deve ser igual ao "id" do input
-         que ele descreve: clicar no rótulo leva o cursor ao campo. -->
-    <br>
-    <input type="text" id="nome" name="nome" placeholder="Digite seu nome">
-    <!-- input = campo de entrada (também sem tag de fechamento).
-         type="text" = texto de uma linha.
-         placeholder = texto de dica que some ao digitar. -->
-    <br><br>
+  <label for="nome">Seu nome:</label>
+  <!-- label = rótulo de um campo. O "for" deve ser igual ao "id" do input
+       que ele descreve: clicar no rótulo leva o cursor ao campo. -->
+  <br>
+  <input type="text" id="nome" name="nome" placeholder="Digite seu nome">
+  <!-- input = campo de entrada (também sem tag de fechamento).
+       type="text" = texto de uma linha.
+       placeholder = texto de dica que some ao digitar. -->
+  <br><br>
 
-  </form>
+</form>
 ```
 
 Salve e recarregue. Clique no texto "Seu nome:": o cursor vai direto ao campo, efeito do `for` combinado com o `id`. Dentro do `<form>`, depois do campo de nome e antes do `</form>`, acrescente o e-mail:
 
 ```html
-    <label for="email">Seu e-mail:</label>
-    <br>
-    <input type="email" id="email" name="email" placeholder="seu@email.com">
-    <!-- type="email": o navegador confere se o texto tem formato de e-mail
-         antes de deixar enviar o formulário. -->
-    <br><br>
+<label for="email">Seu e-mail:</label>
+<br>
+<input type="email" id="email" name="email" placeholder="seu@email.com">
+<!-- type="email": o navegador confere se o texto tem formato de e-mail
+     antes de deixar enviar o formulário. -->
+<br><br>
 ```
 
 Depois, o campo de mensagem, também dentro do `<form>`:
 
 ```html
-    <label for="mensagem">Mensagem:</label>
-    <br>
-    <textarea id="mensagem" name="mensagem" rows="4" cols="40"
-              placeholder="Escreva aqui..."></textarea>
-    <!-- textarea = texto de várias linhas. Ao contrário do input, TEM tag de
-         fechamento. rows e cols definem o tamanho inicial. -->
-    <br><br>
+<label for="mensagem">Mensagem:</label>
+<br>
+<textarea id="mensagem" name="mensagem" rows="4" cols="40"
+          placeholder="Escreva aqui..."></textarea>
+<!-- textarea = texto de várias linhas. Ao contrário do input, TEM tag de
+     fechamento. rows e cols definem o tamanho inicial. -->
+<br><br>
 ```
 
 Salve e recarregue. O `<textarea>` é uma caixa de várias linhas, enquanto o `<input type="text">` tem uma só. Por fim, o botão que fecha o formulário:
 
 ```html
-    <button type="submit">Enviar Mensagem</button>
-    <!-- type="submit" envia o formulário ao servidor. Ainda não existe
-         servidor para receber (isso começa no Capítulo 3), mas a estrutura
-         já está correta. -->
+<button type="submit">Enviar Mensagem</button>
+<!-- type="submit" envia o formulário ao servidor. Ainda não existe
+     servidor para receber (isso começa no Capítulo 3), mas a estrutura
+     já está correta. -->
 ```
 
 Salve e recarregue. Clicar no botão ainda não faz nada de útil, porque falta o back-end. Tente digitar um texto sem `@` no campo de e-mail e clicar no botão: o navegador reclama sozinho, por causa do `type="email"`. O arquivo completo:
@@ -754,88 +754,88 @@ Vamos substituir o `index.html` provisório por uma página completa, um bloco d
 Salve e abra o arquivo no navegador. A página parece igual a uma sem `<header>`, e é isso mesmo: o significado está no código. Dentro do `<header>`, depois do parágrafo, acrescente o menu:
 
 ```html
-    <nav>
-      <a href="#produtos">Produtos</a>
-      <a href="#categorias">Categorias</a>
-    </nav>
+<nav>
+  <a href="#produtos">Produtos</a>
+  <a href="#categorias">Categorias</a>
+</nav>
 ```
 
 Salve e recarregue. Dois links aparecem. O `#produtos` é um **link interno**: o `#` aponta para o elemento da própria página cujo `id` é `produtos`. Eles ainda não levam a lugar nenhum, porque esses elementos não existem. Vamos criá-los. Depois do `</header>`, acrescente o conteúdo principal com a primeira seção:
 
 ```html
-  <main>
-    <section id="produtos">
-      <h2>Produtos</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Categoria</th>
-            <th>Preço</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Caneta esferográfica azul</td>
-            <td>Papelaria</td>
-            <td>R$ 2,50</td>
-          </tr>
-          <tr>
-            <td>Caderno universitário 96 folhas</td>
-            <td>Papelaria</td>
-            <td>R$ 18,90</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
+<main>
+  <section id="produtos">
+    <h2>Produtos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Preço</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Caneta esferográfica azul</td>
+          <td>Papelaria</td>
+          <td>R$ 2,50</td>
+        </tr>
+        <tr>
+          <td>Caderno universitário 96 folhas</td>
+          <td>Papelaria</td>
+          <td>R$ 18,90</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
 ```
 
 Salve e recarregue. A tabela aparece com dois produtos. Clique em **Produtos** no menu: o navegador "pula" para a seção (como a página é curta, o efeito é sutil). O `id="produtos"` é o destino do link. Acrescente os outros quatro produtos no `<tbody>`, depois do segundo:
 
 ```html
-          <tr>
-            <td>Mouse sem fio</td>
-            <td>Informática</td>
-            <td>R$ 59,90</td>
-          </tr>
-          <tr>
-            <td>Teclado USB</td>
-            <td>Informática</td>
-            <td>R$ 89,90</td>
-          </tr>
-          <tr>
-            <td>Garrafa térmica 500 ml</td>
-            <td>Casa</td>
-            <td>R$ 49,90</td>
-          </tr>
-          <tr>
-            <td>Mochila escolar</td>
-            <td>Acessórios</td>
-            <td>R$ 129,00</td>
-          </tr>
+<tr>
+  <td>Mouse sem fio</td>
+  <td>Informática</td>
+  <td>R$ 59,90</td>
+</tr>
+<tr>
+  <td>Teclado USB</td>
+  <td>Informática</td>
+  <td>R$ 89,90</td>
+</tr>
+<tr>
+  <td>Garrafa térmica 500 ml</td>
+  <td>Casa</td>
+  <td>R$ 49,90</td>
+</tr>
+<tr>
+  <td>Mochila escolar</td>
+  <td>Acessórios</td>
+  <td>R$ 129,00</td>
+</tr>
 ```
 
 Salve e recarregue: seis produtos, cada um com `nome`, `categoria` e `preço`. Essa é a mesma forma de dado que o banco de dados vai guardar no Capítulo 10. Dentro do `<main>`, depois do `</section>` dos produtos, acrescente a segunda seção, para o link **Categorias** ter destino:
 
 ```html
-    <section id="categorias">
-      <h2>Categorias</h2>
-      <ul>
-        <li>Papelaria</li>
-        <li>Informática</li>
-        <li>Casa</li>
-        <li>Acessórios</li>
-      </ul>
-    </section>
+<section id="categorias">
+  <h2>Categorias</h2>
+  <ul>
+    <li>Papelaria</li>
+    <li>Informática</li>
+    <li>Casa</li>
+    <li>Acessórios</li>
+  </ul>
+</section>
 ```
 
 Por fim, depois do `</main>`, o rodapé:
 
 ```html
-  <footer>
-    <p>Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
-  </footer>
+<footer>
+  <p>Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+</footer>
 ```
 
 Salve, recarregue e clique nos dois links do menu. O `index.html` completo neste ponto:
@@ -958,7 +958,7 @@ Funciona, mas a mesma cor está escrita duas vezes. Para trocar o azul, você te
 Crie na raiz do projeto o arquivo `estilo.css`. No `index.html`, dentro do `<head>`, depois do `<title>`, acrescente a linha que liga os dois:
 
 ```html
-  <link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="estilo.css">
 ```
 
 O `<link>` diz ao navegador: "carregue também este arquivo de estilos". Como o `<img>`, ele não tem tag de fechamento.

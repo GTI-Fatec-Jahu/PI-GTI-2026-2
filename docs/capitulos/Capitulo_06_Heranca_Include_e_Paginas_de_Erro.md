@@ -61,7 +61,7 @@ Deixe esse terminal rodando durante o capítulo e use um segundo terminal (o íc
 Vamos fazer uma mudança que parece pequena: acrescentar o grupo da turma ao rodapé. O rodapé está escrito nos três arquivos de `templates`. Em `index.html` e em `cadastro.html`, troque a linha do rodapé:
 
 ```html
-    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · GTI · 2026</p>
+<p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · GTI · 2026</p>
 ```
 
 Salve os dois arquivos, recarregue **http://127.0.0.1:5000** e **http://127.0.0.1:5000/cadastro**: o rodapé mudou. Agora abra **http://127.0.0.1:5000/produto/1**. O rodapé ficou **como era**, porque você esqueceu o terceiro arquivo. Num site de vinte páginas, esse esquecimento é quase certo, e o visitante vê rodapés diferentes dependendo da página.
@@ -183,29 +183,29 @@ git push
 Agora o `base.html` recebe o menu. No `templates/base.html`, logo **abaixo** de `<body>` e **antes** do `<main>`, escreva a `navbar`. É o mesmo bloco que está no `index.html` (o Produtos continua com a classe `active`, por enquanto):
 
 ```html
-  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
-    <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
-              aria-label="Abrir o menu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
-          </li>
-        </ul>
-      </div>
+<nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+            aria-label="Abrir o menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
 ```
 
@@ -216,9 +216,9 @@ Salve e recarregue **http://127.0.0.1:5000/produto/1**: o menu apareceu, **sem v
 No `base.html`, logo **depois** do `</main>` e antes do `<script>` do Bootstrap, escreva o rodapé:
 
 ```html
-  <footer class="text-center text-body-secondary py-3">
-    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
-  </footer>
+<footer class="text-center text-body-secondary py-3">
+  <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+</footer>
 
 ```
 
@@ -262,8 +262,8 @@ Salve e abra **http://127.0.0.1:5000/cadastro**. O formulário aparece com menu 
 Só o cadastro usa o `produto.js`. O `base.html` não pode carregá-lo em todas as páginas, mas precisa de um **espaço** para as páginas que têm script próprio. No `base.html`, logo depois do script do Bootstrap, acrescente um bloco vazio:
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  {% block scripts %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
 ```
 
 No fim do `cadastro.html`, depois do `{% endblock %}` do conteúdo, preencha-o:
@@ -283,13 +283,13 @@ Falta o primeiro defeito. O menu precisa saber em que página está. O Flask ent
 No `base.html`, troque o link **Cadastrar**, tirando a classe fixa e usando um `if`:
 
 ```html
-            <a class="nav-link {% if request.endpoint == 'cadastro' %}active{% endif %}" href="{{ url_for('cadastro') }}">Cadastrar</a>
+<a class="nav-link {% if request.endpoint == 'cadastro' %}active{% endif %}" href="{{ url_for('cadastro') }}">Cadastrar</a>
 ```
 
 Salve e recarregue **http://127.0.0.1:5000/cadastro**: **Cadastrar** está marcado, mas **Produtos** também continua marcado, porque a classe fixa ainda está lá. Troque o link **Produtos**. Ele deve ficar ativo no catálogo **e** na página de um produto, por isso a condição tem duas comparações ligadas por `or` (o `or` do Capítulo 5):
 
 ```html
-            <a class="nav-link {% if request.endpoint == 'index' or request.endpoint == 'produto' %}active{% endif %}" href="{{ url_for('index') }}#produtos">Produtos</a>
+<a class="nav-link {% if request.endpoint == 'index' or request.endpoint == 'produto' %}active{% endif %}" href="{{ url_for('index') }}#produtos">Produtos</a>
 ```
 
 Salve e navegue entre `/`, `/cadastro` e `/produto/3`: o destaque acompanha a página. Se você olhar o código-fonte (`Ctrl + U`), os links inativos têm `class="nav-link "`, com um espaço sobrando. É inofensivo.
@@ -349,10 +349,10 @@ Crie o arquivo `templates/_faixa_preco.html` com o `if` que está no `produto.ht
 No `produto.html`, troque as seis linhas do `if` por uma:
 
 ```html
-      <p class="card-text">
-        <strong>Faixa:</strong>
-        {% include '_faixa_preco.html' %}
-      </p>
+<p class="card-text">
+  <strong>Faixa:</strong>
+  {% include '_faixa_preco.html' %}
+</p>
 ```
 
 Salve e abra **http://127.0.0.1:5000/produto/1** e **/produto/6**: a faixa aparece igual a antes (Econômico e Premium). O arquivo incluído enxerga **as mesmas variáveis** do lugar onde foi incluído: aqui, o `produto` que a rota enviou.
@@ -360,9 +360,9 @@ Salve e abra **http://127.0.0.1:5000/produto/1** e **/produto/6**: a faixa apare
 Agora o `index.html`. Dentro do `{% for %}`, troque o `if` da célula da faixa por:
 
 ```html
-          <td>
-            {% include '_faixa_preco.html' %}
-          </td>
+<td>
+  {% include '_faixa_preco.html' %}
+</td>
 ```
 
 Salve e recarregue **http://127.0.0.1:5000**. As faixas continuam certas para os sete produtos, e é aqui que se vê que o arquivo incluído também enxerga a variável do `for`: a cada volta, o `produto` é outro, e o `include` usa o produto daquela volta.

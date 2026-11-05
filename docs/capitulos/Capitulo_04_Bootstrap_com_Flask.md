@@ -83,8 +83,8 @@ Deixe esse terminal rodando durante o capítulo: o modo de desenvolvimento reini
 No `templates/index.html`, acrescente o `<link>` do Bootstrap dentro do `<head>`, **antes** do link do `estilo.css`:
 
 ```html
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/estilo.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/estilo.css">
 ```
 
 Salve e recarregue a página. Alguma coisa mudou: os títulos ficaram com outro tamanho e outra espessura. Mas o cabeçalho azul, a tabela e o menu continuam como estavam. Agora a página tem **duas fontes de estilo**, o Bootstrap e o seu `estilo.css`, e as duas mexem nos mesmos elementos.
@@ -126,7 +126,7 @@ Salve e recarregue. A página perdeu as cores: o cabeçalho virou texto simples,
 Alguns componentes, como o menu que abre e fecha no celular, precisam de JavaScript. Acrescente a linha do `<script>` no fim do `<body>` do `index.html`, antes de `</body>`:
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 ```
 
 Você não vai escrever JavaScript: o Bootstrap lê atributos do HTML e faz o resto.
@@ -138,15 +138,15 @@ Cada página é um arquivo HTML independente, então cada uma precisa dos mesmos
 No `<head>`, o link do Bootstrap vai **antes** do `estilo.css`:
 
 ```html
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/estilo.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/estilo.css">
 ```
 
 No fim do `<body>`, o script do Bootstrap vai **antes** dos scripts próprios. No `produto.html`, ele é o único script. No `cadastro.html`, ele fica acima do `produto.js`:
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/static/produto.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/produto.js"></script>
 ```
 
 Salve e navegue pelas três páginas. Todas estão "cruas", mas já carregam o Bootstrap. Registre este ponto no Git (em um segundo terminal):
@@ -168,21 +168,21 @@ A **navbar** é a barra de navegação do topo. Ela substitui o `<header>` com o
 **Primeira etapa: a barra e a marca.** No `templates/index.html`, **apague** o `<header>` inteiro (do `<header>` ao `</header>`) e coloque no lugar, logo depois de `<body>`:
 
 ```html
-  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
-    <div class="container">
-      <a class="navbar-brand" href="/">Catálogo de Produtos</a>
-    </div>
-  </nav>
+<nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand" href="/">Catálogo de Produtos</a>
+  </div>
+</nav>
 ```
 
 O título e a frase que ficavam no cabeçalho vão para dentro do `<main>`, no começo, antes de `<section id="produtos">`:
 
 ```html
-  <main>
-    <h1>Catálogo de Produtos</h1>
-    <p class="lead">Papelaria, informática, casa e acessórios para o dia a dia.</p>
+<main>
+  <h1>Catálogo de Produtos</h1>
+  <p class="lead">Papelaria, informática, casa e acessórios para o dia a dia.</p>
 
-    <section id="produtos">
+  <section id="produtos">
 ```
 
 Salve e recarregue. Surge uma faixa azul no topo, com o nome do catálogo em branco, à esquerda. A cor azul vem da regra `.navbar` do seu `estilo.css`. O `data-bs-theme="dark"` avisa ao Bootstrap que o fundo é escuro, então ele usa texto claro. (A classe `lead` deixa a frase um pouco maior, como um texto de abertura.)
@@ -190,19 +190,19 @@ Salve e recarregue. Surge uma faixa azul no topo, com o nome do catálogo em bra
 **Segunda etapa: o botão "hambúrguer" e o primeiro link.** Dentro do `<div class="container">`, logo depois do `navbar-brand`, acrescente o botão que só aparece em telas pequenas e a área que se recolhe, com um link:
 
 ```html
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
-              aria-label="Abrir o menu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+        data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+        aria-label="Abrir o menu">
+  <span class="navbar-toggler-icon"></span>
+</button>
 
-      <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="/#produtos">Produtos</a>
-          </li>
-        </ul>
-      </div>
+<div class="collapse navbar-collapse" id="menu">
+  <ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+      <a class="nav-link active" href="/#produtos">Produtos</a>
+    </li>
+  </ul>
+</div>
 ```
 
 Salve e recarregue: o link **Produtos** aparece à direita. Agora **estreite a janela do navegador** até ela ficar com menos de uns mil pixels de largura. O link some e surge o ícone de três tracinhos. Clique nele: o menu abre e fecha. Esse comportamento é do Bootstrap, e você não escreveu JavaScript nenhum.
@@ -210,12 +210,12 @@ Salve e recarregue: o link **Produtos** aparece à direita. Agora **estreite a j
 **Terceira etapa: os outros links.** Dentro do mesmo `<ul>`, depois do item **Produtos**, acrescente mais dois:
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link" href="/#categorias">Categorias</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/cadastro">Cadastrar</a>
-          </li>
+<li class="nav-item">
+  <a class="nav-link" href="/#categorias">Categorias</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="/cadastro">Cadastrar</a>
+</li>
 ```
 
 Salve, recarregue e confira os três links, e o menu recolhido na janela estreita.
@@ -242,29 +242,29 @@ Os atributos `data-bs-toggle="collapse"` e `data-bs-target="#menu"` são o que l
 O `cadastro.html` e o `produto.html` também precisam do menu. Em cada um, **apague o `<header>`** e cole a mesma `navbar`, completa, logo depois de `<body>`:
 
 ```html
-  <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
-    <div class="container">
-      <a class="navbar-brand" href="/">Catálogo de Produtos</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
-              aria-label="Abrir o menu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="/#produtos">Produtos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/#categorias">Categorias</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/cadastro">Cadastrar</a>
-          </li>
-        </ul>
-      </div>
+<nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand" href="/">Catálogo de Produtos</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
+            aria-label="Abrir o menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="/#produtos">Produtos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/#categorias">Categorias</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/cadastro">Cadastrar</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 ```
 
 Só uma coisa muda entre as cópias: a classe `active`, que marca a página atual. No `cadastro.html`, tire o `active` de **Produtos** e coloque em **Cadastrar**. No `produto.html`, deixe em **Produtos**. Salve e navegue entre as três páginas.
@@ -289,7 +289,7 @@ git push
 Olhe o catálogo em uma janela larga: o conteúdo gruda na borda esquerda e se estica até a direita. No `templates/index.html`, troque a tag `<main>` por:
 
 ```html
-  <main class="container my-4">
+<main class="container my-4">
 ```
 
 Salve e recarregue. O conteúdo agora fica **centralizado**, com largura limitada e uma folga nas laterais, e ganhou espaço acima e abaixo. O `container` faz o centro e o limite de largura. O `my-4` cuida do espaço vertical.
@@ -305,7 +305,7 @@ Os nomes de espaçamento do Bootstrap seguem um padrão: **propriedade + lado + 
 Então `my-4` é "margem vertical, tamanho 4", `mb-5` é "margem na base, tamanho 5" e `py-3` é "espaço de dentro vertical, tamanho 3". Use `mb-5` na seção de produtos, para afastá-la das categorias:
 
 ```html
-    <section id="produtos" class="mb-5">
+<section id="produtos" class="mb-5">
 ```
 
 ### A tabela
@@ -313,8 +313,8 @@ Então `my-4` é "margem vertical, tamanho 4", `mb-5` é "margem na base, tamanh
 A tabela voltou a ser o HTML simples, sem linhas. Para estilizá-la, o Bootstrap pede classes na própria tag. Troque a abertura da tabela e a do `<thead>`:
 
 ```html
-      <table class="table table-striped table-hover">
-        <thead class="table-light">
+<table class="table table-striped table-hover">
+  <thead class="table-light">
 ```
 
 Salve e recarregue. A tabela ganha linhas separadoras, as linhas se alternam em duas cores (`table-striped`), a linha sob o mouse fica destacada (`table-hover`) e o cabeçalho fica em cinza claro (`table-light`).
@@ -322,11 +322,11 @@ Salve e recarregue. A tabela ganha linhas separadoras, as linhas se alternam em 
 Falta o preço. A coluna usava a classe `preco` (do `estilo.css` antigo) para alinhar à direita, e o Bootstrap tem uma classe pronta para isso: `text-end` (texto alinhado ao fim). Troque `class="preco"` por `class="text-end"` nas **sete** ocorrências (uma no `<th>` e uma em cada `<td>` de preço). No VS Code, use `Ctrl + H`: em *localizar*, `class="preco"`; em *substituir*, `class="text-end"`; clique em **Substituir tudo**. As linhas ficam assim:
 
 ```html
-            <th class="text-end">Preço</th>
+<th class="text-end">Preço</th>
 ```
 
 ```html
-            <td class="text-end">R$ 2,50</td>
+<td class="text-end">R$ 2,50</td>
 ```
 
 Salve e confira: os preços alinham pela direita.
@@ -336,8 +336,8 @@ Salve e confira: os preços alinham pela direita.
 O rodapé ainda é o HTML simples. Troque a abertura do `<footer>` e a do `<p>` dentro dele:
 
 ```html
-  <footer class="text-center text-body-secondary py-3">
-    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+<footer class="text-center text-body-secondary py-3">
+  <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
 ```
 
 O `text-center` centraliza, o `text-body-secondary` deixa o texto em cinza, o `py-3` dá folga em cima e embaixo e o `mb-0` tira a margem do parágrafo (zero, na base). Salve e recarregue.
@@ -361,28 +361,28 @@ Quando o conteúdo fica lado a lado e precisa se reorganizar em telas pequenas, 
 As categorias são uma lista simples. Vamos transformá-las em cartões (**cards**) dispostos no grid. No `templates/index.html`, **apague** o `<ul>` da seção de categorias (do `<ul>` ao `</ul>`) e coloque no lugar:
 
 ```html
-      <div class="row">
-        <div class="col-md-3">
-          <div class="card">
-            <div class="card-body">Papelaria</div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card">
-            <div class="card-body">Informática</div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card">
-            <div class="card-body">Casa</div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card">
-            <div class="card-body">Acessórios</div>
-          </div>
-        </div>
-      </div>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">Papelaria</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">Informática</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">Casa</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-body">Acessórios</div>
+    </div>
+  </div>
+</div>
 ```
 
 Salve e recarregue com a janela larga: as quatro categorias aparecem lado a lado, cada uma em um cartão. Agora estreite a janela abaixo de uns 768 px: os cartões passam a ocupar a linha toda, um embaixo do outro, mas **colados**, sem espaço entre eles.
@@ -400,8 +400,8 @@ O `col-md-3` quer dizer: "a partir da tela média (`md`), ocupe 3 das 12 colunas
 Para corrigir o espaço, acrescente `g-3` (*gutter*, o espaço entre as colunas) na `row`. E para que o layout tenha três situações em vez de duas, combine **dois** prefixos em cada coluna: `col-sm-6 col-lg-3`.
 
 ```html
-      <div class="row g-3">
-        <div class="col-sm-6 col-lg-3">
+<div class="row g-3">
+  <div class="col-sm-6 col-lg-3">
 ```
 
 Troque o `col-md-3` das quatro colunas por `col-sm-6 col-lg-3`, salve e redimensione a janela devagar:
@@ -419,17 +419,17 @@ O mesmo HTML se reorganiza conforme a tela, sem uma linha de CSS escrita por voc
 Abra o `templates/produto.html`. Troque a tag `<main>` e **substitua a seção inteira** `<section id="detalhe">...</section>` por um card:
 
 ```html
-  <main class="container my-4">
-    <section id="detalhe" class="card">
-      <div class="card-body">
-        <h1 class="card-title h2">{{ produto.nome }}</h1>
-        <p class="card-text"><strong>Código:</strong> {{ produto.id }}</p>
-        <p class="card-text"><strong>Categoria:</strong> {{ produto.categoria }}</p>
-        <p class="card-text"><strong>Preço:</strong> R$ {{ produto.preco }}</p>
-        <a href="/" class="btn btn-primary">Voltar para o catálogo</a>
-      </div>
-    </section>
-  </main>
+<main class="container my-4">
+  <section id="detalhe" class="card">
+    <div class="card-body">
+      <h1 class="card-title h2">{{ produto.nome }}</h1>
+      <p class="card-text"><strong>Código:</strong> {{ produto.id }}</p>
+      <p class="card-text"><strong>Categoria:</strong> {{ produto.categoria }}</p>
+      <p class="card-text"><strong>Preço:</strong> R$ {{ produto.preco }}</p>
+      <a href="/" class="btn btn-primary">Voltar para o catálogo</a>
+    </div>
+  </section>
+</main>
 ```
 
 Aplique também a mesma mudança do rodapé que você fez no `index.html` (`class="text-center text-body-secondary py-3"` no `<footer>` e `class="mb-0"` no `<p>`). Salve e abra `/produto/3`.
@@ -460,14 +460,14 @@ git push
 O `cadastro.html` voltou ao HTML simples. Comece pelo que você já conhece. Troque a tag `<main>` e o título, e aplique o rodapé do Tópico 3:
 
 ```html
-  <main class="container my-4">
-    <h1 class="h2 mb-4">Cadastrar produto</h1>
+<main class="container my-4">
+  <h1 class="h2 mb-4">Cadastrar produto</h1>
 ```
 
 ```html
-  <footer class="text-center text-body-secondary py-3">
-    <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
-  </footer>
+<footer class="text-center text-body-secondary py-3">
+  <p class="mb-0">Catálogo de Produtos · Fatec Jahu · ILP951 · 2026</p>
+</footer>
 ```
 
 Salve e recarregue **http://127.0.0.1:5000/cadastro**. O formulário aparece com a aparência padrão do navegador, esticado pela página toda.
@@ -477,19 +477,19 @@ Salve e recarregue **http://127.0.0.1:5000/cadastro**. O formulário aparece com
 Para o formulário não se esticar, use o grid: uma `row` com uma coluna que ocupa metade da largura em telas grandes (`col-lg-6`) e, dentro dela, um card. Embrulhe o `<form>` assim (o `...` é o formulário, que não muda):
 
 ```html
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
 
-            <form action="#" onsubmit="cadastrarProduto(event)">
-              ...
-            </form>
+        <form action="#" onsubmit="cadastrarProduto(event)">
+          ...
+        </form>
 
-          </div>
-        </div>
       </div>
     </div>
+  </div>
+</div>
 ```
 
 Salve e recarregue: o formulário ocupa metade da largura, dentro de um cartão.
@@ -499,30 +499,30 @@ Salve e recarregue: o formulário ocupa metade da largura, dentro de um cartão.
 No Bootstrap, cada campo fica em uma `<div class="mb-3">` (espaço embaixo), o `<label>` ganha `form-label` e o `<input>` ganha `form-control`. Comece só pelo campo do nome:
 
 ```html
-              <div class="mb-3">
-                <label for="nome" class="form-label">Nome do produto</label>
-                <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" required minlength="3">
-              </div>
+<div class="mb-3">
+  <label for="nome" class="form-label">Nome do produto</label>
+  <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" required minlength="3">
+</div>
 ```
 
 (Troque a `<div class="campo">` do nome por esta; o `<label>` e o `<input>` mudam só pelas classes novas.) Salve e recarregue: o campo ocupa a largura do cartão, com borda arredondada e destaque azul quando você clica nele. Agora os outros dois. O `<select>` usa `form-select`, e o `<input>` do preço usa `form-control`:
 
 ```html
-              <div class="mb-3">
-                <label for="categoria" class="form-label">Categoria</label>
-                <select class="form-select" id="categoria" name="categoria" required>
-                  <option value="">Selecione...</option>
-                  <option value="Papelaria">Papelaria</option>
-                  <option value="Informática">Informática</option>
-                  <option value="Casa">Casa</option>
-                  <option value="Acessórios">Acessórios</option>
-                </select>
-              </div>
+<div class="mb-3">
+  <label for="categoria" class="form-label">Categoria</label>
+  <select class="form-select" id="categoria" name="categoria" required>
+    <option value="">Selecione...</option>
+    <option value="Papelaria">Papelaria</option>
+    <option value="Informática">Informática</option>
+    <option value="Casa">Casa</option>
+    <option value="Acessórios">Acessórios</option>
+  </select>
+</div>
 
-              <div class="mb-3">
-                <label for="preco" class="form-label">Preço (R$)</label>
-                <input type="number" class="form-control" id="preco" name="preco" placeholder="0,00" min="0.01" step="0.01" required>
-              </div>
+<div class="mb-3">
+  <label for="preco" class="form-label">Preço (R$)</label>
+  <input type="number" class="form-control" id="preco" name="preco" placeholder="0,00" min="0.01" step="0.01" required>
+</div>
 ```
 
 Salve e recarregue. Os três campos têm o mesmo visual. Digite `ab` no nome e saia do campo: a borda fica vermelha, que é a regra `:user-invalid` do seu `estilo.css`.
@@ -532,11 +532,11 @@ Salve e recarregue. Os três campos têm o mesmo visual. Digite `ab` no nome e s
 Os três botões também ganham classes. Coloque-os dentro de uma `<div class="d-flex gap-2">`, que os alinha lado a lado com espaço entre eles (`d-flex` põe os filhos em linha e `gap-2` define a distância):
 
 ```html
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Cadastrar produto</button>
-                <button type="reset" class="btn btn-outline-secondary">Limpar</button>
-                <button type="button" class="btn btn-outline-secondary" onclick="mostrarProduto()">Ver no console</button>
-              </div>
+<div class="d-flex gap-2">
+  <button type="submit" class="btn btn-primary">Cadastrar produto</button>
+  <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+  <button type="button" class="btn btn-outline-secondary" onclick="mostrarProduto()">Ver no console</button>
+</div>
 ```
 
 Salve e recarregue. Para ver que o JavaScript do Capítulo 2 continua funcionando, abra o console (`F12`), preencha o formulário e clique em **Cadastrar produto**: as três linhas aparecem. Os `id` dos campos não mudaram, e é por eles que o `produto.js` encontra os valores. O Bootstrap mudou só a aparência.
@@ -570,7 +570,7 @@ Salve e clique em **Cadastrar** no menu de qualquer página: **Not Found**. O Fl
 O `url_for` recebe o **nome da função** da rota e devolve o endereço dela. Se o endereço mudar, o template continua certo, porque quem informa o endereço é o Flask. Nos três arquivos (`index.html`, `cadastro.html` e `produto.html`), troque o link **Cadastrar** do menu:
 
 ```html
-            <a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
+<a class="nav-link" href="{{ url_for('cadastro') }}">Cadastrar</a>
 ```
 
 (No `cadastro.html`, esse link é o que tem a classe `active`.) Salve e clique em **Cadastrar**: a página abre, agora em `/novo-produto`. O `{{ }}` é o mesmo do Capítulo 3: o que está dentro é calculado e o resultado entra no HTML. Olhe o código-fonte da página (`Ctrl + U`): o link é `href="/novo-produto"`, o endereço que o Flask escolheu.
@@ -581,21 +581,21 @@ O `url_for` recebe o **nome da função** da rota e devolve o endereço dela. Se
 Faça o mesmo com os outros links do menu e com o nome do catálogo, nos três arquivos. A função da página inicial se chama `index`:
 
 ```html
-      <a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
+<a class="navbar-brand" href="{{ url_for('index') }}">Catálogo de Produtos</a>
 ```
 
 ```html
-            <a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
+<a class="nav-link active" href="{{ url_for('index') }}#produtos">Produtos</a>
 ```
 
 ```html
-            <a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
+<a class="nav-link" href="{{ url_for('index') }}#categorias">Categorias</a>
 ```
 
 O `#produtos` e o `#categorias` continuam escritos à mão, **depois** do `url_for`: o `url_for` devolve `/`, e o navegador acrescenta a âncora. No `produto.html`, troque também o botão **Voltar**:
 
 ```html
-        <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o catálogo</a>
+<a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o catálogo</a>
 ```
 
 Para ver o alívio, volte o endereço no `app.py` para o original:
@@ -611,13 +611,13 @@ Salve e navegue: os três menus continuam funcionando, e **nenhum template foi e
 Os arquivos `estilo.css` e `produto.js` também estão com o caminho escrito à mão (`/static/...`). O Flask cria sozinho uma rota chamada `static` para a pasta `static`, e o `url_for` a usa com o argumento `filename`, que é o nome do arquivo **dentro** da pasta. Nos três arquivos, troque o link do CSS:
 
 ```html
-  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
 ```
 
 E, no `cadastro.html`, o script no fim do `<body>`:
 
 ```html
-  <script src="{{ url_for('static', filename='produto.js') }}"></script>
+<script src="{{ url_for('static', filename='produto.js') }}"></script>
 ```
 
 Salve e recarregue as páginas: nada muda na tela, e é esse o objetivo. O resultado é o mesmo `/static/estilo.css` de antes, mas agora quem o monta é o Flask. O link do Bootstrap **não** muda: ele vem da internet, e não da pasta `static`.
@@ -627,12 +627,12 @@ Salve e recarregue as páginas: nada muda na tela, e é esse o objetivo. O resul
 A tabela do `index.html` ainda tem os seis links `/produto/1` a `/produto/6` escritos à mão. A rota `produto` espera o número com o nome `id_produto`, e o `url_for` o recebe como argumento nomeado. Troque o link de cada produto, mudando só o número:
 
 ```html
-            <td><a href="{{ url_for('produto', id_produto=1) }}">Caneta esferográfica azul</a></td>
-            <td><a href="{{ url_for('produto', id_produto=2) }}">Caderno universitário 96 folhas</a></td>
-            <td><a href="{{ url_for('produto', id_produto=3) }}">Mouse sem fio</a></td>
-            <td><a href="{{ url_for('produto', id_produto=4) }}">Teclado USB</a></td>
-            <td><a href="{{ url_for('produto', id_produto=5) }}">Garrafa térmica 500 ml</a></td>
-            <td><a href="{{ url_for('produto', id_produto=6) }}">Mochila escolar</a></td>
+<td><a href="{{ url_for('produto', id_produto=1) }}">Caneta esferográfica azul</a></td>
+<td><a href="{{ url_for('produto', id_produto=2) }}">Caderno universitário 96 folhas</a></td>
+<td><a href="{{ url_for('produto', id_produto=3) }}">Mouse sem fio</a></td>
+<td><a href="{{ url_for('produto', id_produto=4) }}">Teclado USB</a></td>
+<td><a href="{{ url_for('produto', id_produto=5) }}">Garrafa térmica 500 ml</a></td>
+<td><a href="{{ url_for('produto', id_produto=6) }}">Mochila escolar</a></td>
 ```
 
 Salve, clique em cada produto e confira. O resumo do que o `url_for` substituiu:

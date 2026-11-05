@@ -143,15 +143,15 @@ Este tópico não muda o código, então não há commit.
 A tabela de produtos do catálogo vai ganhar uma busca pelo nome. Abra `templates/index.html` e escreva o formulário **logo abaixo** de `<h2>Produtos</h2>`, antes do parágrafo que conta os produtos:
 
 ```html
-    <form action="{{ url_for('index') }}" method="get" class="row g-2 mb-3">
-      <div class="col-sm-8 col-lg-5">
-        <label for="busca" class="visually-hidden">Buscar pelo nome</label>
-        <input type="search" class="form-control" id="busca" name="busca" placeholder="Buscar pelo nome">
-      </div>
-      <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-      </div>
-    </form>
+<form action="{{ url_for('index') }}" method="get" class="row g-2 mb-3">
+  <div class="col-sm-8 col-lg-5">
+    <label for="busca" class="visually-hidden">Buscar pelo nome</label>
+    <input type="search" class="form-control" id="busca" name="busca" placeholder="Buscar pelo nome">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </div>
+</form>
 ```
 
 !!! note "O que cada atributo faz"
@@ -193,7 +193,7 @@ def index():
 No `index.html`, faça o campo mostrar a busca atual, acrescentando o `value` ao `<input>`:
 
 ```html
-        <input type="search" class="form-control" id="busca" name="busca" placeholder="Buscar pelo nome" value="{{ busca }}">
+<input type="search" class="form-control" id="busca" name="busca" placeholder="Buscar pelo nome" value="{{ busca }}">
 ```
 
 Salve e busque `mouse` de novo: o campo agora **continua com o termo** depois de enviar. A lista ainda tem os sete produtos, porque ninguém filtrou. Teste também abrir **http://127.0.0.1:5000/?busca=%20%20teste%20%20**: o campo mostra `teste`, sem os espaços.
@@ -234,20 +234,20 @@ Salve e teste:
 No `index.html`, troque o texto da linha vazia da tabela:
 
 ```html
-          <td colspan="5" class="text-center text-body-secondary">Nenhum produto encontrado.</td>
+<td colspan="5" class="text-center text-body-secondary">Nenhum produto encontrado.</td>
 ```
 
 E troque o parágrafo da contagem por um `if` que distingue "com busca" de "sem busca":
 
 ```html
-    {% if busca %}
-    <p class="text-body-secondary">
-      {{ produtos|length }} resultado(s) para "<strong>{{ busca }}</strong>".
-      <a href="{{ url_for('index') }}">Limpar a busca</a>
-    </p>
-    {% else %}
-    <p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
-    {% endif %}
+{% if busca %}
+<p class="text-body-secondary">
+  {{ produtos|length }} resultado(s) para "<strong>{{ busca }}</strong>".
+  <a href="{{ url_for('index') }}">Limpar a busca</a>
+</p>
+{% else %}
+<p class="text-body-secondary">{{ produtos|length }} produtos no catálogo.</p>
+{% endif %}
 ```
 
 Salve e busque `mouse`, depois `xyz`, e clique em **Limpar a busca**: o endereço volta a ser `/` e a contagem volta a `7 produtos no catálogo.`. Como o endereço da busca guarda tudo, você pode copiá-lo e abri-lo em outra aba, ou mandá-lo a um colega, e a página será a mesma. É por isso que a busca usa GET.
@@ -320,9 +320,9 @@ Crie `templates/contato.html`. Repare que o `<form>` **não** tem `method`:
 Para a página aparecer no menu, acrescente no `base.html`, logo depois do `<li>` do **Cadastrar**:
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'contato' %}active{% endif %}" href="{{ url_for('contato') }}">Contato</a>
-          </li>
+<li class="nav-item">
+  <a class="nav-link {% if request.endpoint == 'contato' %}active{% endif %}" href="{{ url_for('contato') }}">Contato</a>
+</li>
 ```
 
 Salve, clique em **Contato** no menu, digite `Ana` e a senha `123456` e clique em **Enviar**. Olhe a barra de endereços:
@@ -339,7 +339,7 @@ http://127.0.0.1:5000/contato?nome=Ana&senha=123456
 No `contato.html`, acrescente `method="post"` ao formulário:
 
 ```html
-          <form action="{{ url_for('contato') }}" method="post">
+<form action="{{ url_for('contato') }}" method="post">
 ```
 
 Salve, preencha de novo e envie. A página que aparece diz **Method Not Allowed**, e a linha do terminal termina em `405`:
@@ -374,14 +374,14 @@ def contato():
 No `contato.html`, mostre o que chegou, **entre** o `<h1>` e o `<div class="row">`:
 
 ```html
-  {% if dados %}
-  <div class="alert alert-success">
-    <h2 class="h5">Recebemos a sua mensagem</h2>
-    <ul class="mb-0">
-      <li><strong>Nome:</strong> {{ dados.nome }}</li>
-    </ul>
-  </div>
-  {% endif %}
+{% if dados %}
+<div class="alert alert-success">
+  <h2 class="h5">Recebemos a sua mensagem</h2>
+  <ul class="mb-0">
+    <li><strong>Nome:</strong> {{ dados.nome }}</li>
+  </ul>
+</div>
+{% endif %}
 ```
 
 Salve, abra **Contato**, preencha o nome `Ana` e a senha `123456` e envie. Agora o endereço continua `/contato`, sem nada depois, e a página mostra a caixa verde com o nome. Abra o painel **Network**, marque **Preserve log** (**Preservar registro**), envie de novo e clique no pedido `contato`. Na aba **Payload**, o item **Form Data** mostra `nome: Ana` e `senha: 123456`. Na aba **Headers**, o `Request Method` é `POST`. É o corpo do pedido: **não aparece no endereço, mas o navegador o envia às claras**. O Python recebeu a senha, só que o nosso código nem a lê, e por isso ela não aparece na caixa verde. O Capítulo 14 mostra o que se faz com uma senha de verdade.
@@ -414,13 +414,13 @@ git push
 Abra `templates/cadastro.html`. Hoje a abertura do formulário é:
 
 ```html
-          <form action="#" onsubmit="cadastrarProduto(event)">
+<form action="#" onsubmit="cadastrarProduto(event)">
 ```
 
 Troque por:
 
 ```html
-          <form action="{{ url_for('cadastro') }}" method="post">
+<form action="{{ url_for('cadastro') }}" method="post">
 ```
 
 O `onsubmit`, que existia só porque não havia servidor, **sai de cena**. No `static/produto.js`, apague a função `cadastrarProduto` inteira (a que termina com a mensagem "Ainda não existe servidor para guardá-lo"). O arquivo fica só com `mostrarProduto`, que o botão **Ver no console** continua usando:
@@ -571,10 +571,10 @@ O cadastro de produto usa três tipos de campo: texto, número e `select`. O for
 No `contato.html`, escreva o campo logo depois do campo **Nome**:
 
 ```html
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="voce@exemplo.com" required>
-            </div>
+<div class="mb-3">
+  <label for="email" class="form-label">E-mail</label>
+  <input type="email" class="form-control" id="email" name="email" placeholder="voce@exemplo.com" required>
+</div>
 ```
 
 No `app.py`, acrescente a chave ao dicionário `dados` (que agora passa a ocupar várias linhas), e no `contato.html`, o item da lista:
@@ -587,7 +587,7 @@ No `app.py`, acrescente a chave ao dicionário `dados` (que agora passa a ocupar
 ```
 
 ```html
-      <li><strong>E-mail:</strong> {{ dados.email }}</li>
+<li><strong>E-mail:</strong> {{ dados.email }}</li>
 ```
 
 Salve e envie com `ana@exemplo.com`. O `type="email"` faz o **navegador** recusar um texto sem `@`, mas, para o Python, o e-mail é só um texto: ele chega como qualquer outro.
@@ -597,10 +597,10 @@ Salve e envie com `ana@exemplo.com`. O `type="email"` faz o **navegador** recusa
 Logo depois do e-mail:
 
 ```html
-            <div class="mb-3">
-              <label for="retorno" class="form-label">Melhor data para o nosso retorno</label>
-              <input type="date" class="form-control" id="retorno" name="retorno" required>
-            </div>
+<div class="mb-3">
+  <label for="retorno" class="form-label">Melhor data para o nosso retorno</label>
+  <input type="date" class="form-control" id="retorno" name="retorno" required>
+</div>
 ```
 
 ```python
@@ -608,7 +608,7 @@ Logo depois do e-mail:
 ```
 
 ```html
-      <li><strong>Data para retorno:</strong> {{ dados.retorno }}</li>
+<li><strong>Data para retorno:</strong> {{ dados.retorno }}</li>
 ```
 
 Salve, escolha uma data no calendário que o navegador abre e envie. Na tela o campo mostra `20/11/2026`, mas o que chega ao Python é `2026-11-20`: **ano, mês e dia**, sempre nesse formato, seja qual for o idioma do navegador. É texto também. Deixar a data no formato brasileiro é assunto do Capítulo 15.
@@ -618,21 +618,21 @@ Salve, escolha uma data no calendário que o navegador abre e envie. Na tela o c
 Um grupo de **radio** oferece várias opções e deixa marcar **uma só**. O que liga os botões em um grupo é o **mesmo `name`**, e cada um tem o seu `value`. Depois da data:
 
 ```html
-            <div class="mb-3">
-              <span class="form-label d-block">Assunto</span>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="assunto" id="assunto_duvida" value="Dúvida" checked>
-                <label class="form-check-label" for="assunto_duvida">Dúvida</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="assunto" id="assunto_sugestao" value="Sugestão">
-                <label class="form-check-label" for="assunto_sugestao">Sugestão</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="assunto" id="assunto_reclamacao" value="Reclamação">
-                <label class="form-check-label" for="assunto_reclamacao">Reclamação</label>
-              </div>
-            </div>
+<div class="mb-3">
+  <span class="form-label d-block">Assunto</span>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="assunto" id="assunto_duvida" value="Dúvida" checked>
+    <label class="form-check-label" for="assunto_duvida">Dúvida</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="assunto" id="assunto_sugestao" value="Sugestão">
+    <label class="form-check-label" for="assunto_sugestao">Sugestão</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="assunto" id="assunto_reclamacao" value="Reclamação">
+    <label class="form-check-label" for="assunto_reclamacao">Reclamação</label>
+  </div>
+</div>
 ```
 
 O atributo `checked` deixa a primeira opção marcada de saída. No Python, desta vez usamos o `.get()`:
@@ -642,7 +642,7 @@ O atributo `checked` deixa a primeira opção marcada de saída. No Python, dest
 ```
 
 ```html
-      <li><strong>Assunto:</strong> {{ dados.assunto }}</li>
+<li><strong>Assunto:</strong> {{ dados.assunto }}</li>
 ```
 
 !!! note "Python: `request.form.get()` x `request.form[...]`"
@@ -655,10 +655,10 @@ Salve e envie com **Sugestão** marcada: a caixa verde mostra `Sugestão`, o `va
 Para textos longos, o `<textarea>`. Depois do radio:
 
 ```html
-            <div class="mb-3">
-              <label for="mensagem" class="form-label">Mensagem</label>
-              <textarea class="form-control" id="mensagem" name="mensagem" rows="4" required></textarea>
-            </div>
+<div class="mb-3">
+  <label for="mensagem" class="form-label">Mensagem</label>
+  <textarea class="form-control" id="mensagem" name="mensagem" rows="4" required></textarea>
+</div>
 ```
 
 ```python
@@ -666,7 +666,7 @@ Para textos longos, o `<textarea>`. Depois do radio:
 ```
 
 ```html
-      <li><strong>Mensagem:</strong> <span class="mensagem-recebida">{{ dados.mensagem }}</span></li>
+<li><strong>Mensagem:</strong> <span class="mensagem-recebida">{{ dados.mensagem }}</span></li>
 ```
 
 Ele **não tem** `value`: o texto inicial, se existir, fica entre `<textarea>` e `</textarea>`. O `rows` define a altura. Escreva duas linhas, com `Enter` entre elas, e envie: a mensagem aparece em **uma linha só**, porque o HTML trata a quebra de linha como um espaço. Para manter as quebras, acrescente ao `static/estilo.css`:
@@ -689,10 +689,10 @@ O campo de senha que você escreveu no Tópico 3 é o `type="password"`. Ele já
 Um checkbox é uma caixa que se marca ou desmarca. Depois do campo da senha:
 
 ```html
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="novidades" name="novidades" value="sim">
-              <label class="form-check-label" for="novidades">Quero receber as novidades do catálogo</label>
-            </div>
+<div class="form-check mb-3">
+  <input class="form-check-input" type="checkbox" id="novidades" name="novidades" value="sim">
+  <label class="form-check-label" for="novidades">Quero receber as novidades do catálogo</label>
+</div>
 ```
 
 O comportamento do checkbox é o mais surpreendente do HTML: **desmarcado, ele não envia nada**, nem um "não". Só o marcado chega, com o `value` (`'sim'`). Por isso o Python pergunta se o campo chegou, e o `.get()` devolve `None` quando ele não veio. No `app.py`, antes do dicionário `dados`, e como nova chave:
@@ -709,7 +709,7 @@ O comportamento do checkbox é o mais surpreendente do HTML: **desmarcado, ele n
 ```
 
 ```html
-      <li><strong>Receber novidades:</strong> {{ dados.novidades }}</li>
+<li><strong>Receber novidades:</strong> {{ dados.novidades }}</li>
 ```
 
 Salve e envie duas vezes: uma com a caixa marcada (`Sim`) e outra com ela desmarcada (`Não`). No painel **Network**, compare os **Form Data** dos dois pedidos: no primeiro existe `novidades: sim`, e no segundo o campo **não existe**.

@@ -227,7 +227,7 @@ Crie o arquivo `cadastro.html` na raiz do projeto, ao lado do `index.html`, com 
 Os links do menu desta página apontam para o `index.html` (`index.html#produtos` significa "abra o `index.html` e vá até o elemento `produtos`"). No `index.html`, acrescente o link para a página nova, dentro do `<nav>`, depois do link de Categorias:
 
 ```html
-      <a href="cadastro.html">Cadastrar</a>
+<a href="cadastro.html">Cadastrar</a>
 ```
 
 Salve os dois arquivos, abra o `index.html` no navegador e clique em **Cadastrar**. A página nova abre com o topo, o título **Cadastrar produto** e o rodapé, ainda sem campos. Clique em **Produtos** para voltar.
@@ -242,12 +242,12 @@ O `<form action="#">` tem um atributo novo, o `action`: é o **endereço para on
 Dentro do `<form>`, acrescente o primeiro campo e o botão que envia o formulário:
 
 ```html
-        <div class="campo">
-          <label for="nome">Nome do produto</label>
-          <input type="text" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" required minlength="3">
-        </div>
+<div class="campo">
+  <label for="nome">Nome do produto</label>
+  <input type="text" id="nome" name="nome" placeholder="Ex.: Caneta esferográfica azul" required minlength="3">
+</div>
 
-        <button type="submit">Cadastrar produto</button>
+<button type="submit">Cadastrar produto</button>
 ```
 
 Salve e recarregue a página. O `<div>` é uma caixa genérica, sem significado próprio, usada aqui só para agrupar o rótulo e o campo (a classe `campo` só ganha estilo no Tópico 4). O atributo `name` é o nome com que o dado viaja ao ser enviado: o `id` serve para o `label` e para o JavaScript, o `name` serve ao envio. Os atributos novos do `<input>` são:
@@ -268,16 +268,16 @@ Esse final é o dado viajando: `nome` (o `name` do campo), `=` e o valor digitad
 A categoria vem de uma lista fechada (as quatro do catálogo), o que pede um `<select>`. Acrescente, depois do campo nome e antes do botão:
 
 ```html
-        <div class="campo">
-          <label for="categoria">Categoria</label>
-          <select id="categoria" name="categoria" required>
-            <option value="">Selecione...</option>
-            <option value="Papelaria">Papelaria</option>
-            <option value="Informática">Informática</option>
-            <option value="Casa">Casa</option>
-            <option value="Acessórios">Acessórios</option>
-          </select>
-        </div>
+<div class="campo">
+  <label for="categoria">Categoria</label>
+  <select id="categoria" name="categoria" required>
+    <option value="">Selecione...</option>
+    <option value="Papelaria">Papelaria</option>
+    <option value="Informática">Informática</option>
+    <option value="Casa">Casa</option>
+    <option value="Acessórios">Acessórios</option>
+  </select>
+</div>
 ```
 
 Salve e recarregue. Cada `<option>` é uma opção do menu: o `value` é o que **viaja** ao enviar e o texto entre as tags é o que a pessoa lê (aqui são iguais). A primeira opção tem `value=""`, vazio de propósito: com o `required`, escolher "Selecione..." conta como não escolher nada. Digite um nome, deixe a categoria em "Selecione..." e clique em **Cadastrar produto**: o navegador pede que você escolha um item.
@@ -287,10 +287,10 @@ Salve e recarregue. Cada `<option>` é uma opção do menu: o `value` é o que *
 Falta o preço. Acrescente, depois da categoria e antes do botão:
 
 ```html
-        <div class="campo">
-          <label for="preco">Preço (R$)</label>
-          <input type="number" id="preco" name="preco" placeholder="0,00" min="0.01" step="0.01" required>
-        </div>
+<div class="campo">
+  <label for="preco">Preço (R$)</label>
+  <input type="number" id="preco" name="preco" placeholder="0,00" min="0.01" step="0.01" required>
+</div>
 ```
 
 Salve e recarregue. Os atributos novos:
@@ -306,7 +306,7 @@ Preencha tudo (`Caneta`, `Papelaria`, `2,50`) e envie: os três campos viajam no
 Para testar várias vezes sem apagar tudo na mão, acrescente, logo depois do botão de envio:
 
 ```html
-        <button type="reset">Limpar</button>
+<button type="reset">Limpar</button>
 ```
 
 O `type="reset"` volta todos os campos ao estado inicial. O `type="submit"` envia o formulário, e é por isso que ele precisa estar **dentro** do `<form>`. O `cadastro.html` completo neste ponto:
@@ -488,7 +488,7 @@ button:hover {
 Salve e recarregue: o formulário virou um cartão branco, com no máximo 480 pixels de largura, e os dois botões ficaram azuis. Passe o mouse sobre eles para ver o azul escurecer. Mas o **Limpar** não deveria chamar tanta atenção quanto o botão principal. Isso pede uma **classe**, como o `.preco` do Capítulo 1. No `cadastro.html`, acrescente `class="secundario"` ao botão de limpar:
 
 ```html
-        <button type="reset" class="secundario">Limpar</button>
+<button type="reset" class="secundario">Limpar</button>
 ```
 
 E no `estilo.css`:
@@ -670,9 +670,9 @@ Faça um teste: clique na linha que começa com `>` no fim do console, digite `c
 Para colocar JavaScript no HTML, usa-se a tag `<script>`. No `cadastro.html`, logo antes do `</body>` (depois do rodapé), acrescente:
 
 ```html
-  <script>
-    console.log("JavaScript funcionando");
-  </script>
+<script>
+  console.log("JavaScript funcionando");
+</script>
 ```
 
 Salve e recarregue a página (com o console aberto). A mensagem aparece no console, junto com o nome do arquivo e a linha que a escreveu. O navegador executou o código assim que carregou a página. O `console.log(...)` escreve no console o que estiver entre os parênteses.
@@ -682,11 +682,11 @@ Salve e recarregue a página (com o console aberto). A mensagem aparece no conso
 Escrever na carga da página não ajuda muito: o que queremos é reagir a uma **ação** da pessoa. Para isso, o código precisa ficar guardado em uma **função**, que só roda quando alguém a chamar. Troque o conteúdo do `<script>` por:
 
 ```html
-  <script>
-    function mostrarProduto() {
-      console.log("A função foi chamada");
-    }
-  </script>
+<script>
+  function mostrarProduto() {
+    console.log("A função foi chamada");
+  }
+</script>
 ```
 
 !!! note "Python x JavaScript"
@@ -705,7 +705,7 @@ Escrever na carga da página não ajuda muito: o que queremos é reagir a uma **
 Salve e recarregue: o console fica vazio, porque a função existe, mas ninguém a chamou. Vamos chamá-la com um clique. No formulário, depois do botão **Limpar**, acrescente um terceiro botão:
 
 ```html
-        <button type="button" class="secundario" onclick="mostrarProduto()">Ver no console</button>
+<button type="button" class="secundario" onclick="mostrarProduto()">Ver no console</button>
 ```
 
 Salve e recarregue. Clique em **Ver no console** e a mensagem aparece. A cada clique, uma nova linha. O atributo `onclick` diz "quando este elemento for clicado, execute isto". O `type="button"` é importante: dentro de um `<form>`, um botão sem `type` envia o formulário, e este só deve chamar a função.
@@ -715,12 +715,12 @@ Salve e recarregue. Clique em **Ver no console** e a mensagem aparece. A cada cl
 Agora a função vai ler o campo do nome. Troque o `console.log` de dentro da função por:
 
 ```html
-  <script>
-    function mostrarProduto() {
-      const nome = document.getElementById("nome").value;
-      console.log("Nome:", nome);
-    }
-  </script>
+<script>
+  function mostrarProduto() {
+    const nome = document.getElementById("nome").value;
+    console.log("Nome:", nome);
+  }
+</script>
 ```
 
 - `document` é a página inteira;
@@ -731,17 +731,17 @@ Agora a função vai ler o campo do nome. Troque o `console.log` de dentro da fu
 Salve e recarregue. Digite `Caneta` no campo de nome e clique em **Ver no console**: a linha `Nome: Caneta` aparece. Apague o texto e clique de novo: `Nome:` aparece sem nada depois. Acrescente agora a categoria e o preço, do mesmo jeito:
 
 ```html
-  <script>
-    function mostrarProduto() {
-      const nome = document.getElementById("nome").value;
-      const categoria = document.getElementById("categoria").value;
-      const preco = document.getElementById("preco").value;
+<script>
+  function mostrarProduto() {
+    const nome = document.getElementById("nome").value;
+    const categoria = document.getElementById("categoria").value;
+    const preco = document.getElementById("preco").value;
 
-      console.log("Nome:", nome);
-      console.log("Categoria:", categoria);
-      console.log("Preço:", preco);
-    }
-  </script>
+    console.log("Nome:", nome);
+    console.log("Categoria:", categoria);
+    console.log("Preço:", preco);
+  }
+</script>
 ```
 
 Salve, recarregue, preencha os três campos (`Caneta`, `Papelaria`, `2,50`) e clique em **Ver no console**. Três linhas aparecem, uma por campo. Repare que o botão **Ver no console** não confere nada: ele lê o que estiver ali, mesmo que esteja vazio ou errado, porque não é um botão de envio.
@@ -768,7 +768,7 @@ function mostrarProduto() {
 No `cadastro.html`, **apague** o bloco `<script>` inteiro e coloque no lugar dele a ligação com o arquivo:
 
 ```html
-  <script src="produto.js"></script>
+<script src="produto.js"></script>
 ```
 
 Salve os dois arquivos, recarregue e clique em **Ver no console**: funciona como antes. O atributo `src` aponta para o arquivo, como o `href` do `<link>` faz com o CSS. A tag fica no final do `<body>` para que o navegador carregue primeiro a página e só depois o script.
@@ -781,7 +781,7 @@ Salve os dois arquivos, recarregue e clique em **Ver no console**: funciona como
 O `onclick` reage a um clique. Para reagir ao **envio** do formulário, existe o `onsubmit`, que fica na tag `<form>`. Mude a tag para:
 
 ```html
-      <form action="#" onsubmit="mostrarProduto()">
+<form action="#" onsubmit="mostrarProduto()">
 ```
 
 Salve e recarregue. Preencha os três campos com valores válidos e clique em **Cadastrar produto**. O console escreveu as três linhas, mas **a página recarregou e tudo sumiu**: os campos ficaram vazios, o endereço ganhou o `?nome=...` do Tópico 3 e o console foi limpo no recarregamento. Esse recarregamento é o envio normal do formulário, e ele atropela o JavaScript.
@@ -799,7 +799,7 @@ function cadastrarProduto(evento) {
 A função `cadastrarProduto` recebe o `evento` como **parâmetro**, como as funções do Python recebem argumentos. Ela cancela o envio, chama a função que já existe (uma função pode chamar outra) e escreve uma mensagem final. No `cadastro.html`, ligue o formulário a ela:
 
 ```html
-      <form action="#" onsubmit="cadastrarProduto(event)">
+<form action="#" onsubmit="cadastrarProduto(event)">
 ```
 
 O `event` escrito no HTML é uma palavra que o navegador reconhece dentro de `onclick` e `onsubmit`: é o evento que acabou de acontecer, entregue à função. Salve os dois arquivos, recarregue e teste três situações, sempre com o console aberto:
