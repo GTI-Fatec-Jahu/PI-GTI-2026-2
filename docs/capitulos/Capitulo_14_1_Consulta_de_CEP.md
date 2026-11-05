@@ -107,29 +107,44 @@ O terceiro caso é o que mais atrapalha: a resposta **não é um JSON**, e tenta
 
 ### O botão e o espaço do aviso
 
-No `templates/usuarios/usuario_form.html`, o CEP e o endereço dividiam uma linha. Troque **a linha inteira** do CEP e do endereço (o `<div class="row">` que abre com o campo `cep` e fecha depois do campo `endereco`) por este trecho:
+No `templates/usuarios/usuario_form.html`, o CEP e o endereço dividiam uma linha, logo abaixo do título **Endereço (opcional)**. Procure este bloco, o `<div class="row">` que abre com o campo `cep` e fecha depois do campo `endereco`:
 
 ```html
-            <div class="row">
-              <div class="col-md-5 mb-3">
-                <label for="cep" class="form-label">CEP</label>
-                <div class="input-group">
-                  <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep }}" maxlength="9">
-                  <button type="button" class="btn btn-outline-secondary" onclick="buscarCep()">Buscar</button>
-                </div>
-              </div>
-              <div class="col-md-7 mb-3 d-flex align-items-end">
-                <div id="avisoCep" class="form-text mb-2"></div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="endereco" class="form-label">Endereço</label>
-              <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco }}" maxlength="255">
-            </div>
+<div class="row">
+  <div class="col-md-4 mb-3">
+    <label for="cep" class="form-label">CEP</label>
+    <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep or '' }}" maxlength="9">
+  </div>
+  <div class="col-md-8 mb-3">
+    <label for="endereco" class="form-label">Endereço</label>
+    <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco or '' }}" maxlength="255">
+  </div>
+</div>
 ```
 
-Três detalhes: o botão é `type="button"`, e **não** `type="submit"`, para não enviar o formulário; o `onclick="buscarCep()"` chama uma função que ainda não existe; e o `<div id="avisoCep">` é onde a função vai escrever as mensagens. O endereço ganhou uma linha própria, porque o aviso ocupa o lado do CEP. Salve, recarregue **http://127.0.0.1:5000/usuarios/novo** e clique em **Buscar**. Nada aparece na tela. Aperte `F12`, abra a aba **Console** e clique de novo: o navegador mostra um erro em vermelho, algo como `buscarCep is not defined`. É esperado: o botão chama uma função que ainda não foi escrita.
+E troque o bloco **inteiro** por este trecho:
+
+```html
+<div class="row">
+  <div class="col-md-5 mb-3">
+    <label for="cep" class="form-label">CEP</label>
+    <div class="input-group">
+      <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep or '' }}" maxlength="9">
+      <button type="button" class="btn btn-outline-secondary" onclick="buscarCep()">Buscar</button>
+    </div>
+  </div>
+  <div class="col-md-7 mb-3 d-flex align-items-end">
+    <div id="avisoCep" class="form-text mb-2"></div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <label for="endereco" class="form-label">Endereço</label>
+  <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco or '' }}" maxlength="255">
+</div>
+```
+
+Os dois campos continuam com o `or ''` do Capítulo 14. Três detalhes: o botão é `type="button"`, e **não** `type="submit"`, para não enviar o formulário; o `onclick="buscarCep()"` chama uma função que ainda não existe; e o `<div id="avisoCep">` é onde a função vai escrever as mensagens. O endereço ganhou uma linha própria, porque o aviso ocupa o lado do CEP. Salve, recarregue **http://127.0.0.1:5000/usuarios/inserir** e clique em **Buscar**. Nada aparece na tela. Aperte `F12`, abra a aba **Console** e clique de novo: o navegador mostra um erro em vermelho, algo como `buscarCep is not defined`. É esperado: o botão chama uma função que ainda não foi escrita.
 
 ### Uma função que lê o CEP
 
@@ -320,7 +335,7 @@ Para o último caso de falha, simule a **falta de internet**: no `F12`, abra a a
 
 ### O servidor continua mandando
 
-Cadastre um usuário usando o botão: nome `Diego Alves`, e-mail `diego@exemplo.com`, uma senha, um perfil, o CEP `17201-000`, **Buscar**, o número `25`. No phpMyAdmin, confira que o usuário foi gravado com o CEP `17201-000`, o endereço, a cidade `Jaú` e o estado `SP`. Para o servidor, esses campos são iguais aos que a pessoa digitaria: as mesmas funções de `validacoes.py` do Capítulo 14 conferem tudo, e o `app.py` **não mudou** neste capítulo. Quem desligar o JavaScript, ou usar um navegador sem ele, preenche o endereço à mão e cadastra do mesmo jeito. O JavaScript é uma **comodidade**, e a conferência de verdade continua no servidor.
+Cadastre um usuário usando o botão: nome `Diego Alves`, e-mail `diego@exemplo.com`, uma senha, um perfil, o CEP `17201-000`, **Buscar**, o número `25`. No phpMyAdmin, confira que o usuário foi gravado com o CEP `17201-000`, o endereço, a cidade `Jaú` e o estado `SP`. Para o servidor, esses campos são iguais aos que a pessoa digitaria: as mesmas funções de `validacoes/validacoes_usuario.py` do Capítulo 14 conferem tudo, e o `app.py` **não mudou** neste capítulo. Quem desligar o JavaScript, ou usar um navegador sem ele, preenche o endereço à mão e cadastra do mesmo jeito. O JavaScript é uma **comodidade**, e a conferência de verdade continua no servidor.
 
 ```bash
 git add .
@@ -332,7 +347,9 @@ git push
 
 ## O arquivo completo do capítulo
 
-Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, o `validacoes.py` e os demais arquivos são os do Capítulo 14.
+Só o formulário mudou neste capítulo. O `app.py`, a pasta `validacoes` e os demais arquivos são os do Capítulo 14.
+
+O `templates/usuarios/usuario_form.html`:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -342,12 +359,12 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
 {% block conteudo %}
   <h1 class="h2 mb-4">Novo usuário</h1>
 
-  <div class="row">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
 
-          <form action="{{ url_for('usuario_novo') }}" method="post">
+          <form action="{{ url_for('inserir_usuario') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <h2 class="h5 mb-3">Dados principais</h2>
@@ -380,12 +397,12 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
                 <select class="form-select" id="perfil_id" name="perfil_id" required>
                   <option value="">Selecione...</option>
                   {% for perfil in perfis %}
-                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
+                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id|string == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
                   {% endfor %}
                 </select>
               {% else %}
                 <div class="alert alert-warning mb-0" role="alert">
-                  Nenhum perfil cadastrado. <a href="{{ url_for('perfil_novo') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
+                  Nenhum perfil cadastrado. <a href="{{ url_for('inserir_perfil') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
                 </div>
               {% endif %}
             </div>
@@ -395,15 +412,15 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="celular" class="form-label">Celular</label>
-                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular }}" maxlength="20">
+                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular or '' }}" maxlength="20">
               </div>
               <div class="col-md-4 mb-3">
                 <label for="data_nascimento" class="form-label">Data de nascimento</label>
-                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento }}">
+                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento or '' }}">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="cpf" class="form-label">CPF</label>
-                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf }}" maxlength="14">
+                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf or '' }}" maxlength="14">
               </div>
             </div>
 
@@ -413,7 +430,7 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
               <div class="col-md-5 mb-3">
                 <label for="cep" class="form-label">CEP</label>
                 <div class="input-group">
-                  <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep }}" maxlength="9">
+                  <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep or '' }}" maxlength="9">
                   <button type="button" class="btn btn-outline-secondary" onclick="buscarCep()">Buscar</button>
                 </div>
               </div>
@@ -424,24 +441,24 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
 
             <div class="mb-3">
               <label for="endereco" class="form-label">Endereço</label>
-              <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco }}" maxlength="255">
+              <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco or '' }}" maxlength="255">
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="numero" class="form-label">Número</label>
-                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero }}" maxlength="20">
+                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero or '' }}" maxlength="20">
               </div>
               <div class="col-md-8 mb-3">
                 <label for="complemento" class="form-label">Complemento</label>
-                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento }}" maxlength="100">
+                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento or '' }}" maxlength="100">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-8 mb-4">
                 <label for="cidade" class="form-label">Cidade</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade }}" maxlength="100">
+                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade or '' }}" maxlength="100">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="estado" class="form-label">Estado</label>
@@ -454,9 +471,9 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
               </div>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">Salvar usuário</button>
-              <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
             </div>
 
           </form>
@@ -506,7 +523,7 @@ Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, 
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 15 não parte deste zip**, e sim do zip do Capítulo 14. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `usuarios/usuario_form.html` novo) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
+Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 15 não parte deste zip**, e sim do zip do Capítulo 14. O zip tem o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `usuarios/usuario_form.html` novo) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
 
 ➡️ [Baixar p2_cap_14_1.zip](../arquivos/p2_cap_14_1.zip)
 
@@ -535,7 +552,7 @@ Tente responder mentalmente antes de abrir.
 
 ## 📝 Resumo
 
-O botão **Buscar** consulta o ViaCEP, uma API pública que responde em JSON, e preenche o endereço, a cidade e o estado do formulário. A função `buscarCep` é chamada pelo `onclick`, usa `fetch` e `await` para perguntar, e confere os três desfechos: o CEP incompleto (antes de consultar), o CEP inexistente (o campo `erro` da resposta) e a falha de rede (o `try/catch`). Como o serviço é de terceiros e o JavaScript pode ser desligado, nada mudou no servidor: o `app.py` e o `validacoes.py` continuam conferindo o que chega, e o formulário continua funcionando com o endereço digitado à mão.
+O botão **Buscar** consulta o ViaCEP, uma API pública que responde em JSON, e preenche o endereço, a cidade e o estado do formulário. A função `buscarCep` é chamada pelo `onclick`, usa `fetch` e `await` para perguntar, e confere os três desfechos: o CEP incompleto (antes de consultar), o CEP inexistente (o campo `erro` da resposta) e a falha de rede (o `try/catch`). Como o serviço é de terceiros e o JavaScript pode ser desligado, nada mudou no servidor: o `app.py` e a pasta `validacoes` continuam conferindo o que chega, e o formulário continua funcionando com o endereço digitado à mão.
 
 ---
 
