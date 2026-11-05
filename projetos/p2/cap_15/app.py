@@ -153,7 +153,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -172,8 +172,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -191,7 +189,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -211,7 +212,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -329,7 +330,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:

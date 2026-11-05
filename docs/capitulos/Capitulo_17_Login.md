@@ -422,12 +422,12 @@ Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depo
 | `/dashboard` | `dashboard` |
 | `/perfis` | `listar_perfis` |
 | `/perfis/inserir` | `inserir_perfil` |
-| `/perfis/<int:id_perfil>/editar` | `perfil_editar` |
-| `/perfis/<int:id_perfil>/excluir` | `perfil_excluir` |
+| `/perfis/<int:id_perfil>/editar` | `editar_perfil` |
+| `/perfis/<int:id_perfil>/excluir` | `excluir_perfil` |
 | `/usuarios/inserir` | `inserir_usuario` |
-| `/usuarios/<int:id_usuario>` | `usuario_detalhe` |
-| `/usuarios/<int:id_usuario>/editar` | `usuario_editar` |
-| `/usuarios/<int:id_usuario>/excluir` | `usuario_excluir` |
+| `/usuarios/<int:id_usuario>` | `detalhar_usuario` |
+| `/usuarios/<int:id_usuario>/editar` | `editar_usuario` |
+| `/usuarios/<int:id_usuario>/excluir` | `excluir_usuario` |
 
 ```python
     if 'id_usuario' not in session:
@@ -435,11 +435,11 @@ Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depo
         return redirect(url_for('login'))
 ```
 
-Por exemplo, a `perfil_editar` fica assim no começo:
+Por exemplo, a `editar_perfil` fica assim no começo:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -451,7 +451,7 @@ def perfil_editar(id_perfil):
     )
 ```
 
-Não esqueça as duas rotas que **só aceitam `POST`**, `perfil_excluir` e `usuario_excluir`. Elas não têm página, e por isso é fácil pensar que ninguém chega até elas. Mas o `POST` pode ser enviado sem passar pelo navegador, e o token CSRF só mostra que o formulário veio do sistema, e **não** que a pessoa fez login (o formulário de login entrega um token a qualquer visitante). Só o `if` impede a exclusão. A rota `/` (a `index`, que só redireciona para o login), a rota `login` e a rota `logout` ficam **de fora**: a primeira não mostra nada, a segunda precisa estar aberta para alguém poder entrar, e a terceira só esvazia a `session`.
+Não esqueça as duas rotas que **só aceitam `POST`**, `excluir_perfil` e `excluir_usuario`. Elas não têm página, e por isso é fácil pensar que ninguém chega até elas. Mas o `POST` pode ser enviado sem passar pelo navegador, e o token CSRF só mostra que o formulário veio do sistema, e **não** que a pessoa fez login (o formulário de login entrega um token a qualquer visitante). Só o `if` impede a exclusão. A rota `/` (a `index`, que só redireciona para o login), a rota `login` e a rota `logout` ficam **de fora**: a primeira não mostra nada, a segunda precisa estar aberta para alguém poder entrar, e a terceira só esvazia a `session`.
 
 Salve e confira, **sem** estar logado:
 
@@ -465,7 +465,7 @@ Agora entre como Ana e percorra o sistema: tudo funciona como no Capítulo 16. A
 
 ### Excluir o próprio usuário
 
-Falta um cuidado que só existe agora que o sistema sabe quem está logado. Entre como Ana, abra `/usuarios` e imagine clicar em **Excluir** na linha **dela mesma**: o usuário seria apagado do banco com a `session` ainda dizendo que ele está logado. No `usuario_excluir`, logo **depois** do `if` do login e **antes** do `SELECT`, acrescente:
+Falta um cuidado que só existe agora que o sistema sabe quem está logado. Entre como Ana, abra `/usuarios` e imagine clicar em **Excluir** na linha **dela mesma**: o usuário seria apagado do banco com a `session` ainda dizendo que ele está logado. No `excluir_usuario`, logo **depois** do `if` do login e **antes** do `SELECT`, acrescente:
 
 ```python
     # Quem está logado não pode excluir a si mesmo
@@ -709,7 +709,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -732,8 +732,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -751,7 +749,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -771,7 +772,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -902,7 +903,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -916,7 +917,7 @@ def usuario_detalhe(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -956,9 +957,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -1001,7 +1012,7 @@ def usuario_editar(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1073,14 +1084,14 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/layou
             <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario', 'editar_usuario'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_usuario') }}">Cadastrar Usuário</a></li>

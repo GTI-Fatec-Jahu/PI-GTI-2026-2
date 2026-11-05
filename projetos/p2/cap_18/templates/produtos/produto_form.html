@@ -4,7 +4,7 @@
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
+    {% set destino = url_for('editar_produto', id_produto=id_produto) %}
   {% else %}
     {% set destino = url_for('inserir_produto') %}
   {% endif %}

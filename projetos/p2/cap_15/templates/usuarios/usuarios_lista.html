@@ -33,7 +33,7 @@
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
           <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>

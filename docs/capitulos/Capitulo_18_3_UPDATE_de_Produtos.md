@@ -16,7 +16,7 @@ Ao final deste capítulo você deverá ser capaz de:
 - Montar um `UPDATE` por partes, porque a foto é opcional na edição
 - Trocar ou remover a foto e apagar o arquivo antigo do disco depois de o banco aceitar a alteração
 
-Este capítulo é **opcional**: o Capítulo 18 constrói o CRUD inteiro de produtos em um só arquivo, e este percorre só a **edição**: a rota `produto_editar`, o formulário preenchido, o `UPDATE` e a troca ou remoção da foto, em um arquivo menor e com o seu próprio zip. O Capítulo 19 parte do zip do Capítulo 18, e não deste. Ao final, a lista ganha o botão **Editar**.
+Este capítulo é **opcional**: o Capítulo 18 constrói o CRUD inteiro de produtos em um só arquivo, e este percorre só a **edição**: a rota `editar_produto`, o formulário preenchido, o `UPDATE` e a troca ou remoção da foto, em um arquivo menor e com o seu próprio zip. O Capítulo 19 parte do zip do Capítulo 18, e não deste. Ao final, a lista ganha o botão **Editar**.
 
 ## 📦 Ponto de partida
 
@@ -110,11 +110,11 @@ A função recebe o caminho gravado no banco (`uploads/ab12cd34.png`), junta com
 
 ### A rota de edição
 
-Acrescente a rota `produto_editar` **depois** da `inserir_produto`. O `abort` já está importado desde o Capítulo 13:
+Acrescente a rota `editar_produto` **depois** da `inserir_produto`. O `abort` já está importado desde o Capítulo 13:
 
 ```python
 @app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
-def produto_editar(id_produto):
+def editar_produto(id_produto):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -156,8 +156,13 @@ def produto_editar(id_produto):
         else:
             # O UPDATE é montado em partes: a coluna foto só entra quando a foto muda
             sql = (
-                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
-                'preco = %s, estoque = %s, ativo = %s'
+                'UPDATE produtos SET '
+                '    nome = %s, '
+                '    descricao = %s, '
+                '    categoria = %s, '
+                '    preco = %s, '
+                '    estoque = %s, '
+                '    ativo = %s'
             )
             params = [
                 dados['nome'],
@@ -232,7 +237,7 @@ Agora o template. As mudanças estão em cinco pontos espalhados pelo arquivo, e
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
+    {% set destino = url_for('editar_produto', id_produto=id_produto) %}
   {% else %}
     {% set destino = url_for('inserir_produto') %}
   {% endif %}
@@ -331,10 +336,10 @@ O botão amarelo existe na lista desde a construção dela, com o `href="#"`. No
 por:
 
 ```html
-<a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+<a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
-Note o nome do argumento do `url_for`: `id_produto=produto.id_produto`, o mesmo nome da variável de rota e da coluna. O menu **Produtos** já fica destacado na edição: o `'produto_editar'` está na lista do `request.endpoint` desde que o menu foi criado.
+Note o nome do argumento do `url_for`: `id_produto=produto.id_produto`, o mesmo nome da variável de rota e da coluna. O menu **Produtos** já fica destacado na edição: o `'editar_produto'` está na lista do `request.endpoint` desde que o menu foi criado.
 
 ### Testar a edição
 
@@ -601,7 +606,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -624,8 +629,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -643,7 +646,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -663,7 +669,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -794,7 +800,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -808,7 +814,7 @@ def usuario_detalhe(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -848,9 +854,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -893,7 +909,7 @@ def usuario_editar(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1013,7 +1029,7 @@ def inserir_produto():
 
 
 @app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
-def produto_editar(id_produto):
+def editar_produto(id_produto):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1055,8 +1071,13 @@ def produto_editar(id_produto):
         else:
             # O UPDATE é montado em partes: a coluna foto só entra quando a foto muda
             sql = (
-                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
-                'preco = %s, estoque = %s, ativo = %s'
+                'UPDATE produtos SET '
+                '    nome = %s, '
+                '    descricao = %s, '
+                '    categoria = %s, '
+                '    preco = %s, '
+                '    estoque = %s, '
+                '    ativo = %s'
             )
             params = [
                 dados['nome'],
@@ -1125,7 +1146,7 @@ O `templates/produtos/produto_form.html`, que agora serve para criar e para edit
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('produto_editar', id_produto=id_produto) %}
+    {% set destino = url_for('editar_produto', id_produto=id_produto) %}
   {% else %}
     {% set destino = url_for('inserir_produto') %}
   {% endif %}
@@ -1265,7 +1286,7 @@ O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
           {% endif %}
         </td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
       </tr>

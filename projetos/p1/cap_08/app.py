@@ -102,7 +102,7 @@ def produto(id_produto):
 
 
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():

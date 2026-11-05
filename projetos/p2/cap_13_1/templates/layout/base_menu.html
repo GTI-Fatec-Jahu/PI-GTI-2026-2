@@ -24,7 +24,7 @@
             <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil', 'lixeira_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>

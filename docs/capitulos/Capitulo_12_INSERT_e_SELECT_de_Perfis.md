@@ -58,7 +58,7 @@ Um **recurso** é a "coisa" que o sistema cadastra e consulta. Aqui, o perfil. O
 | `/perfis` | GET | Lista os perfis | `listar_perfis` | `perfis/perfis_lista.html` |
 | `/perfis/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_perfil` | `perfis/perfil_form.html` |
 
-As duas funções têm nome de **ação**, com o verbo no infinitivo na frente: `listar_perfis` lista, `inserir_perfil` insere. O Capítulo 13 acrescenta as rotas de editar e excluir (`perfil_editar` e `perfil_excluir`). O caminho que o navegador percorre neste capítulo é este:
+As duas funções têm nome de **ação**, com o verbo no infinitivo na frente: `listar_perfis` lista, `inserir_perfil` insere. O Capítulo 13 acrescenta as rotas de editar e excluir (`editar_perfil` e `excluir_perfil`). O caminho que o navegador percorre neste capítulo é este:
 
 ```mermaid
 flowchart LR

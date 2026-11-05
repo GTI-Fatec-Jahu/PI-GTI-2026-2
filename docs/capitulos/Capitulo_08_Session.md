@@ -355,7 +355,7 @@ A lista agora tem cadastro e listagem. Falta a exclusão. Como ela **apaga** alg
 
 ```python
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     return redirect(url_for('index'))
 ```
 
@@ -375,7 +375,7 @@ E a célula, depois da célula do preço. Cada linha da tabela ganha um **formul
 ```html
 <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
 <td class="text-end">
-  <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+  <form action="{{ url_for('excluir_produto', id_produto=produto.id) }}" method="post">
     <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
   </form>
 </td>
@@ -391,11 +391,11 @@ Salve, recarregue o catálogo e clique em **Excluir** em qualquer linha. A pági
 
 ### Apagando da lista
 
-Na rota `produto_excluir`, percorra a lista e monte uma lista nova **sem** o produto excluído, o mesmo padrão da lista `encontrados` da busca:
+Na rota `excluir_produto`, percorra a lista e monte uma lista nova **sem** o produto excluído, o mesmo padrão da lista `encontrados` da busca:
 
 ```python
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():
@@ -425,7 +425,7 @@ Salve e exclua a **Caneta esferográfica azul**. A linha some, e os números `N�
 
 Há uma falha de usabilidade: depois de cadastrar ou excluir, a página recarrega e **ninguém avisa se deu certo**. Com o padrão PRG, a rota guarda o resultado e redireciona, e a página seguinte nem sabe que veio de um POST. O Capítulo 7 apontou o problema: para redirecionar e ainda mostrar uma mensagem, o Python precisa **guardar a mensagem até o pedido seguinte**. A `session` serve para isso.
 
-Em `produto_excluir`, guarde uma mensagem antes do redirect:
+Em `excluir_produto`, guarde uma mensagem antes do redirect:
 
 ```python
     nome = excluido['nome']
@@ -572,7 +572,7 @@ Confira também o painel **Network**: o pedido é um POST, a resposta é `400`, 
 O token vai em um campo escondido (`type="hidden"`), que não aparece na tela mas viaja junto com o formulário. Comece pelo botão **Excluir**, em `templates/index.html`, logo depois da abertura do `<form>`:
 
 ```html
-<form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+<form action="{{ url_for('excluir_produto', id_produto=produto.id) }}" method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
 </form>
@@ -729,7 +729,7 @@ def produto(id_produto):
 
 
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():
@@ -818,7 +818,7 @@ O `templates/index.html`:
           </td>
           <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
           <td class="text-end">
-            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+            <form action="{{ url_for('excluir_produto', id_produto=produto.id) }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>

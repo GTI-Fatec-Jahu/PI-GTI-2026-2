@@ -57,9 +57,9 @@ O molde de nomes do Capítulo 12 vale para `usuarios`. Este capítulo constrói 
 |---|---|---|---|---|---|
 | `/usuarios` | GET | Lista os usuários | `listar_usuarios` | `usuarios/usuarios_lista.html` | 15 (hoje: página provisória) |
 | `/usuarios/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_usuario` | `usuarios/usuario_form.html` | **14** |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | 15 |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuarios/usuario_form.html` | 16 |
-| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `usuario_excluir` | (nenhum) | 16 |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `detalhar_usuario` | `usuarios/usuario_detalhe.html` | 15 |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `editar_usuario` | `usuarios/usuario_form.html` | 16 |
+| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `excluir_usuario` | (nenhum) | 16 |
 
 O caminho do navegador no cadastro é o mesmo do perfil:
 
@@ -996,7 +996,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -1015,8 +1015,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -1034,7 +1032,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -1054,7 +1055,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',

@@ -67,7 +67,7 @@ def login_required(funcao):
 Leia de dentro para fora. A função `envolvida` é a rota "embrulhada": ela faz a conferência do login (as mesmas linhas do Capítulo 17) e, se a pessoa estiver logada, chama a função original (`funcao`) e devolve a resposta dela. A `login_required` recebe a rota, devolve a `envolvida`, e é a `envolvida` que passa a atender o endereço.
 
 !!! note "Python: funções dentro de funções, `*args` e `**kwargs`"
-    Uma função pode ser escrita dentro de outra, e pode ser devolvida com `return` **sem os parênteses** (`return envolvida` entrega a função, e `return envolvida()` a executaria). O `*args, **kwargs` é a forma de dizer "receba o que vier e repasse tudo": a rota `usuario_editar`, por exemplo, recebe o `id_usuario`, e a `envolvida` precisa entregá-lo à função original sem saber de antemão quantos argumentos existem.
+    Uma função pode ser escrita dentro de outra, e pode ser devolvida com `return` **sem os parênteses** (`return envolvida` entrega a função, e `return envolvida()` a executaria). O `*args, **kwargs` é a forma de dizer "receba o que vier e repasse tudo": a rota `editar_usuario`, por exemplo, recebe o `id_usuario`, e a `envolvida` precisa entregá-lo à função original sem saber de antemão quantos argumentos existem.
 
 ### Usar em uma rota
 
@@ -119,12 +119,12 @@ Salve: o servidor sobe de novo, e as duas listas continuam protegidas.
 
 ### As outras oito rotas
 
-Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `dashboard`, `inserir_perfil`, `perfil_editar`, `perfil_excluir`, `inserir_usuario`, `usuario_detalhe`, `usuario_editar` e `usuario_excluir`. No `usuario_excluir`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
+Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `dashboard`, `inserir_perfil`, `editar_perfil`, `excluir_perfil`, `inserir_usuario`, `detalhar_usuario`, `editar_usuario` e `excluir_usuario`. No `excluir_usuario`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
 @login_required
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
         return redirect(url_for('listar_usuarios'))
@@ -265,9 +265,9 @@ Acrescente o `@perfil_required` às outras rotas, **embaixo** do `@login_require
 | Função | Decoradores abaixo do `@app.route` |
 |---|---|
 | `dashboard` | `@login_required` (já tem) |
-| `listar_perfis`, `perfil_editar`, `perfil_excluir` | `@login_required` e `@perfil_required('Administrador')` |
-| `listar_usuarios`, `usuario_detalhe` | `@login_required` e `@perfil_required('Administrador', 'Gerente')` |
-| `inserir_usuario`, `usuario_editar`, `usuario_excluir` | `@login_required` e `@perfil_required('Administrador')` |
+| `listar_perfis`, `editar_perfil`, `excluir_perfil` | `@login_required` e `@perfil_required('Administrador')` |
+| `listar_usuarios`, `detalhar_usuario` | `@login_required` e `@perfil_required('Administrador', 'Gerente')` |
+| `inserir_usuario`, `editar_usuario`, `excluir_usuario` | `@login_required` e `@perfil_required('Administrador')` |
 
 Por exemplo, a lista de usuários fica:
 
@@ -308,7 +308,7 @@ No `templates/layout/base_menu.html`, envolva os menus **Perfis** e **Usuários*
 ```html
 {% if session['perfil'] == 'Administrador' %}
 <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
   <ul class="dropdown-menu">
     <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
     <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
@@ -317,7 +317,7 @@ No `templates/layout/base_menu.html`, envolva os menus **Perfis** e **Usuários*
 {% endif %}
 {% if session['perfil'] in ['Administrador', 'Gerente'] %}
 <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario', 'editar_usuario'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
   <ul class="dropdown-menu">
     <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
     {% if session['perfil'] == 'Administrador' %}
@@ -340,7 +340,7 @@ Falta a lista de usuários. No `templates/usuarios/usuarios_lista.html`, envolva
 
 ```html
 {% if session['perfil'] == 'Administrador' %}
-<a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+<a href="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
 <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})">Excluir</button>
 {% endif %}
 ```
@@ -603,7 +603,7 @@ def inserir_perfil():
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 @login_required
 @perfil_required('Administrador')
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -622,8 +622,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -641,7 +639,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -663,7 +664,7 @@ def perfil_editar(id_perfil):
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 @login_required
 @perfil_required('Administrador')
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -788,7 +789,7 @@ def inserir_usuario():
 @app.route('/usuarios/<int:id_usuario>')
 @login_required
 @perfil_required('Administrador', 'Gerente')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -800,7 +801,7 @@ def usuario_detalhe(id_usuario):
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
 @login_required
 @perfil_required('Administrador')
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -836,9 +837,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -883,7 +894,7 @@ def usuario_editar(id_usuario):
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
 @login_required
 @perfil_required('Administrador')
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
@@ -957,7 +968,7 @@ O `templates/403.html` é o do Tópico 2. O `templates/layout/base_menu.html`:
           </li>
           {% if session['perfil'] == 'Administrador' %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
@@ -966,7 +977,7 @@ O `templates/403.html` é o do Tópico 2. O `templates/layout/base_menu.html`:
           {% endif %}
           {% if session['perfil'] in ['Administrador', 'Gerente'] %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario', 'editar_usuario'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
               {% if session['perfil'] == 'Administrador' %}
@@ -1053,9 +1064,9 @@ O `templates/usuarios/usuarios_lista.html`:
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
           {% if session['perfil'] == 'Administrador' %}
-          <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})"><i class="bi bi-trash"></i></button>
           {% endif %}
         </td>

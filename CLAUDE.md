@@ -86,7 +86,10 @@ o repositório, não substitui o julgamento dele.
   (17.1), PÁGINAS PRINCIPAIS, PERFIS, USUÁRIOS, PRODUTOS, RELATÓRIOS e TELAS DE ERROS. No CRUD de
   **perfis**, as rotas levam os comentários numerados do professor (`# 1. Coleta os dados do
   formulário`, `# 2. Validação dos campos`, `# 3. Se houver erros...`, `# 4. Se não houver erros,
-  tenta salvar no banco`, o comentário do `or None` e o do `raise`). Em **usuários e produtos**,
+  tenta salvar no banco`, o comentário do `or None` e o do `raise`). O comentário do `or None`
+  fica só na rota de **inserir**; na de **editar** ele não se repete. O `UPDATE` é escrito com
+  **um texto por linha, uma coluna em cada**, sem barra invertida (o Python junta os textos
+  seguidos). Em **usuários e produtos**,
   comente **só o que diverge** do que já foi feito em perfis. Os arquivos de validação separam
   os campos com `# ================ VALIDAÇÕES PARA O CAMPO nome =====================`.
 - **Campos opcionais (`NULL`):** a rota lê o campo com `... .strip() or None` (vazio vira `None`,
@@ -282,12 +285,11 @@ funcionarem seja qual for o `id` que o aluno gerou.
 
 - Tabelas no **plural**, chave primária `id_<singular>`, chave estrangeira `<singular>_id`.
   Rotas `/perfis`, `/perfis/inserir`, `/perfis/<int:id_perfil>/editar` e `.../excluir`;
-  funções **`listar_perfis`** e **`inserir_perfil`** (verbo na frente, como o professor ensina em
-  sala) e `perfil_editar`, `perfil_excluir` (editar e excluir ficam com o recurso na frente, a
-  pedido do professor). O mesmo molde para `usuarios` (`listar_usuarios`, `inserir_usuario`,
-  `usuario_detalhe`, `usuario_editar`, `usuario_excluir`, `<int:id_usuario>`) e `produtos`
-  (`listar_produtos`, `inserir_produto`, `produto_editar`, `produto_excluir`, `<int:id_produto>`).
-  Extras: `lixeira_perfis` e `perfil_restaurar` (13.1), `relatorios`, `relatorio_usuarios` e
+  funções com o **verbo na frente** e o recurso depois: **`listar_perfis`**, **`inserir_perfil`**,
+  `editar_perfil` e `excluir_perfil` (padrão do professor, igual para as quatro). O mesmo
+  molde para `usuarios` (`listar_usuarios`, `inserir_usuario`, `detalhar_usuario`, `editar_usuario`, `excluir_usuario`, `<int:id_usuario>`) e `produtos`
+  (`listar_produtos`, `inserir_produto`, `editar_produto`, `excluir_produto`, `<int:id_produto>`).
+  Extras: `lixeira_perfis` e `restaurar_perfil` (13.1), `relatorios`, `relatorio_usuarios` e
   `relatorio_produtos` (19).
 - **Templates e layouts (Projeto 2):** `templates/layout/base_menu.html` (com o menu) e
   `templates/layout/base_limpa.html` (sem menu, conteúdo centralizado; login e páginas de erro);
@@ -300,7 +302,7 @@ funcionarem seja qual for o `id` que o aluno gerou.
   quando a rota dele existe (o `url_for` de rota inexistente quebra a página).
 - **Nome de quem guarda o valor de uma chave primária:** o parâmetro de rota, o argumento do
   `url_for` e a variável Python que carrega a PK usam o **nome da própria PK** (`id_perfil`,
-  `id_usuario`, `id_produto`): `url_for('perfil_editar', id_perfil=perfil.id_perfil)`. O nome
+  `id_usuario`, `id_produto`): `url_for('editar_perfil', id_perfil=perfil.id_perfil)`. O nome
   `<singular>_id` (`perfil_id`) é **só da chave estrangeira** (`usuarios.perfil_id`) e do campo
   do formulário que a escolhe. Vale para os dois projetos (no Projeto 1, `/produto/<int:id_produto>`).
   Variáveis genéricas, sem nome de tabela (`novo_id`, `maior_id`), são livres. A chave `id` dos

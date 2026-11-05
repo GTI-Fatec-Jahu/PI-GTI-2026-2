@@ -51,7 +51,7 @@
           </td>
           <td class="text-end">R$ {{ '%.2f'|format(produto.preco)|replace('.', ',') }}</td>
           <td class="text-end">
-            <form action="{{ url_for('produto_excluir', id_produto=produto.id) }}" method="post">
+            <form action="{{ url_for('excluir_produto', id_produto=produto.id) }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
             </form>

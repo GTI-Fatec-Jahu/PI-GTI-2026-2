@@ -54,9 +54,9 @@ O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servi
 |---|---|---|---|---|
 | `/usuarios` | GET | Lista os usuários | `listar_usuarios` | `usuarios/usuarios_lista.html` |
 | `/usuarios/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_usuario` | `usuarios/usuario_form.html` |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `usuario_editar` | `usuarios/usuario_form.html` |
-| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário e volta para a lista | `usuario_excluir` | (nenhum) |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `detalhar_usuario` | `usuarios/usuario_detalhe.html` |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `editar_usuario` | `usuarios/usuario_form.html` |
+| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário e volta para a lista | `excluir_usuario` | (nenhum) |
 
 ### A validação ignora o próprio usuário
 
@@ -162,11 +162,11 @@ O cadastro continua chamando `validar_usuario(dados)`, sem o segundo valor, e en
 
 ### A rota de edição
 
-Na seção **USUÁRIOS** do `app.py`, acrescente a rota `usuario_editar` **depois** da `usuario_detalhe`. O `abort` já está importado desde o Capítulo 13:
+Na seção **USUÁRIOS** do `app.py`, acrescente a rota `editar_usuario` **depois** da `detalhar_usuario`. O `abort` já está importado desde o Capítulo 13:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -202,9 +202,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -246,9 +256,9 @@ def usuario_editar(id_usuario):
                            dados=dados, perfis=perfis, ufs=UFS)
 ```
 
-Compare com a `inserir_usuario` e com a `perfil_editar`: é a junção das duas. Os comentários marcam só o que é novo.
+Compare com a `inserir_usuario` e com a `editar_perfil`: é a junção das duas. Os comentários marcam só o que é novo.
 
-**O começo** é o da `perfil_editar`: busca o usuário pelo código do endereço (com o `SELECT_USUARIO` do Capítulo 15, sem a senha) e responde 404 se ele não existir.
+**O começo** é o da `editar_perfil`: busca o usuário pelo código do endereço (com o `SELECT_USUARIO` do Capítulo 15, sem a senha) e responde 404 se ele não existir.
 
 **`dados = usuario`.** No GET, o dicionário do formulário **é a própria linha do banco**: as chaves do `SELECT_USUARIO` têm os mesmos nomes dos campos do formulário (`nome`, `email`, `celular`, `perfil_id`...). O formulário do Capítulo 14 já foi escrito para isso: os opcionais `NULL` chegam como `None`, e o `or ''` os mostra vazios; a data de nascimento chega como data e aparece como `AAAA-MM-DD`, o formato que o `<input type="date">` entende; e o `perfil_id` chega como número, e o `|string` dos dois lados da comparação marca a opção certa do `<select>`.
 
@@ -288,7 +298,7 @@ Agora o template. As mudanças estão em seis pontos espalhados pelo arquivo, en
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('usuario_editar', id_usuario=id_usuario) %}
+    {% set destino = url_for('editar_usuario', id_usuario=id_usuario) %}
   {% else %}
     {% set destino = url_for('inserir_usuario') %}
   {% endif %}
@@ -433,19 +443,19 @@ O resto do arquivo (os campos, os `value` com `or ''`, os `<select>`) é o mesmo
 por:
 
 ```html
-<a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+<a href="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
 **No menu.** O menu **Usuários** precisa continuar aceso durante a edição. No `base_menu.html`, no botão do menu suspenso **Usuários**, troque só o trecho do `{% if %}`:
 
 ```html
-{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe'] %}active{% endif %}
+{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario'] %}active{% endif %}
 ```
 
 por:
 
 ```html
-{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}
+{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario', 'editar_usuario'] %}active{% endif %}
 ```
 
 ### Testando a edição
@@ -479,11 +489,11 @@ O comando é o `DELETE`, com os mesmos cuidados do `UPDATE`:
 DELETE FROM usuarios WHERE id_usuario = 3;
 ```
 
-Sem o `WHERE`, ele apaga **todos** os usuários, sem perguntar e sem "desfazer", e o código apagado nunca é reaproveitado pelo `AUTO_INCREMENT`. A exclusão também **não pode ser um link**: o `GET` deve só consultar, e robôs de busca, o carregamento antecipado de links e a pré-visualização de mensagens fazem `GET` sozinhos. O [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md#por-que-excluir-nunca-pode-ser-um-link) explicou isso em detalhe: a rota aceita só `POST`, que só sai de um botão de formulário, com o token CSRF. No `app.py`, acrescente a rota depois da `usuario_editar`:
+Sem o `WHERE`, ele apaga **todos** os usuários, sem perguntar e sem "desfazer", e o código apagado nunca é reaproveitado pelo `AUTO_INCREMENT`. A exclusão também **não pode ser um link**: o `GET` deve só consultar, e robôs de busca, o carregamento antecipado de links e a pré-visualização de mensagens fazem `GET` sozinhos. O [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md#por-que-excluir-nunca-pode-ser-um-link) explicou isso em detalhe: a rota aceita só `POST`, que só sai de um botão de formulário, com o token CSRF. No `app.py`, acrescente a rota depois da `editar_usuario`:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     usuario = execute_one(
         'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
         (id_usuario,),
@@ -576,7 +586,7 @@ por:
 ```
 
 !!! note "JavaScript: as três linhas da função"
-    É a mesma função do [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md#uma-funcao-javascript-que-recebe-o-codigo), com outros nomes. A primeira linha acha o `<span>` do nome (`'nome_usuario_' + id` vira `nome_usuario_3`) e lê o texto dele com `.textContent`. A segunda escreve esse nome no `<strong id="nomeExcluir">` da janela. A terceira troca o `action` do formulário por `/usuarios/3/excluir`, o endereço da rota `usuario_excluir`: se um dia você mudar o endereço da rota, mude aqui também. A função recebe só o **código**, e não o nome, porque um nome com aspas quebraria o atributo `onclick`.
+    É a mesma função do [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md#uma-funcao-javascript-que-recebe-o-codigo), com outros nomes. A primeira linha acha o `<span>` do nome (`'nome_usuario_' + id` vira `nome_usuario_3`) e lê o texto dele com `.textContent`. A segunda escreve esse nome no `<strong id="nomeExcluir">` da janela. A terceira troca o `action` do formulário por `/usuarios/3/excluir`, o endereço da rota `excluir_usuario`: se um dia você mudar o endereço da rota, mude aqui também. A função recebe só o **código**, e não o nome, porque um nome com aspas quebraria o atributo `onclick`.
 
 ### Testando a exclusão
 
@@ -759,7 +769,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -778,8 +788,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -797,7 +805,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -817,7 +828,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -936,7 +947,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -946,7 +957,7 @@ def usuario_detalhe(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -982,9 +993,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -1027,7 +1048,7 @@ def usuario_editar(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     usuario = execute_one(
         'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
         (id_usuario,),
@@ -1390,7 +1411,7 @@ O `templates/usuarios/usuario_form.html`:
 
 {% block conteudo %}
   {% if acao == 'editar' %}
-    {% set destino = url_for('usuario_editar', id_usuario=id_usuario) %}
+    {% set destino = url_for('editar_usuario', id_usuario=id_usuario) %}
   {% else %}
     {% set destino = url_for('inserir_usuario') %}
   {% endif %}
@@ -1554,8 +1575,8 @@ O `templates/usuarios/usuarios_lista.html`:
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
-          <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
@@ -1600,7 +1621,7 @@ O `templates/usuarios/usuarios_lista.html`:
 {% endblock %}
 ```
 
-A única mudança nos layouts é o `'usuario_editar'` na lista do menu **Usuários**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `validacoes/validacoes_perfil.py`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 15.
+A única mudança nos layouts é o `'editar_usuario'` na lista do menu **Usuários**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `validacoes/validacoes_perfil.py`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 15.
 
 ---
 
@@ -1675,7 +1696,7 @@ O Bruno corrige só o celular dele e envia o formulário com o próprio e-mail e
 </quiz>
 
 <quiz>
-Por que a rota `usuario_excluir` não conta registros antes do `DELETE` nem trata o erro `1451`, como a `perfil_excluir`?
+Por que a rota `excluir_usuario` não conta registros antes do `DELETE` nem trata o erro `1451`, como a `excluir_perfil`?
 - [ ] Porque o `DELETE` de usuário ignora as chaves estrangeiras
 > Não. O banco sempre respeita as chaves estrangeiras.
 - [ ] Porque o erro `1451` só existe no `UPDATE`

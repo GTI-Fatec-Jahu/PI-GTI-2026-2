@@ -67,9 +67,9 @@ O molde de nomes do Capítulo 12 vale para `usuarios`. Este capítulo constrói 
 |---|---|---|---|---|---|
 | `/usuarios` | GET | Lista os usuários | `listar_usuarios` | `usuarios/usuarios_lista.html` | **15** |
 | `/usuarios/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_usuario` | `usuarios/usuario_form.html` | 14 |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | **15** |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuarios/usuario_form.html` | 16 |
-| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `usuario_excluir` | (nenhum) | 16 |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `detalhar_usuario` | `usuarios/usuario_detalhe.html` | **15** |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `editar_usuario` | `usuarios/usuario_form.html` | 16 |
+| `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `excluir_usuario` | (nenhum) | 16 |
 
 ### Dois lugares, uma informação
 
@@ -289,7 +289,7 @@ Troque o `templates/usuarios/usuarios_lista.html` **inteiro** por esta versão (
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
           <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
@@ -313,7 +313,7 @@ Troque o `templates/usuarios/usuarios_lista.html` **inteiro** por esta versão (
 - **Perfil**, com o badge incluído. O arquivo incluído enxerga a variável `usuario` de cada volta do `for`, e é por isso que o badge usa o nome `usuario`.
 - **Ações**, com três botões. O **azul-claro** (`btn-info`, ícone de olho) abre a página de detalhe, que o Tópico 4 cria. O `url_for` recebe o nome da **função** da rota e o argumento que preenche o `<int:id_usuario>`: gera `/usuarios/1`, `/usuarios/2` e assim por diante. O **amarelo** e o **vermelho** são os de editar e excluir, como na lista de perfis, e ainda **não fazem nada**: eles ganham as rotas no Capítulo 16.
 
-O botão de olho usa a rota `usuario_detalhe`, que ainda não existe, e o `url_for` quebraria a página. Por isso a lista só é testada depois do Tópico 4: salve o arquivo, mas não recarregue a lista ainda, e siga para o detalhe.
+O botão de olho usa a rota `detalhar_usuario`, que ainda não existe, e o `url_for` quebraria a página. Por isso a lista só é testada depois do Tópico 4: salve o arquivo, mas não recarregue a lista ainda, e siga para o detalhe.
 
 ---
 
@@ -325,7 +325,7 @@ A lista mostra o essencial de todos. O **detalhe** mostra tudo sobre **um** usu�
 
 ```python
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -334,7 +334,7 @@ def usuario_detalhe(id_usuario):
     return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 ```
 
-A rota **reaproveita** o `SELECT_USUARIO`: o mesmo `JOIN`, as mesmas colunas e, de novo, nenhuma senha. O `WHERE` leva um `%s`, e o código vem na tupla `(id_usuario,)`. O `if usuario is None: abort(404)` é o mesmo da `perfil_editar`: um código que não existe é um pedido por algo que não está lá, e o certo é responder **404**. Sem ele, o template tentaria ler os campos de um usuário que não existe, e a página quebraria com o erro 500.
+A rota **reaproveita** o `SELECT_USUARIO`: o mesmo `JOIN`, as mesmas colunas e, de novo, nenhuma senha. O `WHERE` leva um `%s`, e o código vem na tupla `(id_usuario,)`. O `if usuario is None: abort(404)` é o mesmo da `editar_perfil`: um código que não existe é um pedido por algo que não está lá, e o certo é responder **404**. Sem ele, o template tentaria ler os campos de um usuário que não existe, e a página quebraria com o erro 500.
 
 ### O template
 
@@ -437,7 +437,7 @@ No detalhe, o menu **Usuários** precisa continuar aceso, como nas outras págin
 por:
 
 ```html
-{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe'] %}active{% endif %}
+{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario'] %}active{% endif %}
 ```
 
 ### Testando a lista e o detalhe
@@ -625,7 +625,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -644,8 +644,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -663,7 +661,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -683,7 +684,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -801,7 +802,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
     if usuario is None:
@@ -866,7 +867,7 @@ O `templates/usuarios/usuarios_lista.html`:
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
           <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
@@ -972,7 +973,7 @@ O `templates/usuarios/_badge_perfil.html`:
 {% endif %}
 ```
 
-No `base_menu.html`, a única mudança é o `usuario_detalhe` na lista do menu **Usuários**. Os demais arquivos (`db.py`, a pasta `validacoes`, `login.html`, `dashboard.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
+No `base_menu.html`, a única mudança é o `detalhar_usuario` na lista do menu **Usuários**. Os demais arquivos (`db.py`, a pasta `validacoes`, `login.html`, `dashboard.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
 
 ---
 

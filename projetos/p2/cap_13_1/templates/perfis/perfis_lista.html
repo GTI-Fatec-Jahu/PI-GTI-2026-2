@@ -29,7 +29,7 @@
         <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_perfil', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>

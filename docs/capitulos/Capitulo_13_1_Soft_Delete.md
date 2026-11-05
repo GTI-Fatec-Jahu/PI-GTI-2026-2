@@ -73,11 +73,11 @@ UPDATE perfis SET deletado_em = NULL WHERE nome = 'Teste';
 
 ### O UPDATE no lugar do DELETE
 
-Ligue o servidor (`python app.py`), com o XAMPP ligado, e abra o `app.py`. Na rota `perfil_excluir`, a exclusão vira a marcação. A contagem de usuários e o `try/except` do erro `1451` saem: um `UPDATE` não infringe a chave estrangeira (a linha do perfil continua existindo), e o banco nunca recusa. Substitua a rota `perfil_excluir` inteira por esta:
+Ligue o servidor (`python app.py`), com o XAMPP ligado, e abra o `app.py`. Na rota `excluir_perfil`, a exclusão vira a marcação. A contagem de usuários e o `try/except` do erro `1451` saem: um `UPDATE` não infringe a chave estrangeira (a linha do perfil continua existindo), e o banco nunca recusa. Substitua a rota `excluir_perfil` inteira por esta:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil, só entre os que não estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
@@ -139,7 +139,7 @@ por:
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
 ```
 
-**3. A edição**: um perfil na lixeira não deve abrir para edição. No começo da rota `perfil_editar`, troque:
+**3. A edição**: um perfil na lixeira não deve abrir para edição. No começo da rota `editar_perfil`, troque:
 
 ```python
     # Busca o perfil pelo código que veio no endereço
@@ -193,11 +193,11 @@ def lixeira_perfis():
     return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 ```
 
-Restaurar é desfazer a exclusão: `deletado_em` volta a ser `NULL`. É uma ação que **altera** dados, então, como a exclusão, é um `POST` com `csrf_token`. Acrescente a rota **depois** da `perfil_excluir`:
+Restaurar é desfazer a exclusão: `deletado_em` volta a ser `NULL`. É uma ação que **altera** dados, então, como a exclusão, é um `POST` com `csrf_token`. Acrescente a rota **depois** da `excluir_perfil`:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
-def perfil_restaurar(id_perfil):
+def restaurar_perfil(id_perfil):
     # Busca o perfil, só entre os que estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
@@ -249,7 +249,7 @@ Crie o `templates/perfis/perfis_lixeira.html`. Ele é parecido com o da lista, c
         <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
-          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('restaurar_perfil', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-success" title="Restaurar"><i class="bi bi-arrow-counterclockwise"></i> Restaurar</button>
           </form>
@@ -299,13 +299,13 @@ por:
 **No menu.** O menu **Perfis** continua destacado na lixeira. No `base_menu.html`, no botão do menu suspenso **Perfis**, troque o trecho do `{% if %}`:
 
 ```html
-{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}
 ```
 
 por:
 
 ```html
-{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil', 'lixeira_perfis'] %}active{% endif %}
 ```
 
 Salve e navegue: **Perfis > Listar Perfis**, **Lixeira** (o `Teste` aparece, com a data e a hora em que foi excluído), **Restaurar**. Você volta para a lista, com a faixa verde `Perfil "Teste" restaurado.` e o perfil no lugar. Abra a lixeira de novo: `A lixeira está vazia.`
@@ -515,7 +515,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço, só entre os que não estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis '
@@ -535,8 +535,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -554,7 +552,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -574,7 +575,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil, só entre os que não estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
@@ -593,7 +594,7 @@ def perfil_excluir(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
-def perfil_restaurar(id_perfil):
+def restaurar_perfil(id_perfil):
     # Busca o perfil, só entre os que estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
@@ -703,7 +704,7 @@ O `templates/perfis/perfis_lista.html`:
         <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_perfil', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
@@ -779,7 +780,7 @@ O `templates/perfis/perfis_lixeira.html`:
         <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
-          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
+          <form action="{{ url_for('restaurar_perfil', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-success" title="Restaurar"><i class="bi bi-arrow-counterclockwise"></i> Restaurar</button>
           </form>

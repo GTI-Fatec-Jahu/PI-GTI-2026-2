@@ -56,8 +56,8 @@ O Capítulo 12 mostrou o molde de nomes do recurso. Este capítulo acrescenta as
 |---|---|---|---|---|
 | `/perfis` | GET | Lista os perfis | `listar_perfis` | `perfis/perfis_lista.html` |
 | `/perfis/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_perfil` | `perfis/perfil_form.html` |
-| `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `perfil_editar` | `perfis/perfil_form.html` |
-| `/perfis/<int:id_perfil>/excluir` | só POST | Exclui o perfil e volta para a lista | `perfil_excluir` | (nenhum) |
+| `/perfis/<int:id_perfil>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `editar_perfil` | `perfis/perfil_form.html` |
+| `/perfis/<int:id_perfil>/excluir` | só POST | Exclui o perfil e volta para a lista | `excluir_perfil` | (nenhum) |
 
 Repare que o `editar` usa o **mesmo template** do cadastro, e que o `excluir` não tem template: ele não mostra nada, só faz o que foi pedido e redireciona. O caminho do navegador na edição é parecido com o do cadastro:
 
@@ -129,11 +129,11 @@ No `app.py`, acrescente o `abort` à importação do Flask (em ordem alfabética
 from flask import Flask, abort, flash, redirect, render_template, request, url_for
 ```
 
-E acrescente a rota `perfil_editar` na seção **PERFIS**, **depois** da `inserir_perfil`:
+E acrescente a rota `editar_perfil` na seção **PERFIS**, **depois** da `inserir_perfil`:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -152,8 +152,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -171,7 +169,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -199,6 +200,9 @@ Compare com a `inserir_perfil`: os passos 1 a 4 são os mesmos. O que muda está
 
 **O `UPDATE`.** Olhe com atenção a última peça do comando: **`WHERE id_perfil = %s`**. É ela que restringe a alteração ao perfil certo. O `execute_query` sem `fetch` faz o `commit`, e o `try/except` do `1062` é o mesmo do cadastro: entre a consulta da validação e o `UPDATE`, outra pessoa pode cadastrar o mesmo nome, e só o `UNIQUE` do banco garante de verdade ([Capítulo 12, Tópico 4](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-rota-completa)).
 
+!!! note "Python: um texto escrito em várias linhas"
+    O comando está dividido em quatro textos, um por linha, só para ficar fácil de ler: cada coluna que será alterada tem a sua linha. Quando dois ou mais textos ficam um embaixo do outro, separados apenas por espaço e quebra de linha, o Python os **junta em um texto só**. Por isso, o texto de cada linha termina com um **espaço** (`'    nome = %s, '`): sem ele, as palavras ficariam coladas (`nome = %s,descricao = %s`) e o MySQL reclamaria de um erro de sintaxe. O resultado é exatamente o mesmo comando de uma linha só.
+
 !!! danger "UPDATE sem WHERE altera a tabela inteira"
     Sem o `WHERE`, o `UPDATE perfis SET nome = %s` trocaria o nome de **todos** os perfis para o mesmo valor. O banco não pergunta se você tem certeza. O código do perfil vem do **endereço** (`id_perfil`, já convertido para número pelo Flask), e não de um campo do formulário, que a pessoa poderia adulterar.
 
@@ -206,7 +210,7 @@ Compare com a `inserir_perfil`: os passos 1 a 4 são os mesmos. O que muda está
 
 ### O formulário nos dois modos: a variável `acao`
 
-O formulário precisa mudar conforme o modo: o título (**Novo perfil** ou **Editar perfil**), o texto do botão (**Salvar perfil** ou **Salvar alterações**) e, principalmente, o **destino do envio**: no cadastro, o `action` aponta para `inserir_perfil`; na edição, para `perfil_editar`, com o código do perfil. Em vez de criar um segundo template quase igual (e ter de lembrar de mexer nos dois a cada campo novo), o `perfil_form.html` passa a servir aos dois modos, guiado pela variável `acao`.
+O formulário precisa mudar conforme o modo: o título (**Novo perfil** ou **Editar perfil**), o texto do botão (**Salvar perfil** ou **Salvar alterações**) e, principalmente, o **destino do envio**: no cadastro, o `action` aponta para `inserir_perfil`; na edição, para `editar_perfil`, com o código do perfil. Em vez de criar um segundo template quase igual (e ter de lembrar de mexer nos dois a cada campo novo), o `perfil_form.html` passa a servir aos dois modos, guiado pela variável `acao`.
 
 Primeiro, a rota de cadastro também passa a informar o modo. Na `inserir_perfil`, troque a última linha:
 
@@ -230,7 +234,7 @@ Agora o template. São quatro pontos espalhados pelo arquivo, então troque o `t
 
 {% block conteudo %}
 {% if acao == 'editar' %}
-    {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
+    {% set destino = url_for('editar_perfil', id_perfil=id_perfil) %}
 {% else %}
     {% set destino = url_for('inserir_perfil') %}
 {% endif %}
@@ -277,7 +281,7 @@ Os campos são os mesmos do Capítulo 12. O que mudou:
 2. **O destino do envio** é escolhido no começo do bloco `conteudo`, com um `if` comum e o `{% set %}` (caixa abaixo), e usado no `<form action="{{ destino }}">`.
 
 !!! note "Jinja: `{% set %}`"
-    O `{% set destino = ... %}` cria uma variável **dentro do template**, como o `destino = ...` do Python. Aqui ela guarda um endereço escolhido pelo `if`. O Jinja só executa o ramo que vale: no cadastro, o `id_perfil` é `None`, mas o `url_for('perfil_editar', ...)` nem chega a rodar.
+    O `{% set destino = ... %}` cria uma variável **dentro do template**, como o `destino = ...` do Python. Aqui ela guarda um endereço escolhido pelo `if`. O Jinja só executa o ramo que vale: no cadastro, o `id_perfil` é `None`, mas o `url_for('editar_perfil', ...)` nem chega a rodar.
 
 Salve. Na lista, descubra o código do `Teste` (a primeira coluna) e abra, pela barra de endereço, `http://127.0.0.1:5000/perfis/` + o código + `/editar`: o formulário aparece **preenchido**, com o título **Editar perfil** e o botão **Salvar alterações**. Abra `/perfis/inserir`: o mesmo arquivo, com **Novo perfil** e **Salvar perfil**. Agora abra `/perfis/99999/editar`: a página 404, porque não existe perfil com esse código.
 
@@ -289,13 +293,13 @@ Salve. Na lista, descubra o código do `Teste` (a primeira coluna) e abra, pela 
 <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
-E troque **só o `href`**, para ele levar à rota `perfil_editar` com o código do perfil daquela linha:
+E troque **só o `href`**, para ele levar à rota `editar_perfil` com o código do perfil daquela linha:
 
 ```html
-<a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+<a href="{{ url_for('editar_perfil', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
 ```
 
-**No menu.** O menu **Perfis** precisa continuar destacado durante a edição. No `templates/layout/base_menu.html`, procure o botão do menu suspenso **Perfis** (busque por `dropdown-toggle`) e acrescente `'perfil_editar'` à lista do `request.endpoint`. Troque só o trecho do `{% if %}`:
+**No menu.** O menu **Perfis** precisa continuar destacado durante a edição. No `templates/layout/base_menu.html`, procure o botão do menu suspenso **Perfis** (busque por `dropdown-toggle`) e acrescente `'editar_perfil'` à lista do `request.endpoint`. Troque só o trecho do `{% if %}`:
 
 ```html
 {% if request.endpoint in ['listar_perfis', 'inserir_perfil'] %}active{% endif %}
@@ -304,7 +308,7 @@ E troque **só o `href`**, para ele levar à rota `perfil_editar` com o código 
 por:
 
 ```html
-{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}
 ```
 
 ### Testando a edição
@@ -362,11 +366,11 @@ A rota trata isso como o cadastro tratou o nome repetido, com as mesmas duas def
 
 ### A rota que só aceita POST
 
-No `app.py`, acrescente a rota depois da `perfil_editar`:
+No `app.py`, acrescente a rota depois da `editar_perfil`:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -491,7 +495,7 @@ O `data-bs-toggle` e o `data-bs-target` são do Bootstrap: dizem "este botão ab
 !!! note "JavaScript: as três linhas da função"
     1. `document.getElementById('nome_perfil_' + id)` acha a célula do nome. O `+` junta textos, como no Python: com `id` valendo `3`, o texto é `nome_perfil_3`. O `.textContent` lê o texto que está dentro da célula.
     2. A segunda linha escreve esse nome no `<strong id="nomeExcluir">` da janela. O `.textContent` também **escreve**, e sempre como texto puro, nunca como HTML.
-    3. A terceira troca o `action` do formulário por `/perfis/3/excluir`, o mesmo endereço da rota `perfil_excluir`. Se um dia você mudar o endereço da rota, mude aqui também.
+    3. A terceira troca o `action` do formulário por `/perfis/3/excluir`, o mesmo endereço da rota `excluir_perfil`. Se um dia você mudar o endereço da rota, mude aqui também.
 
     A função recebe só o **código**, e não o nome: um nome com aspas, como `Chefe "Geral"`, quebraria o atributo `onclick`. Lendo o nome da própria célula, o problema não existe.
 
@@ -525,7 +529,7 @@ O `SELECT` dentro dos parênteses busca o código do perfil `Visitante`, seja qu
 
 Na lista de perfis, clique no botão vermelho do `Visitante` e confirme. A faixa vermelha diz `O perfil "Visitante" tem 1 usuário(s) e não pode ser excluído.`, e o perfil continua na lista: a **contagem** barrou a exclusão antes do `DELETE`.
 
-Para ver a barreira final, a do banco, desligue a contagem por um instante: na `perfil_excluir`, coloque um `#` na frente das linhas que vão do `usuarios = execute_one(` até o `return redirect(...)` do `if` (no VS Code, selecione e aperte `Ctrl + ;`). Salve e tente excluir o `Visitante` de novo: agora o `DELETE` chega ao banco, que o recusa com o `1451`, e a faixa vermelha `O perfil "Visitante" está em uso e não pode ser excluído.` vem do `except`. Sem esse `except`, o que apareceria seria a página de depuração do Flask com o erro técnico:
+Para ver a barreira final, a do banco, desligue a contagem por um instante: na `excluir_perfil`, coloque um `#` na frente das linhas que vão do `usuarios = execute_one(` até o `return redirect(...)` do `if` (no VS Code, selecione e aperte `Ctrl + ;`). Salve e tente excluir o `Visitante` de novo: agora o `DELETE` chega ao banco, que o recusa com o `1451`, e a faixa vermelha `O perfil "Visitante" está em uso e não pode ser excluído.` vem do `except`. Sem esse `except`, o que apareceria seria a página de depuração do Flask com o erro técnico:
 
 ```text
 mysql.connector.errors.IntegrityError: 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`gestao`.`usuarios`, CONSTRAINT `fk_usuarios_perfis` FOREIGN KEY (`perfil_id`) REFERENCES `perfis` (`id_perfil`) ON UPDATE CASCADE)
@@ -673,7 +677,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
@@ -692,8 +696,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -711,7 +713,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -731,7 +736,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
@@ -853,7 +858,7 @@ O `templates/perfis/perfis_lista.html`:
         <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_perfil', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
@@ -907,7 +912,7 @@ O `templates/perfis/perfil_form.html`:
 
 {% block conteudo %}
 {% if acao == 'editar' %}
-    {% set destino = url_for('perfil_editar', id_perfil=id_perfil) %}
+    {% set destino = url_for('editar_perfil', id_perfil=id_perfil) %}
 {% else %}
     {% set destino = url_for('inserir_perfil') %}
 {% endif %}
@@ -948,7 +953,7 @@ O `templates/perfis/perfil_form.html`:
 {% endblock %}
 ```
 
-A única mudança nos layouts é o `'perfil_editar'` na lista do menu **Perfis**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `base_limpa.html`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
+A única mudança nos layouts é o `'editar_perfil'` na lista do menu **Perfis**, no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `base_limpa.html`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 12.
 
 ---
 
@@ -1026,7 +1031,7 @@ Quais afirmações sobre a edição de perfil estão corretas? (selecione todas 
 </quiz>
 
 <quiz>
-Um perfil tem usuários e a rota `perfil_excluir` executa o `DELETE` direto, sem a contagem e sem o `try/except`. O que acontece?
+Um perfil tem usuários e a rota `excluir_perfil` executa o `DELETE` direto, sem a contagem e sem o `try/except`. O que acontece?
 - [ ] O perfil é excluído e os usuários ficam sem perfil
 > Não. A chave estrangeira com `ON DELETE RESTRICT` impede isso.
 - [ ] O banco exclui o perfil e também todos os usuários dele

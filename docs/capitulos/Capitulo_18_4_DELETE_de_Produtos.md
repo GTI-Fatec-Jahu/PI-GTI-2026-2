@@ -15,7 +15,7 @@ Ao final deste capítulo você deverá ser capaz de:
 - Pedir confirmação com um único modal do Bootstrap, preenchido por uma função JavaScript chamada por `onclick`
 - Apagar também o arquivo da foto, que o `DELETE` do banco não alcança
 
-Este capítulo é **opcional**: o Capítulo 18 constrói o CRUD inteiro de produtos em um só arquivo, e este percorre só a **exclusão**: a rota `produto_excluir`, o modal de confirmação e a remoção da foto do disco, em um arquivo menor e com o seu próprio zip. O Capítulo 19 parte do zip do Capítulo 18, e não deste. Ao final, o CRUD de produtos está completo, com o mesmo código do Capítulo 18.
+Este capítulo é **opcional**: o Capítulo 18 constrói o CRUD inteiro de produtos em um só arquivo, e este percorre só a **exclusão**: a rota `excluir_produto`, o modal de confirmação e a remoção da foto do disco, em um arquivo menor e com o seu próprio zip. O Capítulo 19 parte do zip do Capítulo 18, e não deste. Ao final, o CRUD de produtos está completo, com o mesmo código do Capítulo 18.
 
 ## 📦 Ponto de partida
 
@@ -66,11 +66,11 @@ DELETE FROM produtos WHERE id_produto = 3;
 
 Sem o `WHERE`, ele apaga **todos** os produtos, sem perguntar e sem "desfazer", e o código apagado nunca é reaproveitado pelo `AUTO_INCREMENT`. A exclusão também **não pode ser um link**: o `GET` deve só consultar, e robôs de busca, o carregamento antecipado de links e a pré-visualização de mensagens fazem `GET` sozinhos, e um link de exclusão seria seguido por eles. A rota aceita só `POST`, que só sai de um botão de formulário, com o token CSRF.
 
-Para o produto, há um detalhe a mais: a foto é um **arquivo em disco**, e o `DELETE` só apaga a linha do banco. Se o arquivo ficasse na pasta, sobraria sem dono. A rota apaga as duas coisas, com a `apagar_foto` da edição. No `app.py`, acrescente a rota **depois** da `produto_editar`:
+Para o produto, há um detalhe a mais: a foto é um **arquivo em disco**, e o `DELETE` só apaga a linha do banco. Se o arquivo ficasse na pasta, sobraria sem dono. A rota apaga as duas coisas, com a `apagar_foto` da edição. No `app.py`, acrescente a rota **depois** da `editar_produto`:
 
 ```python
 @app.route('/produtos/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -170,7 +170,7 @@ por:
 ```
 
 !!! note "JavaScript: as três linhas da função"
-    A primeira linha acha o `<span>` do nome (`'nome_produto_' + id` vira `nome_produto_3`) e lê o texto dele com `.textContent`. A segunda escreve esse nome no `<strong id="nomeExcluir">` da janela. A terceira troca o `action` do formulário por `/produtos/3/excluir`, o endereço da rota `produto_excluir`: se um dia você mudar o endereço da rota, mude aqui também. A função recebe só o **código**, e não o nome, porque um nome com aspas quebraria o atributo `onclick`.
+    A primeira linha acha o `<span>` do nome (`'nome_produto_' + id` vira `nome_produto_3`) e lê o texto dele com `.textContent`. A segunda escreve esse nome no `<strong id="nomeExcluir">` da janela. A terceira troca o `action` do formulário por `/produtos/3/excluir`, o endereço da rota `excluir_produto`: se um dia você mudar o endereço da rota, mude aqui também. A função recebe só o **código**, e não o nome, porque um nome com aspas quebraria o atributo `onclick`.
 
 ### Testar a exclusão
 
@@ -439,7 +439,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -462,8 +462,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -481,7 +479,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -501,7 +502,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -632,7 +633,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -646,7 +647,7 @@ def usuario_detalhe(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -686,9 +687,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -731,7 +742,7 @@ def usuario_editar(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -851,7 +862,7 @@ def inserir_produto():
 
 
 @app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
-def produto_editar(id_produto):
+def editar_produto(id_produto):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -893,8 +904,13 @@ def produto_editar(id_produto):
         else:
             # O UPDATE é montado em partes: a coluna foto só entra quando a foto muda
             sql = (
-                'UPDATE produtos SET nome = %s, descricao = %s, categoria = %s, '
-                'preco = %s, estoque = %s, ativo = %s'
+                'UPDATE produtos SET '
+                '    nome = %s, '
+                '    descricao = %s, '
+                '    categoria = %s, '
+                '    preco = %s, '
+                '    estoque = %s, '
+                '    ativo = %s'
             )
             params = [
                 dados['nome'],
@@ -932,7 +948,7 @@ def produto_editar(id_produto):
 
 
 @app.route('/produtos/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1036,7 +1052,7 @@ O `templates/produtos/produtos_lista.html`, com o botão **Excluir**, o modal e 
           {% endif %}
         </td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('produto_editar', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ produto.id_produto }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>

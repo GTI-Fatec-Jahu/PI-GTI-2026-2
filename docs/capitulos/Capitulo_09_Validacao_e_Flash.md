@@ -135,7 +135,7 @@ Na rota `cadastro`, troque a linha que guardava a mensagem:
         return redirect(url_for('index'))
 ```
 
-E na rota `produto_excluir`, faça o mesmo:
+E na rota `excluir_produto`, faça o mesmo:
 
 ```python
     session['produtos'] = restantes
@@ -723,7 +723,7 @@ def produto(id_produto):
 
 
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = None
     restantes = []
     for item in produtos_da_sessao():

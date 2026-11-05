@@ -692,11 +692,11 @@ As três dores dos capítulos anteriores acabaram: a lista não some, não depen
 
 ### Apagando o produto com DELETE
 
-A rota `produto_excluir` percorria a lista da `session` para separar o produto excluído dos que ficam. Com o banco, ela confere se o produto existe e manda o `DELETE`. Troque o corpo:
+A rota `excluir_produto` percorria a lista da `session` para separar o produto excluído dos que ficam. Com o banco, ela confere se o produto existe e manda o `DELETE`. Troque o corpo:
 
 ```python
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (id_produto,))
 
     if excluido is None:
@@ -947,7 +947,7 @@ def produto(id_produto):
 
 
 @app.route('/produto/<int:id_produto>/excluir', methods=['POST'])
-def produto_excluir(id_produto):
+def excluir_produto(id_produto):
     excluido = execute_one('SELECT id_produto, nome FROM produtos WHERE id_produto = %s', (id_produto,))
 
     if excluido is None:

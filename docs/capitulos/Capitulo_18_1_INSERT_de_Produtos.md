@@ -96,8 +96,8 @@ Como em `perfis` e `usuarios`, o recurso `produtos` segue o mesmo molde de nomes
 |---|---|---|---|---|
 | `/produtos` | GET | Lista os produtos | `listar_produtos` | `produtos/produtos_lista.html` |
 | `/produtos/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_produto` | `produtos/produto_form.html` |
-| `/produtos/<int:id_produto>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `produto_editar` | `produtos/produto_form.html` |
-| `/produtos/<int:id_produto>/excluir` | só POST | Exclui o produto e volta para a lista | `produto_excluir` | (nenhum) |
+| `/produtos/<int:id_produto>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `editar_produto` | `produtos/produto_form.html` |
+| `/produtos/<int:id_produto>/excluir` | só POST | Exclui o produto e volta para a lista | `excluir_produto` | (nenhum) |
 
 Não há página de detalhe: a lista já mostra o que importa de cada produto, e os botões de editar e excluir ficam nela mesma, na linha do produto.
 
@@ -141,14 +141,14 @@ Agora o menu. No `templates/layout/base_menu.html`, acrescente o menu suspenso *
 
 ```html
 <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_produtos', 'inserir_produto', 'produto_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_produtos', 'inserir_produto', 'editar_produto'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
   <ul class="dropdown-menu">
     <li><a class="dropdown-item" href="{{ url_for('listar_produtos') }}">Listar Produtos</a></li>
   </ul>
 </li>
 ```
 
-A lista `['listar_produtos', 'inserir_produto', 'produto_editar']` faz o menu ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas: o `request.endpoint in [...]` só compara nomes, e não depende de as rotas existirem. Salve, recarregue e use **Produtos > Listar Produtos**: a página provisória aparece, com o menu destacado. Saia do sistema (**Sair**) e digite `http://127.0.0.1:5000/produtos` na barra de endereço: você volta para a tela de entrada, com a faixa `Entre para continuar.` Entre de novo antes de seguir.
+A lista `['listar_produtos', 'inserir_produto', 'editar_produto']` faz o menu ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas: o `request.endpoint in [...]` só compara nomes, e não depende de as rotas existirem. Salve, recarregue e use **Produtos > Listar Produtos**: a página provisória aparece, com o menu destacado. Saia do sistema (**Sair**) e digite `http://127.0.0.1:5000/produtos` na barra de endereço: você volta para a tela de entrada, com a faixa `Entre para continuar.` Entre de novo antes de seguir.
 
 ```bash
 git add .
@@ -1052,7 +1052,7 @@ def inserir_perfil():
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def perfil_editar(id_perfil):
+def editar_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1075,8 +1075,6 @@ def perfil_editar(id_perfil):
     if request.method == 'POST':
         # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
         descricao = request.form.get('descricao', '').strip() or None
 
         # -------------------------------------------------------------------------
@@ -1094,7 +1092,10 @@ def perfil_editar(id_perfil):
             try:
                 # O WHERE garante que só este perfil seja alterado
                 execute_query(
-                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    'UPDATE perfis SET '
+                    '    nome = %s, '
+                    '    descricao = %s '
+                    'WHERE id_perfil = %s',
                     (nome, descricao, id_perfil),
                 )
 
@@ -1114,7 +1115,7 @@ def perfil_editar(id_perfil):
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
+def excluir_perfil(id_perfil):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1245,7 +1246,7 @@ def inserir_usuario():
 
 
 @app.route('/usuarios/<int:id_usuario>')
-def usuario_detalhe(id_usuario):
+def detalhar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1259,7 +1260,7 @@ def usuario_detalhe(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
-def usuario_editar(id_usuario):
+def editar_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1299,9 +1300,19 @@ def usuario_editar(id_usuario):
         else:
             # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
-                'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
-                'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
-                'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
+                'UPDATE usuarios SET '
+                '    nome = %s, '
+                '    email = %s, '
+                '    celular = %s, '
+                '    data_nascimento = %s, '
+                '    cpf = %s, '
+                '    perfil_id = %s, '
+                '    cep = %s, '
+                '    endereco = %s, '
+                '    numero = %s, '
+                '    complemento = %s, '
+                '    cidade = %s, '
+                '    estado = %s'
             )
             params = [
                 dados['nome'],
@@ -1344,7 +1355,7 @@ def usuario_editar(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
-def usuario_excluir(id_usuario):
+def excluir_usuario(id_usuario):
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1690,21 +1701,21 @@ O `templates/layout/base_menu.html`, com o menu **Produtos**:
             <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'editar_perfil'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'detalhar_usuario', 'editar_usuario'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_usuario') }}">Cadastrar Usuário</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_produtos', 'inserir_produto', 'produto_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_produtos', 'inserir_produto', 'editar_produto'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{{ url_for('listar_produtos') }}">Listar Produtos</a></li>
               <li><a class="dropdown-item" href="{{ url_for('inserir_produto') }}">Cadastrar Produto</a></li>
