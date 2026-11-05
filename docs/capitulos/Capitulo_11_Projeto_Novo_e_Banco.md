@@ -16,7 +16,7 @@ Ao final deste capítulo você deverá ser capaz de:
 - Guardar a senha do banco e a `secret_key` em um arquivo `.env`, fora do Git, e deixar um `.env.example` no repositório
 - Explicar cada trecho do `db.py`: a leitura do `.env`, a configuração, o pool e as funções `execute_query`, `execute_one` e `execute_insert`
 - Testar a conexão com o `testar_conexao.py` e reconhecer as mensagens de erro mais comuns
-- Montar o layout base do sistema com Bootstrap e as páginas 404 e 500
+- Montar os dois layouts do sistema com Bootstrap (um com menu e outro limpo), a tela de login provisória, o dashboard e as páginas 404 e 500
 
 O Projeto 1 terminou no Capítulo 10, com o catálogo ligado a um banco. O **Projeto 2 é outro sistema e começa do zero**: um **Sistema de Gestão** com perfis, usuários e produtos, que vai crescer até o Capítulo 19. Este capítulo é quase todo uma revisão: tudo o que ele repete você já fez, e cada etapa traz o link para o capítulo onde foi explicada em detalhe. As novidades são o **arquivo `.env`**, o **`banco.sql`** e um **`db.py` mais completo**, que lê o `.env` e já traz a função de `INSERT`.
 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-Rode `python app.py`, abra **http://127.0.0.1:5000** e confira a frase. Pare o servidor com `Ctrl + C`.
+Rode `python app.py`, abra **http://127.0.0.1:5000** e confira a frase. (Esta rota provisória será trocada no Tópico 7.) Pare o servidor com `Ctrl + C`.
 
 ### O primeiro commit
 
@@ -622,11 +622,36 @@ git push
 
 ---
 
-## Tópico 7 — O layout base e as páginas de erro
+## Tópico 7 — Os layouts, o dashboard e as páginas de erro
 
-O sistema precisa de uma moldura que se repita em todas as páginas. É o `base.html` com `extends` e `block` do [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-1-da-copia-ao-basehtml), com a navbar e o `url_for` do [Capítulo 4](Capitulo_04_Bootstrap_com_Flask.md#topico-2-a-barra-de-navegacao). Desta vez ele já nasce como herança, sem a duplicação do Projeto 1.
+O sistema precisa de molduras que se repitam em todas as páginas. É a herança de templates (`extends` e `block`) do [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-1-da-copia-ao-basehtml), com a navbar e o `url_for` do [Capítulo 4](Capitulo_04_Bootstrap_com_Flask.md#topico-2-a-barra-de-navegacao). Desta vez ela já nasce como herança, sem a duplicação do Projeto 1, e com **dois layouts**, porque nem toda página tem menu:
 
-### O `base.html` e o estilo
+| Layout | Tem menu? | Quem usa |
+|---|---|---|
+| `layout/base_menu.html` | Sim, o menu de navegação, com o conteúdo dentro do `<main>` | O dashboard e, nos próximos capítulos, as telas de perfis, usuários e produtos |
+| `layout/base_limpo.html` | Não: o conteúdo fica centralizado na tela | O login e as páginas de erro (404 e 500) |
+
+### A organização da pasta `templates`
+
+Os templates deste projeto ficam em subpastas, para o `templates` não virar uma lista de dezenas de arquivos soltos. Este é o mapa final, que vai se completando capítulo a capítulo:
+
+```text
+templates/
+├── layout/
+│   ├── base_menu.html
+│   └── base_limpo.html
+├── login.html
+├── dashboard.html
+├── 404.html
+├── 500.html
+├── perfis/        (Capítulos 12 e 13)
+├── usuarios/      (Capítulos 14 a 16)
+└── produtos/      (Capítulo 18)
+```
+
+Cada tabela terá a sua pasta, com o nome dela, e dentro dela sempre dois arquivos: a **lista**, com o nome da tabela no plural (`perfis_lista.html`), e o **formulário**, com o nome no singular (`perfil_form.html`). O Flask procura os templates dentro de `templates/`, então o nome da subpasta faz parte do nome do arquivo em `render_template` e em `extends`: `'layout/base_menu.html'`, `'perfis/perfis_lista.html'`.
+
+### O estilo e o layout limpo
 
 Crie a pasta `static` com o arquivo `estilo.css`:
 
@@ -643,7 +668,102 @@ body {
 }
 ```
 
-Crie a pasta `templates` com o `base.html`:
+Crie a pasta `templates`, dentro dela a pasta `layout`, e nela o `base_limpo.html`, o layout **sem menu**:
+
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo_aba %}Sistema de Gestão{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+
+  <main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+    <div class="col-12 col-md-8 col-lg-5">
+      {% block conteudo %}{% endblock %}
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>
+```
+
+O que centraliza o conteúdo está nas classes do `<main>` e da `<div>` de dentro:
+
+- `min-vh-100` dá ao `<main>` a altura mínima de 100% da janela, para haver espaço de sobra para centralizar.
+- `d-flex`, `align-items-center` e `justify-content-center` centralizam o conteúdo na vertical e na horizontal.
+- `col-12 col-md-8 col-lg-5` limita a largura: a tela inteira no celular, dois terços no tablet e pouco menos da metade no computador.
+
+### O login provisório e a rota `/`
+
+Crie o `templates/login.html`. Ele herda do layout limpo, então não tem menu:
+
+```html
+{% extends 'layout/base_limpo.html' %}
+
+{% block titulo_aba %}Entrar — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="card">
+    <div class="card-body p-4 text-center">
+      <h1 class="h2 mb-1">Sistema de Gestão</h1>
+      <p class="text-body-secondary mb-4">Fatec Jahu · ILP951</p>
+
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary w-100">Entrar</a>
+
+      <p class="small text-body-secondary mt-3 mb-0">
+        Ainda não há verificação de e-mail e senha: o botão leva direto ao dashboard.
+      </p>
+    </div>
+  </div>
+{% endblock %}
+```
+
+O `{% extends 'layout/base_limpo.html' %}` leva o nome da subpasta, e o botão **Entrar** é um link comum para a rota `dashboard`. A verificação de e-mail e senha só chega no [Capítulo 17](Capitulo_17_Login.md); até lá o botão apenas navega.
+
+Troque o `app.py` por esta versão, com as três rotas do sistema:
+
+```python
+from flask import Flask, render_template, redirect, url_for
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
+    return 'Dashboard em construção.'
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+- A rota `/` não mostra nada: ela só **redireciona** para `/login`, com `redirect` e `url_for`, como no [Capítulo 4](Capitulo_04_Bootstrap_com_Flask.md). Quem abre o sistema sempre cai na tela de entrada.
+- A rota `/login` mostra o `login.html`.
+- A rota `/dashboard` devolve só um texto por enquanto. Ela existe agora porque o botão **Entrar** usa `url_for('dashboard')`, e o `url_for` dá erro se a rota não existir.
+
+Salve e rode `python app.py`. Abra **http://127.0.0.1:5000** e observe que o endereço **muda sozinho** para `/login`, com o cartão centralizado e sem menu. Clique em **Entrar**: aparece o texto do dashboard.
+
+### O layout com menu e o dashboard
+
+Agora o layout **com menu**. Crie o `templates/layout/base_menu.html`:
 
 ```html
 <!DOCTYPE html>
@@ -659,16 +779,21 @@ Crie a pasta `templates` com o `base.html`:
 
   <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Sistema de Gestão</a>
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">Sistema de Gestão</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
               aria-label="Abrir o menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Início</a>
+            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav align-items-lg-center">
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-light" href="{{ url_for('login') }}">Sair</a>
           </li>
         </ul>
       </div>
@@ -690,14 +815,12 @@ Crie a pasta `templates` com o `base.html`:
 </html>
 ```
 
-O menu só tem **Início** por enquanto. Os links de Perfis, Usuários e Produtos entram nos capítulos em que essas páginas nascem.
+O menu tem dois grupos de itens. O primeiro, com `me-auto`, fica à esquerda e vai receber os menus das tabelas; por enquanto só tem o **Home**, que fica destacado quando a página aberta é o dashboard (`request.endpoint`, do Capítulo 4). O segundo fica à direita, com o botão **Sair**, que por enquanto só volta para a tela de login. Os menus suspensos de **Perfis**, **Usuários** e **Produtos** entram nos capítulos em que essas páginas nascem, porque cada link usa `url_for` de uma rota que ainda não existe.
 
-### A página inicial
-
-Crie o `templates/index.html`, primeiro só com o título:
+Crie o `templates/dashboard.html`, primeiro só com o título:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }}{% endblock %}
 
@@ -707,34 +830,25 @@ Crie o `templates/index.html`, primeiro só com o título:
 {% endblock %}
 ```
 
-E troque o `app.py` por esta versão, que usa o template:
+E, no `app.py`, faça a rota `dashboard` usar o template:
 
 ```python
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return render_template('index.html', titulo='Sistema de Gestão')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html', titulo='Sistema de Gestão')
 ```
 
-Rode `python app.py` e recarregue **http://127.0.0.1:5000**: a barra azul, o título e o rodapé aparecem.
+Salve e recarregue. Abra **http://127.0.0.1:5000**, clique em **Entrar**: a barra azul, o título e o rodapé aparecem. Clique em **Sair** e você volta ao login.
 
-### A página inicial lê o banco
+### O dashboard lê o banco
 
-Agora a página vai provar, com números, que o Flask fala com o banco. No `app.py`, a rota passa a contar as linhas das três tabelas, e o `secret_key` vem do `.env`. Troque o arquivo inteiro por:
+Agora o dashboard vai provar, com números, que o Flask fala com o banco. No `app.py`, a rota `dashboard` passa a contar as linhas das três tabelas, e o `secret_key` vem do `.env`. Troque o arquivo inteiro por:
 
 ```python
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 
 from db import execute_one
 
@@ -746,11 +860,21 @@ app.secret_key = os.getenv('SECRET_KEY')
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -762,7 +886,7 @@ if __name__ == '__main__':
 
 O `db.py` já carrega o `.env` ao ser importado, mas o `app.py` também lê dele (o `SECRET_KEY`), então chama o `load_dotenv()` por conta própria, em vez de depender do que outro arquivo fez. A `secret_key` é a do `.env`, e não mais um texto escrito no código, como no Projeto 1.
 
-No `templates/index.html`, troque o `<p class="lead">` pelos três cartões:
+No `templates/dashboard.html`, troque o `<p class="lead">` pelos três cartões:
 
 ```html
   <p class="lead">O Flask está conectado ao banco <strong>gestao</strong>.</p>
@@ -795,17 +919,17 @@ No `templates/index.html`, troque o `<p class="lead">` pelos três cartões:
   </div>
 ```
 
-Salve e recarregue: os três cartões mostram **0**. Eles vão subindo conforme os próximos capítulos cadastram dados.
+Salve e recarregue o dashboard: os três cartões mostram **0**. Eles vão subindo conforme os próximos capítulos cadastram dados.
 
 !!! note "Mudou o `.env`? Reinicie o servidor"
     O modo `debug=True` reinicia o Flask sozinho quando um arquivo `.py` muda, mas **não** quando o `.env` muda. Depois de editar o `.env`, pare o servidor com `Ctrl + C` e rode `python app.py` de novo.
 
 ### As páginas 404 e 500
 
-Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-paginas-de-erro-404-e-500), os erros ganham páginas próprias. Crie o `templates/404.html`:
+Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-paginas-de-erro-404-e-500), os erros ganham páginas próprias. Elas usam o **layout limpo**: quem caiu num erro não precisa do menu, só de um caminho de volta. Crie o `templates/404.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Página não encontrada — Sistema de Gestão{% endblock %}
 
@@ -813,7 +937,7 @@ Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-
   <div class="text-center py-5">
     <h1 class="display-1">404</h1>
     <p class="lead">Não encontramos a página que você procurava.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o início</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Voltar para a Home</a>
   </div>
 {% endblock %}
 ```
@@ -821,7 +945,7 @@ Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-
 E o `templates/500.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Erro no servidor — Sistema de Gestão{% endblock %}
 
@@ -829,7 +953,7 @@ E o `templates/500.html`:
   <div class="text-center py-5">
     <h1 class="display-1">500</h1>
     <p class="lead">Algo deu errado do nosso lado. Tente novamente em instantes.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o início</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Voltar para a Home</a>
   </div>
 {% endblock %}
 ```
@@ -847,11 +971,11 @@ def erro_no_servidor(erro):
     return render_template('500.html'), 500
 ```
 
-Salve e abra **http://127.0.0.1:5000/qualquer-coisa**: a página 404 aparece dentro do layout. A página 500 só aparece com o `debug` desligado, como mostrou o Capítulo 6.
+Salve e abra **http://127.0.0.1:5000/qualquer-coisa**: a página 404 aparece centralizada, sem o menu. A página 500 só aparece com o `debug` desligado, como mostrou o Capítulo 6.
 
 ```bash
 git add .
-git commit -m "Adiciona o layout base, a página inicial e as páginas 404 e 500"
+git commit -m "Adiciona os layouts, o login provisório, o dashboard e as páginas 404 e 500"
 git push
 ```
 
@@ -950,7 +1074,7 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 
 from db import execute_one
 
@@ -962,11 +1086,21 @@ app.secret_key = os.getenv('SECRET_KEY')
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -992,7 +1126,7 @@ O `testar_conexao.py` e o `.env.example` estão nos Tópicos 6 e 4, e os templat
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. Depois, abra o `.env` e troque os marcadores `SUA_SENHA_AQUI` (por nada, no XAMPP) e `NOME_BANCO_DADOS` (por `gestao`), como no Tópico 4. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpo.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. Depois, abra o `.env` e troque os marcadores `SUA_SENHA_AQUI` (por nada, no XAMPP) e `NOME_BANCO_DADOS` (por `gestao`), como no Tópico 4. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
 
 ➡️ [Baixar p2_cap_11.zip](../arquivos/p2_cap_11.zip)
 
@@ -1088,7 +1222,7 @@ Você já cadastrou perfis e usuários e importa o `banco.sql` de novo, sem mexe
 
 ## 📝 Resumo
 
-O Projeto 2 nasceu do zero com o mesmo roteiro do Projeto 1: pasta, ambiente virtual, um `pip install` com todos os pacotes, `.gitignore`, primeiro commit local e depois o repositório no GitHub. O `banco.sql` cria o banco `gestao` com as tabelas `perfis`, `usuarios` e `produtos`, ligadas por uma chave estrangeira, sem nenhum dado. A senha do banco e a `secret_key` saíram do código e foram para o `.env`, que o Git ignora, com o `.env.example` como modelo no repositório. O `db.py` lê o `.env`, cria o pool e oferece `execute_query`, `execute_one` e `execute_insert`, e o `testar_conexao.py` e a página inicial provam que o Flask conversa com o banco. No Capítulo 12, essa base recebe os primeiros perfis cadastrados pelo próprio sistema.
+O Projeto 2 nasceu do zero com o mesmo roteiro do Projeto 1: pasta, ambiente virtual, um `pip install` com todos os pacotes, `.gitignore`, primeiro commit local e depois o repositório no GitHub. O `banco.sql` cria o banco `gestao` com as tabelas `perfis`, `usuarios` e `produtos`, ligadas por uma chave estrangeira, sem nenhum dado. A senha do banco e a `secret_key` saíram do código e foram para o `.env`, que o Git ignora, com o `.env.example` como modelo no repositório. O `db.py` lê o `.env`, cria o pool e oferece `execute_query`, `execute_one` e `execute_insert`, e o `testar_conexao.py` e o dashboard provam que o Flask conversa com o banco. O sistema ganhou dois layouts, um com menu e outro limpo, para o login e os erros, e a rota `/` passou a levar para `/login`. No Capítulo 12, essa base recebe os primeiros perfis cadastrados pelo próprio sistema.
 
 ---
 
