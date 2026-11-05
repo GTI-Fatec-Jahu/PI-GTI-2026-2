@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block titulo_aba %}Sistema de Gestão{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
 </head>
 <body>
@@ -33,6 +34,13 @@
   </nav>
 
   <main class="container my-4">
+    {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+      {{ mensagem }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    {% endfor %}
+
     {% block conteudo %}{% endblock %}
   </main>
 

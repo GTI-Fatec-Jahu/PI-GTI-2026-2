@@ -11,6 +11,13 @@
 
   <main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
     <div class="col-12 col-md-8 col-lg-5">
+      {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+        {{ mensagem }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      {% endfor %}
+
       {% block conteudo %}{% endblock %}
     </div>
   </main>

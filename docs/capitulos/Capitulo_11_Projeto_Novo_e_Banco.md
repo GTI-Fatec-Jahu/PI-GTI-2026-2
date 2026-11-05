@@ -16,7 +16,8 @@ Ao final deste capítulo você deverá ser capaz de:
 - Guardar a senha do banco e a `secret_key` em um arquivo `.env`, fora do Git, e deixar um `.env.example` no repositório
 - Explicar cada trecho do `db.py`: a leitura do `.env`, a configuração, o pool e as funções `execute_query`, `execute_one` e `execute_insert`
 - Testar a conexão com o `testar_conexao.py` e reconhecer as mensagens de erro mais comuns
-- Montar os dois layouts do sistema com Bootstrap (um com menu e outro limpo), a tela de login provisória, o dashboard e as páginas 404 e 500
+- Montar os dois layouts do sistema com Bootstrap (um com menu e outro limpo, os dois já com o bloco de mensagens do `flash`), a tela de login provisória, o dashboard e as páginas 404 e 500
+- Ligar a proteção CSRF e organizar o `app.py` em seções com comentários
 
 O Projeto 1 terminou no Capítulo 10, com o catálogo ligado a um banco. O **Projeto 2 é outro sistema e começa do zero**: um **Sistema de Gestão** com perfis, usuários e produtos, que vai crescer até o Capítulo 19. Este capítulo é quase todo uma revisão: tudo o que ele repete você já fez, e cada etapa traz o link para o capítulo onde foi explicada em detalhe. As novidades são o **arquivo `.env`**, o **`banco.sql`** e um **`db.py` mais completo**, que lê o `.env` e já traz a função de `INSERT`.
 
@@ -71,7 +72,7 @@ Os três primeiros você já conhece, e o último é novo e fica por último no 
 | Pacote | Para que serve | Onde aparece |
 |---|---|---|
 | `flask` | O servidor, as rotas e os templates | [Capítulo 3](Capitulo_03_Flask.md) |
-| `flask-wtf` | A proteção CSRF dos formulários (só o `CSRFProtect`, como no Projeto 1) | [Capítulo 8](Capitulo_08_Session.md#topico-5-csrf-o-formulario-precisa-provar-que-e-o-seu). Entra em uso no Capítulo 12, com o primeiro formulário |
+| `flask-wtf` | A proteção CSRF dos formulários (só o `CSRFProtect`, como no Projeto 1) | [Capítulo 8](Capitulo_08_Session.md#topico-5-csrf-o-formulario-precisa-provar-que-e-o-seu). A proteção é ligada no Tópico 7 deste capítulo, e o primeiro formulário chega no Capítulo 12 |
 | `mysql-connector-python` | O conector entre o Python e o MySQL (MariaDB) | [Capítulo 10](Capitulo_10_Banco_de_Dados.md#instalando-o-conector). Entra em uso ainda neste capítulo, no `db.py` |
 | `python-dotenv` | **Novo.** Lê o arquivo `.env` (Tópico 4) e entrega os valores dele ao Python | Este capítulo |
 
@@ -629,7 +630,7 @@ O sistema precisa de molduras que se repitam em todas as páginas. É a herança
 | Layout | Tem menu? | Quem usa |
 |---|---|---|
 | `layout/base_menu.html` | Sim, o menu de navegação, com o conteúdo dentro do `<main>` | O dashboard e, nos próximos capítulos, as telas de perfis, usuários e produtos |
-| `layout/base_limpo.html` | Não: o conteúdo fica centralizado na tela | O login e as páginas de erro (404 e 500) |
+| `layout/base_limpa.html` | Não: o conteúdo fica centralizado na tela | O login e as páginas de erro (404 e 500) |
 
 ### A organização da pasta `templates`
 
@@ -639,7 +640,7 @@ Os templates deste projeto ficam em subpastas, para o `templates` não virar uma
 templates/
 ├── layout/
 │   ├── base_menu.html
-│   └── base_limpo.html
+│   └── base_limpa.html
 ├── login.html
 ├── dashboard.html
 ├── 404.html
@@ -668,7 +669,7 @@ body {
 }
 ```
 
-Crie a pasta `templates`, dentro dela a pasta `layout`, e nela o `base_limpo.html`, o layout **sem menu**:
+Crie a pasta `templates`, dentro dela a pasta `layout`, e nela o `base_limpa.html`, o layout **sem menu**:
 
 ```html
 <!DOCTYPE html>
@@ -684,6 +685,13 @@ Crie a pasta `templates`, dentro dela a pasta `layout`, e nela o `base_limpo.htm
 
   <main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
     <div class="col-12 col-md-8 col-lg-5">
+      {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+        {{ mensagem }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      {% endfor %}
+
       {% block conteudo %}{% endblock %}
     </div>
   </main>
@@ -701,12 +709,14 @@ O que centraliza o conteúdo está nas classes do `<main>` e da `<div>` de dentr
 - `d-flex`, `align-items-center` e `justify-content-center` centralizam o conteúdo na vertical e na horizontal.
 - `col-12 col-md-8 col-lg-5` limita a largura: a tela inteira no celular, dois terços no tablet e pouco menos da metade no computador.
 
+O `for` antes do bloco `conteudo` é o mesmo bloco de mensagens do [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-2-flash-avisar-o-resultado-em-uma-linha): ele mostra cada `flash` como um alerta do Bootstrap, e o tipo do `flash` (`success`, `danger`, `warning`) vira a cor do alerta. Ele já entra no layout agora, mesmo sem nenhum `flash` no `app.py` ainda, para que as telas dos próximos capítulos só precisem chamar `flash(...)` na rota. Enquanto não há mensagem, o `for` não desenha nada.
+
 ### O login provisório e a rota `/`
 
 Crie o `templates/login.html`. Ele herda do layout limpo, então não tem menu:
 
 ```html
-{% extends 'layout/base_limpo.html' %}
+{% extends 'layout/base_limpa.html' %}
 
 {% block titulo_aba %}Entrar — Sistema de Gestão{% endblock %}
 
@@ -726,18 +736,23 @@ Crie o `templates/login.html`. Ele herda do layout limpo, então não tem menu:
 {% endblock %}
 ```
 
-O `{% extends 'layout/base_limpo.html' %}` leva o nome da subpasta, e o botão **Entrar** é um link comum para a rota `dashboard`. A verificação de e-mail e senha só chega no [Capítulo 17](Capitulo_17_Login.md); até lá o botão apenas navega.
+O `{% extends 'layout/base_limpa.html' %}` leva o nome da subpasta, e o botão **Entrar** é um link comum para a rota `dashboard`. A verificação de e-mail e senha só chega no [Capítulo 17](Capitulo_17_Login.md); até lá o botão apenas navega.
 
 Troque o `app.py` por esta versão, com as três rotas do sistema:
 
 ```python
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
 
 app = Flask(__name__)
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -754,6 +769,8 @@ def dashboard():
 if __name__ == '__main__':
     app.run(debug=True)
 ```
+
+As três linhas de `#` com o título no meio são um **comentário de seção**. O Python ignora todo texto que começa com `#`, então elas não mudam nada no funcionamento: servem para quem lê o arquivo achar cada parte de longe. O `app.py` deste projeto vai crescer bastante, e cada grupo de rotas ganha a sua seção (as páginas de erro no fim deste tópico, os perfis no Capítulo 12, e assim por diante). Os comentários de uma linha dentro das funções explicam o porquê de um trecho.
 
 - A rota `/` não mostra nada: ela só **redireciona** para `/login`, com `redirect` e `url_for`, como no [Capítulo 4](Capitulo_04_Bootstrap_com_Flask.md). Quem abre o sistema sempre cai na tela de entrada.
 - A rota `/login` mostra o `login.html`.
@@ -773,6 +790,7 @@ Agora o layout **com menu**. Crie o `templates/layout/base_menu.html`:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block titulo_aba %}Sistema de Gestão{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
 </head>
 <body>
@@ -801,6 +819,13 @@ Agora o layout **com menu**. Crie o `templates/layout/base_menu.html`:
   </nav>
 
   <main class="container my-4">
+    {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+      {{ mensagem }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    {% endfor %}
+
     {% block conteudo %}{% endblock %}
   </main>
 
@@ -816,6 +841,11 @@ Agora o layout **com menu**. Crie o `templates/layout/base_menu.html`:
 ```
 
 O menu tem dois grupos de itens. O primeiro, com `me-auto`, fica à esquerda e vai receber os menus das tabelas; por enquanto só tem o **Home**, que fica destacado quando a página aberta é o dashboard (`request.endpoint`, do Capítulo 4). O segundo fica à direita, com o botão **Sair**, que por enquanto só volta para a tela de login. Os menus suspensos de **Perfis**, **Usuários** e **Produtos** entram nos capítulos em que essas páginas nascem, porque cada link usa `url_for` de uma rota que ainda não existe.
+
+Duas peças deste layout ficam prontas agora para os próximos capítulos:
+
+- **O bloco de mensagens** dentro do `<main>`, o mesmo do layout limpo.
+- **A segunda linha `<link>` do `<head>`**, que carrega os **Bootstrap Icons**, a coleção de ícones do Bootstrap. Com ela, um ícone é só uma tag `<i>` com a classe do desenho: `<i class="bi bi-pencil-square"></i>` desenha um lápis, e `<i class="bi bi-trash"></i>`, uma lixeira. Os botões de editar e excluir das tabelas, a partir do Capítulo 12, usam esses dois. A lista completa de ícones está em **icons.getbootstrap.com**.
 
 Crie o `templates/dashboard.html`, primeiro só com o título:
 
@@ -842,13 +872,14 @@ Salve e recarregue. Abra **http://127.0.0.1:5000**, clique em **Entrar**: a barr
 
 ### O dashboard lê o banco
 
-Agora o dashboard vai provar, com números, que o Flask fala com o banco. No `app.py`, a rota `dashboard` passa a contar as linhas das três tabelas, e o `secret_key` vem do `.env`. Troque o arquivo inteiro por:
+Agora o dashboard vai provar, com números, que o Flask fala com o banco. No `app.py`, a rota `dashboard` passa a contar as linhas das três tabelas, o `secret_key` vem do `.env` e a proteção CSRF é ligada. Troque o arquivo inteiro por:
 
 ```python
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
+from flask_wtf.csrf import CSRFProtect
 
 from db import execute_one
 
@@ -857,9 +888,17 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
+CSRFProtect(app)
+
+
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
 
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -870,6 +909,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -886,37 +926,39 @@ if __name__ == '__main__':
 
 O `db.py` já carrega o `.env` ao ser importado, mas o `app.py` também lê dele (o `SECRET_KEY`), então chama o `load_dotenv()` por conta própria, em vez de depender do que outro arquivo fez. A `secret_key` é a do `.env`, e não mais um texto escrito no código, como no Projeto 1.
 
+O `CSRFProtect(app)` é o mesmo do [Capítulo 8](Capitulo_08_Session.md#topico-5-csrf-o-formulario-precisa-provar-que-e-o-seu): a partir dele, o Flask recusa com o erro 400 todo POST que chegar sem o token CSRF. Ele depende da `secret_key`, por isso vem logo depois dela. Por enquanto o sistema não tem nenhum formulário, então nada muda na tela. Fica ligado desde já para que nenhum formulário do projeto nasça desprotegido: o do Capítulo 12 já vem com o token.
+
 No `templates/dashboard.html`, troque o `<p class="lead">` pelos três cartões:
 
 ```html
-  <p class="lead">O Flask está conectado ao banco <strong>gestao</strong>.</p>
+<p class="lead">O Flask está conectado ao banco <strong>gestao</strong>.</p>
 
-  <div class="row g-3">
-    <div class="col-sm-4">
-      <div class="card text-center">
-        <div class="card-body">
-          <p class="display-5 mb-0">{{ total_perfis }}</p>
-          <p class="text-body-secondary mb-0">perfis</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-4">
-      <div class="card text-center">
-        <div class="card-body">
-          <p class="display-5 mb-0">{{ total_usuarios }}</p>
-          <p class="text-body-secondary mb-0">usuários</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-4">
-      <div class="card text-center">
-        <div class="card-body">
-          <p class="display-5 mb-0">{{ total_produtos }}</p>
-          <p class="text-body-secondary mb-0">produtos</p>
-        </div>
+<div class="row g-3">
+  <div class="col-sm-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="display-5 mb-0">{{ total_perfis }}</p>
+        <p class="text-body-secondary mb-0">perfis</p>
       </div>
     </div>
   </div>
+  <div class="col-sm-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="display-5 mb-0">{{ total_usuarios }}</p>
+        <p class="text-body-secondary mb-0">usuários</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="display-5 mb-0">{{ total_produtos }}</p>
+        <p class="text-body-secondary mb-0">produtos</p>
+      </div>
+    </div>
+  </div>
+</div>
 ```
 
 Salve e recarregue o dashboard: os três cartões mostram **0**. Eles vão subindo conforme os próximos capítulos cadastram dados.
@@ -929,7 +971,7 @@ Salve e recarregue o dashboard: os três cartões mostram **0**. Eles vão subin
 Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-paginas-de-erro-404-e-500), os erros ganham páginas próprias. Elas usam o **layout limpo**: quem caiu num erro não precisa do menu, só de um caminho de volta. Crie o `templates/404.html`:
 
 ```html
-{% extends 'layout/base_limpo.html' %}
+{% extends 'layout/base_limpa.html' %}
 
 {% block titulo_aba %}Página não encontrada — Sistema de Gestão{% endblock %}
 
@@ -945,7 +987,7 @@ Como no [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md#topico-5-
 E o `templates/500.html`:
 
 ```html
-{% extends 'layout/base_limpo.html' %}
+{% extends 'layout/base_limpa.html' %}
 
 {% block titulo_aba %}Erro no servidor — Sistema de Gestão{% endblock %}
 
@@ -958,9 +1000,13 @@ E o `templates/500.html`:
 {% endblock %}
 ```
 
-Registre-os no `app.py`, antes do `if __name__ == '__main__':`:
+Registre-os no `app.py`, em uma seção própria, antes do `if __name__ == '__main__':`:
 
 ```python
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
+
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
     return render_template('404.html'), 404
@@ -1074,7 +1120,8 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
+from flask_wtf.csrf import CSRFProtect
 
 from db import execute_one
 
@@ -1083,9 +1130,17 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
+CSRFProtect(app)
+
+
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
 
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -1096,6 +1151,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -1105,6 +1161,10 @@ def dashboard():
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
@@ -1126,7 +1186,7 @@ O `testar_conexao.py` e o `.env.example` estão nos Tópicos 6 e 4, e os templat
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpo.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. Depois, abra o `.env` e troque os marcadores `SUA_SENHA_AQUI` (por nada, no XAMPP) e `NOME_BANCO_DADOS` (por `gestao`), como no Tópico 4. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpa.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 (`python -m venv venv`, `venv\Scripts\activate` e `pip install -r requirements.txt`) e rode `copy .env.example .env`. Depois, abra o `.env` e troque os marcadores `SUA_SENHA_AQUI` (por nada, no XAMPP) e `NOME_BANCO_DADOS` (por `gestao`), como no Tópico 4. O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin, como no Tópico 3.
 
 ➡️ [Baixar p2_cap_11.zip](../arquivos/p2_cap_11.zip)
 
@@ -1222,7 +1282,7 @@ Você já cadastrou perfis e usuários e importa o `banco.sql` de novo, sem mexe
 
 ## 📝 Resumo
 
-O Projeto 2 nasceu do zero com o mesmo roteiro do Projeto 1: pasta, ambiente virtual, um `pip install` com todos os pacotes, `.gitignore`, primeiro commit local e depois o repositório no GitHub. O `banco.sql` cria o banco `gestao` com as tabelas `perfis`, `usuarios` e `produtos`, ligadas por uma chave estrangeira, sem nenhum dado. A senha do banco e a `secret_key` saíram do código e foram para o `.env`, que o Git ignora, com o `.env.example` como modelo no repositório. O `db.py` lê o `.env`, cria o pool e oferece `execute_query`, `execute_one` e `execute_insert`, e o `testar_conexao.py` e o dashboard provam que o Flask conversa com o banco. O sistema ganhou dois layouts, um com menu e outro limpo, para o login e os erros, e a rota `/` passou a levar para `/login`. No Capítulo 12, essa base recebe os primeiros perfis cadastrados pelo próprio sistema.
+O Projeto 2 nasceu do zero com o mesmo roteiro do Projeto 1: pasta, ambiente virtual, um `pip install` com todos os pacotes, `.gitignore`, primeiro commit local e depois o repositório no GitHub. O `banco.sql` cria o banco `gestao` com as tabelas `perfis`, `usuarios` e `produtos`, ligadas por uma chave estrangeira, sem nenhum dado. A senha do banco e a `secret_key` saíram do código e foram para o `.env`, que o Git ignora, com o `.env.example` como modelo no repositório. O `db.py` lê o `.env`, cria o pool e oferece `execute_query`, `execute_one` e `execute_insert`, e o `testar_conexao.py` e o dashboard provam que o Flask conversa com o banco. O sistema ganhou dois layouts, um com menu e outro limpo, para o login e os erros, os dois já prontos para mostrar mensagens de `flash`, e a rota `/` passou a levar para `/login`. O `CSRFProtect` ficou ligado desde o primeiro dia, e o `app.py` está dividido em seções por comentários. No Capítulo 12, essa base recebe os primeiros perfis cadastrados pelo próprio sistema.
 
 ---
 
