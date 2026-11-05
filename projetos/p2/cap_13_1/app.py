@@ -1,23 +1,29 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import validar_nome_perfil, validar_descricao_perfil
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -28,6 +34,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -38,8 +45,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco, sem os que estão na lixeira
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis '
         'WHERE deletado_em IS NULL ORDER BY nome',
@@ -51,6 +63,7 @@ def lista_perfis():
 
 @app.route('/perfis/lixeira')
 def lixeira_perfis():
+    # Só os perfis excluídos, os mais recentes primeiro
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, deletado_em FROM perfis '
         'WHERE deletado_em IS NOT NULL ORDER BY deletado_em DESC',
@@ -60,144 +73,155 @@ def lixeira_perfis():
     return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil, deletado_em FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            if existente['deletado_em'] is None:
-                erros.append('Já existe um perfil com este nome.')
-            else:
-                erros.append('Já existe um perfil excluído com este nome. Restaure-o na lixeira.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, 0)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço, só entre os que não estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis '
         'WHERE id_perfil = %s AND deletado_em IS NULL',
         (id_perfil,),
     )
+
+    # Código que não existe (ou está na lixeira): mostra a página 404
     if perfil is None:
         abort(404)
 
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, id_perfil)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
+                # O WHERE garante que só este perfil seja alterado
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
+                    (nome, descricao, id_perfil),
                 )
+
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def perfil_excluir(id_perfil):
+    # Busca o perfil, só entre os que não estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
         (id_perfil,),
     )
+
+    # Código que não existe (ou já está na lixeira): mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Exclusão lógica: marca a data da exclusão em vez de apagar a linha
     execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
 
 @app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
 def perfil_restaurar(id_perfil):
+    # Busca o perfil, só entre os que estão na lixeira
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
         (id_perfil,),
     )
+
     if perfil is None:
         abort(404)
 
+    # Restaurar é desfazer a marcação: deletado_em volta a ser NULL
     execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):

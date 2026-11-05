@@ -6,12 +6,12 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
     <div class="d-flex gap-2">
-      <a href="{{ url_for('lixeira_perfis') }}" class="btn btn-outline-secondary">Lixeira</a>
-      <a href="{{ url_for('perfil_novo') }}" class="btn btn-primary">Novo perfil</a>
+      <a href="{{ url_for('lixeira_perfis') }}" class="btn btn-outline-secondary"><i class="bi bi-trash"></i> Lixeira</a>
+      <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
     </div>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
@@ -26,17 +26,11 @@
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td id="nome_perfil_{{ perfil.id_perfil }}">{{ perfil.nome }}</td>
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
-        </td>
-        <td>{{ perfil.criado_em.strftime('%d/%m/%Y') }}</td>
-        <td class="text-end">
-          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})">Excluir</button>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
+        <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}

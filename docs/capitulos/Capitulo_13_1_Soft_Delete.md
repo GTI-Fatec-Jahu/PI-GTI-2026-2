@@ -73,31 +73,53 @@ UPDATE perfis SET deletado_em = NULL WHERE nome = 'Teste';
 
 ### O UPDATE no lugar do DELETE
 
-Ligue o servidor (`python app.py`), com o XAMPP ligado, e abra o `app.py`. Na rota `perfil_excluir`, a exclusão vira a marcação. A contagem de usuários e o `try/except` do erro `1451` saem: um `UPDATE` não infringe a chave estrangeira (a linha do perfil continua existindo), e o banco nunca recusa. Substitua a rota inteira por esta:
+Ligue o servidor (`python app.py`), com o XAMPP ligado, e abra o `app.py`. Na rota `perfil_excluir`, a exclusão vira a marcação. A contagem de usuários e o `try/except` do erro `1451` saem: um `UPDATE` não infringe a chave estrangeira (a linha do perfil continua existindo), e o banco nunca recusa. Substitua a rota `perfil_excluir` inteira por esta:
 
 ```python
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def perfil_excluir(id_perfil):
+    # Busca o perfil, só entre os que não estão na lixeira
     perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
         (id_perfil,),
     )
+
+    # Código que não existe (ou já está na lixeira): mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Exclusão lógica: marca a data da exclusão em vez de apagar a linha
     execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
     flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 ```
 
-Salve, abra a lista e exclua o `Teste` pelo modal. A faixa verde diz `Perfil "Teste" enviado para a lixeira.`, mas o perfil **continua na lista**, porque a lista ainda não filtra. No phpMyAdmin, o `deletado_em` do `Teste` está preenchido. É a dor da exclusão lógica: **toda consulta** passa a precisar do filtro.
+Duas diferenças em relação ao Capítulo 13. O `SELECT` do começo ganhou o `AND deletado_em IS NULL`: um perfil que já está na lixeira não deve ser excluído de novo, e para a rota ele "não existe" (404). E o `DELETE` virou o `UPDATE ... SET deletado_em = NOW()`.
 
-### Filtrando a lista
+!!! note "SQL: `IS NULL`"
+    No MySQL, nada é igual a `NULL`, nem outro `NULL`, por isso a pergunta é feita com `IS NULL` (e `IS NOT NULL` para o contrário), como no [Capítulo 12.1](Capitulo_12_1_Busca_Filtro_e_Paginacao.md#topico-2-buscar-e-filtrar-o-where-11). Aqui, `deletado_em IS NULL` significa "perfis que **não** foram excluídos".
 
-Na rota `lista_perfis`, acrescente o filtro ao `SELECT`:
+Salve, abra a lista e exclua o `Teste` pelo modal. A faixa verde diz `Perfil "Teste" enviado para a lixeira.`, mas o perfil **continua na lista**, porque a lista ainda não filtra. No phpMyAdmin, o `deletado_em` do `Teste` está preenchido. É a dor da exclusão lógica: **toda consulta** que lê perfis passa a precisar do filtro.
+
+### Filtrando todas as consultas
+
+Três lugares do `app.py` ainda não sabem da lixeira. Em cada um, a mudança é acrescentar o filtro `deletado_em IS NULL`.
+
+**1. A lista.** Na rota `listar_perfis`, troque o `SELECT`:
 
 ```python
+    # Busca a lista de perfis na tabela do banco
+    perfis = execute_query(
+        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
+        fetch=True,
+    )
+```
+
+por:
+
+```python
+    # Busca a lista de perfis na tabela do banco, sem os que estão na lixeira
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis '
         'WHERE deletado_em IS NULL ORDER BY nome',
@@ -105,37 +127,44 @@ Na rota `lista_perfis`, acrescente o filtro ao `SELECT`:
     )
 ```
 
-!!! note "SQL: `IS NULL`"
-    No MySQL, nada é igual a `NULL`, nem outro `NULL`, por isso a pergunta é feita com `IS NULL` (e `IS NOT NULL` para o contrário), como no [Capítulo 12.1](Capitulo_12_1_Busca_Filtro_e_Paginacao.md#topico-3-mais-de-um-filtro-o-where-11). Aqui, `deletado_em IS NULL` significa "perfis que **não** foram excluídos".
+**2. O cartão do dashboard**, que conta os perfis. Na rota `dashboard`, troque a primeira contagem:
 
-Salve e recarregue: o `Teste` sumiu da lista. Nem toda tela olha para essa lista, e o filtro precisa estar em **todo lugar** que lê perfis. Três lugares do `app.py` ainda não sabem da lixeira:
+```python
+    perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
+```
 
-1. **O cartão do dashboard**, que conta os perfis. Na rota `dashboard`, troque a contagem por:
+por:
 
-    ```python
-        perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
-    ```
+```python
+    perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
+```
 
-2. **A edição**: um perfil na lixeira não deve abrir para edição. No `SELECT` da rota `perfil_editar`:
+**3. A edição**: um perfil na lixeira não deve abrir para edição. No começo da rota `perfil_editar`, troque:
 
-    ```python
-        perfil = execute_one(
-            'SELECT id_perfil, nome, descricao FROM perfis '
-            'WHERE id_perfil = %s AND deletado_em IS NULL',
-            (id_perfil,),
-        )
-    ```
+```python
+    # Busca o perfil pelo código que veio no endereço
+    perfil = execute_one(
+        'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
+        (id_perfil,),
+    )
 
-3. **A exclusão**: um perfil que já está na lixeira não deve ser excluído de novo. No `SELECT` da rota `perfil_excluir`:
+    # Código que não existe: mostra a página 404
+```
 
-    ```python
-        perfil = execute_one(
-            'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
-            (id_perfil,),
-        )
-    ```
+por:
 
-Salve e confira: o cartão **perfis** do dashboard não conta o `Teste`, e `/perfis/` + o código do `Teste` + `/editar` mostra a página 404, como se o perfil não existisse para o sistema. Para o banco ele continua existindo, e é isso que permite restaurá-lo.
+```python
+    # Busca o perfil pelo código que veio no endereço, só entre os que não estão na lixeira
+    perfil = execute_one(
+        'SELECT id_perfil, nome, descricao FROM perfis '
+        'WHERE id_perfil = %s AND deletado_em IS NULL',
+        (id_perfil,),
+    )
+
+    # Código que não existe (ou está na lixeira): mostra a página 404
+```
+
+Salve e confira: o `Teste` sumiu da lista, o cartão **perfis** do dashboard não o conta, e `/perfis/` + o código do `Teste` + `/editar` mostra a página 404, como se o perfil não existisse para o sistema. Para o banco ele continua existindo, e é isso que permite restaurá-lo.
 
 ```bash
 git add .
@@ -147,13 +176,14 @@ git push
 
 ## Tópico 2 — A lixeira e a restauração
 
-### A lista dos excluídos
+### As duas rotas
 
-O perfil excluído sumiu de todas as telas, e ninguém consegue trazê-lo de volta. A lixeira resolve isso. No `app.py`, **depois** da `lista_perfis`, acrescente a rota. A consulta é o inverso da lista: `IS NOT NULL`, com os excluídos mais recentemente no alto:
+O perfil excluído sumiu de todas as telas, e ninguém consegue trazê-lo de volta. A lixeira resolve isso com duas rotas: uma que **lista** os excluídos e outra que **restaura** um deles. No `app.py`, acrescente a rota da lixeira **depois** da `listar_perfis`. A consulta é o inverso da lista: `IS NOT NULL`, com os excluídos mais recentemente no alto:
 
 ```python
 @app.route('/perfis/lixeira')
 def lixeira_perfis():
+    # Só os perfis excluídos, os mais recentes primeiro
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, deletado_em FROM perfis '
         'WHERE deletado_em IS NOT NULL ORDER BY deletado_em DESC',
@@ -163,7 +193,32 @@ def lixeira_perfis():
     return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 ```
 
-Crie o `templates/perfis/perfis_lixeira.html`, parecido com o da lista, com a coluna **Excluído em** no lugar de **Criado em** (o `%H:%M` do `strftime` acrescenta a hora, como no [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-coluna-criado-em)):
+Restaurar é desfazer a exclusão: `deletado_em` volta a ser `NULL`. É uma ação que **altera** dados, então, como a exclusão, é um `POST` com `csrf_token`. Acrescente a rota **depois** da `perfil_excluir`:
+
+```python
+@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
+def perfil_restaurar(id_perfil):
+    # Busca o perfil, só entre os que estão na lixeira
+    perfil = execute_one(
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
+        (id_perfil,),
+    )
+
+    if perfil is None:
+        abort(404)
+
+    # Restaurar é desfazer a marcação: deletado_em volta a ser NULL
+    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
+    flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
+
+    return redirect(url_for('listar_perfis'))
+```
+
+O `SELECT` procura só entre os que **estão** na lixeira (`IS NOT NULL`): restaurar um perfil que não foi excluído, ou que não existe, responde 404.
+
+### A página da lixeira
+
+Crie o `templates/perfis/perfis_lixeira.html`. Ele é parecido com o da lista, com a coluna **Excluído em** no lugar de **Criado em** (com a data e a hora, pelo mesmo `strftime` do [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-tabela-com-todas-as-colunas)) e, na coluna de ações, um botão verde **Restaurar**:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -173,16 +228,17 @@ Crie o `templates/perfis/perfis_lixeira.html`, parecido com o da lista, com a co
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Voltar para os perfis</a>
+    <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Voltar para os perfis</a>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
         <th>Nome</th>
         <th>Descrição</th>
         <th>Excluído em</th>
+        <th class="text-end">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -190,18 +246,18 @@ Crie o `templates/perfis/perfis_lixeira.html`, parecido com o da lista, com a co
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td>{{ perfil.nome }}</td>
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
-        </td>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-success" title="Restaurar"><i class="bi bi-arrow-counterclockwise"></i> Restaurar</button>
+          </form>
+        </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="4" class="text-center text-body-secondary py-4">A lixeira está vazia.</td>
+        <td colspan="5" class="text-center text-body-secondary py-4">A lixeira está vazia.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -209,67 +265,50 @@ Crie o `templates/perfis/perfis_lixeira.html`, parecido com o da lista, com a co
 {% endblock %}
 ```
 
-Salve e abra **http://127.0.0.1:5000/perfis/lixeira**: o `Teste` aparece, com a data e a hora em que foi excluído. Para chegar à lixeira sem digitar o endereço, acrescente um botão no cabeçalho do `perfis_lista.html`. Troque o botão **Novo perfil** do cabeçalho por este grupo:
+O botão **Restaurar** fica dentro de um formulário `POST`, com o `csrf_token`, e envia direto, sem modal: restaurar não perde nada. O `class="d-inline"` mantém o formulário na linha da tabela.
+
+### Os caminhos até a lixeira
+
+**Na lista.** No cabeçalho do `perfis_lista.html`, o botão **Novo perfil** passa a dividir o espaço com o botão **Lixeira**. Troque a linha:
 
 ```html
-    <div class="d-flex gap-2">
-      <a href="{{ url_for('lixeira_perfis') }}" class="btn btn-outline-secondary">Lixeira</a>
-      <a href="{{ url_for('perfil_novo') }}" class="btn btn-primary">Novo perfil</a>
-    </div>
+<a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
 ```
 
-E, no `base_menu.html`, o menu **Perfis** continua destacado na lixeira, acrescentando `'lixeira_perfis'` à lista do `request.endpoint`, no botão do menu suspenso:
+por este grupo:
 
 ```html
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+<div class="d-flex gap-2">
+  <a href="{{ url_for('lixeira_perfis') }}" class="btn btn-outline-secondary"><i class="bi bi-trash"></i> Lixeira</a>
+  <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
+</div>
 ```
 
-Salve e navegue: **Perfis > Listar Perfis**, **Lixeira**, **Voltar para os perfis**.
-
-### Restaurar
-
-Restaurar é desfazer a exclusão: `deletado_em` volta a ser `NULL`. É uma ação que **altera** dados, então, como a exclusão, é um `POST` com `csrf_token` (não precisa de modal: restaurar não perde nada). No `perfis_lixeira.html`, acrescente o cabeçalho depois de `Excluído em`:
+**No modal.** O texto da janela de confirmação não promete mais uma exclusão sem volta. No mesmo arquivo, troque a frase:
 
 ```html
-        <th class="text-end">Ações</th>
+<p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Esta ação não pode ser desfeita.</p>
 ```
 
-E, na linha do `for`, depois da célula do `deletado_em`:
+por:
 
 ```html
-        <td class="text-end">
-          <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
-          </form>
-        </td>
+<p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Ele vai para a lixeira e pode ser restaurado depois.</p>
 ```
 
-O `colspan` do `{% else %}` passa de `4` para `5`. Falta a rota. No `app.py`, depois da `perfil_excluir`:
-
-```python
-@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
-def perfil_restaurar(id_perfil):
-    perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
-    flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
-
-    return redirect(url_for('lista_perfis'))
-```
-
-O `SELECT` procura só entre os que **estão** na lixeira (`IS NOT NULL`): restaurar um perfil que não foi excluído, ou que não existe, responde 404. Salve, abra a lixeira e clique em **Restaurar** no `Teste`: você volta para a lista, com a faixa verde `Perfil "Teste" restaurado.` e o perfil no lugar. A lixeira mostra `A lixeira está vazia.`
-
-Para o texto do modal deixar de prometer uma exclusão sem volta, troque, no `perfis_lista.html`, a frase da janela de confirmação:
+**No menu.** O menu **Perfis** continua destacado na lixeira. No `base_menu.html`, no botão do menu suspenso **Perfis**, troque o trecho do `{% if %}`:
 
 ```html
-            <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Ele vai para a lixeira e pode ser restaurado depois.</p>
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}
 ```
+
+por:
+
+```html
+{% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}
+```
+
+Salve e navegue: **Perfis > Listar Perfis**, **Lixeira** (o `Teste` aparece, com a data e a hora em que foi excluído), **Restaurar**. Você volta para a lista, com a faixa verde `Perfil "Teste" restaurado.` e o perfil no lugar. Abra a lixeira de novo: `A lixeira está vazia.`
 
 ```bash
 git add .
@@ -285,13 +324,29 @@ git push
 
 Há um detalhe: a coluna `nome` é `UNIQUE`, e o banco **não** sabe de `deletado_em`. Um perfil na lixeira continua ocupando o nome dele. Veja o efeito: exclua o `Teste` pelo modal e tente cadastrar de novo um perfil chamado `Teste`. A faixa vermelha diz `Já existe um perfil com este nome.`, mas a lista **não mostra** nenhum `Teste`. Para quem usa o sistema, a mensagem parece um erro. A mensagem precisa dizer que o nome está na lixeira.
 
-A `conferir_perfil` busca o perfil com aquele nome e precisa saber **se ele foi excluído**. No `app.py`, troque o `SELECT` e o `if existente` da função por:
+A `validar_perfil` busca o perfil com aquele nome e precisa saber **se ele foi excluído**. Abra o `validacoes/validacoes_perfil.py` e, na seção do nome repetido, troque:
 
 ```python
+    if not erros:
+        existente = execute_one(
+            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
+            (nome, id_perfil),
+        )
+
+        if existente:
+            erros.append('Já existe um perfil com este nome.')
+```
+
+por:
+
+```python
+    if not erros:
         existente = execute_one(
             'SELECT id_perfil, deletado_em FROM perfis WHERE nome = %s AND id_perfil <> %s',
             (nome, id_perfil),
         )
+
+        # O nome pode pertencer a um perfil da lixeira, que não aparece na lista
         if existente:
             if existente['deletado_em'] is None:
                 erros.append('Já existe um perfil com este nome.')
@@ -299,7 +354,7 @@ A `conferir_perfil` busca o perfil com aquele nome e precisa saber **se ele foi 
                 erros.append('Já existe um perfil excluído com este nome. Restaure-o na lixeira.')
 ```
 
-Salve e tente cadastrar `Teste` de novo: a faixa vermelha agora diz `Já existe um perfil excluído com este nome. Restaure-o na lixeira.` A mesma conferência vale na edição (renomear o `Gerente` para `Teste` dá o mesmo aviso), porque as duas rotas usam a função. O erro `1062` das rotas de cadastro e de edição continua valendo como barreira final, com a mensagem de sempre.
+O `SELECT` passou a trazer também o `deletado_em`, e o `if` escolhe a mensagem. Salve e tente cadastrar `Teste` de novo: a faixa vermelha agora diz `Já existe um perfil excluído com este nome. Restaure-o na lixeira.` A mesma conferência vale na edição (renomear o `Gerente` para `Teste` dá o mesmo aviso), porque as duas rotas usam a mesma função. O erro `1062` das rotas de cadastro e de edição continua valendo como barreira final, com a mensagem de sempre.
 
 Restaure o `Teste` pela lixeira para os próximos experimentos.
 
@@ -329,13 +384,48 @@ git push
 
 ---
 
-## As mudanças completas do capítulo
+## Os arquivos completos do capítulo
 
-As rotas alteradas ou novas do `app.py` (o resto do arquivo é o do Capítulo 13, sem a contagem de usuários e sem o `1451` na exclusão):
+O `app.py`:
 
 ```python
+import os
+
+from dotenv import load_dotenv
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask_wtf.csrf import CSRFProtect
+from mysql.connector import Error
+
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
+
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
+CSRFProtect(app)
+
+
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
+@app.route('/')
+def index():
+    # A raiz não mostra nada: só leva para a tela de login
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -346,8 +436,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco, sem os que estão na lixeira
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis '
         'WHERE deletado_em IS NULL ORDER BY nome',
@@ -359,6 +454,7 @@ def lista_perfis():
 
 @app.route('/perfis/lixeira')
 def lixeira_perfis():
+    # Só os perfis excluídos, os mais recentes primeiro
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, deletado_em FROM perfis '
         'WHERE deletado_em IS NOT NULL ORDER BY deletado_em DESC',
@@ -368,22 +464,202 @@ def lixeira_perfis():
     return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
+    nome = ''
+    descricao = ''
+
+    # Executado apenas no envio do formulário (POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('nome', '').strip()
+
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
+
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
+            try:
+                novo_id = execute_insert(
+                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
+                    (nome, descricao),
+                )
+
+                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
+                           nome=nome, descricao=descricao)
+
+
+@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
+def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço, só entre os que não estão na lixeira
+    perfil = execute_one(
+        'SELECT id_perfil, nome, descricao FROM perfis '
+        'WHERE id_perfil = %s AND deletado_em IS NULL',
+        (id_perfil,),
+    )
+
+    # Código que não existe (ou está na lixeira): mostra a página 404
+    if perfil is None:
+        abort(404)
+
+    # O formulário começa com os valores que estão no banco
+    nome = perfil['nome']
+    descricao = perfil['descricao']
+
+    # Executado apenas no envio do formulário (POST)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário
+        nome = request.form.get('nome', '').strip()
+
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
+
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
+        if erros:
+            for mensagem in erros:
+                flash(mensagem, 'danger')
+
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
+            try:
+                # O WHERE garante que só este perfil seja alterado
+                execute_query(
+                    'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
+                    (nome, descricao, id_perfil),
+                )
+
+                flash(f'Perfil "{nome}" atualizado.', 'success')
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
+            except Error as erro:
+                if erro.errno == 1062:
+                    flash('Já existe um perfil com este nome.', 'danger')
+                else:
+                    raise
+
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
+                           nome=nome, descricao=descricao)
+
+
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def perfil_excluir(id_perfil):
+    # Busca o perfil, só entre os que não estão na lixeira
+    perfil = execute_one(
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
+        (id_perfil,),
+    )
+
+    # Código que não existe (ou já está na lixeira): mostra a página 404
+    if perfil is None:
+        abort(404)
+
+    # Exclusão lógica: marca a data da exclusão em vez de apagar a linha
+    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
+    flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
+
+    return redirect(url_for('listar_perfis'))
+
+
+@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
+def perfil_restaurar(id_perfil):
+    # Busca o perfil, só entre os que estão na lixeira
+    perfil = execute_one(
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
+        (id_perfil,),
+    )
+
+    if perfil is None:
+        abort(404)
+
+    # Restaurar é desfazer a marcação: deletado_em volta a ser NULL
+    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
+    flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
+
+    return redirect(url_for('listar_perfis'))
+
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
+
+@app.errorhandler(404)
+def pagina_nao_encontrada(erro):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def erro_no_servidor(erro):
+    return render_template('500.html'), 500
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+O `validacoes/validacoes_perfil.py`:
+
+```python
+from db import execute_one
+
+
+def validar_perfil(nome, descricao, id_perfil=0):
     erros = []
 
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
+    # ================ VALIDAÇÕES PARA O CAMPO nome =====================
+    if not nome:
+        erros.append('Informe o nome do perfil.')
+    elif len(nome) < 3:
+        erros.append('O nome deve ter pelo menos 3 caracteres.')
+    elif len(nome) > 100:
+        erros.append('O nome deve ter no máximo 100 caracteres.')
 
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
+    # ================ VALIDAÇÕES PARA O CAMPO descricao =====================
+    # Como descricao pode ser None, checamos antes de usar len()
+    if descricao and len(descricao) > 255:
+        erros.append('A descrição deve ter no máximo 255 caracteres.')
 
+    # ================ NOME REPETIDO (CONSULTA AO BANCO) =====================
+    # Se as regras básicas passaram, checa unicidade no banco de dados
+    # O id_perfil <> %s ignora o próprio perfil na edição (no cadastro, o id_perfil vale 0)
     if not erros:
         existente = execute_one(
             'SELECT id_perfil, deletado_em FROM perfis WHERE nome = %s AND id_perfil <> %s',
             (nome, id_perfil),
         )
+
+        # O nome pode pertencer a um perfil da lixeira, que não aparece na lista
         if existente:
             if existente['deletado_em'] is None:
                 erros.append('Já existe um perfil com este nome.')
@@ -391,39 +667,9 @@ def conferir_perfil(nome, descricao, id_perfil):
                 erros.append('Já existe um perfil excluído com este nome. Restaure-o na lixeira.')
 
     return erros
-
-
-@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def perfil_excluir(id_perfil):
-    perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NULL',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    execute_query('UPDATE perfis SET deletado_em = NOW() WHERE id_perfil = %s', (id_perfil,))
-    flash(f'Perfil "{perfil["nome"]}" enviado para a lixeira.', 'success')
-
-    return redirect(url_for('lista_perfis'))
-
-
-@app.route('/perfis/<int:id_perfil>/restaurar', methods=['POST'])
-def perfil_restaurar(id_perfil):
-    perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s AND deletado_em IS NOT NULL',
-        (id_perfil,),
-    )
-    if perfil is None:
-        abort(404)
-
-    execute_query('UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s', (id_perfil,))
-    flash(f'Perfil "{perfil["nome"]}" restaurado.', 'success')
-
-    return redirect(url_for('lista_perfis'))
 ```
 
-Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `SELECT` do começo (Tópico 1). O `templates/perfis/perfis_lixeira.html`, com a coluna de ações:
+O `templates/perfis/perfis_lista.html`:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -433,10 +679,89 @@ Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('lista_perfis') }}" class="btn btn-outline-secondary">Voltar para os perfis</a>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('lixeira_perfis') }}" class="btn btn-outline-secondary"><i class="bi bi-trash"></i> Lixeira</a>
+      <a href="{{ url_for('inserir_perfil') }}" class="btn btn-primary">Novo perfil</a>
+    </div>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>Descrição</th>
+        <th>Criado em</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for perfil in perfis %}
+      <tr>
+        <td>{{ perfil.id_perfil }}</td>
+        <td id="nome_perfil_{{ perfil.id_perfil }}">{{ perfil.nome }}</td>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
+        <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('perfil_editar', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ perfil.id_perfil }})"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-body-secondary py-4">Nenhum perfil cadastrado ainda.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="tituloModalExcluir">Excluir perfil</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form id="formExcluir" action="" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="modal-body">
+            <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Ele vai para a lixeira e pode ser restaurado depois.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Excluir</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function prepararExclusao(id) {
+    const nome = document.getElementById('nome_perfil_' + id).textContent;
+    document.getElementById('nomeExcluir').textContent = nome;
+    document.getElementById('formExcluir').action = '/perfis/' + id + '/excluir';
+  }
+</script>
+{% endblock %}
+```
+
+O `templates/perfis/perfis_lixeira.html`:
+
+```html
+{% extends 'layout/base_menu.html' %}
+
+{% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">{{ titulo }}</h1>
+    <a href="{{ url_for('listar_perfis') }}" class="btn btn-outline-secondary">Voltar para os perfis</a>
+  </div>
+
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
@@ -451,18 +776,12 @@ Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `
       <tr>
         <td>{{ perfil.id_perfil }}</td>
         <td>{{ perfil.nome }}</td>
-        <td>
-          {% if perfil.descricao %}
-            {{ perfil.descricao }}
-          {% else %}
-            <span class="text-body-secondary">—</span>
-          {% endif %}
-        </td>
+        <td>{{ perfil.descricao if perfil.descricao else '—' }}</td>
         <td>{{ perfil.deletado_em.strftime('%d/%m/%Y %H:%M') }}</td>
-        <td class="text-end">
+        <td class="text-end text-nowrap">
           <form action="{{ url_for('perfil_restaurar', id_perfil=perfil.id_perfil) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-outline-success">Restaurar</button>
+            <button type="submit" class="btn btn-sm btn-success" title="Restaurar"><i class="bi bi-arrow-counterclockwise"></i> Restaurar</button>
           </form>
         </td>
       </tr>
@@ -476,13 +795,13 @@ Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `
 {% endblock %}
 ```
 
-No `perfis_lista.html`, as mudanças são o grupo de botões do cabeçalho e a frase do modal (Tópico 2). No `base_menu.html`, o `'lixeira_perfis'` na lista do menu. Os demais arquivos são os do Capítulo 13.
+No `base_menu.html`, a única mudança é o `'lixeira_perfis'` na lista do menu **Perfis** (Tópico 2). Os demais arquivos são os do Capítulo 13.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 14 não parte deste zip**, e sim do zip do Capítulo 13. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `perfis/perfis_lixeira.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
+Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 14 não parte deste zip**, e sim do zip do Capítulo 13. O zip tem o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `perfis/perfis_lixeira.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
 
 ➡️ [Baixar p2_cap_13_1.zip](../arquivos/p2_cap_13_1.zip)
 
@@ -505,7 +824,7 @@ Tente responder mentalmente antes de abrir.
     Envia um `POST` para `/perfis/<id>/restaurar`, e a rota executa `UPDATE perfis SET deletado_em = NULL WHERE id_perfil = %s`. O perfil volta a ser encontrado por todos os filtros `IS NULL`. A rota só procura entre os que estão na lixeira, e responde 404 para os outros.
 
 ??? question "Por que o nome de um perfil excluído ainda barra um cadastro?"
-    Porque o `UNIQUE` do banco não conhece o `deletado_em`: a linha continua na tabela, ocupando o nome. A função `conferir_perfil` lê o `deletado_em` do perfil encontrado e avisa que o nome está na lixeira, para a pessoa saber que precisa restaurá-lo.
+    Porque o `UNIQUE` do banco não conhece o `deletado_em`: a linha continua na tabela, ocupando o nome. A função `validar_perfil` lê o `deletado_em` do perfil encontrado e avisa que o nome está na lixeira, para a pessoa saber que precisa restaurá-lo.
 
 ??? question "Por que excluir um perfil com usuários não dá o erro `1451` neste capítulo?"
     Porque o erro vem de um `DELETE`, que removeria a linha da qual os usuários dependem. A exclusão lógica é só um `UPDATE`: a linha do perfil continua existindo, e a chave estrangeira não é infringida. Impedir ou aceitar isso passa a ser uma decisão da rota, e não do banco.
