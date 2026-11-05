@@ -46,9 +46,13 @@ Ligue o **Apache** e o **MySQL** no painel do XAMPP, abra a pasta `sistema-gesta
 
 Você usa um decorador desde o [Capítulo 3](Capitulo_03_Flask.md): o `@app.route('/')` que fica em cima de cada função. Um **decorador** é uma função que recebe outra função e devolve uma função **nova**, que faz algo antes ou depois da original. A ideia deste tópico é escrever um decorador que faz, antes de qualquer rota, a conferência do login. Cada rota passa a ter uma linha, `@login_required`, no lugar das três do Capítulo 17.
 
-No `app.py`, escreva a função **acima** da rota `login`:
+No `app.py`, crie uma seção nova, **DECORADORES DE ACESSO**, logo **antes** da seção das páginas principais (a da rota `index`), com a função:
 
 ```python
+# ==============================================================================
+# DECORADORES DE ACESSO
+# ==============================================================================
+
 def login_required(funcao):
     def envolvida(*args, **kwargs):
         if 'id_usuario' not in session:
@@ -67,12 +71,12 @@ Leia de dentro para fora. A função `envolvida` é a rota "embrulhada": ela faz
 
 ### Usar em uma rota
 
-Em `lista_usuarios`, **apague** as três linhas do `if` e coloque o decorador **abaixo** do `@app.route`:
+Em `listar_usuarios`, **apague** as três linhas do `if` e coloque o decorador **abaixo** do `@app.route`:
 
 ```python
 @app.route('/usuarios')
 @login_required
-def lista_usuarios():
+def listar_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
     return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
@@ -82,22 +86,24 @@ Salve e teste, como no Capítulo 17: logado, `/usuarios` abre; depois de **Sair*
 
 ### O erro que aparece na segunda rota
 
-Faça o mesmo na `lista_perfis`: apague o `if` e coloque `@login_required` embaixo do `@app.route`. Salve. O servidor **não sobe**, e o terminal mostra:
+Faça o mesmo na `listar_perfis`: apague o `if` e coloque `@login_required` embaixo do `@app.route`. Salve. O servidor **não sobe**, e o terminal mostra:
 
 ```
 AssertionError: View function mapping is overwriting an existing endpoint function: envolvida
 ```
 
-O Flask identifica cada rota pelo **nome da função** (é o nome que o `url_for` usa). Depois do decorador, as duas funções, `lista_usuarios` e `lista_perfis`, passaram a se chamar `envolvida`, e o Flask recusa duas rotas com o mesmo nome. O conserto é o decorador `@wraps`, que copia o nome (e a documentação) da função original para a nova. Ele fica na biblioteca padrão do Python. No começo do `app.py`, acrescente a importação:
+O Flask identifica cada rota pelo **nome da função** (é o nome que o `url_for` usa). Depois do decorador, as duas funções, `listar_usuarios` e `listar_perfis`, passaram a se chamar `envolvida`, e o Flask recusa duas rotas com o mesmo nome. O conserto é o decorador `@wraps`, que copia o nome (e a documentação) da função original para a nova. Ele fica na biblioteca padrão do Python. No começo do `app.py`, logo abaixo do `import os`, acrescente a importação:
 
 ```python
+import os
 from functools import wraps
 ```
 
-E, na `login_required`, coloque o `@wraps(funcao)` em cima da `envolvida`:
+E, na `login_required`, coloque o `@wraps(funcao)` em cima da `envolvida` (aproveite para deixar um comentário que diga o que o decorador faz):
 
 ```python
 def login_required(funcao):
+    # Envolve a rota: quem não entrou vai para o login, e a rota nem chega a rodar
     @wraps(funcao)
     def envolvida(*args, **kwargs):
         if 'id_usuario' not in session:
@@ -113,7 +119,7 @@ Salve: o servidor sobe de novo, e as duas listas continuam protegidas.
 
 ### As outras oito rotas
 
-Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `dashboard`, `perfil_novo`, `perfil_editar`, `perfil_excluir`, `usuario_novo`, `usuario_detalhe`, `usuario_editar` e `usuario_excluir`. No `usuario_excluir`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
+Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `dashboard`, `inserir_perfil`, `perfil_editar`, `perfil_excluir`, `inserir_usuario`, `usuario_detalhe`, `usuario_editar` e `usuario_excluir`. No `usuario_excluir`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
@@ -121,7 +127,7 @@ Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do 
 def usuario_excluir(id_usuario):
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('lista_usuarios'))
+        return redirect(url_for('listar_usuarios'))
 
     usuario = execute_one(
 ```
@@ -129,7 +135,7 @@ def usuario_excluir(id_usuario):
 !!! danger "O `@app.route` sempre fica por cima"
     A ordem dos decoradores importa. O que está **mais perto da função** é aplicado primeiro, e o `@app.route` precisa receber a função **já embrulhada**. Faça o teste com a rota `dashboard`: troque a ordem, deixando o `@login_required` **acima** do `@app.route('/dashboard')`. Salve, saia do sistema e abra `/dashboard`: o dashboard **abre** para qualquer pessoa. O `@app.route` registrou a função original, sem o embrulho, e o `@login_required` embrulhou uma função que o Flask não usa. Não dá erro nenhum, a rota só fica aberta. **Desfaça a troca** e deixe o `@app.route` em cima.
 
-Salve e confira, sem estar logado, as rotas `/dashboard`, `/perfis`, `/perfis/novo`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`. Logado como Ana, tudo funciona como no Capítulo 17. O comportamento é o mesmo, mas a conferência agora vive em **um** lugar: se a mensagem mudar, muda uma vez.
+Salve e confira, sem estar logado, as rotas `/dashboard`, `/perfis`, `/perfis/inserir`, `/usuarios`, `/usuarios/inserir`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`. Logado como Ana, tudo funciona como no Capítulo 17. O comportamento é o mesmo, mas a conferência agora vive em **um** lugar: se a mensagem mudar, muda uma vez.
 
 ```bash
 git add .
@@ -143,7 +149,7 @@ git push
 
 ### A dor: todo mundo que entra pode tudo
 
-Entre como a **Carla** (`carla@exemplo.com`, perfil **Usuário**). No menu aparecem **Perfis** e **Usuários**, e ambos abrem. Digite `/perfis/novo` e crie um perfil. Abra a edição de qualquer usuário. O sistema sabe quem a Carla é, mas ainda não sabe **o que ela pode fazer**. O `perfil` que o login gravou na `session` (Capítulo 17) é exatamente a informação que falta.
+Entre como a **Carla** (`carla@exemplo.com`, perfil **Usuário**). No menu aparecem **Perfis** e **Usuários**, e ambos abrem. Digite `/perfis/inserir` e crie um perfil. Abra a edição de qualquer usuário. O sistema sabe quem a Carla é, mas ainda não sabe **o que ela pode fazer**. O `perfil` que o login gravou na `session` (Capítulo 17) é exatamente a informação que falta.
 
 ### A tabela de permissões
 
@@ -174,23 +180,23 @@ def apenas_administrador(funcao):
     return envolvida
 ```
 
-O `session.get('perfil')` devolve `None` quando a chave não existe, em vez de dar erro (como o `.get` do `request.form`). Use-o na `perfil_novo`, **embaixo** do `@login_required`:
+O `session.get('perfil')` devolve `None` quando a chave não existe, em vez de dar erro (como o `.get` do `request.form`). Use-o na `inserir_perfil`, **embaixo** do `@login_required`:
 
 ```python
-@app.route('/perfis/novo', methods=['GET', 'POST'])
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
 @login_required
 @apenas_administrador
-def perfil_novo():
+def inserir_perfil():
 ```
 
-Salve e teste: como **Ana**, `/perfis/novo` abre. Como **Carla** (saia e entre de novo, porque a `session` guarda o perfil do login), a página mostra um **Forbidden** simples, em inglês, que é a página padrão do Flask para o 403.
+Salve e teste: como **Ana**, `/perfis/inserir` abre. Como **Carla** (saia e entre de novo, porque a `session` guarda o perfil do login), a página mostra um **Forbidden** simples, em inglês, que é a página padrão do Flask para o 403.
 
 ### A página 403
 
 Troque a página padrão por uma do sistema, como as de 404 e 500 (Capítulo 6). Crie o `templates/403.html`:
 
 ```html
-{% extends 'layout/base_limpo.html' %}
+{% extends 'layout/base_limpa.html' %}
 
 {% block titulo_aba %}Acesso negado — Sistema de Gestão{% endblock %}
 
@@ -211,7 +217,7 @@ def acesso_negado(erro):
     return render_template('403.html'), 403
 ```
 
-Salve e repita o teste com a Carla em `/perfis/novo`: agora a página 403 do sistema, sem menu (ela usa o layout limpo, como a 404 e a 500) e com o botão **Voltar para a Home**.
+Salve e repita o teste com a Carla em `/perfis/inserir`: agora a página 403 do sistema, sem menu (ela usa o layout limpo, como a 404 e a 500) e com o botão **Voltar para a Home**.
 
 ### Tornar o decorador reutilizável
 
@@ -219,6 +225,7 @@ Falta o Gerente: ele abre a **lista** de usuários, mas não o `/perfis`. O `ape
 
 ```python
 def perfil_required(*permitidos):
+    # Recebe os perfis que podem usar a rota: @perfil_required('Administrador', 'Gerente')
     def decorador(funcao):
         @wraps(funcao)
         def envolvida(*args, **kwargs):
@@ -240,13 +247,13 @@ São três funções, cada uma com um papel e uma hora em que é chamada:
 | `decorador(funcao)` | O Python, logo em seguida | Uma vez, com a rota. Devolve a `envolvida` |
 | `envolvida(...)` | O Flask | **A cada pedido** à rota. É ela que confere o perfil |
 
-O `*permitidos` recebe os nomes que foram escritos entre parênteses e os junta numa lista (`('Administrador', 'Gerente')`), e o `not in` pergunta se o perfil de quem está logado **não** está entre eles. Na `perfil_novo`, troque o decorador antigo pelo novo, sem mudar o resultado:
+O `*permitidos` recebe os nomes que foram escritos entre parênteses e os junta numa lista (`('Administrador', 'Gerente')`), e o `not in` pergunta se o perfil de quem está logado **não** está entre eles. Na `inserir_perfil`, troque o decorador antigo pelo novo, sem mudar o resultado:
 
 ```python
-@app.route('/perfis/novo', methods=['GET', 'POST'])
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
 @login_required
 @perfil_required('Administrador')
-def perfil_novo():
+def inserir_perfil():
 ```
 
 Salve e repita: a Ana abre, a Carla recebe o 403. A ordem dos dois decoradores **também importa**: o `@login_required` vem primeiro, para a pessoa sem login ir ao `/login`. Se o `@perfil_required` viesse sozinho, quem não entrou receberia o 403, e não o convite para entrar.
@@ -258,9 +265,9 @@ Acrescente o `@perfil_required` às outras rotas, **embaixo** do `@login_require
 | Função | Decoradores abaixo do `@app.route` |
 |---|---|
 | `dashboard` | `@login_required` (já tem) |
-| `lista_perfis`, `perfil_editar`, `perfil_excluir` | `@login_required` e `@perfil_required('Administrador')` |
-| `lista_usuarios`, `usuario_detalhe` | `@login_required` e `@perfil_required('Administrador', 'Gerente')` |
-| `usuario_novo`, `usuario_editar`, `usuario_excluir` | `@login_required` e `@perfil_required('Administrador')` |
+| `listar_perfis`, `perfil_editar`, `perfil_excluir` | `@login_required` e `@perfil_required('Administrador')` |
+| `listar_usuarios`, `usuario_detalhe` | `@login_required` e `@perfil_required('Administrador', 'Gerente')` |
+| `inserir_usuario`, `usuario_editar`, `usuario_excluir` | `@login_required` e `@perfil_required('Administrador')` |
 
 Por exemplo, a lista de usuários fica:
 
@@ -268,7 +275,7 @@ Por exemplo, a lista de usuários fica:
 @app.route('/usuarios')
 @login_required
 @perfil_required('Administrador', 'Gerente')
-def lista_usuarios():
+def listar_usuarios():
 ```
 
 Salve e confira, entrando como cada usuário e digitando os endereços:
@@ -276,9 +283,9 @@ Salve e confira, entrando como cada usuário e digitando os endereços:
 | Endereço | Ana (Administrador) | Bruno (Gerente) | Carla (Usuário) |
 |---|---|---|---|
 | `/` | abre | abre | abre |
-| `/perfis`, `/perfis/novo`, `/perfis/1/editar` | abre | 403 | 403 |
+| `/perfis`, `/perfis/inserir`, `/perfis/1/editar` | abre | 403 | 403 |
 | `/usuarios`, `/usuarios/1` | abre | abre | 403 |
-| `/usuarios/novo`, `/usuarios/1/editar` | abre | 403 | 403 |
+| `/usuarios/inserir`, `/usuarios/1/editar` | abre | 403 | 403 |
 
 Um endereço que não existe continua dando 404 (`/usuarios/99999` para a Ana e o Bruno), e os `POST` de exclusão seguem a mesma tabela: um Gerente que enviasse um `POST` para `/usuarios/3/excluir` receberia o 403 antes de qualquer consulta.
 
@@ -299,26 +306,26 @@ Entre como o **Bruno** (Gerente). O menu mostra **Perfis**, e o clique leva ao 4
 No `templates/layout/base_menu.html`, envolva os menus **Perfis** e **Usuários** em um `if` cada um. No menu **Usuários**, o link **Cadastrar Usuário** ganha um `if` próprio, porque o Gerente vê a lista, mas só o Administrador cadastra. Os outros itens do menu (**Home**, o nome e o **Sair**) continuam como estão:
 
 ```html
-          {% if session['perfil'] == 'Administrador' %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
-            </ul>
-          </li>
-          {% endif %}
-          {% if session['perfil'] in ['Administrador', 'Gerente'] %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
-              {% if session['perfil'] == 'Administrador' %}
-              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
-              {% endif %}
-            </ul>
-          </li>
-          {% endif %}
+{% if session['perfil'] == 'Administrador' %}
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
+    <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
+  </ul>
+</li>
+{% endif %}
+{% if session['perfil'] in ['Administrador', 'Gerente'] %}
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
+    {% if session['perfil'] == 'Administrador' %}
+    <li><a class="dropdown-item" href="{{ url_for('inserir_usuario') }}">Cadastrar Usuário</a></li>
+    {% endif %}
+  </ul>
+</li>
+{% endif %}
 ```
 
 Os testes do Jinja repetem a tabela de permissões: o menu **Perfis** só para o Administrador, o menu **Usuários** para o Administrador e o Gerente, e o link **Cadastrar Usuário** só para o Administrador. Salve e entre como cada usuário: a Ana vê os dois menus completos, o Bruno só o menu **Usuários**, com **Listar Usuários**, e a Carla nenhum dos dois (só **Home**).
@@ -326,22 +333,22 @@ Os testes do Jinja repetem a tabela de permissões: o menu **Perfis** só para o
 Falta a lista de usuários. No `templates/usuarios/usuarios_lista.html`, envolva o botão **Novo usuário** e os botões **Editar** e **Excluir**, que só o Administrador usa:
 
 ```html
-    {% if session['perfil'] == 'Administrador' %}
-    <a href="{{ url_for('usuario_novo') }}" class="btn btn-primary">Novo usuário</a>
-    {% endif %}
+{% if session['perfil'] == 'Administrador' %}
+<a href="{{ url_for('inserir_usuario') }}" class="btn btn-primary">Novo usuário</a>
+{% endif %}
 ```
 
 ```html
-          {% if session['perfil'] == 'Administrador' %}
-          <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})">Excluir</button>
-          {% endif %}
+{% if session['perfil'] == 'Administrador' %}
+<a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+<button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})">Excluir</button>
+{% endif %}
 ```
 
 O **Ver** fica de fora do `if`, porque o Gerente também pode abrir o detalhe. Salve e entre como o Bruno: a lista mostra só o botão **Ver**, e como a Ana ela continua completa.
 
 !!! warning "Esconder é cortesia, proteger é a rota"
-    Entre como o Bruno e digite `/usuarios/novo` na barra de endereço: o 403 aparece, mesmo sem nenhum botão que leve até lá. Os `if` do menu e dos botões servem para a pessoa não ver o que não pode usar, e **não impedem nada**. Quem impede são os decoradores das rotas, do Tópico 2. Se um dia um `if` de template for esquecido, o sistema continua seguro; se um decorador for esquecido, a rota fica aberta.
+    Entre como o Bruno e digite `/usuarios/inserir` na barra de endereço: o 403 aparece, mesmo sem nenhum botão que leve até lá. Os `if` do menu e dos botões servem para a pessoa não ver o que não pode usar, e **não impedem nada**. Quem impede são os decoradores das rotas, do Tópico 2. Se um dia um `if` de template for esquecido, o sistema continua seguro; se um decorador for esquecido, a rota fica aberta.
 
 !!! note "Os limites deste controle"
     O `@perfil_required` compara o **nome** do perfil gravado na `session` no momento do login. Duas consequências:
@@ -366,24 +373,21 @@ import os
 from functools import wraps
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import (
-    UFS, validar_nome_perfil, validar_descricao_perfil,
-    validar_nome_usuario, validar_email, validar_senha, validar_celular,
-    validar_cpf, validar_data_nascimento, validar_cep, validar_estado,
-    validar_tamanho, formatar_celular, formatar_cpf, formatar_cep,
-)
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
+from validacoes.validacoes_usuario import UFS, formatar_cep, formatar_celular, formatar_cpf, validar_usuario
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 # As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
@@ -397,8 +401,13 @@ SELECT_USUARIO = (
 )
 
 
+# ==============================================================================
+# FILTROS DO JINJA
+# ==============================================================================
+
 @app.template_filter('data_br')
 def data_br(valor):
+    # date ou datetime vira 14/03/1988; um campo vazio vira um traço
     if valor is None:
         return '—'
 
@@ -415,13 +424,19 @@ def data_hora_br(valor):
 
 @app.template_filter('cpf_oculto')
 def cpf_oculto(cpf):
+    # 529.982.247-25 vira ***.982.247-**: a lista mostra só o meio do CPF
     if cpf is None:
         return '—'
 
     return '***.' + cpf[4:11] + '-**'
 
 
+# ==============================================================================
+# DECORADORES DE ACESSO
+# ==============================================================================
+
 def login_required(funcao):
+    # Envolve a rota: quem não entrou vai para o login, e a rota nem chega a rodar
     @wraps(funcao)
     def envolvida(*args, **kwargs):
         if 'id_usuario' not in session:
@@ -434,6 +449,7 @@ def login_required(funcao):
 
 
 def perfil_required(*permitidos):
+    # Recebe os perfis que podem usar a rota: @perfil_required('Administrador', 'Gerente')
     def decorador(funcao):
         @wraps(funcao)
         def envolvida(*args, **kwargs):
@@ -447,13 +463,19 @@ def perfil_required(*permitidos):
     return decorador
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Quem já entrou não precisa ver a tela de login
     if 'id_usuario' in session:
         return redirect(url_for('dashboard'))
 
@@ -463,6 +485,7 @@ def login():
         email = request.form.get('email', '').strip().lower()
         senha = request.form.get('senha', '')
 
+        # Só o login lê a coluna senha (o hash)
         usuario = execute_one(
             'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
             'FROM usuarios u '
@@ -472,6 +495,7 @@ def login():
         )
 
         if usuario is not None and check_password_hash(usuario['senha'], senha):
+            # Guarda na session quem entrou (o cookie assinado pela secret_key)
             session.clear()
             session['id_usuario'] = usuario['id_usuario']
             session['nome'] = usuario['nome']
@@ -479,6 +503,7 @@ def login():
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
             return redirect(url_for('dashboard'))
 
+        # A mesma mensagem para e-mail inexistente e senha errada
         flash('E-mail ou senha incorretos.', 'danger')
 
     return render_template('login.html', email=email)
@@ -495,6 +520,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -505,10 +531,15 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
 @login_required
 @perfil_required('Administrador')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -517,63 +548,54 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
 @login_required
 @perfil_required('Administrador')
-def perfil_novo():
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, 0)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
@@ -582,46 +604,58 @@ def perfil_novo():
 @login_required
 @perfil_required('Administrador')
 def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, id_perfil)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
+                # O WHERE garante que só este perfil seja alterado
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
+                    (nome, descricao, id_perfil),
                 )
+
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
@@ -630,175 +664,83 @@ def perfil_editar(id_perfil):
 @login_required
 @perfil_required('Administrador')
 def perfil_excluir(id_perfil):
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
         (id_perfil,),
     )
+
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
+        return redirect(url_for('listar_perfis'))
 
     try:
+        # O WHERE garante que só este perfil seja excluído
         execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
     except Error as erro:
         if erro.errno == 1451:
             flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
         else:
             raise
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
+
+# ==============================================================================
+# USUÁRIOS
+# ==============================================================================
 
 @app.route('/usuarios')
 @login_required
 @perfil_required('Administrador', 'Gerente')
-def lista_usuarios():
+def listar_usuarios():
+    # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
     return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
-def vazio_para_none(valor):
-    if valor == '':
-        return None
-
-    return valor
-
-
-def texto_ou_vazio(valor):
-    if valor is None:
-        return ''
-
-    return str(valor)
-
-
-def conferir_perfil_do_usuario(perfil_txt):
-    try:
-        id_perfil = int(perfil_txt)
-    except ValueError:
-        return 'Selecione um perfil.'
-
-    perfil = execute_one(
-        'SELECT id_perfil FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        return 'Selecione um perfil válido.'
-
-    return None
-
-
-def ler_formulario(form):
-    campos = {}
-    campos['nome'] = form.get('nome', '').strip()
-    campos['email'] = form.get('email', '').strip().lower()
-    campos['senha'] = form.get('senha', '')
-    campos['confirmacao'] = form.get('confirmacao', '')
-    campos['celular'] = form.get('celular', '').strip()
-    campos['data_nascimento'] = form.get('data_nascimento', '').strip()
-    campos['cpf'] = form.get('cpf', '').strip()
-    campos['perfil_id'] = form.get('perfil_id', '')
-    campos['cep'] = form.get('cep', '').strip()
-    campos['endereco'] = form.get('endereco', '').strip()
-    campos['numero'] = form.get('numero', '').strip()
-    campos['complemento'] = form.get('complemento', '').strip()
-    campos['cidade'] = form.get('cidade', '').strip()
-    campos['estado'] = form.get('estado', '')
-
-    return campos
-
-
-def conferir_usuario(campos, id_usuario):
-    erros = []
-
-    erro = validar_nome_usuario(campos['nome'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_email(campos['email'])
-    if erro:
-        erros.append(erro)
-    else:
-        existente = execute_one(
-            'SELECT id_usuario FROM usuarios WHERE email = %s AND id_usuario <> %s',
-            (campos['email'], id_usuario),
-        )
-        if existente:
-            erros.append('Já existe um usuário com este e-mail.')
-
-    if id_usuario == 0 or campos['senha'] != '' or campos['confirmacao'] != '':
-        erro = validar_senha(campos['senha'], campos['confirmacao'])
-        if erro:
-            erros.append(erro)
-
-    erro = conferir_perfil_do_usuario(campos['perfil_id'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_celular(campos['celular'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cpf(campos['cpf'])
-    if erro:
-        erros.append(erro)
-    else:
-        cpf_formatado = formatar_cpf(campos['cpf'])
-        if cpf_formatado != '':
-            existente = execute_one(
-                'SELECT id_usuario FROM usuarios WHERE cpf = %s AND id_usuario <> %s',
-                (cpf_formatado, id_usuario),
-            )
-            if existente:
-                erros.append('Já existe um usuário com este CPF.')
-
-    erro = validar_data_nascimento(campos['data_nascimento'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cep(campos['cep'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['endereco'], 'endereço', 255)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['numero'], 'número', 20)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['complemento'], 'complemento', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['cidade'], 'cidade', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_estado(campos['estado'])
-    if erro:
-        erros.append(erro)
-
-    return erros
-
-
-@app.route('/usuarios/novo', methods=['GET', 'POST'])
+@app.route('/usuarios/inserir', methods=['GET', 'POST'])
 @login_required
 @perfil_required('Administrador')
-def usuario_novo():
-    if request.method == 'POST':
-        campos = ler_formulario(request.form)
+def inserir_usuario():
+    # Com muitos campos, o formulário inteiro fica em um dicionário (vazio no GET)
+    dados = {}
 
-        erros = conferir_usuario(campos, 0)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário (os opcionais com 'or None')
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),  # a senha não leva strip: espaço pode fazer parte dela
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
+
+        # 2. A validação recebe o dicionário inteiro
+        erros = validar_usuario(dados)
 
         if erros:
             for mensagem in erros:
@@ -810,33 +752,37 @@ def usuario_novo():
                     'perfil_id, cep, endereco, numero, complemento, cidade, estado) '
                     'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                     (
-                        campos['nome'],
-                        campos['email'],
-                        generate_password_hash(campos['senha']),
-                        vazio_para_none(formatar_celular(campos['celular'])),
-                        vazio_para_none(campos['data_nascimento']),
-                        vazio_para_none(formatar_cpf(campos['cpf'])),
-                        int(campos['perfil_id']),
-                        vazio_para_none(formatar_cep(campos['cep'])),
-                        vazio_para_none(campos['endereco']),
-                        vazio_para_none(campos['numero']),
-                        vazio_para_none(campos['complemento']),
-                        vazio_para_none(campos['cidade']),
-                        vazio_para_none(campos['estado']),
+                        dados['nome'],
+                        dados['email'],
+                        generate_password_hash(dados['senha']),  # grava o hash, nunca a senha
+                        formatar_celular(dados['celular']),      # celular, CPF e CEP vão formatados
+                        dados['data_nascimento'],
+                        formatar_cpf(dados['cpf']),
+                        dados['perfil_id'],
+                        formatar_cep(dados['cep']),
+                        dados['endereco'],
+                        dados['numero'],
+                        dados['complemento'],
+                        dados['cidade'],
+                        dados['estado'],
                     ),
                 )
-                flash(f'Usuário "{campos["nome"]}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_usuarios'))
+
+                flash(f'Usuário "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_usuarios'))
+
+            # Duas colunas UNIQUE: o 1062 pode ser do e-mail ou do CPF
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
                 else:
                     raise
 
+    # As opções do <select> de perfil vêm da tabela perfis
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
     return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
-                           dados=request.form, perfis=perfis, ufs=UFS)
+                           dados=dados, perfis=perfis, ufs=UFS)
 
 
 @app.route('/usuarios/<int:id_usuario>')
@@ -844,6 +790,7 @@ def usuario_novo():
 @perfil_required('Administrador', 'Gerente')
 def usuario_detalhe(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
     if usuario is None:
         abort(404)
 
@@ -855,60 +802,77 @@ def usuario_detalhe(id_usuario):
 @perfil_required('Administrador')
 def usuario_editar(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
     if usuario is None:
         abort(404)
 
-    dados = {}
-    for chave in usuario:
-        dados[chave] = texto_ou_vazio(usuario[chave])
+    # No GET, o formulário começa com a linha que veio do banco
+    dados = usuario
 
     if request.method == 'POST':
-        campos = ler_formulario(request.form)
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
 
-        erros = conferir_usuario(campos, id_usuario)
+        # O id_usuario faz o próprio usuário não contar como repetido e torna a senha opcional
+        erros = validar_usuario(dados, id_usuario)
 
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
         else:
+            # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
                 'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
                 'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
                 'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
             )
             params = [
-                campos['nome'],
-                campos['email'],
-                vazio_para_none(formatar_celular(campos['celular'])),
-                vazio_para_none(campos['data_nascimento']),
-                vazio_para_none(formatar_cpf(campos['cpf'])),
-                int(campos['perfil_id']),
-                vazio_para_none(formatar_cep(campos['cep'])),
-                vazio_para_none(campos['endereco']),
-                vazio_para_none(campos['numero']),
-                vazio_para_none(campos['complemento']),
-                vazio_para_none(campos['cidade']),
-                vazio_para_none(campos['estado']),
+                dados['nome'],
+                dados['email'],
+                formatar_celular(dados['celular']),
+                dados['data_nascimento'],
+                formatar_cpf(dados['cpf']),
+                dados['perfil_id'],
+                formatar_cep(dados['cep']),
+                dados['endereco'],
+                dados['numero'],
+                dados['complemento'],
+                dados['cidade'],
+                dados['estado'],
             ]
 
-            if campos['senha'] != '':
+            if dados['senha']:
                 sql += ', senha = %s'
-                params.append(generate_password_hash(campos['senha']))
+                params.append(generate_password_hash(dados['senha']))
 
             sql += ' WHERE id_usuario = %s'
             params.append(id_usuario)
 
             try:
                 execute_query(sql, params)
-                flash(f'Usuário "{campos["nome"]}" atualizado.', 'success')
-                return redirect(url_for('lista_usuarios'))
+
+                flash(f'Usuário "{dados["nome"]}" atualizado.', 'success')
+                return redirect(url_for('listar_usuarios'))
+
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
                 else:
                     raise
-
-        dados = request.form
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
@@ -920,22 +884,29 @@ def usuario_editar(id_usuario):
 @login_required
 @perfil_required('Administrador')
 def usuario_excluir(id_usuario):
+    # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('lista_usuarios'))
+        return redirect(url_for('listar_usuarios'))
 
     usuario = execute_one(
         'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
         (id_usuario,),
     )
+
     if usuario is None:
         abort(404)
 
+    # Nenhuma tabela depende de usuarios: não há contagem nem erro 1451
     execute_query('DELETE FROM usuarios WHERE id_usuario = %s', (id_usuario,))
     flash(f'Usuário "{usuario["nome"]}" excluído.', 'success')
 
-    return redirect(url_for('lista_usuarios'))
+    return redirect(url_for('listar_usuarios'))
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(403)
 def acesso_negado(erro):
@@ -966,6 +937,7 @@ O `templates/403.html` é o do Tópico 2. O `templates/layout/base_menu.html`:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block titulo_aba %}Sistema de Gestão{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
 </head>
 <body>
@@ -985,20 +957,20 @@ O `templates/403.html` é o do Tópico 2. O `templates/layout/base_menu.html`:
           </li>
           {% if session['perfil'] == 'Administrador' %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
             </ul>
           </li>
           {% endif %}
           {% if session['perfil'] in ['Administrador', 'Gerente'] %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
               {% if session['perfil'] == 'Administrador' %}
-              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('inserir_usuario') }}">Cadastrar Usuário</a></li>
               {% endif %}
             </ul>
           </li>
@@ -1052,11 +1024,11 @@ O `templates/usuarios/usuarios_lista.html`:
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
     {% if session['perfil'] == 'Administrador' %}
-    <a href="{{ url_for('usuario_novo') }}" class="btn btn-primary">Novo usuário</a>
+    <a href="{{ url_for('inserir_usuario') }}" class="btn btn-primary">Novo usuário</a>
     {% endif %}
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
@@ -1077,14 +1049,14 @@ O `templates/usuarios/usuarios_lista.html`:
           <small class="text-body-secondary">{{ usuario.email }}</small>
         </td>
         <td>{{ usuario.cpf|cpf_oculto }}</td>
-        <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
+        <td>{{ usuario.cidade if usuario.cidade else '—' }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
-        <td class="text-end">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
           {% if session['perfil'] == 'Administrador' %}
-          <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})">Excluir</button>
+          <a href="{{ url_for('usuario_editar', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ usuario.id_usuario }})"><i class="bi bi-trash"></i></button>
           {% endif %}
         </td>
       </tr>
@@ -1129,13 +1101,13 @@ O `templates/usuarios/usuarios_lista.html`:
 {% endblock %}
 ```
 
-Os demais arquivos (`db.py`, `validacoes.py`, `base_limpo.html`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 17.
+Os demais arquivos (`db.py`, a pasta `validacoes`, `base_limpa.html`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 17.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 18 não parte deste zip**, e sim do zip do Capítulo 17. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `403.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
+Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 18 não parte deste zip**, e sim do zip do Capítulo 17. O zip tem o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `403.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
 
 ➡️ [Baixar p2_cap_17_1.zip](../arquivos/p2_cap_17_1.zip)
 
