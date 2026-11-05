@@ -52,7 +52,63 @@ o repositório, não substitui o julgamento dele.
 - **Ensino incremental:** uma mudança pequena por vez (uma tag, uma rota, um campo). Depois
   de cada incremento, peça para o aluno salvar, rodar e observar o que mudou antes do
   próximo. Só consolide em um bloco completo ao final do tópico, nunca como única forma de
-  apresentar o conteúdo.
+  apresentar o conteúdo. **Vale para conceito novo.** Quando o aluno já conhece as peças
+  (no Projeto 2, quase sempre), siga a regra abaixo.
+- **Sem idas e vindas (pedido do professor, 05/11/2026):** os alunos têm pouca experiência, e
+  voltar ao mesmo trecho várias vezes (com `if` e indentação no meio) os faz se perder. Por isso:
+  - **Escreva cada arquivo ou função de uma vez**, já na forma final daquele capítulo, e
+    explique depois, parte por parte, seguindo os comentários do próprio código. Nada de versão
+    provisória para ser trocada no tópico seguinte (`flash('Dados válidos. Ainda não gravei...')`,
+    a `converter_preco` ingênua, a consulta "mais simples" que vira `JOIN`, o `if/else` de duas
+    consultas que vira `WHERE 1=1`).
+  - **Validações de uma vez só**, no arquivo de validações, quando ele é criado: inclusive a
+    consulta de valor repetido (`SELECT` do `UNIQUE`), que não é adiada para um tópico próprio.
+  - **Erros do banco (`1062`, `1451`) junto da operação que os provoca**, de forma curta e direta,
+    já no primeiro código do `INSERT`/`UPDATE`/`DELETE`, com o `try/except` desde o início. Nada de
+    "primeira defesa" num tópico e "segunda defesa" em outro.
+  - **Tabelas com todas as colunas de uma vez**, inclusive a coluna **Ações**, com os botões de
+    ícone (editar **amarelo** `btn-warning` + `bi-pencil-square`, excluir **vermelho**
+    `btn-danger` + `bi-trash`, ver detalhe `btn-info` + `bi-eye`). Até o capítulo da edição e
+    da exclusão, os botões existem e não fazem nada (`href="#"`, botão sem ação), e esse capítulo
+    só os liga às rotas.
+  - **Edição no meio de um arquivo grande** (uma linha de Jinja dentro do HTML, uma consulta
+    dentro de uma rota): diga onde procurar (`Ctrl+F` e o texto a buscar) e mostre o **antes** e o
+    **depois** do trecho, e, se forem várias mudanças no mesmo bloco, o bloco inteiro como fica.
+    Quando as mudanças se espalham por um template (modo criar/editar), mande trocar o arquivo
+    **inteiro**.
+  - O que o aluno vai precisar em vários capítulos entra **onde o arquivo nasce**: o bloco do
+    `flash` nos dois layouts, o CSS dos Bootstrap Icons no `base_menu.html` e o `CSRFProtect` no
+    `app.py` já no Capítulo 11.
+  - A "dor antes do alívio" continua valendo quando ensina um conceito novo (o `if` de login
+    repetido no 17, o `LEFT JOIN` no 19), e não como desculpa para escrever código descartável.
+- **Comentários no código (Projeto 2):** o `app.py` é dividido em seções com o comentário de
+  três linhas (`# =====...`, `# PERFIS`, `# =====...`): FILTROS DO JINJA, DECORADORES DE ACESSO
+  (17.1), PÁGINAS PRINCIPAIS, PERFIS, USUÁRIOS, PRODUTOS, RELATÓRIOS e TELAS DE ERROS. No CRUD de
+  **perfis**, as rotas levam os comentários numerados do professor (`# 1. Coleta os dados do
+  formulário`, `# 2. Validação dos campos`, `# 3. Se houver erros...`, `# 4. Se não houver erros,
+  tenta salvar no banco`, o comentário do `or None` e o do `raise`). Em **usuários e produtos**,
+  comente **só o que diverge** do que já foi feito em perfis. Os arquivos de validação separam
+  os campos com `# ================ VALIDAÇÕES PARA O CAMPO nome =====================`.
+- **Campos opcionais (`NULL`):** a rota lê o campo com `... .strip() or None` (vazio vira `None`,
+  gravado como `NULL`), e o template devolve o valor com `value="{{ campo or '' }}"` (o
+  `<textarea>` também: `{{ dados.descricao or '' }}`). O comentário do professor no
+  `perfil_form.html` (`<!-- ADICIONAR or '' EM TODO CAMPO QUE NÃO É OBRIGATÓRIO -->`) fica lá.
+  Com isso, a linha do banco serve direto de dicionário para o formulário de edição: não existem
+  mais `vazio_para_none`, `texto_ou_vazio` nem laço de conversão.
+- **`None` na tela:** para mostrar um traço ou um texto no lugar de um `NULL`, use o **`if` em uma
+  linha (ternário) do Jinja**, ensinado no Capítulo 12:
+  `{{ perfil.descricao if perfil.descricao else '—' }}`. Não use `{% if %}` em várias linhas nem
+  `default('—', true)` para isso. Para deixar em branco, `or ''`. Datas e CPF usam os filtros
+  próprios (`data_br`, `data_hora_br`, `cpf_oculto`), que tratam o `None` por dentro.
+- **Datas na tela:** `criado_em` com data **e hora** (`strftime('%d/%m/%Y %H:%M')` ou o filtro
+  `data_hora_br`): a hora importa para rastrear o que aconteceu.
+- **Formulários:** centralizados na tela (`<div class="row justify-content-center">` com
+  `col-lg-6`, ou `col-lg-8` nos formulários grandes) e botões em
+  `<div class="d-flex justify-content-between gap-2">`, com **Cancelar à esquerda** e **Salvar à
+  direita**, como no `perfil_form.html` do professor.
+- **Importações:** os nomes dentro de cada `from ... import` em ordem alfabética
+  (`from flask import Flask, abort, flash, redirect, render_template, request, session, url_for`).
+  As strings do código continuam com **aspas simples**, como em todo o material.
 - **Dor antes do alívio:** onde fizer sentido, deixe o aluno sentir o problema (menu copiado em
   cada página, `if` repetido em cada rota protegida, lista que some ao reiniciar) antes de
   apresentar a solução (herança de template, decorador, banco).
@@ -125,18 +181,18 @@ pela `session` (8) e termina no MySQL (10).
 
 | Cap. | Tema | O que ensina |
 |---|---|---|
-| 11 | Projeto novo e banco | Checklist do projeto do zero, **enxuto e com links para os capítulos onde cada etapa foi ensinada** (pasta, venv, um único `pip install` com todos os pacotes do projeto, `.gitignore`, `git init`, commit, novo repositório); importar `banco.sql` (**só as três tabelas, sem dados**); `.env` com `python-dotenv` e `.env.example`; `db.py` explicado em detalhe, já com `execute_query`, `execute_one` e `execute_insert` (só escrito, sem inserir dados); `testar_conexao.py`; layout base com Bootstrap e 404/500 |
-| 12 | INSERT e SELECT de perfis | Módulos simples (`db.py` com `execute_*`, `validacoes.py`), consultas parametrizadas (`%s`), `flash`, PRG, CSRF, erro `1062` (duplicado). Os alunos criam os perfis **Administrador, Gerente e Usuário** |
+| 11 | Projeto novo e banco | Checklist do projeto do zero, **enxuto e com links para os capítulos onde cada etapa foi ensinada** (pasta, venv, um único `pip install` com todos os pacotes do projeto, `.gitignore`, `git init`, commit, novo repositório); importar `banco.sql` (**só as três tabelas, sem dados**); `.env` com `python-dotenv` e `.env.example`; `db.py` explicado em detalhe, já com `execute_query`, `execute_one` e `execute_insert` (só escrito, sem inserir dados); `testar_conexao.py`; os dois layouts (`layout/base_menu.html` e `layout/base_limpa.html`), já com o bloco do `flash` e, no `base_menu`, o CSS dos Bootstrap Icons; `CSRFProtect` ligado; `app.py` em seções comentadas; login provisório, `/` → `/login`, `/dashboard` com os totais; 404/500 |
+| 12 | INSERT e SELECT de perfis | Lista com todas as colunas (data com hora, ternário para a descrição vazia, coluna Ações com os botões ainda sem função); formulário centralizado com o token CSRF; `validacoes/validacoes_perfil.py` inteiro de uma vez (`validar_perfil` devolve a lista de erros, já com o `SELECT` do nome repetido); rota `inserir_perfil` comentada, com `or None`, `INSERT` parametrizado, PRG e o `1062` no mesmo tópico. Os alunos criam os perfis **Administrador, Gerente e Usuário** |
 | 12.1 | Busca, filtro e paginação (opcional) | `LIKE`, `WHERE 1=1`, `LIMIT`/`OFFSET`, com `perfis_30.sql` (único capítulo em que se popula o banco para ensinar) |
-| 13 | UPDATE e DELETE de perfis | Rotas de edição e exclusão por POST, modal de confirmação do Bootstrap, erro `1451` (perfil em uso) demonstrado com um `INSERT` de usuário rodado no phpMyAdmin |
+| 13 | UPDATE e DELETE de perfis | `validar_perfil(nome, descricao, id_perfil=0)`, rota de edição completa e formulário nos dois modos (`acao`); exclusão por POST já com a contagem de usuários e o `1451`, modal de confirmação; o perfil em uso demonstrado com um `INSERT` de usuário rodado no phpMyAdmin |
 | 13.1 | Soft-delete (opcional) | `deletado_em` (a coluna já existe desde o `banco.sql` do 11, sem `ALTER TABLE`): excluir vira `UPDATE`, restaurar, filtrar os não excluídos |
-| 14 | INSERT relacional de usuário | `<select>` de perfis vindo do banco, hash de senha (`generate_password_hash`), validação de CPF, celular, CEP e data em `validacoes.py`, opcionais vazios viram `NULL`, e-mail e CPF únicos. O formulário devolve o digitado com `dados=request.form`. O redirect vai para `/usuarios`, uma **página provisória sem consulta ao banco** (a lista é do 15) |
+| 14 | INSERT relacional de usuário | `<select>` de perfis vindo do banco, hash de senha (`generate_password_hash`), `validacoes/validacoes_usuario.py` inteiro de uma vez (uma função por campo, inclusive CPF, celular, CEP e data, e a principal `validar_usuario(dados)`, que recebe o dicionário do formulário; e-mail e CPF únicos consultados dentro das funções), opcionais com `or None`. O formulário inteiro viaja no dicionário `dados` e volta com `or ''`. O redirect vai para `/usuarios`, uma **página provisória sem consulta ao banco** (a lista é do 15) |
 | 14.1 | Consulta de CEP (opcional) | API e JSON, botão **Buscar** com `onclick`, `fetch` com `async/await` no ViaCEP, preenche endereço, cidade e UF, trata CEP incompleto, inexistente e falha de rede (`try/catch`). O servidor não muda: continua validando tudo |
-| 15 | SELECT relacional de usuário | `JOIN` com `perfis`, badges por perfil, página de detalhe, filtros Jinja de data e CPF. A senha nunca é selecionada |
-| 16 | UPDATE e DELETE de usuário | Edição com senha opcional, unicidade ignorando o próprio registro, exclusão com modal |
+| 15 | SELECT relacional de usuário | `JOIN` com `perfis` e `SELECT_USUARIO` escritos direto na forma final, filtros Jinja de data e CPF antes das telas, lista completa com badge (`_badge_perfil.html` desde o início) e Ações, página de detalhe. A senha nunca é selecionada |
+| 16 | UPDATE e DELETE de usuário | `validar_usuario(dados, id_usuario=0)`; a linha do banco vai direto ao formulário como `dados`; edição com senha opcional e `UPDATE` montado em partes; exclusão com modal |
 | 17 | Login | `check_password_hash`, `session`, logout, `if 'id_usuario' not in session` em cada rota protegida, menu que muda se logado |
 | 17.1 | Controle de permissão (opcional) | `@login_required` e `@perfil_required('Administrador')`, página 403, menu por perfil |
-| 18 | CRUD de produtos | Campos que `usuarios` não cobriu: preço (`DECIMAL`, `Decimal`, "1.234,56", filtro `moeda`), estoque, textarea, `ativo` (checkbox), foto (upload, `secure_filename`, extensão e tamanho, gravada em disco, caminho no banco) |
+| 18 | CRUD de produtos | Campos que `usuarios` não cobriu: preço (`DECIMAL`, `Decimal`, "1.234,56", filtro `moeda`), estoque, textarea, `ativo` (checkbox), foto (upload, `secure_filename`, extensão e tamanho, gravada em disco, caminho no banco). `validacoes/validacoes_produto.py` inteiro de uma vez (com a `converter_preco` já rigorosa) e rota de cadastro escrita uma vez, já com a foto |
 | 18.1 a 18.4 | INSERT, SELECT, UPDATE, DELETE de produtos | Quatro arquivos que dividem o capítulo 18; cada um com zip intermediário |
 | 19 | Relatórios | Só tabelas: usuários por perfil (`LEFT JOIN` + `GROUP BY`), por UF, cadastros por mês (`DATE_FORMAT`), `SUM` do estoque e do valor, preço médio, estoque baixo. Usa `relatorios_dados.sql` |
 | 20 | Publicação | 🔒 **Em breve** (sem arquivo e fora do `nav`) |
@@ -225,10 +281,23 @@ funcionarem seja qual for o `id` que o aluno gerou.
 **Convenções (mantenha em todo capítulo do Projeto 2):**
 
 - Tabelas no **plural**, chave primária `id_<singular>`, chave estrangeira `<singular>_id`.
-  Rotas `/perfis`, `/perfis/novo`, `/perfis/<int:id_perfil>`, `.../editar`, `.../excluir`;
-  funções `lista_perfis`, `perfil_novo`, `perfil_editar`, `perfil_excluir`; templates
-  `perfis.html`, `perfil_form.html`. O mesmo molde para `usuarios` (`<int:id_usuario>`) e
-  `produtos` (`<int:id_produto>`).
+  Rotas `/perfis`, `/perfis/inserir`, `/perfis/<int:id_perfil>/editar` e `.../excluir`;
+  funções **`listar_perfis`** e **`inserir_perfil`** (verbo na frente, como o professor ensina em
+  sala) e `perfil_editar`, `perfil_excluir` (editar e excluir ficam com o recurso na frente, a
+  pedido do professor). O mesmo molde para `usuarios` (`listar_usuarios`, `inserir_usuario`,
+  `usuario_detalhe`, `usuario_editar`, `usuario_excluir`, `<int:id_usuario>`) e `produtos`
+  (`listar_produtos`, `inserir_produto`, `produto_editar`, `produto_excluir`, `<int:id_produto>`).
+  Extras: `lixeira_perfis` e `perfil_restaurar` (13.1), `relatorios`, `relatorio_usuarios` e
+  `relatorio_produtos` (19).
+- **Templates e layouts (Projeto 2):** `templates/layout/base_menu.html` (com o menu) e
+  `templates/layout/base_limpa.html` (sem menu, conteúdo centralizado; login e páginas de erro);
+  não existe `base.html`. Uma pasta por tabela, com a lista no plural e o formulário no singular:
+  `perfis/perfis_lista.html` e `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`,
+  `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`,
+  `produtos/produtos_lista.html`, `produtos/produto_form.html`, `relatorios/...`. O menu tem
+  **Home**, os dropdowns **Perfis** (12), **Usuários** (14) e **Produtos** (18), cada um com
+  "Listar X" e "Cadastrar X", o link **Relatórios** (19) e **Sair**; um link só entra no menu
+  quando a rota dele existe (o `url_for` de rota inexistente quebra a página).
 - **Nome de quem guarda o valor de uma chave primária:** o parâmetro de rota, o argumento do
   `url_for` e a variável Python que carrega a PK usam o **nome da própria PK** (`id_perfil`,
   `id_usuario`, `id_produto`): `url_for('perfil_editar', id_perfil=perfil.id_perfil)`. O nome
@@ -252,8 +321,16 @@ funcionarem seja qual for o `id` que o aluno gerou.
 - `UNIQUE` (nome do perfil, e-mail, CPF): o app confere por `SELECT` (mensagem amigável) e o
   banco continua sendo a barreira final. Na edição, ignore o próprio registro.
 - O `<select>` de perfil sempre vem de `SELECT ... FROM perfis`, e o servidor valida o valor.
-- Organização: `app.py` (rotas), `db.py` (pool e `execute_query`, `execute_one`,
-  `execute_insert`, no padrão do conteúdo antigo), `validacoes.py` (CPF, celular, CEP, preço).
+- Organização: `app.py` (rotas, em seções comentadas), `db.py` (pool e `execute_query`,
+  `execute_one`, `execute_insert`, no padrão do conteúdo antigo) e a pasta **`validacoes/`**, com
+  **um arquivo por tabela**: `validacoes_perfil.py` (12), `validacoes_usuario.py` (14) e
+  `validacoes_produto.py` (18). Cada um tem uma função principal (`validar_perfil(nome,
+  descricao, id_perfil=0)`, `validar_usuario(dados, id_usuario=0)`, `validar_produto(dados, foto)`)
+  que devolve a **lista de erros** (vazia quando está tudo certo) e já faz as consultas de valor
+  repetido; o de usuários e o de produtos têm uma função por campo (mensagem ou `None`) chamada
+  pela principal, e as listas e formatadores que o formulário e a rota usam (`UFS`,
+  `CATEGORIAS`, `formatar_cpf`, `converter_preco`...). A rota só coleta, chama a validação e grava.
+  Importação: `from validacoes.validacoes_perfil import validar_perfil` (pasta sem `__init__.py`).
 - SQL sempre parametrizado (`%s`). Nunca monte SQL com f-string.
 
 ## Conteúdo anterior em `old/`
@@ -374,6 +451,11 @@ onde entra) para separar do que é erro de verdade. Quando o professor colocar o
 - Fonte: `projetos/p1/cap_03/`, `projetos/p2/cap_12_1/` etc. Cada pasta é um **retrato completo**
   da etapa (não um diff). Um script em `projetos/` gera os zips; **teste cada etapa antes** de
   empacotar (instalar `requirements.txt`, rodar, abrir as páginas).
+- **Texto e código sempre iguais:** a seção "Os arquivos completos do capítulo" de cada capítulo do
+  Projeto 2 é copiada da pasta da etapa por `python projetos/sincronizar_arquivos_completos.py`
+  (`--conferir` só lista o que está diferente). Toda linha dessa seção que termina em `:` e cita
+  um arquivo entre crases (por exemplo, a linha que diz O `templates/perfis/perfil_form.html`:) é seguida do arquivo
+  inteiro. Mude o código na pasta da etapa e rode o script, em vez de editar o bloco à mão.
 - O zip leva `requirements.txt`, `.env.example` e os `.sql` da etapa. **Nunca** leva `.env`,
   `venv`, `__pycache__` nem a pasta `.git`.
 
@@ -438,8 +520,9 @@ sumário) e `mkdocs.yml` (entrada no `nav`, obrigatória).
    consta em `projetos/imagens/Capitulo_NN_prompts.md` (pendente de geração, ver "Imagens"); o
    zip existe, abre e o projeto roda a partir dele.
 3. **Execute o código**, não só leia: no mínimo `ast.parse` dos blocos Python e, para rotas e
-   templates, o cliente de teste do Flask contra um banco simulado (SQLite em memória serve
-   para rotas, templates e validações). O DDL e o SQL do MySQL/MariaDB são conferidos à mão.
+   templates, o cliente de teste do Flask (com o CSRF ligado) contra o **MariaDB do XAMPP** da
+   máquina, num banco de desenvolvimento próprio (nunca nos bancos do professor). O SQLite
+   esconde diferenças do MySQL (collation, `1062`, `OFFSET` negativo) e não é usado.
 4. **Faça o commit** do capítulo pronto, com mensagem que o identifique (ex.: `Adiciona o
    Capítulo 03 — Flask, com quiz e zip`). Um commit por capítulo e um por subcapítulo.
 5. **Não faça `git push` sem avisar.** Pergunte: "o Capítulo NN (e os subcapítulos NN.Y) estão
