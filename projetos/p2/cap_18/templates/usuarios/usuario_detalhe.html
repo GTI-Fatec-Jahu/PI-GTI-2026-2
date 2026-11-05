@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ usuario.nome }} — Sistema de Gestão{% endblock %}
 
@@ -20,7 +20,7 @@
 
             <dt class="col-sm-4">Perfil</dt>
             <dd class="col-sm-8">
-              {% include '_badge_perfil.html' %}
+              {% include 'usuarios/_badge_perfil.html' %}
               <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
             </dd>
 
