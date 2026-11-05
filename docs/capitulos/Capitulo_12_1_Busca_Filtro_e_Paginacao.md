@@ -22,7 +22,7 @@ Este capítulo é **opcional**: o Capítulo 13 continua do código do Capítulo 
 
 ## 📦 Ponto de partida
 
-Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, o `validacoes.py`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `404.html` e `500.html`) e os perfis Administrador, Gerente e Usuário cadastrados.
+Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 12: com o `app.py`, o `db.py`, o `validacoes.py`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e os perfis Administrador, Gerente e Usuário cadastrados.
 
 Se o seu projeto não está funcionando, baixe o código do Capítulo 12 e descompacte. Depois de descompactar, crie o ambiente virtual e o `.env`, como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env), e importe o `banco.sql` no phpMyAdmin:
 
@@ -91,10 +91,10 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis, busca=busca)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis, busca=busca)
 ```
 
-No `templates/perfis.html`, entre o cabeçalho (o `<div class="d-flex ...">`) e a `<table>`, acrescente o formulário. Repare que ele **não** tem `csrf_token` nem `method="post"`: um GET não altera nada, então não precisa de proteção CSRF.
+No `templates/perfis/perfis_lista.html`, entre o cabeçalho (o `<div class="d-flex ...">`) e a `<table>`, acrescente o formulário. Repare que ele **não** tem `csrf_token` nem `method="post"`: um GET não altera nada, então não precisa de proteção CSRF.
 
 ```html
   <form action="{{ url_for('lista_perfis') }}" method="get" class="row g-2 mb-3">
@@ -137,7 +137,7 @@ São dois `%s`, então a tupla leva o valor **duas vezes**, na mesma ordem. Os `
 - `estoque`: **Almoxarife** e **Contador**. A palavra não está no nome deles, está na **descrição**.
 - `' OR '1'='1`: nenhum resultado. O texto vira só um termo a procurar, nunca um pedaço do comando (o *SQL Injection* do Capítulo 10).
 
-Para mostrar quantos perfis a busca encontrou, acrescente no `perfis.html`, entre o formulário e a tabela:
+Para mostrar quantos perfis a busca encontrou, acrescente no `perfis_lista.html`, entre o formulário e a tabela:
 
 ```html
   <p class="text-body-secondary">{{ perfis|length }} perfil(is) encontrado(s).</p>
@@ -168,7 +168,7 @@ Quatro `if` para dois filtros, e com três filtros seriam oito. O obstáculo é 
 
 ### O formulário com o segundo filtro
 
-No `perfis.html`, acrescente o `<select>` da descrição ao formulário. Troque o formulário inteiro por este (os campos agora dividem a linha em colunas):
+No `perfis_lista.html`, acrescente o `<select>` da descrição ao formulário. Troque o formulário inteiro por este (os campos agora dividem a linha em colunas):
 
 ```html
   <form action="{{ url_for('lista_perfis') }}" method="get" class="row g-2 align-items-end mb-3">
@@ -298,7 +298,7 @@ Agora a consulta usa o dicionário. Troque a linha do `sql` por:
            + ' ORDER BY ' + ORDENACOES[ordem])
 ```
 
-(Os parênteses permitem quebrar a linha longa em duas.) E devolva a variável ao template, acrescentando `ordem=ordem` no `render_template`. No formulário do `perfis.html`, acrescente o `<select>` da ordem **depois** do da descrição. Para a linha continuar somando 12 colunas do Bootstrap, troque o `col-md-6` do campo de busca por `col-md-5` e o `col-md-3` da `<div>` dos botões por `col-md-2` (o `col-md-3` da descrição não muda):
+(Os parênteses permitem quebrar a linha longa em duas.) E devolva a variável ao template, acrescentando `ordem=ordem` no `render_template`. No formulário do `perfis_lista.html`, acrescente o `<select>` da ordem **depois** do da descrição. Para a linha continuar somando 12 colunas do Bootstrap, troque o `col-md-6` do campo de busca por `col-md-5` e o `col-md-3` da `<div>` dos botões por `col-md-2` (o `col-md-3` da descrição não muda):
 
 ```html
     <div class="col-md-2">
@@ -416,7 +416,7 @@ Salve e recarregue: `30 perfil(is) encontrado(s). Página 1 de 3.` Teste `?pagin
 
 ### Os botões de página
 
-Para navegar sem digitar o endereço, o Bootstrap tem o componente `pagination`. Acrescente no `perfis.html`, **depois** da `</table>`:
+Para navegar sem digitar o endereço, o Bootstrap tem o componente `pagination`. Acrescente no `perfis_lista.html`, **depois** da `</table>`:
 
 ```html
   {% if total_paginas > 1 %}
@@ -521,15 +521,15 @@ def lista_perfis():
            + ' ORDER BY ' + ORDENACOES[ordem] + ' LIMIT %s OFFSET %s')
     perfis = execute_query(sql, params + [POR_PAGINA, deslocamento], fetch=True)
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis, total=total,
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis, total=total,
                            busca=busca, descricao=descricao, ordem=ordem,
                            pagina=pagina, total_paginas=total_paginas)
 ```
 
-O `templates/perfis.html`:
+O `templates/perfis/perfis_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -618,7 +618,7 @@ O `templates/perfis.html`:
 {% endblock %}
 ```
 
-Os demais arquivos (`db.py`, `validacoes.py`, `perfil_form.html`, `base.html` e os outros templates) são os do Capítulo 12.
+Os demais arquivos (`db.py`, `validacoes.py`, `perfil_form.html`, os layouts e os outros templates) são os do Capítulo 12.
 
 ---
 
