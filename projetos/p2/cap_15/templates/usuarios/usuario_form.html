@@ -5,12 +5,12 @@
 {% block conteudo %}
   <h1 class="h2 mb-4">Novo usuário</h1>
 
-  <div class="row">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
 
-          <form action="{{ url_for('usuario_novo') }}" method="post">
+          <form action="{{ url_for('inserir_usuario') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <h2 class="h5 mb-3">Dados principais</h2>
@@ -43,12 +43,12 @@
                 <select class="form-select" id="perfil_id" name="perfil_id" required>
                   <option value="">Selecione...</option>
                   {% for perfil in perfis %}
-                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
+                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id|string == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
                   {% endfor %}
                 </select>
               {% else %}
                 <div class="alert alert-warning mb-0" role="alert">
-                  Nenhum perfil cadastrado. <a href="{{ url_for('perfil_novo') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
+                  Nenhum perfil cadastrado. <a href="{{ url_for('inserir_perfil') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
                 </div>
               {% endif %}
             </div>
@@ -58,15 +58,15 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="celular" class="form-label">Celular</label>
-                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular }}" maxlength="20">
+                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular or '' }}" maxlength="20">
               </div>
               <div class="col-md-4 mb-3">
                 <label for="data_nascimento" class="form-label">Data de nascimento</label>
-                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento }}">
+                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento or '' }}">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="cpf" class="form-label">CPF</label>
-                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf }}" maxlength="14">
+                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf or '' }}" maxlength="14">
               </div>
             </div>
 
@@ -75,29 +75,29 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="cep" class="form-label">CEP</label>
-                <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep }}" maxlength="9">
+                <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep or '' }}" maxlength="9">
               </div>
               <div class="col-md-8 mb-3">
                 <label for="endereco" class="form-label">Endereço</label>
-                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco }}" maxlength="255">
+                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco or '' }}" maxlength="255">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="numero" class="form-label">Número</label>
-                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero }}" maxlength="20">
+                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero or '' }}" maxlength="20">
               </div>
               <div class="col-md-8 mb-3">
                 <label for="complemento" class="form-label">Complemento</label>
-                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento }}" maxlength="100">
+                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento or '' }}" maxlength="100">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-8 mb-4">
                 <label for="cidade" class="form-label">Cidade</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade }}" maxlength="100">
+                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade or '' }}" maxlength="100">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="estado" class="form-label">Estado</label>
@@ -110,9 +110,9 @@
               </div>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">Salvar usuário</button>
-              <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
             </div>
 
           </form>

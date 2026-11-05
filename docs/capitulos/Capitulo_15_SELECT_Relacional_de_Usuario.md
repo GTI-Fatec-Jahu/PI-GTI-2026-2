@@ -10,16 +10,14 @@
 
 Ao final deste capítulo você deverá ser capaz de:
 
-- Listar os usuários em uma tabela HTML, lendo-os do banco com `SELECT`
 - Trazer o nome do perfil com um `JOIN`, em vez de mostrar o número guardado em `perfil_id`
 - Dar um apelido (`AS`) a uma coluna, para que duas colunas com o mesmo nome não se sobrescrevam no dicionário que o Python recebe
 - Guardar a consulta em uma constante, `SELECT_USUARIO`, que **deixa a senha de fora**, e reaproveitá-la na lista e no detalhe
 - Criar filtros Jinja próprios (`data_br`, `data_hora_br` e `cpf_oculto`) com `@app.template_filter`
-- Mostrar um campo `NULL` como um traço, e explicar por que o filtro `default` precisa do segundo argumento `true`
-- Mostrar o perfil em um **badge** colorido e reaproveitar o mesmo trecho de HTML com `{% include %}`
+- Listar os usuários em uma tabela completa, com o perfil em um **badge** colorido reaproveitado com `{% include %}` e a coluna de ações
 - Criar a página de detalhe `/usuarios/<int:id_usuario>` e responder 404 quando o código não existe
 
-O Capítulo 14 terminou com a página `/usuarios` **provisória**: um aviso azul e nenhuma consulta ao banco. Quem cadastrava um usuário só conferia o resultado no phpMyAdmin. Este capítulo troca o aviso pela lista de verdade e acrescenta a página de detalhe. É também a primeira consulta do projeto que **junta duas tabelas**: o usuário guarda só o número do perfil, e o nome do perfil mora em outra tabela. A edição e a exclusão de usuários ficam para o Capítulo 16.
+O Capítulo 14 terminou com a página `/usuarios` **provisória**: um aviso azul e nenhuma consulta ao banco. Quem cadastrava um usuário só conferia o resultado no phpMyAdmin. Este capítulo troca o aviso pela lista de verdade e acrescenta a página de detalhe. É também a primeira consulta do projeto que **junta duas tabelas**: o usuário guarda só o número do perfil, e o nome do perfil mora em outra tabela. A ordem é: primeiro a consulta e as ferramentas de exibição (os filtros), depois as telas, cada uma escrita de uma vez. A edição e a exclusão de usuários ficam para o Capítulo 16.
 
 ## 📦 Ponto de partida
 
@@ -38,7 +36,7 @@ copy .env.example .env
 
 ---
 
-## Tópico 1 — A lista de usuários
+## Tópico 1 — A consulta com JOIN
 
 ### Antes de começar
 
@@ -59,7 +57,7 @@ Uma lista precisa de usuários para mostrar. Este capítulo usa os três a segui
 | Bruno Souza | `bruno@exemplo.com` | Gerente | todos: celular `14998112030`, nascimento `14/03/1988`, CPF `52998224725`, CEP `17201000`, endereço `Rua das Flores`, número `10`, cidade `Jaú`, estado `SP` |
 | Carla Dias | `carla@exemplo.com` | Usuário | só os campos obrigatórios |
 
-O Bruno é o usuário **completo**, e a Ana e a Carla têm os campos opcionais em `NULL`. A diferença entre eles vai aparecer logo.
+O Bruno é o usuário **completo**, e a Ana e a Carla têm os campos opcionais em `NULL`. A diferença entre eles vai aparecer nas telas.
 
 ### O mapa do recurso
 
@@ -67,110 +65,11 @@ O molde de nomes do Capítulo 12 vale para `usuarios`. Este capítulo constrói 
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template | Capítulo |
 |---|---|---|---|---|---|
-| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios/usuarios_lista.html` | **15** |
-| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuarios/usuario_form.html` | 14 |
+| `/usuarios` | GET | Lista os usuários | `listar_usuarios` | `usuarios/usuarios_lista.html` | **15** |
+| `/usuarios/inserir` | GET e POST | GET mostra o formulário, POST confere e grava | `inserir_usuario` | `usuarios/usuario_form.html` | 14 |
 | `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | **15** |
 | `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuarios/usuario_form.html` | 16 |
 | `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `usuario_excluir` | (nenhum) | 16 |
-
-### A consulta mais simples
-
-A rota `lista_usuarios` hoje só mostra o aviso. Troque-a por uma consulta ao banco, no mesmo desenho da `lista_perfis` do Capítulo 12. Por enquanto, a consulta pede as colunas **da própria tabela** `usuarios`:
-
-```python
-@app.route('/usuarios')
-def lista_usuarios():
-    usuarios = execute_query(
-        'SELECT id_usuario, nome, email, cpf, data_nascimento, cidade, estado, perfil_id '
-        'FROM usuarios ORDER BY nome',
-        fetch=True,
-    )
-
-    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
-```
-
-Cada linha do resultado chega ao template como um **dicionário** (o `dictionary=True` do `db.py`, do Capítulo 11), e `usuarios` é a lista desses dicionários. Agora o `templates/usuarios/usuarios_lista.html`: **apague o aviso azul** (o `<div class="alert alert-info">` inteiro) e coloque no lugar a tabela, só com duas colunas:
-
-```html
-  <table class="table table-striped table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>Código</th>
-        <th>Nome</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for usuario in usuarios %}
-      <tr>
-        <td>{{ usuario.id_usuario }}</td>
-        <td>
-          {{ usuario.nome }}<br>
-          <small class="text-body-secondary">{{ usuario.email }}</small>
-        </td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="2" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-```
-
-É o molde da `perfis_lista.html`: um `{% for %}` com o `{% else %}` para a lista vazia (Capítulo 5). Salve e abra **http://127.0.0.1:5000/usuarios**. A tabela mostra o código, o nome e, em letra pequena embaixo, o e-mail de cada usuário.
-
-### Mais colunas, uma por vez
-
-Acrescente o **CPF**. No `<thead>`, depois de `<th>Nome</th>`:
-
-```html
-        <th>CPF</th>
-```
-
-E no `<tbody>`, depois do `<td>` do nome:
-
-```html
-        <td>{{ usuario.cpf }}</td>
-```
-
-Salve e recarregue. O Bruno mostra `529.982.247-25`, e a Ana e a Carla mostram a palavra **None**. Guarde esse incômodo, ele vai ser resolvido no Tópico 3. Agora a **cidade**, com o estado ao lado (`<th>Cidade</th>` no `<thead>`, e a célula depois do CPF):
-
-```html
-        <td>{{ usuario.cidade }}/{{ usuario.estado }}</td>
-```
-
-Salve e recarregue: `Jaú/SP` para o Bruno e `None/None` para os outros dois. Depois a **data de nascimento** (`<th>Nascimento</th>` e a célula):
-
-```html
-        <td>{{ usuario.data_nascimento }}</td>
-```
-
-Salve e recarregue: o Bruno mostra `1988-03-14`, ano, mês e dia, que é como o banco e o Python escrevem a data, e não como se escreve no Brasil. E, por último, o **perfil** (`<th>Perfil</th>` e a célula):
-
-```html
-        <td>{{ usuario.perfil_id }}</td>
-```
-
-Salve e recarregue. A coluna **Perfil** mostra `1`, `2` e `3`, e não **Administrador**, **Gerente** e **Usuário**. Ninguém lê uma lista de usuários querendo saber que a Ana é o perfil número 1. Por fim, ajuste o `colspan` do estado vazio para `6`, o número de colunas da tabela.
-
-A lista funciona e mostra os dados, mas tem quatro defeitos, e cada um tem uma solução nos próximos tópicos:
-
-| O que se vê na tela | Por quê | Resolvido no |
-|---|---|---|
-| O **número** do perfil, em vez do nome | A tabela `usuarios` só guarda `perfil_id`. O nome está em `perfis` | Tópico 2 |
-| A palavra `None` nos campos vazios | O `NULL` do banco chega ao Python como `None` | Tópico 3 |
-| A data como `1988-03-14` | O banco entrega um objeto de data, e o Jinja o escreve no formato do banco | Tópico 3 |
-| O CPF inteiro, para qualquer pessoa que abrir a lista | Nada o esconde | Tópico 3 |
-
-```bash
-git add .
-git commit -m "Lista os usuários em uma tabela"
-git push
-```
-
----
-
-## Tópico 2 — O nome do perfil com JOIN
 
 ### Dois lugares, uma informação
 
@@ -188,7 +87,7 @@ Cada usuário aponta para o seu perfil pelo número, a chave estrangeira `perfil
 | 2 | Gerente |
 | 3 | Usuário |
 
-O `JOIN` **junta as linhas das duas tabelas** que têm o mesmo valor na chave: a linha do usuário cujo `perfil_id` vale 2 é emparelhada com a linha do perfil cujo `id_perfil` vale 2. Teste no **phpMyAdmin** (banco `gestao`, aba **SQL**) antes de levar a consulta para o Python:
+Uma lista que mostrasse só a tabela `usuarios` teria, na coluna do perfil, `1`, `2` e `3`, e ninguém lê uma lista de usuários querendo saber que a Ana é o perfil número 1. O `JOIN` **junta as linhas das duas tabelas** que têm o mesmo valor na chave: a linha do usuário cujo `perfil_id` vale 2 é emparelhada com a linha do perfil cujo `id_perfil` vale 2. Teste no **phpMyAdmin** (banco `gestao`, aba **SQL**) antes de levar a consulta para o Python:
 
 ```sql
 SELECT u.id_usuario, u.nome, u.perfil_id, p.nome AS perfil
@@ -205,42 +104,16 @@ O resultado traz uma linha por usuário, já com o nome do perfil ao lado do nú
 | 2 | Bruno Souza | 2 | Gerente |
 | 3 | Carla Dias | 3 | Usuário |
 
-Três detalhes da consulta, que você já viu no curso de banco de dados. O `u` e o `p` depois dos nomes das tabelas são **apelidos**, para escrever `u.nome` em vez de `usuarios.nome`. O `ON` diz **quais colunas** devem ser iguais. E o `JOIN` sozinho é o `INNER JOIN`: só entram usuários que têm um perfil, e todos têm, porque `perfil_id` é `NOT NULL` e a chave estrangeira não deixa gravar um perfil que não existe.
+Quatro detalhes da consulta, os três primeiros você já viu no curso de banco de dados:
 
-### Levar o JOIN para a rota
-
-Troque a consulta da `lista_usuarios` por esta. Ela ainda **não** tem o `AS perfil`, de propósito:
-
-```python
-    usuarios = execute_query(
-        'SELECT u.id_usuario, u.nome, u.email, u.cpf, u.data_nascimento, u.cidade, u.estado, '
-        'p.nome '
-        'FROM usuarios u '
-        'JOIN perfis p ON p.id_perfil = u.perfil_id '
-        'ORDER BY u.nome',
-        fetch=True,
-    )
-```
-
-Salve e recarregue a lista. A coluna **Nome** passou a mostrar `Administrador`, `Gerente` e `Usuário`, e os nomes das pessoas **sumiram**. A coluna **Perfil** ficou vazia.
-
-O que aconteceu: o resultado tem **duas colunas chamadas `nome`**, a do usuário e a do perfil. Cada linha vira um dicionário do Python, e um dicionário **não aceita a mesma chave duas vezes**: a segunda `nome` (a do perfil) sobrescreve a primeira. A saída é dar um **apelido à coluna** com `AS`. Troque `'p.nome '` por:
-
-```python
-        'p.nome AS perfil '
-```
-
-E, no `usuarios_lista.html`, troque `{{ usuario.perfil_id }}` por:
-
-```html
-        <td>{{ usuario.perfil }}</td>
-```
-
-Salve e recarregue. Os nomes das pessoas voltaram, e a coluna **Perfil** mostra **Administrador**, **Gerente** e **Usuário**. O `AS perfil` é o que dá nome à chave do dicionário: `usuario.perfil`.
+- O `u` e o `p` depois dos nomes das tabelas são **apelidos**, para escrever `u.nome` em vez de `usuarios.nome`.
+- O `ON` diz **quais colunas** devem ser iguais.
+- O `JOIN` sozinho é o `INNER JOIN`: só entram usuários que têm um perfil, e todos têm, porque `perfil_id` é `NOT NULL` e a chave estrangeira não deixa gravar um perfil que não existe.
+- **O `AS perfil` é obrigatório no Python.** As duas tabelas têm uma coluna `nome`. No phpMyAdmin isso não atrapalha, mas no Python cada linha do resultado vira um **dicionário**, e um dicionário **não aceita a mesma chave duas vezes**: sem o apelido, a segunda `nome` (a do perfil) sobrescreveria a primeira, e os nomes das pessoas sumiriam da lista, trocados por `Administrador`, `Gerente` e `Usuário`. O `AS perfil` dá à coluna do perfil uma chave própria: `usuario.perfil`.
 
 ### Uma constante para a consulta
 
-A página de detalhe do Tópico 5, e a edição do Capítulo 16, precisam **das mesmas colunas**, com o mesmo `JOIN`. Escrever essa consulta comprida de novo em cada rota é pedir para uma delas ficar diferente das outras. A solução é escrevê-la **uma vez só**, em uma constante no topo do `app.py`. Coloque-a logo depois da linha `CSRFProtect(app)`:
+A lista e a página de detalhe deste capítulo, e a edição do Capítulo 16, precisam **das mesmas colunas**, com o mesmo `JOIN`. Escrever essa consulta comprida em cada rota é pedir para uma delas ficar diferente das outras. Por isso ela é escrita **uma vez só**, em uma constante no topo do `app.py`. Coloque-a logo depois da linha `CSRFProtect(app)`:
 
 ```python
 # As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
@@ -254,178 +127,218 @@ SELECT_USUARIO = (
 )
 ```
 
-!!! note "Python: uma constante, e o `+` entre textos"
-    Por convenção, uma variável que **não muda** é escrita em MAIÚSCULAS: `SELECT_USUARIO` é um texto que o programa só lê. Os parênteses permitem quebrar o texto em várias linhas, e os pedaços colados, um embaixo do outro, viram **um único texto** (o mesmo recurso do `INSERT` do Capítulo 14). Para acrescentar uma cláusula à consulta, o `+` junta dois textos: `SELECT_USUARIO + ' ORDER BY u.nome'`. Juntar **textos fixos** é seguro. O que nunca se faz é juntar ao SQL o que a pessoa digitou: para isso existem os `%s`, como no resto do projeto.
+A consulta traz todas as colunas de que as telas vão precisar, as do usuário e duas do perfil: o nome (`AS perfil`) e a descrição (`AS perfil_descricao`, também com apelido, pelo mesmo motivo). Ela não tem `WHERE` nem `ORDER BY`: cada rota acrescenta o que precisa.
 
-Agora a rota usa a constante, e a consulta que estava dentro dela sai:
+!!! note "Python: uma constante, e o `+` entre textos"
+    Por convenção, uma variável que **não muda** é escrita em MAIÚSCULAS: `SELECT_USUARIO` é um texto que o programa só lê, como a lista `UFS` do Capítulo 14. Os parênteses permitem quebrar o texto em várias linhas, e os pedaços colados, um embaixo do outro, viram **um único texto** (o mesmo recurso do `INSERT` do Capítulo 14). Para acrescentar uma cláusula à consulta, o `+` junta dois textos: `SELECT_USUARIO + ' ORDER BY u.nome'`. Juntar **textos fixos** é seguro. O que nunca se faz é juntar ao SQL o que a pessoa digitou: para isso existem os `%s`, como no resto do projeto.
+
+!!! note "A senha não está na consulta, e é de propósito"
+    Repare no que **falta** no `SELECT_USUARIO`: a coluna `senha`. Nenhuma tela do sistema precisa do hash, e o que não é lido do banco não tem como vazar para a página, nem por um descuido em um template. É por isso que o `SELECT *` não é usado nas telas de usuário: ele traria a senha junto. Só o login, no Capítulo 17, vai ler o hash, em uma consulta própria.
+
+### A rota da lista
+
+Agora a rota `listar_usuarios` deixa de ser provisória. Troque-a por esta:
 
 ```python
 @app.route('/usuarios')
-def lista_usuarios():
+def listar_usuarios():
+    # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
     return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 ```
 
-Salve e recarregue: a lista está **igual** à anterior. A mudança foi só de organização, e a lista agora pede mais colunas do que mostra (celular, CEP, endereço e outras), que o detalhe vai usar.
-
-!!! note "A senha não está na lista, e é de propósito"
-    Repare no que **falta** no `SELECT_USUARIO`: a coluna `senha`. Nenhuma tela do sistema precisa do hash, e o que não é lido do banco não tem como vazar para a página, nem por um descuido em um template. É por isso que o `SELECT *` não é usado nas telas de usuário: ele traria a senha junto. Só o login, no Capítulo 17, vai ler o hash, em uma consulta própria.
+É o mesmo desenho da `listar_perfis` do Capítulo 12: o `execute_query` com `fetch=True` devolve a lista de linhas, cada uma como um dicionário. A lista ainda mostra o aviso azul, porque o template não mudou: ele é reescrito no Tópico 3, depois que os filtros existirem.
 
 ```bash
 git add .
-git commit -m "Traz o nome do perfil com JOIN e cria o SELECT_USUARIO"
+git commit -m "Cria o SELECT_USUARIO com JOIN e a consulta da lista de usuários"
 git push
 ```
 
 ---
 
-## Tópico 3 — Filtros próprios: campos vazios, datas e CPF
+## Tópico 2 — Filtros próprios para a tela
 
-### O `None` e o `default`
+### O que o banco entrega e o que a tela precisa
 
-O Capítulo 5 ensinou o filtro `default`, que mostra um texto quando o valor falta. Experimente-o na cidade. No `usuarios_lista.html`, troque a célula da cidade por:
+Três colunas da lista não podem ir para a tela do jeito que o banco as entrega:
 
-```html
-        <td>{{ usuario.cidade|default('—') }}/{{ usuario.estado }}</td>
-```
+| Coluna | O que o banco entrega | O que a tela precisa |
+|---|---|---|
+| Data de nascimento | Um objeto de data, que o Jinja escreve como `1988-03-14` | `14/03/1988`, e um traço quando a data é `NULL` |
+| Cadastro e alteração | Data e hora, `2026-11-03 10:15:42` | `03/11/2026 às 10:15` |
+| CPF | O número inteiro, `529.982.247-25` | Na lista, só o meio (`***.982.247-**`) |
 
-Salve e recarregue. **Nada mudou**: a Ana e a Carla continuam com `None/None`. O motivo está no aviso que o Capítulo 5 deixou: o `default` age quando o valor **não existe**, e o `None` do banco **existe** (é um valor, o "sem valor"). Para o `default` tratar também o que é vazio (`None`, `''`), acrescente um segundo argumento, `true`. E o estado só deve aparecer, com a barra, quando existir:
+O Capítulo 12 formatou o `criado_em` dos perfis direto no template, com o `strftime`, e funcionou porque o `criado_em` nunca é `NULL`. A data de nascimento é opcional: na Ana, ela é `None`, e o `None` não tem o método `strftime`. O template quebraria com `'None' has no attribute 'strftime'`, e seria preciso um `{% if %}` em volta de **cada** data de **cada** tela.
 
-```html
-        <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
-```
+O Flask oferece um jeito melhor: um **filtro próprio**, uma função Python que o template chama com o mesmo `|` dos filtros que você já conhece (o `|upper`, o `|round` do Capítulo 5). A função trata o `None` **uma vez**, e todas as telas se beneficiam.
 
-!!! note "Jinja: `default('—', true)`"
-    O segundo argumento `true` manda o `default` trocar **qualquer valor vazio**, e não só o que não existe: `None` (o `NULL` do banco) e o texto vazio. O `{% if usuario.estado %}` usa a mesma ideia: o `None` conta como falso, então a barra e a sigla só saem quando há um estado.
+### Os três filtros
 
-Salve e recarregue. A Ana e a Carla mostram `—` na coluna da cidade, e o Bruno continua com `Jaú/SP`.
-
-### A data: um filtro só nosso
-
-A data de nascimento aparece como `1988-03-14`, e o Brasil escreve `14/03/1988`. O Capítulo 12 já formatou o `criado_em` direto no template, com o `strftime` (veja [a coluna Criado em](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-coluna-criado-em)). Faça o mesmo com o nascimento, **só para ver** o que acontece. Troque a célula por:
-
-```html
-        <td>{{ usuario.data_nascimento.strftime('%d/%m/%Y') }}</td>
-```
-
-Salve e recarregue. A página quebra na **Ana**, que não tem data de nascimento, com algo assim:
-
-```text
-jinja2.exceptions.UndefinedError: 'None' has no attribute 'strftime'
-```
-
-A data de nascimento é um campo opcional, e o `None` não tem o método `strftime`. Seria preciso um `{% if %}` em volta de **cada** data de **cada** tela. O Flask oferece um jeito melhor: um **filtro próprio**, uma função Python que o template chama com o mesmo `|` dos filtros que você já conhece. Volte a célula para `{{ usuario.data_nascimento }}` e, no `app.py`, **depois** da constante `SELECT_USUARIO`, escreva:
+No `app.py`, crie uma seção nova, **FILTROS DO JINJA**, logo depois da constante `SELECT_USUARIO` e antes da seção das páginas principais:
 
 ```python
+# ==============================================================================
+# FILTROS DO JINJA
+# ==============================================================================
+
 @app.template_filter('data_br')
 def data_br(valor):
+    # date ou datetime vira 14/03/1988; um campo vazio vira um traço
     if valor is None:
         return '—'
 
     return valor.strftime('%d/%m/%Y')
-```
 
-!!! note "Flask: `@app.template_filter`"
-    É um decorador, como o `@app.route` ([Capítulo 3](Capitulo_03_Flask.md)) e o `@app.errorhandler` ([Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md)). O `@app.route` liga uma função a um **endereço**. O `@app.template_filter('data_br')` liga uma função a um **nome de filtro**: a partir daí, o template pode escrever `{{ algo|data_br }}`, e o Jinja chama a função, entregando `algo` no parâmetro `valor` e escrevendo o que ela devolve com `return`. O dado original **não muda**, só a exibição. O nome entre aspas é o que se escreve depois do `|`; o nome da função é livre (aqui são iguais, para não confundir).
 
-A função trata o `None` **uma vez**, e todas as telas se beneficiam. Use o filtro na célula do nascimento:
+@app.template_filter('data_hora_br')
+def data_hora_br(valor):
+    if valor is None:
+        return '—'
 
-```html
-        <td>{{ usuario.data_nascimento|data_br }}</td>
-```
+    return valor.strftime('%d/%m/%Y às %H:%M')
 
-Salve e recarregue. O Bruno mostra `14/03/1988`, e a Ana e a Carla mostram `—`, **sem erro**.
 
-### O filtro vale para o projeto todo
-
-A lista de **perfis**, do Capítulo 12, escreve o `strftime` direto no template. Agora que existe o filtro, a repetição pode sair. No `perfis_lista.html`, troque a célula do **Criado em**:
-
-```html
-        <td>{{ perfil.criado_em|data_br }}</td>
-```
-
-Salve e abra **http://127.0.0.1:5000/perfis**: a coluna **Criado em** continua com `03/11/2026` (ou a data de hoje), só que escrita agora por uma função que fica em **um** lugar. O filtro funciona com `date` (a data de nascimento) e com `datetime` (o `criado_em`), porque os dois têm o `strftime`.
-
-### O CPF: mostrar o mínimo
-
-Até aqui, o CPF aparece inteiro na lista, para qualquer pessoa que abra a página. O CPF é um **dado pessoal**, protegido pela LGPD (a lei de proteção de dados), e uma tela que o mostra para todo mundo expõe mais do que precisa: para escolher em quem clicar, ninguém precisa do número completo. A solução é a mesma, um filtro próprio, que esconde as pontas do CPF. Acrescente ao `app.py`, depois do `data_br`:
-
-```python
 @app.template_filter('cpf_oculto')
 def cpf_oculto(cpf):
+    # 529.982.247-25 vira ***.982.247-**: a lista mostra só o meio do CPF
     if cpf is None:
         return '—'
 
     return '***.' + cpf[4:11] + '-**'
 ```
 
-O CPF é gravado como `000.000.000-00` (Capítulo 14), e é isso que a função recebe. Conte as posições, a partir do zero, como no [Capítulo 14](Capitulo_14_INSERT_Relacional_de_Usuario.md): em `529.982.247-25`, o trecho `982.247`, o do meio, ocupa as posições de **4 até antes da 11**, e a fatia `cpf[4:11]` o devolve. O `+` junta os três pedaços. Use o filtro na célula do CPF:
+!!! note "Flask: `@app.template_filter`"
+    É um decorador, como o `@app.route` ([Capítulo 3](Capitulo_03_Flask.md)) e o `@app.errorhandler` ([Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md)). O `@app.route` liga uma função a um **endereço**. O `@app.template_filter('data_br')` liga uma função a um **nome de filtro**: a partir daí, o template pode escrever `{{ algo|data_br }}`, e o Jinja chama a função, entregando `algo` no parâmetro `valor` e escrevendo o que ela devolve com `return`. O dado original **não muda**, só a exibição. O nome entre aspas é o que se escreve depois do `|`; o nome da função é livre (aqui são iguais, para não confundir).
 
-```html
-        <td>{{ usuario.cpf|cpf_oculto }}</td>
-```
+Filtro por filtro:
 
-Salve e recarregue. O Bruno mostra `***.982.247-**`, e a Ana e a Carla mostram `—`. A lista mostra o mínimo. O CPF **inteiro** aparece só na página de detalhe, que se abre por escolha de quem a procura (Tópico 5).
+- **`data_br`** usa o mesmo `strftime` do [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-tabela-com-todas-as-colunas), com o modelo do dia, do mês e do ano. Funciona com `date` (a data de nascimento) e com `datetime` (o `criado_em`), porque os dois têm o `strftime`.
+- **`data_hora_br`** acrescenta a hora e os minutos (`%H:%M`), para o cadastro e a alteração. A hora que aparece é a de Brasília: o `time_zone` do `db.py` (Capítulo 10) faz o banco e o Python concordarem, em qualquer computador.
+- **`cpf_oculto`**: o CPF é um **dado pessoal**, protegido pela LGPD (a lei de proteção de dados), e uma lista que o mostra inteiro para todo mundo expõe mais do que precisa: para escolher em quem clicar, ninguém precisa do número completo. O CPF é gravado como `000.000.000-00` (Capítulo 14), e é isso que a função recebe. Conte as posições, a partir do zero, como nas fatias do [Capítulo 14](Capitulo_14_INSERT_Relacional_de_Usuario.md#as-funcoes-de-apoio): em `529.982.247-25`, o trecho `982.247`, o do meio, ocupa as posições de **4 até antes da 11**, e a fatia `cpf[4:11]` o devolve. O `+` junta os três pedaços. O CPF **inteiro** aparece só na página de detalhe, que se abre por escolha de quem a procura.
 
-Confira a lista inteira: nenhum `None`, nenhuma data no formato do banco, nenhum CPF exposto. O `colspan` já está certo, porque o número de colunas não mudou.
+Os três começam com `if ... is None: return '—'`: um campo vazio vira um traço, sem erro.
 
 ```bash
 git add .
-git commit -m "Cria os filtros data_br e cpf_oculto e trata os campos vazios"
+git commit -m "Cria os filtros data_br, data_hora_br e cpf_oculto"
 git push
 ```
 
 ---
 
-## Tópico 4 — O perfil em um badge
+## Tópico 3 — A lista de usuários
 
-### Uma cor para cada perfil
+### O badge do perfil, em um arquivo próprio
 
-Um **badge** é a etiqueta colorida do Bootstrap (`<span class="badge ...">`). Com ele, o perfil se reconhece de relance, sem ler. Quem decide a cor é um `if/elif/else`, o mesmo do Capítulo 5, que decidia a faixa de preço de um produto. No `usuarios_lista.html`, troque a célula do perfil por:
+Na lista, o perfil aparece em um **badge**, a etiqueta colorida do Bootstrap (`<span class="badge ...">`). Com ele, o perfil se reconhece de relance, sem ler. Quem decide a cor é um `if/elif/else`, o mesmo do Capítulo 5, que decidia a faixa de preço de um produto. O badge vai aparecer em **duas** páginas, a lista e o detalhe, e por isso ele nasce em um arquivo próprio, para ser **incluído** nas duas com o `{% include %}` do [Capítulo 6](Capitulo_06_Heranca_Include_e_Paginas_de_Erro.md): se uma cor mudar, ou um perfil novo ganhar a sua, há um só lugar para mexer. Crie o `templates/usuarios/_badge_perfil.html`:
 
 ```html
-        <td>
-          {% if usuario.perfil == 'Administrador' %}
-            <span class="badge text-bg-danger">Administrador</span>
-          {% elif usuario.perfil == 'Gerente' %}
-            <span class="badge text-bg-warning">Gerente</span>
-          {% else %}
-            <span class="badge text-bg-secondary">{{ usuario.perfil }}</span>
-          {% endif %}
-        </td>
+{% if usuario.perfil == 'Administrador' %}
+  <span class="badge text-bg-danger">Administrador</span>
+{% elif usuario.perfil == 'Gerente' %}
+  <span class="badge text-bg-warning">Gerente</span>
+{% else %}
+  <span class="badge text-bg-secondary">{{ usuario.perfil }}</span>
+{% endif %}
 ```
 
-Salve e recarregue. A Ana aparece com um badge **vermelho**, o Bruno com um **amarelo**, e a Carla com um **cinza**. O `text-bg-danger`, o `text-bg-warning` e o `text-bg-secondary` são classes do Bootstrap que escolhem a cor do fundo **e** uma cor de letra que combina com ela.
+O `text-bg-danger`, o `text-bg-warning` e o `text-bg-secondary` são classes do Bootstrap que escolhem a cor do fundo **e** uma cor de letra que combina com ela: vermelho para o Administrador, amarelo para o Gerente e cinza para os demais. O `_` no começo do nome é uma convenção para dizer "este arquivo não é uma página, é um pedaço que entra em outras".
 
 !!! note "O `else` cobre os perfis que você ainda não conhece"
     O `if` compara o **nome** do perfil, escrito exatamente como foi cadastrado. Um perfil novo (digamos, **Financeiro**) não cai em nenhum `if` nem `elif`, e o `else` o mostra com o badge cinza e o próprio nome, sem quebrar nada. O mesmo acontece se o perfil do administrador tiver sido cadastrado com outra grafia, como `Admin`: ele aparece em cinza, e não em vermelho.
 
-```bash
-git add .
-git commit -m "Mostra o perfil do usuário em um badge colorido"
-git push
+### A tabela, com todas as colunas
+
+Troque o `templates/usuarios/usuarios_lista.html` **inteiro** por esta versão (o aviso azul sai, e a tabela entra no lugar):
+
+```html
+{% extends 'layout/base_menu.html' %}
+
+{% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
+
+{% block conteudo %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">{{ titulo }}</h1>
+    <a href="{{ url_for('inserir_usuario') }}" class="btn btn-primary">Novo usuário</a>
+  </div>
+
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Cidade</th>
+        <th>Nascimento</th>
+        <th>Perfil</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for usuario in usuarios %}
+      <tr>
+        <td>{{ usuario.id_usuario }}</td>
+        <td>
+          {{ usuario.nome }}<br>
+          <small class="text-body-secondary">{{ usuario.email }}</small>
+        </td>
+        <td>{{ usuario.cpf|cpf_oculto }}</td>
+        <td>{{ usuario.cidade if usuario.cidade else '—' }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
+        <td>{{ usuario.data_nascimento|data_br }}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" class="text-center text-body-secondary py-4">Nenhum usuário cadastrado ainda.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
 ```
+
+É o molde da `perfis_lista.html`: um `{% for %}` com o `{% else %}` para a lista vazia e o `colspan` com o número de colunas (7). Coluna por coluna:
+
+- **Nome**, com o e-mail em letra pequena embaixo (`<small>`).
+- **CPF**, com o filtro `cpf_oculto`.
+- **Cidade**, com o `if` em uma linha do Capítulo 12 para o traço, e o estado depois da barra só quando existe: o `{% if usuario.estado %}` trata o `None` como falso.
+- **Nascimento**, com o filtro `data_br`.
+- **Perfil**, com o badge incluído. O arquivo incluído enxerga a variável `usuario` de cada volta do `for`, e é por isso que o badge usa o nome `usuario`.
+- **Ações**, com três botões. O **azul-claro** (`btn-info`, ícone de olho) abre a página de detalhe, que o Tópico 4 cria. O `url_for` recebe o nome da **função** da rota e o argumento que preenche o `<int:id_usuario>`: gera `/usuarios/1`, `/usuarios/2` e assim por diante. O **amarelo** e o **vermelho** são os de editar e excluir, como na lista de perfis, e ainda **não fazem nada**: eles ganham as rotas no Capítulo 16.
+
+O botão de olho usa a rota `usuario_detalhe`, que ainda não existe, e o `url_for` quebraria a página. Por isso a lista só é testada depois do Tópico 4: salve o arquivo, mas não recarregue a lista ainda, e siga para o detalhe.
 
 ---
 
-## Tópico 5 — A página de detalhe
+## Tópico 4 — A página de detalhe
 
-### Uma página para cada usuário
+### A rota
 
-A lista mostra o essencial de todos. O **detalhe** mostra tudo sobre **um** usuário, em um endereço próprio (`/usuarios/2`), que dá para guardar e compartilhar. Os ingredientes você já tem: a variável de rota `<int:id_usuario>` e o `abort(404)` do [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md), e o `execute_one`, que o `db.py` trouxe no Capítulo 11. No `app.py`, acrescente a rota **depois** da `usuario_novo` e antes dos `@app.errorhandler`:
+A lista mostra o essencial de todos. O **detalhe** mostra tudo sobre **um** usuário, em um endereço próprio (`/usuarios/2`), que dá para guardar e compartilhar. Os ingredientes você já tem: a variável de rota `<int:id_usuario>` e o `abort(404)` do [Capítulo 13](Capitulo_13_UPDATE_e_DELETE_de_Perfis.md), e o `execute_one`. No `app.py`, acrescente a rota **depois** da `inserir_usuario`:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>')
 def usuario_detalhe(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
+    if usuario is None:
+        abort(404)
+
     return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 ```
 
-A rota **reaproveita** o `SELECT_USUARIO`: o mesmo `JOIN`, as mesmas colunas e, de novo, nenhuma senha. O `WHERE` leva um `%s`, e o código vem na tupla `(id_usuario,)`, com a vírgula do Capítulo 13. O parâmetro leva o nome da chave primária, `id_usuario`, como manda o molde do projeto.
+A rota **reaproveita** o `SELECT_USUARIO`: o mesmo `JOIN`, as mesmas colunas e, de novo, nenhuma senha. O `WHERE` leva um `%s`, e o código vem na tupla `(id_usuario,)`. O `if usuario is None: abort(404)` é o mesmo da `perfil_editar`: um código que não existe é um pedido por algo que não está lá, e o certo é responder **404**. Sem ele, o template tentaria ler os campos de um usuário que não existe, e a página quebraria com o erro 500.
 
-Crie o `templates/usuarios/usuario_detalhe.html`, por enquanto só com o nome e o botão de voltar:
+### O template
+
+Crie o `templates/usuarios/usuario_detalhe.html`:
 
 ```html
 {% extends 'layout/base_menu.html' %}
@@ -435,32 +348,9 @@ Crie o `templates/usuarios/usuario_detalhe.html`, por enquanto só com o nome e 
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ usuario.nome }}</h1>
-    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
+    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
   </div>
-{% endblock %}
-```
 
-Salve e abra **http://127.0.0.1:5000/usuarios/2**: o título é **Bruno Souza**, e o botão volta para a lista. Falta o caminho de clique. No `usuarios_lista.html`, acrescente a coluna **Ações**: no `<thead>`, depois de `<th>Perfil</th>`:
-
-```html
-        <th class="text-end">Ações</th>
-```
-
-E, no `<tbody>`, depois da célula do perfil:
-
-```html
-        <td class="text-end">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
-        </td>
-```
-
-Troque o `colspan` do estado vazio para `7`. O `url_for` recebe o nome da **função** da rota e o argumento que preenche o `<int:id_usuario>`: gera `/usuarios/1`, `/usuarios/2` e assim por diante, sem escrever endereço nenhum à mão. Salve, recarregue a lista e clique em **Ver**.
-
-### Os dados do usuário
-
-O restante da página é um **cartão** com quatro blocos. Cada dado fica em uma linha de uma **lista de descrição** (`<dl>`), em que o `<dt>` é o rótulo e o `<dd>` é o valor. O `row` e o `col-sm-4`/`col-sm-8` do Bootstrap alinham os dois lado a lado. Acrescente, **dentro** do bloco `conteudo`, abaixo do `<div class="d-flex ...">` do título, o cartão com o primeiro bloco:
-
-```html
   <div class="row">
     <div class="col-lg-8">
       <div class="card">
@@ -473,84 +363,44 @@ O restante da página é um **cartão** com quatro blocos. Cada dado fica em uma
 
             <dt class="col-sm-4">Perfil</dt>
             <dd class="col-sm-8">
-              {% if usuario.perfil == 'Administrador' %}
-                <span class="badge text-bg-danger">Administrador</span>
-              {% elif usuario.perfil == 'Gerente' %}
-                <span class="badge text-bg-warning">Gerente</span>
-              {% else %}
-                <span class="badge text-bg-secondary">{{ usuario.perfil }}</span>
-              {% endif %}
-              <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
+              {% include 'usuarios/_badge_perfil.html' %}
+              <span class="text-body-secondary">{{ usuario.perfil_descricao or '' }}</span>
             </dd>
 
             <dt class="col-sm-4">Celular</dt>
-            <dd class="col-sm-8">{{ usuario.celular|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.celular if usuario.celular else '—' }}</dd>
           </dl>
 
-        </div>
-      </div>
-    </div>
-  </div>
-```
-
-O perfil mostra o badge **e a descrição do perfil**, que veio do `JOIN` (`p.descricao AS perfil_descricao`). O campo celular é opcional, e o `default('—', true)` do Tópico 3 cuida do `NULL`. Salve e recarregue o detalhe do Bruno e o da Ana: o celular dele aparece formatado, e o dela mostra `—`.
-
-Agora os **dados pessoais**. Acrescente, dentro do `<div class="card-body">`, depois do `</dl>` do bloco anterior:
-
-```html
           <h2 class="h5 mb-3">Dados pessoais</h2>
           <dl class="row">
             <dt class="col-sm-4">Data de nascimento</dt>
             <dd class="col-sm-8">{{ usuario.data_nascimento|data_br }}</dd>
 
             <dt class="col-sm-4">CPF</dt>
-            <dd class="col-sm-8">{{ usuario.cpf|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cpf if usuario.cpf else '—' }}</dd>
           </dl>
-```
 
-Salve e recarregue o detalhe do Bruno: o nascimento usa o filtro `data_br`, e o CPF aparece **inteiro**, `529.982.247-25`, porque aqui ele é só `default`, sem o `cpf_oculto`. Quem chegou ao detalhe escolheu ver aquele usuário. Depois, o **endereço**:
-
-```html
           <h2 class="h5 mb-3">Endereço</h2>
           <dl class="row">
             <dt class="col-sm-4">CEP</dt>
-            <dd class="col-sm-8">{{ usuario.cep|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cep if usuario.cep else '—' }}</dd>
 
             <dt class="col-sm-4">Endereço</dt>
-            <dd class="col-sm-8">{{ usuario.endereco|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.endereco if usuario.endereco else '—' }}</dd>
 
             <dt class="col-sm-4">Número</dt>
-            <dd class="col-sm-8">{{ usuario.numero|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.numero if usuario.numero else '—' }}</dd>
 
             <dt class="col-sm-4">Complemento</dt>
-            <dd class="col-sm-8">{{ usuario.complemento|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.complemento if usuario.complemento else '—' }}</dd>
 
             <dt class="col-sm-4">Cidade</dt>
-            <dd class="col-sm-8">{{ usuario.cidade|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cidade if usuario.cidade else '—' }}</dd>
 
             <dt class="col-sm-4">Estado</dt>
-            <dd class="col-sm-8">{{ usuario.estado|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.estado if usuario.estado else '—' }}</dd>
           </dl>
-```
 
-Salve e recarregue: o Bruno mostra o endereço completo (o complemento, que ele não preencheu, aparece como `—`), e a Ana, seis traços.
-
-### Data e hora: outro filtro
-
-O último bloco mostra **quando** o usuário foi cadastrado e alterado. Essas colunas (`criado_em` e `atualizado_em`) são `TIMESTAMP`, e o interessante é mostrar também a **hora**. O `data_br` só escreve o dia. Em vez de mudar o `data_br`, que a lista continua usando, acrescente um segundo filtro ao `app.py`, depois do `data_br`:
-
-```python
-@app.template_filter('data_hora_br')
-def data_hora_br(valor):
-    if valor is None:
-        return '—'
-
-    return valor.strftime('%d/%m/%Y às %H:%M')
-```
-
-O `%H:%M` é a hora e os minutos (o [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-coluna-criado-em) apresentou esses modelos). A hora que aparece é a de Brasília: o `time_zone` do `db.py` (Capítulo 10) faz o banco e o Python concordarem, em qualquer computador. Acrescente o bloco, depois do `</dl>` do endereço:
-
-```html
           <h2 class="h5 mb-3">Registro</h2>
           <dl class="row mb-0">
             <dt class="col-sm-4">Cadastrado em</dt>
@@ -559,75 +409,57 @@ O `%H:%M` é a hora e os minutos (o [Capítulo 12](Capitulo_12_INSERT_e_SELECT_d
             <dt class="col-sm-4">Última alteração</dt>
             <dd class="col-sm-8">{{ usuario.atualizado_em|data_hora_br }}</dd>
           </dl>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
 ```
 
-Salve e recarregue: algo como `03/11/2026 às 10:15`. Confira o detalhe dos três usuários. Em nenhum deles aparece a senha: ela nem foi lida do banco.
+A página é um **cartão** com quatro blocos. Cada dado fica em uma linha de uma **lista de descrição** (`<dl>`), em que o `<dt>` é o rótulo e o `<dd>` é o valor. O `row` e o `col-sm-4`/`col-sm-8` do Bootstrap alinham os dois lado a lado. O que cada bloco usa:
 
-### O código que não existe
+- **O perfil** mostra o badge (o mesmo `include` da lista: aqui, a variável `usuario` é a que a rota entregou) **e a descrição do perfil**, que veio do `JOIN` (`p.descricao AS perfil_descricao`). A descrição pode ser `NULL`, e o `or ''` do Capítulo 12 a deixa em branco.
+- **Os opcionais** (celular, CPF, CEP, endereço...) usam o `if` em uma linha: o valor quando existe, um traço quando é `NULL`.
+- **O CPF aparece inteiro**, sem o `cpf_oculto`: quem chegou ao detalhe escolheu ver aquele usuário.
+- **As datas** usam os filtros: `data_br` no nascimento e `data_hora_br` no cadastro e na última alteração.
 
-Com a página completa, tente um endereço de um usuário que **não existe**: **http://127.0.0.1:5000/usuarios/99999**. A página de depuração do Flask aparece, com algo assim:
-
-```text
-jinja2.exceptions.UndefinedError: 'None' has no attribute 'data_nascimento'
-```
-
-O `execute_one` devolveu `None` (nenhuma linha tem esse código), e o template tentou ler a data de nascimento de um usuário que não existe. Quem usa o sistema veria a página 500, mas o defeito **não é do servidor**: é um pedido por algo que não está lá, e o certo é responder **404**. Na rota, entre o `execute_one` e o `render_template`, acrescente a conferência (a mesma da `perfil_editar`, do Capítulo 13):
-
-```python
-    if usuario is None:
-        abort(404)
-```
-
-Salve e abra de novo `/usuarios/99999`: a página 404 do projeto, a do Capítulo 11. O endereço `/usuarios/abc` também responde 404, sem chegar à função: o `<int:id_usuario>` só aceita número.
-
-### O mesmo `if` em dois arquivos
-
-Há uma repetição que fica: o `if/elif/else` do badge está escrito no `usuarios_lista.html` **e** no `usuario_detalhe.html`. Se uma cor mudar, ou um perfil novo ganhar a sua, será preciso lembrar dos dois. É o mesmo problema que o Capítulo 6 resolveu para a faixa de preço, e a ferramenta é a mesma, o `{% include %}`: um pedaço de HTML guardado em um arquivo próprio. Crie o `templates/usuarios/_badge_perfil.html`:
-
-```html
-{% if usuario.perfil == 'Administrador' %}
-  <span class="badge text-bg-danger">Administrador</span>
-{% elif usuario.perfil == 'Gerente' %}
-  <span class="badge text-bg-warning">Gerente</span>
-{% else %}
-  <span class="badge text-bg-secondary">{{ usuario.perfil }}</span>
-{% endif %}
-```
-
-No `usuarios_lista.html`, troque o `<td>` do perfil inteiro por:
-
-```html
-        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
-```
-
-E, no `usuario_detalhe.html`, troque o `if` do perfil (as sete linhas, **sem** a linha da descrição) por:
-
-```html
-              {% include 'usuarios/_badge_perfil.html' %}
-```
-
-O arquivo incluído enxerga a variável `usuario` do lugar onde foi escrito: na lista, é o `usuario` de cada volta do `for`, e, no detalhe, é o `usuario` que a rota entregou. Por isso as **duas** páginas precisam chamar a variável de `usuario`. Salve e confira: as cores continuam as mesmas, e agora há um só lugar para mudá-las.
+Em nenhum lugar aparece a senha: ela nem foi lida do banco.
 
 ### O menu continua aceso
 
-Falta um detalhe do menu. Abra o detalhe de um usuário: o menu **Usuários** está **apagado**, porque o `base_menu.html` só o acende nas páginas `lista_usuarios` e `usuario_novo`. No `base_menu.html`, acrescente a nova página à lista do botão do menu Usuários:
+No detalhe, o menu **Usuários** precisa continuar aceso, como nas outras páginas de usuários. No `base_menu.html`, procure o botão do menu suspenso **Usuários** e acrescente a nova página à lista do `request.endpoint`. Troque só o trecho do `{% if %}`:
 
 ```html
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+{% if request.endpoint in ['listar_usuarios', 'inserir_usuario'] %}active{% endif %}
 ```
 
-Salve e recarregue o detalhe: o menu **Usuários** está aceso. Faça agora o caminho completo: **Novo usuário**, cadastre um (o redirect já cai na lista de verdade, com a faixa verde), clique em **Ver** e volte pelo botão. Este capítulo termina sem botões de editar e excluir: eles chegam à lista no Capítulo 16.
+por:
+
+```html
+{% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe'] %}active{% endif %}
+```
+
+### Testando a lista e o detalhe
+
+Salve tudo e abra **http://127.0.0.1:5000/usuarios**:
+
+1. **A lista**: o Bruno mostra `***.982.247-**`, `Jaú/SP`, `14/03/1988` e um badge **amarelo**; a Ana, um badge **vermelho**; a Carla, um **cinza**. Os campos vazios da Ana e da Carla mostram `—`, e não `None`. Nenhuma data no formato do banco, nenhum CPF exposto.
+2. **O detalhe**: clique no botão de olho do Bruno. O CPF aparece inteiro, `529.982.247-25`, o celular formatado, o complemento (que ele não preencheu) como `—`, e o registro com data e hora, algo como `03/11/2026 às 10:15`. Volte e abra o detalhe da Ana: seis traços no endereço e, ao lado do badge, a descrição do perfil Administrador. O menu **Usuários** continua aceso.
+3. **Os botões amarelo e vermelho** não fazem nada, por enquanto.
+4. **Um código que não existe**: abra **http://127.0.0.1:5000/usuarios/99999**: a página 404 do projeto. O endereço `/usuarios/abc` também responde 404, sem chegar à função: o `<int:id_usuario>` só aceita número.
+5. **O caminho completo**: **Novo usuário**, cadastre um, e o redirect já cai na lista de verdade, com a faixa verde.
 
 | Situação | Quem trata | O que a pessoa vê |
 |---|---|---|
-| Usuário sem CPF, sem nascimento ou sem cidade | Filtros `cpf_oculto` e `data_br` e `default('—', true)` | Um traço (`—`) |
+| Usuário sem CPF, sem nascimento ou sem cidade | Filtros `cpf_oculto` e `data_br` e o `if` em uma linha | Um traço (`—`) |
 | Perfil que não é Administrador nem Gerente | O `else` do `_badge_perfil.html` | Badge cinza com o nome do perfil |
 | Código de usuário que não existe | `SELECT` + `abort(404)` | A página 404 |
 | Endereço com letras (`/usuarios/abc`) | O `<int:id_usuario>` | A página 404 |
 
 ```bash
 git add .
-git commit -m "Adiciona a página de detalhe do usuário, com 404 e o include do badge"
+git commit -m "Adiciona a lista de usuários com badge e a página de detalhe"
 git push
 ```
 
@@ -641,24 +473,21 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
 from werkzeug.security import generate_password_hash
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import (
-    UFS, validar_nome_perfil, validar_descricao_perfil,
-    validar_nome_usuario, validar_email, validar_senha, validar_celular,
-    validar_cpf, validar_data_nascimento, validar_cep, validar_estado,
-    validar_tamanho, formatar_celular, formatar_cpf, formatar_cep,
-)
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
+from validacoes.validacoes_usuario import UFS, formatar_cep, formatar_celular, formatar_cpf, validar_usuario
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 # As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
@@ -672,8 +501,13 @@ SELECT_USUARIO = (
 )
 
 
+# ==============================================================================
+# FILTROS DO JINJA
+# ==============================================================================
+
 @app.template_filter('data_br')
 def data_br(valor):
+    # date ou datetime vira 14/03/1988; um campo vazio vira um traço
     if valor is None:
         return '—'
 
@@ -690,14 +524,20 @@ def data_hora_br(valor):
 
 @app.template_filter('cpf_oculto')
 def cpf_oculto(cpf):
+    # 529.982.247-25 vira ***.982.247-**: a lista mostra só o meio do CPF
     if cpf is None:
         return '—'
 
     return '***.' + cpf[4:11] + '-**'
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
@@ -708,6 +548,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -718,8 +559,13 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -728,257 +574,189 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, 0)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 def perfil_editar(id_perfil):
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, id_perfil)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
+                # O WHERE garante que só este perfil seja alterado
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
+                    (nome, descricao, id_perfil),
                 )
+
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def perfil_excluir(id_perfil):
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
         (id_perfil,),
     )
+
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
+        return redirect(url_for('listar_perfis'))
 
     try:
+        # O WHERE garante que só este perfil seja excluído
         execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
     except Error as erro:
         if erro.errno == 1451:
             flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
         else:
             raise
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
+
+# ==============================================================================
+# USUÁRIOS
+# ==============================================================================
 
 @app.route('/usuarios')
-def lista_usuarios():
+def listar_usuarios():
+    # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
     return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
-def vazio_para_none(valor):
-    if valor == '':
-        return None
+@app.route('/usuarios/inserir', methods=['GET', 'POST'])
+def inserir_usuario():
+    # Com muitos campos, o formulário inteiro fica em um dicionário (vazio no GET)
+    dados = {}
 
-    return valor
-
-
-def conferir_perfil_do_usuario(perfil_txt):
-    try:
-        id_perfil = int(perfil_txt)
-    except ValueError:
-        return 'Selecione um perfil.'
-
-    perfil = execute_one(
-        'SELECT id_perfil FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        return 'Selecione um perfil válido.'
-
-    return None
-
-
-@app.route('/usuarios/novo', methods=['GET', 'POST'])
-def usuario_novo():
     if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        senha = request.form.get('senha', '')
-        confirmacao = request.form.get('confirmacao', '')
-        celular = request.form.get('celular', '').strip()
-        data_nascimento = request.form.get('data_nascimento', '').strip()
-        cpf = request.form.get('cpf', '').strip()
-        perfil_txt = request.form.get('perfil_id', '')
-        cep = request.form.get('cep', '').strip()
-        endereco = request.form.get('endereco', '').strip()
-        numero = request.form.get('numero', '').strip()
-        complemento = request.form.get('complemento', '').strip()
-        cidade = request.form.get('cidade', '').strip()
-        estado = request.form.get('estado', '')
+        # 1. Coleta os dados do formulário (os opcionais com 'or None')
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),  # a senha não leva strip: espaço pode fazer parte dela
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
 
-        erros = []
-
-        erro = validar_nome_usuario(nome)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_email(email)
-        if erro:
-            erros.append(erro)
-        else:
-            existente = execute_one(
-                'SELECT id_usuario FROM usuarios WHERE email = %s',
-                (email,),
-            )
-            if existente:
-                erros.append('Já existe um usuário com este e-mail.')
-
-        erro = validar_senha(senha, confirmacao)
-        if erro:
-            erros.append(erro)
-
-        erro = conferir_perfil_do_usuario(perfil_txt)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_celular(celular)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_cpf(cpf)
-        if erro:
-            erros.append(erro)
-        else:
-            cpf_formatado = formatar_cpf(cpf)
-            if cpf_formatado != '':
-                existente = execute_one(
-                    'SELECT id_usuario FROM usuarios WHERE cpf = %s',
-                    (cpf_formatado,),
-                )
-                if existente:
-                    erros.append('Já existe um usuário com este CPF.')
-
-        erro = validar_data_nascimento(data_nascimento)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_cep(cep)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_tamanho(endereco, 'endereço', 255)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_tamanho(numero, 'número', 20)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_tamanho(complemento, 'complemento', 100)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_tamanho(cidade, 'cidade', 100)
-        if erro:
-            erros.append(erro)
-
-        erro = validar_estado(estado)
-        if erro:
-            erros.append(erro)
+        # 2. A validação recebe o dicionário inteiro
+        erros = validar_usuario(dados)
 
         if erros:
             for mensagem in erros:
@@ -990,42 +768,51 @@ def usuario_novo():
                     'perfil_id, cep, endereco, numero, complemento, cidade, estado) '
                     'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                     (
-                        nome,
-                        email,
-                        generate_password_hash(senha),
-                        vazio_para_none(formatar_celular(celular)),
-                        vazio_para_none(data_nascimento),
-                        vazio_para_none(formatar_cpf(cpf)),
-                        int(perfil_txt),
-                        vazio_para_none(formatar_cep(cep)),
-                        vazio_para_none(endereco),
-                        vazio_para_none(numero),
-                        vazio_para_none(complemento),
-                        vazio_para_none(cidade),
-                        vazio_para_none(estado),
+                        dados['nome'],
+                        dados['email'],
+                        generate_password_hash(dados['senha']),  # grava o hash, nunca a senha
+                        formatar_celular(dados['celular']),      # celular, CPF e CEP vão formatados
+                        dados['data_nascimento'],
+                        formatar_cpf(dados['cpf']),
+                        dados['perfil_id'],
+                        formatar_cep(dados['cep']),
+                        dados['endereco'],
+                        dados['numero'],
+                        dados['complemento'],
+                        dados['cidade'],
+                        dados['estado'],
                     ),
                 )
-                flash(f'Usuário "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_usuarios'))
+
+                flash(f'Usuário "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_usuarios'))
+
+            # Duas colunas UNIQUE: o 1062 pode ser do e-mail ou do CPF
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
                 else:
                     raise
 
+    # As opções do <select> de perfil vêm da tabela perfis
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuarios/usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=dados, perfis=perfis, ufs=UFS)
 
 
 @app.route('/usuarios/<int:id_usuario>')
 def usuario_detalhe(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
     if usuario is None:
         abort(404)
 
     return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
@@ -1051,10 +838,10 @@ O `templates/usuarios/usuarios_lista.html`:
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('usuario_novo') }}" class="btn btn-primary">Novo usuário</a>
+    <a href="{{ url_for('inserir_usuario') }}" class="btn btn-primary">Novo usuário</a>
   </div>
 
-  <table class="table table-striped table-hover">
+  <table class="table table-striped table-hover align-middle">
     <thead class="table-light">
       <tr>
         <th>Código</th>
@@ -1075,11 +862,13 @@ O `templates/usuarios/usuarios_lista.html`:
           <small class="text-body-secondary">{{ usuario.email }}</small>
         </td>
         <td>{{ usuario.cpf|cpf_oculto }}</td>
-        <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
+        <td>{{ usuario.cidade if usuario.cidade else '—' }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
         <td>{% include 'usuarios/_badge_perfil.html' %}</td>
-        <td class="text-end">
-          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-info" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+          <a href="#" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-danger" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
@@ -1102,7 +891,7 @@ O `templates/usuarios/usuario_detalhe.html`:
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ usuario.nome }}</h1>
-    <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
+    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Voltar à lista</a>
   </div>
 
   <div class="row">
@@ -1118,11 +907,11 @@ O `templates/usuarios/usuario_detalhe.html`:
             <dt class="col-sm-4">Perfil</dt>
             <dd class="col-sm-8">
               {% include 'usuarios/_badge_perfil.html' %}
-              <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
+              <span class="text-body-secondary">{{ usuario.perfil_descricao or '' }}</span>
             </dd>
 
             <dt class="col-sm-4">Celular</dt>
-            <dd class="col-sm-8">{{ usuario.celular|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.celular if usuario.celular else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Dados pessoais</h2>
@@ -1131,28 +920,28 @@ O `templates/usuarios/usuario_detalhe.html`:
             <dd class="col-sm-8">{{ usuario.data_nascimento|data_br }}</dd>
 
             <dt class="col-sm-4">CPF</dt>
-            <dd class="col-sm-8">{{ usuario.cpf|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cpf if usuario.cpf else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Endereço</h2>
           <dl class="row">
             <dt class="col-sm-4">CEP</dt>
-            <dd class="col-sm-8">{{ usuario.cep|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cep if usuario.cep else '—' }}</dd>
 
             <dt class="col-sm-4">Endereço</dt>
-            <dd class="col-sm-8">{{ usuario.endereco|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.endereco if usuario.endereco else '—' }}</dd>
 
             <dt class="col-sm-4">Número</dt>
-            <dd class="col-sm-8">{{ usuario.numero|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.numero if usuario.numero else '—' }}</dd>
 
             <dt class="col-sm-4">Complemento</dt>
-            <dd class="col-sm-8">{{ usuario.complemento|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.complemento if usuario.complemento else '—' }}</dd>
 
             <dt class="col-sm-4">Cidade</dt>
-            <dd class="col-sm-8">{{ usuario.cidade|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.cidade if usuario.cidade else '—' }}</dd>
 
             <dt class="col-sm-4">Estado</dt>
-            <dd class="col-sm-8">{{ usuario.estado|default('—', true) }}</dd>
+            <dd class="col-sm-8">{{ usuario.estado if usuario.estado else '—' }}</dd>
           </dl>
 
           <h2 class="h5 mb-3">Registro</h2>
@@ -1183,13 +972,13 @@ O `templates/usuarios/_badge_perfil.html`:
 {% endif %}
 ```
 
-As mudanças nos outros arquivos são duas linhas: no `perfis_lista.html`, a célula do **Criado em** (`{{ perfil.criado_em|data_br }}`), e, no `base_menu.html`, o menu **Usuários**, com o `usuario_detalhe` na lista. Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `dashboard.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
+No `base_menu.html`, a única mudança é o `usuario_detalhe` na lista do menu **Usuários**. Os demais arquivos (`db.py`, a pasta `validacoes`, `login.html`, `dashboard.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e alguns usuários pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpa.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e alguns usuários pelo formulário.
 
 ➡️ [Baixar p2_cap_15.zip](../arquivos/p2_cap_15.zip)
 
@@ -1211,8 +1000,8 @@ Tente responder mentalmente antes de abrir.
 ??? question "O que faz o decorador `@app.template_filter('data_br')`?"
     Registra a função logo abaixo como um **filtro** do Jinja, com o nome `data_br`. Depois disso, qualquer template pode escrever `{{ valor|data_br }}`: o Jinja chama a função com o valor e escreve o que ela devolve. A função trata o `None` uma vez, e o dado original não muda, só a exibição.
 
-??? question "Por que `default('—')` não trocou o `None` e `default('—', true)` trocou?"
-    O `default` sozinho só age quando o valor **não existe**, e o `NULL` do banco chega ao Python como `None`, que é um valor. O segundo argumento `true` manda o `default` trocar qualquer valor vazio: `None` e o texto vazio.
+??? question "Como o detalhe mostra um traço nos campos opcionais vazios?"
+    Com o `if` em uma linha do Capítulo 12: `{{ usuario.cep if usuario.cep else '—' }}`. O `NULL` do banco chega como `None`, que conta como falso, e aparece o traço. Nas datas e no CPF da lista, quem faz isso são os filtros próprios, que começam com `if valor is None: return '—'`.
 
 ??? question "Por que o CPF aparece mascarado na lista e inteiro no detalhe?"
     Porque o CPF é um dado pessoal (LGPD), e a lista é vista por quem só quer escolher um usuário: para isso o número completo não faz falta. O detalhe é aberto por quem escolheu ver aquele usuário, e mostra o CPF inteiro. O filtro `cpf_oculto` esconde as pontas, com `'***.' + cpf[4:11] + '-**'`.
@@ -1222,7 +1011,7 @@ Tente responder mentalmente antes de abrir.
 ## ✅ Quiz de Fixação
 
 <quiz>
-A lista de usuários mostrava `1`, `2` e `3` na coluna do perfil. O que resolveu o problema?
+Uma lista que lesse só a tabela `usuarios` mostraria `1`, `2` e `3` na coluna do perfil. O que traz o nome do perfil?
 - [ ] Trocar o `{{ usuario.perfil_id }}` por `{{ usuario.perfil_id|string }}` no template
 > Não. O filtro `string` só converte o número em texto, e o texto continuaria sendo `1`.
 - [x] Um `JOIN` com a tabela `perfis`, que traz o nome do perfil junto com cada usuário
@@ -1234,7 +1023,7 @@ A lista de usuários mostrava `1`, `2` e `3` na coluna do perfil. O que resolveu
 </quiz>
 
 <quiz>
-No `JOIN` sem o `AS perfil`, os nomes das pessoas sumiram e a coluna **Nome** passou a mostrar `Administrador`, `Gerente` e `Usuário`. Por quê?
+Num `JOIN` sem o `AS perfil`, os nomes das pessoas sumiriam e a coluna **Nome** passaria a mostrar `Administrador`, `Gerente` e `Usuário`. Por quê?
 - [ ] O `JOIN` apagou os nomes das pessoas do banco
 > Não. O `JOIN` só lê. Os dados continuam intactos no banco.
 - [ ] O Jinja escolhe a última coluna com o mesmo nome por conta própria
@@ -1258,15 +1047,15 @@ Quais afirmações sobre os filtros próprios (`data_br`, `data_hora_br` e `cpf_
 </quiz>
 
 <quiz>
-A célula da cidade tinha `{{ usuario.cidade|default('—') }}`, e a Ana continuou com `None`. O que falta?
-- [ ] Trocar o `default` por `upper`
-> Não. O `upper` põe o texto em maiúsculas e não trata valor vazio.
-- [x] O segundo argumento `true`: `default('—', true)`
-> Correto. Sem ele, o `default` só age quando o valor não existe, e o `None` do `NULL` existe. Com o `true`, ele troca também o `None` e o texto vazio.
-- [ ] Gravar a cidade como texto vazio (`''`), e não como `NULL`
-> Não. A regra do projeto é gravar `NULL`, e o texto vazio também não seria trocado pelo `default` sem o `true`.
-- [ ] Nada: o navegador mostra o `None` e não tem como mudar
-> Não. O texto vem do servidor, e o filtro `default` está no template justamente para trocá-lo.
+Se a célula da cidade fosse escrita só como `{{ usuario.cidade }}`, a Ana, que não tem cidade, mostraria a palavra `None`. Qual destas células mostra um traço no lugar?
+- [ ] `{{ usuario.cidade|upper }}`
+> Não. O `upper` põe o texto em maiúsculas e não trata valor vazio: mostraria `NONE`.
+- [x] `{{ usuario.cidade if usuario.cidade else '—' }}`
+> Correto. É o `if` em uma linha do Capítulo 12: o `None` conta como falso, e aparece o traço.
+- [ ] `{{ usuario.cidade|data_br }}`
+> Não. O `data_br` é para datas: com um texto, ele tentaria chamar o `strftime` e quebraria a página.
+- [ ] Nenhuma: o navegador mostra o `None` e não tem como mudar
+> Não. O texto vem do servidor, e o template decide o que escrever.
 </quiz>
 
 <quiz>
@@ -1285,7 +1074,7 @@ Alguém abre `/usuarios/99999`, um código que não existe, em uma rota **sem** 
 
 ## 📝 Resumo
 
-A lista de usuários nasceu com um `SELECT` simples e quatro defeitos visíveis, e cada um virou uma ferramenta: o `JOIN` traz o nome do perfil, e o `AS` evita que duas colunas `nome` se sobrescrevam no dicionário. Os filtros `data_br`, `data_hora_br` e `cpf_oculto`, registrados com `@app.template_filter`, escrevem as datas à brasileira, mostram o mínimo do CPF na lista e tratam o `NULL` em um lugar só. A constante `SELECT_USUARIO` guarda a consulta para a lista e o detalhe, e deixa a senha de fora de propósito. O `include` do badge acaba com o `if` repetido, e o `abort(404)` responde corretamente a um código que não existe. O Capítulo 16 acrescenta a edição e a exclusão de usuários, os botões que faltam nesta lista.
+A lista de usuários lê o banco com um `JOIN`, que traz o nome do perfil, e o `AS` evita que duas colunas `nome` se sobrescrevam no dicionário. Os filtros `data_br`, `data_hora_br` e `cpf_oculto`, registrados com `@app.template_filter`, escrevem as datas à brasileira, mostram o mínimo do CPF na lista e tratam o `NULL` em um lugar só. A constante `SELECT_USUARIO` guarda a consulta para a lista e o detalhe, e deixa a senha de fora de propósito. O badge do perfil fica em um arquivo incluído na lista e no detalhe, os campos vazios viram um traço com o `if` em uma linha, e o `abort(404)` responde corretamente a um código que não existe. A coluna de ações já tem os botões de editar e excluir, que o Capítulo 16 liga às suas rotas.
 
 ---
 
