@@ -1,0 +1,3 @@
+# Formatador Ruff (extensão do VS Code): mantém as aspas simples usadas em todo o material
+[format]
+quote-style = "single"
