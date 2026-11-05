@@ -75,7 +75,7 @@ Em `lista_usuarios`, **apague** as três linhas do `if` e coloque o decorador **
 def lista_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 ```
 
 Salve e teste, como no Capítulo 17: logado, `/usuarios` abre; depois de **Sair**, `/usuarios` leva ao login, com a faixa amarela. Uma linha faz o que faziam as três.
@@ -113,7 +113,7 @@ Salve: o servidor sobe de novo, e as duas listas continuam protegidas.
 
 ### As outras oito rotas
 
-Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `index`, `perfil_novo`, `perfil_editar`, `perfil_excluir`, `usuario_novo`, `usuario_detalhe`, `usuario_editar` e `usuario_excluir`. No `usuario_excluir`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
+Agora o ganho. Em cada uma destas oito funções, **apague** as três linhas do `if 'id_usuario' not in session` e acrescente `@login_required` embaixo do `@app.route`: `dashboard`, `perfil_novo`, `perfil_editar`, `perfil_excluir`, `usuario_novo`, `usuario_detalhe`, `usuario_editar` e `usuario_excluir`. No `usuario_excluir`, o bloco que impede a exclusão do próprio usuário **continua**: ele é outra regra, e não faz parte do login. Por exemplo:
 
 ```python
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
@@ -127,9 +127,9 @@ def usuario_excluir(id_usuario):
 ```
 
 !!! danger "O `@app.route` sempre fica por cima"
-    A ordem dos decoradores importa. O que está **mais perto da função** é aplicado primeiro, e o `@app.route` precisa receber a função **já embrulhada**. Faça o teste com a rota `index`: troque a ordem, deixando o `@login_required` **acima** do `@app.route('/')`. Salve, saia do sistema e abra `/`: a página inicial **abre** para qualquer pessoa. O `@app.route` registrou a função original, sem o embrulho, e o `@login_required` embrulhou uma função que o Flask não usa. Não dá erro nenhum, a rota só fica aberta. **Desfaça a troca** e deixe o `@app.route` em cima.
+    A ordem dos decoradores importa. O que está **mais perto da função** é aplicado primeiro, e o `@app.route` precisa receber a função **já embrulhada**. Faça o teste com a rota `dashboard`: troque a ordem, deixando o `@login_required` **acima** do `@app.route('/dashboard')`. Salve, saia do sistema e abra `/dashboard`: o dashboard **abre** para qualquer pessoa. O `@app.route` registrou a função original, sem o embrulho, e o `@login_required` embrulhou uma função que o Flask não usa. Não dá erro nenhum, a rota só fica aberta. **Desfaça a troca** e deixe o `@app.route` em cima.
 
-Salve e confira, sem estar logado, as rotas `/`, `/perfis`, `/perfis/novo`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`. Logado como Ana, tudo funciona como no Capítulo 17. O comportamento é o mesmo, mas a conferência agora vive em **um** lugar: se a mensagem mudar, muda uma vez.
+Salve e confira, sem estar logado, as rotas `/dashboard`, `/perfis`, `/perfis/novo`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`. Logado como Ana, tudo funciona como no Capítulo 17. O comportamento é o mesmo, mas a conferência agora vive em **um** lugar: se a mensagem mudar, muda uma vez.
 
 ```bash
 git add .
@@ -151,7 +151,7 @@ Antes de programar, uma decisão de projeto. A tabela diz quem pode abrir o quê
 
 | Área | Administrador | Gerente | Usuário |
 |---|---|---|---|
-| Início | ✔ | ✔ | ✔ |
+| Home (dashboard) | ✔ | ✔ | ✔ |
 | Usuários: lista e detalhe | ✔ | ✔ | 403 |
 | Usuários: novo, editar e excluir | ✔ | 403 | 403 |
 | Perfis: as quatro rotas | ✔ | 403 | 403 |
@@ -190,7 +190,7 @@ Salve e teste: como **Ana**, `/perfis/novo` abre. Como **Carla** (saia e entre d
 Troque a página padrão por uma do sistema, como as de 404 e 500 (Capítulo 6). Crie o `templates/403.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Acesso negado — Sistema de Gestão{% endblock %}
 
@@ -198,7 +198,7 @@ Troque a página padrão por uma do sistema, como as de 404 e 500 (Capítulo 6).
   <div class="text-center py-5">
     <h1 class="display-1">403</h1>
     <p class="lead">O seu perfil não tem permissão para abrir esta página.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o início</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Voltar para a Home</a>
   </div>
 {% endblock %}
 ```
@@ -211,7 +211,7 @@ def acesso_negado(erro):
     return render_template('403.html'), 403
 ```
 
-Salve e repita o teste com a Carla em `/perfis/novo`: agora a página 403 do sistema, com o menu e o botão **Voltar para o início**.
+Salve e repita o teste com a Carla em `/perfis/novo`: agora a página 403 do sistema, sem menu (ela usa o layout limpo, como a 404 e a 500) e com o botão **Voltar para a Home**.
 
 ### Tornar o decorador reutilizável
 
@@ -257,7 +257,7 @@ Acrescente o `@perfil_required` às outras rotas, **embaixo** do `@login_require
 
 | Função | Decoradores abaixo do `@app.route` |
 |---|---|
-| `index` | `@login_required` (já tem) |
+| `dashboard` | `@login_required` (já tem) |
 | `lista_perfis`, `perfil_editar`, `perfil_excluir` | `@login_required` e `@perfil_required('Administrador')` |
 | `lista_usuarios`, `usuario_detalhe` | `@login_required` e `@perfil_required('Administrador', 'Gerente')` |
 | `usuario_novo`, `usuario_editar`, `usuario_excluir` | `@login_required` e `@perfil_required('Administrador')` |
@@ -296,24 +296,34 @@ git push
 
 Entre como o **Bruno** (Gerente). O menu mostra **Perfis**, e o clique leva ao 403. Abra **Usuários**: a lista mostra **Novo usuário**, **Editar** e **Excluir**, e todos levam ao 403. O sistema nega o acesso, mas oferece o botão. Menu e botões devem mostrar só o que a pessoa pode usar.
 
-No `templates/base.html`, envolva os itens **Perfis** e **Usuários** em um `if` cada um. Os outros itens do menu (**Início**, o nome e o **Sair**) continuam como estão:
+No `templates/layout/base_menu.html`, envolva os menus **Perfis** e **Usuários** em um `if` cada um. No menu **Usuários**, o link **Cadastrar Usuário** ganha um `if` próprio, porque o Gerente vê a lista, mas só o Administrador cadastra. Os outros itens do menu (**Home**, o nome e o **Sair**) continuam como estão:
 
 ```html
           {% if session['perfil'] == 'Administrador' %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+            </ul>
           </li>
           {% endif %}
           {% if session['perfil'] in ['Administrador', 'Gerente'] %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              {% if session['perfil'] == 'Administrador' %}
+              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+              {% endif %}
+            </ul>
           </li>
           {% endif %}
 ```
 
-Os testes do Jinja repetem a tabela de permissões: **Perfis** só para o Administrador, **Usuários** para o Administrador e o Gerente. Salve e entre como cada usuário: a Ana vê os dois itens, o Bruno só **Usuários**, e a Carla nenhum dos dois (só **Início**).
+Os testes do Jinja repetem a tabela de permissões: o menu **Perfis** só para o Administrador, o menu **Usuários** para o Administrador e o Gerente, e o link **Cadastrar Usuário** só para o Administrador. Salve e entre como cada usuário: a Ana vê os dois menus completos, o Bruno só o menu **Usuários**, com **Listar Usuários**, e a Carla nenhum dos dois (só **Home**).
 
-Falta a lista de usuários. No `templates/usuarios.html`, envolva o botão **Novo usuário** e os botões **Editar** e **Excluir**, que só o Administrador usa:
+Falta a lista de usuários. No `templates/usuarios/usuarios_lista.html`, envolva o botão **Novo usuário** e os botões **Editar** e **Excluir**, que só o Administrador usa:
 
 ```html
     {% if session['perfil'] == 'Administrador' %}
@@ -437,10 +447,15 @@ def perfil_required(*permitidos):
     return decorador
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -462,7 +477,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -477,14 +492,14 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
+@app.route('/dashboard')
 @login_required
-def index():
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -499,7 +514,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -559,7 +574,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -607,7 +622,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -648,7 +663,7 @@ def perfil_excluir(id_perfil):
 def lista_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -820,7 +835,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -832,7 +847,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -897,7 +912,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -941,7 +956,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/403.html` é o do Tópico 2. O `templates/base.html`:
+O `templates/403.html` é o do Tópico 2. O `templates/layout/base_menu.html`:
 
 ```html
 <!DOCTYPE html>
@@ -957,28 +972,39 @@ O `templates/403.html` é o do Tópico 2. O `templates/base.html`:
 
   <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Sistema de Gestão</a>
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">Sistema de Gestão</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
               aria-label="Abrir o menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          {% if 'id_usuario' in session %}
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Início</a>
+            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
           {% if session['perfil'] == 'Administrador' %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+            </ul>
           </li>
           {% endif %}
           {% if session['perfil'] in ['Administrador', 'Gerente'] %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              {% if session['perfil'] == 'Administrador' %}
+              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+              {% endif %}
+            </ul>
           </li>
           {% endif %}
+        </ul>
+        <ul class="navbar-nav align-items-lg-center">
           <li class="nav-item">
             <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
           </li>
@@ -988,11 +1014,6 @@ O `templates/403.html` é o do Tópico 2. O `templates/base.html`:
               <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
             </form>
           </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Entrar</a>
-          </li>
-          {% endif %}
         </ul>
       </div>
     </div>
@@ -1020,10 +1041,10 @@ O `templates/403.html` é o do Tópico 2. O `templates/base.html`:
 </html>
 ```
 
-O `templates/usuarios.html`:
+O `templates/usuarios/usuarios_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1058,7 +1079,7 @@ O `templates/usuarios.html`:
         <td>{{ usuario.cpf|cpf_oculto }}</td>
         <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
-        <td>{% include '_badge_perfil.html' %}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end">
           <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
           {% if session['perfil'] == 'Administrador' %}
@@ -1108,7 +1129,7 @@ O `templates/usuarios.html`:
 {% endblock %}
 ```
 
-Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `index.html`, `perfis.html`, `perfil_form.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 17.
+Os demais arquivos (`db.py`, `validacoes.py`, `base_limpo.html`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 17.
 
 ---
 
