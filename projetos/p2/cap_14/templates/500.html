@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Erro no servidor — Sistema de Gestão{% endblock %}
 
@@ -6,6 +6,6 @@
   <div class="text-center py-5">
     <h1 class="display-1">500</h1>
     <p class="lead">Algo deu errado do nosso lado. Tente novamente em instantes.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para o início</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Voltar para a Home</a>
   </div>
 {% endblock %}

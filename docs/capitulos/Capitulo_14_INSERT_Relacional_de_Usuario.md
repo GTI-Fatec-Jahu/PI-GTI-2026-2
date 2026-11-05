@@ -56,10 +56,10 @@ O molde de nomes do Capítulo 12 vale para `usuarios`. Este capítulo constrói 
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template | Capítulo |
 |---|---|---|---|---|---|
-| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios.html` | 15 (hoje: página provisória) |
-| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuario_form.html` | **14** |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuario_detalhe.html` | 15 |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuario_form.html` | 16 |
+| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios/usuarios_lista.html` | 15 (hoje: página provisória) |
+| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuarios/usuario_form.html` | **14** |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | 15 |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuarios/usuario_form.html` | 16 |
 | `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `usuario_excluir` | (nenhum) | 16 |
 
 O caminho do navegador no cadastro é o mesmo do perfil:
@@ -83,13 +83,13 @@ No `app.py`, acrescente a rota `usuario_novo` **depois** da `perfil_excluir` e a
 ```python
 @app.route('/usuarios/novo')
 def usuario_novo():
-    return render_template('usuario_form.html')
+    return render_template('usuarios/usuario_form.html')
 ```
 
-Crie o `templates/usuario_form.html`, só com o campo do nome e o botão. É o mesmo molde do `perfil_form.html`, e o formulário já leva o token CSRF do Capítulo 12:
+Crie a pasta `templates/usuarios` e, dentro dela, o `usuario_form.html`, só com o campo do nome e o botão. É o mesmo molde do `perfil_form.html`, e o formulário já leva o token CSRF do Capítulo 12:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo usuário — Sistema de Gestão{% endblock %}
 
@@ -160,7 +160,7 @@ Até aqui, as opções de um `<select>` eram escritas por você, em uma lista no
 def usuario_novo():
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', perfis=perfis)
+    return render_template('usuarios/usuario_form.html', perfis=perfis)
 ```
 
 No template, **depois** do bloco das senhas, acrescente o `<select>`:
@@ -223,7 +223,7 @@ from validacoes import UFS, validar_nome_perfil, validar_descricao_perfil
 ```
 
 ```python
-    return render_template('usuario_form.html', perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', perfis=perfis, ufs=UFS)
 ```
 
 E, no template, depois dos dados pessoais:
@@ -277,7 +277,7 @@ Os `maxlength` são os tamanhos das colunas do `banco.sql` do Capítulo 11 (`end
 No Capítulo 13, o formulário tinha dois campos, e a rota guardava cada um em uma variável (`nome` e `descricao`) para devolvê-los quando houvesse erro. Com treze campos, seriam treze variáveis e um `render_template` com treze argumentos. Há um jeito mais curto: o Flask já guarda **tudo** o que chegou no formulário em `request.form`. A rota entrega o objeto inteiro ao template, com o nome `dados`:
 
 ```python
-    return render_template('usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
 ```
 
 No primeiro acesso (um `GET`), o `request.form` está **vazio**, e o formulário aparece em branco. Depois de um `POST` com erro, ele contém o que foi enviado, e o template o devolve. Cada campo de texto ganha um `value="{{ dados.nome }}"`, com o nome do próprio campo. No `nome`:
@@ -315,13 +315,13 @@ Falta o caminho até o formulário e o caminho de volta. A lista de usuários s�
 ```python
 @app.route('/usuarios')
 def lista_usuarios():
-    return render_template('usuarios.html', titulo='Usuários')
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários')
 ```
 
-Crie o `templates/usuarios.html`:
+Crie o `templates/usuarios/usuarios_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -333,7 +333,7 @@ Crie o `templates/usuarios.html`:
 
   <div class="alert alert-info" role="alert">
     A lista de usuários chega no Capítulo 15. Por enquanto, confira os cadastros no phpMyAdmin
-    (banco <strong>gestao</strong>, tabela <strong>usuarios</strong>) e no contador da página inicial.
+    (banco <strong>gestao</strong>, tabela <strong>usuarios</strong>) e no contador do dashboard.
   </div>
 {% endblock %}
 ```
@@ -344,15 +344,19 @@ No `usuario_form.html`, o botão **Cancelar** entra **depois** do botão de salv
               <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
 ```
 
-E o `base.html` ganha o item **Usuários** no menu, **depois** do item Perfis, dentro do `<ul class="navbar-nav ms-auto">`:
+E o `base_menu.html` ganha o menu suspenso **Usuários**, **depois** do menu Perfis, dentro do primeiro `<ul class="navbar-nav me-auto">`. É o mesmo molde do **Perfis**, com um link para a lista e outro para o cadastro:
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+            </ul>
           </li>
 ```
 
-Salve e navegue: **Usuários** no menu, **Novo usuário**, o formulário completo, **Cancelar** de volta. Preencha o nome e clique em **Salvar usuário**: a página mostra **Method Not Allowed** (405), porque a rota `usuario_novo` ainda só aceita `GET`. É a deixa para o próximo tópico.
+Salve e navegue: **Usuários > Listar Usuários**, **Novo usuário**, o formulário completo, **Cancelar** de volta. Preencha o nome e clique em **Salvar usuário**: a página mostra **Method Not Allowed** (405), porque a rota `usuario_novo` ainda só aceita `GET`. É a deixa para o próximo tópico.
 
 ```bash
 git add .
@@ -391,7 +395,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
 ```
 
 Os detalhes que importam:
@@ -650,7 +654,7 @@ Os pontos que importam, na ordem em que acontecem:
 3. **As colunas que ficaram de fora** (`celular`, `cpf`, `cep`...) não são mencionadas no `INSERT`: o banco as grava como `NULL`, porque elas aceitam.
 4. **O `redirect`** é o PRG do Capítulo 12: depois de gravar, a rota não desenha a página, redireciona para `/usuarios`. A faixa verde `flash` atravessa o redirect e aparece lá.
 
-Salve e cadastre o primeiro usuário: nome `Ana Beatriz Lima`, e-mail `ana@exemplo.com`, senha `Senha123` (nos dois campos), perfil **Administrador**. Você cai na página provisória, com a faixa verde `Usuário "Ana Beatriz Lima" cadastrado (código 1).` (ou outro número). Aperte `F5`: a faixa some e nada é cadastrado de novo. Abra o **Início**: o cartão de usuários mostra **1**.
+Salve e cadastre o primeiro usuário: nome `Ana Beatriz Lima`, e-mail `ana@exemplo.com`, senha `Senha123` (nos dois campos), perfil **Administrador**. Você cai na página provisória, com a faixa verde `Usuário "Ana Beatriz Lima" cadastrado (código 1).` (ou outro número). Aperte `F5`: a faixa some e nada é cadastrado de novo. Abra o **Home** pelo menu: o cartão de usuários mostra **1**.
 
 Abra o **phpMyAdmin**, o banco `gestao`, a tabela `usuarios` e a aba **Procurar**. Confira três coisas:
 
@@ -1136,11 +1140,21 @@ CSRFProtect(app)
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -1153,7 +1167,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -1211,7 +1225,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -1257,7 +1271,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -1292,7 +1306,7 @@ def perfil_excluir(id_perfil):
 
 @app.route('/usuarios')
 def lista_usuarios():
-    return render_template('usuarios.html', titulo='Usuários')
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários')
 
 
 def vazio_para_none(valor):
@@ -1441,7 +1455,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
 
 
 @app.errorhandler(404)
@@ -1677,10 +1691,10 @@ def validar_tamanho(valor, rotulo, maximo):
     return None
 ```
 
-O `templates/usuario_form.html`:
+O `templates/usuarios/usuario_form.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo usuário — Sistema de Gestão{% endblock %}
 
@@ -1806,10 +1820,10 @@ O `templates/usuario_form.html`:
 {% endblock %}
 ```
 
-O `templates/usuarios.html`:
+O `templates/usuarios/usuarios_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1821,18 +1835,18 @@ O `templates/usuarios.html`:
 
   <div class="alert alert-info" role="alert">
     A lista de usuários chega no Capítulo 15. Por enquanto, confira os cadastros no phpMyAdmin
-    (banco <strong>gestao</strong>, tabela <strong>usuarios</strong>) e no contador da página inicial.
+    (banco <strong>gestao</strong>, tabela <strong>usuarios</strong>) e no contador do dashboard.
   </div>
 {% endblock %}
 ```
 
-A única mudança no `base.html` é o item **Usuários** do menu (Tópico 1). Os demais arquivos (`db.py`, `index.html`, `perfis.html`, `perfil_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 13.
+A única mudança nos layouts é o menu suspenso **Usuários** no `base_menu.html` (Tópico 1). Os demais arquivos (`db.py`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 13.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
 
 ➡️ [Baixar p2_cap_14.zip](../arquivos/p2_cap_14.zip)
 
