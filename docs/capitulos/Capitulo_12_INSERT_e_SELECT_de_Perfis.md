@@ -18,11 +18,11 @@ Ao final deste capítulo você deverá ser capaz de:
 - Impedir um nome repetido de duas formas: conferindo com `SELECT` antes e reconhecendo o erro `1062` do banco
 - Cadastrar os perfis **Administrador**, **Gerente** e **Usuário**, que o sistema usa até o fim do projeto
 
-O Capítulo 11 deixou o Projeto 2 de pé: banco `gestao` com as três tabelas vazias, `db.py` com as funções `execute_*` e o layout base. Falta o sistema **fazer** alguma coisa com elas. Este capítulo é o primeiro CRUD do projeto, e só a metade dele: **ler** (`SELECT`) e **criar** (`INSERT`) perfis. Alterar e excluir ficam para o Capítulo 13. Um perfil é o papel de quem usa o sistema (quem administra, quem gerencia, quem apenas consulta), e cada usuário do Capítulo 14 pertencerá a **um** deles. Quase tudo o que você vê aqui já apareceu no Projeto 1 (formulário, CSRF, validação, `flash`, PRG, `execute_*`), então cada etapa traz o link para a explicação completa. O que muda é o conjunto: agora os dados vão para um banco de verdade, e o banco também tem opinião sobre o que aceita.
+O Capítulo 11 deixou o Projeto 2 de pé: banco `gestao` com as três tabelas vazias, `db.py` com as funções `execute_*`, os dois layouts (com menu e limpo), o login provisório e o dashboard. Falta o sistema **fazer** alguma coisa com elas. Este capítulo é o primeiro CRUD do projeto, e só a metade dele: **ler** (`SELECT`) e **criar** (`INSERT`) perfis. Alterar e excluir ficam para o Capítulo 13. Um perfil é o papel de quem usa o sistema (quem administra, quem gerencia, quem apenas consulta), e cada usuário do Capítulo 14 pertencerá a **um** deles. Quase tudo o que você vê aqui já apareceu no Projeto 1 (formulário, CSRF, validação, `flash`, PRG, `execute_*`), então cada etapa traz o link para a explicação completa. O que muda é o conjunto: agora os dados vão para um banco de verdade, e o banco também tem opinião sobre o que aceita.
 
 ## 📦 Ponto de partida
 
-Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 11: com o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O `.env` também precisa existir, com o banco `gestao`.
+Este capítulo continua do **seu** repositório `sistema-gestao`, como ficou no fim do Capítulo 11: com o `app.py`, o `db.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (a subpasta `layout`, com `base_menu.html` e `base_limpo.html`, mais `login.html`, `dashboard.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O `.env` também precisa existir, com o banco `gestao`.
 
 Se o seu projeto não está funcionando, baixe o código do Capítulo 11 e descompacte. Depois de descompactar, crie o ambiente virtual e o `.env`, como no [Capítulo 11, Tópico 4](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env), e importe o `banco.sql` no phpMyAdmin, como no [Tópico 3 do mesmo capítulo](Capitulo_11_Projeto_Novo_e_Banco.md#topico-3-o-banco-gestao):
 
@@ -48,7 +48,7 @@ venv\Scripts\activate
 git status
 ```
 
-O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py`, deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git e para os testes) e abra **http://127.0.0.1:5000**. Os três cartões mostram **0**.
+O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py`, deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git e para os testes) e abra **http://127.0.0.1:5000**: o sistema leva para a tela de login. Clique em **Entrar** e, no dashboard, os três cartões mostram **0**.
 
 ### O mapa do recurso
 
@@ -56,8 +56,8 @@ Um **recurso** é a "coisa" que o sistema cadastra e consulta. Aqui, o perfil. O
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template |
 |---|---|---|---|---|
-| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis.html` |
-| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfil_form.html` |
+| `/perfis` | GET | Lista os perfis | `lista_perfis` | `perfis/perfis_lista.html` |
+| `/perfis/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `perfil_novo` | `perfis/perfil_form.html` |
 
 O Capítulo 13 acrescenta as rotas de editar e excluir. O caminho que o navegador percorre neste capítulo é este:
 
@@ -93,15 +93,15 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 ```
 
 O `fetch=True` diz ao `execute_query` que é um `SELECT` e que ele deve devolver a **lista de linhas**, cada uma como um dicionário (Capítulo 11, Tópico 5). O `ORDER BY nome` deixa os perfis em ordem alfabética. A lista pode vir **vazia**, e é isso que vai acontecer agora, porque o banco ainda não tem nenhum perfil.
 
-Crie o `templates/perfis.html`, primeiro só com o título:
+Crie a pasta `templates/perfis` e, dentro dela, o `perfis_lista.html`, primeiro só com o título:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -110,7 +110,7 @@ Crie o `templates/perfis.html`, primeiro só com o título:
 {% endblock %}
 ```
 
-Salve e abra **http://127.0.0.1:5000/perfis**: o título aparece dentro do layout. Ainda não há link no menu para chegar aqui, a página é aberta pelo endereço.
+Salve e abra **http://127.0.0.1:5000/perfis**: o título aparece dentro do layout com menu. Ainda não há link no menu para chegar aqui, a página é aberta pelo endereço.
 
 Agora a tabela. Acrescente, abaixo do `<h1>`, o cabeçalho e o `for` com o `{% else %}` do [Capítulo 5](Capitulo_05_Variaveis_Filtros_If_e_For.md#quando-a-lista-esta-vazia-o-else-do-for):
 
@@ -141,23 +141,28 @@ Agora a tabela. Acrescente, abaixo do `<h1>`, o cabeçalho e o `for` com o `{% e
 
 Salve e recarregue. A tabela aparece com o cabeçalho e a mensagem **Nenhum perfil cadastrado ainda.** O `{% else %}` só roda quando a lista está vazia, e é exatamente o caso de um banco recém-criado. Todo sistema novo começa assim, e a tela precisa dizer isso em vez de mostrar uma tabela sem explicação.
 
-### O link no menu
+### O menu Perfis
 
-No `templates/base.html`, acrescente o item **Perfis** logo depois do item **Início**, dentro do `<ul class="navbar-nav ms-auto">`:
+No `templates/layout/base_menu.html`, acrescente o menu suspenso **Perfis** logo depois do item **Home**, dentro do primeiro `<ul class="navbar-nav me-auto">`:
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
+            </ul>
           </li>
 ```
 
-O `request.endpoint` é o nome da função da rota que atendeu o pedido (Capítulo 6), e o `in [...]` pergunta se ele está na lista. Assim o item **Perfis** fica destacado tanto na lista quanto no formulário que vem a seguir. Salve, recarregue e clique em **Perfis** no menu.
+Um **menu suspenso** (dropdown) do Bootstrap é um item do menu que abre uma lista de links quando é clicado. O `<li class="nav-item dropdown">` é o item inteiro, o `<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">` é o botão que abre a lista, e o `<ul class="dropdown-menu">` guarda os links, cada um com a classe `dropdown-item`. O `href="#"` do botão é só um marcador: quem manda é o `data-bs-toggle`.
+
+O `request.endpoint` é o nome da função da rota que atendeu o pedido (Capítulo 6), e o `in [...]` pergunta se ele está na lista. Assim o botão **Perfis** fica destacado quando qualquer página de perfis está aberta. Salve, recarregue e use **Perfis > Listar Perfis** no menu.
 
 Registre este ponto no Git:
 
 ```bash
 git add .
-git commit -m "Adiciona a lista de perfis e o link Perfis no menu"
+git commit -m "Adiciona a lista de perfis e o menu Perfis"
 git push
 ```
 
@@ -175,17 +180,17 @@ def perfil_novo():
     nome = ''
     descricao = ''
 
-    return render_template('perfil_form.html', nome=nome, descricao=descricao)
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 ```
 
 O `methods=['GET', 'POST']` faz a mesma função atender os dois pedidos, como no [Capítulo 7](Capitulo_07_Formularios.md#topico-3-formulario-post-a-pagina-de-contato). Por enquanto ela trata os dois do mesmo jeito: mostra o formulário. As variáveis `nome` e `descricao` já existem para o template poder **devolver o que a pessoa digitou** quando houver erro, como no Capítulo 9. No primeiro acesso, elas estão vazias.
 
 ### O template, campo por campo
 
-Crie o `templates/perfil_form.html` com o campo do nome:
+Crie o `templates/perfis/perfil_form.html` com o campo do nome:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo perfil — Sistema de Gestão{% endblock %}
 
@@ -233,7 +238,7 @@ Por fim, os botões, **depois** da descrição e ainda dentro do `<form>`:
             </div>
 ```
 
-Salve e recarregue. Falta o caminho da lista até o formulário. No `perfis.html`, troque o `<h1>` por um cabeçalho com o botão **Novo perfil**:
+Salve e recarregue. Falta o caminho da lista até o formulário. No `perfis_lista.html`, troque o `<h1>` por um cabeçalho com o botão **Novo perfil**:
 
 ```html
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -242,11 +247,25 @@ Salve e recarregue. Falta o caminho da lista até o formulário. No `perfis.html
   </div>
 ```
 
-Salve, abra **Perfis** e clique em **Novo perfil**. Digite `Teste` no nome e clique em **Salvar perfil**: a página recarrega **vazia**. É esperado: a rota ainda ignora o que chega pelo POST.
+Salve, abra **Perfis > Listar Perfis** e clique em **Novo perfil**. Digite `Teste` no nome e clique em **Salvar perfil**: a página recarrega **vazia**. É esperado: a rota ainda ignora o que chega pelo POST.
+
+O menu também precisa do caminho até o formulário, e agora a rota `perfil_novo` existe. No `base_menu.html`, acrescente o segundo link do menu **Perfis**, logo depois do **Listar Perfis**:
+
+```html
+              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+```
+
+E inclua `'perfil_novo'` na lista do `request.endpoint`, para o **Perfis** continuar destacado no formulário:
+
+```html
+{% if request.endpoint in ['lista_perfis', 'perfil_novo'] %}active{% endif %}
+```
+
+Salve, recarregue e confira o novo link em **Perfis > Cadastrar Perfil**.
 
 ```bash
 git add .
-git commit -m "Adiciona o formulário de novo perfil"
+git commit -m "Adiciona o formulário de novo perfil e o link Cadastrar Perfil no menu"
 git push
 ```
 
@@ -297,7 +316,7 @@ git push
 
 ### O `flash` no layout
 
-O resultado de cada envio precisa aparecer na tela. Para isso, o `base.html` do Projeto 2 ganha o bloco de mensagens que você montou no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-2-flash-avisar-o-resultado-em-uma-linha). No `templates/base.html`, **dentro do `<main>`, antes do bloco `conteudo`**:
+O resultado de cada envio precisa aparecer na tela. Para isso, os layouts do Projeto 2 ganham o bloco de mensagens que você montou no [Capítulo 9](Capitulo_09_Validacao_e_Flash.md#topico-2-flash-avisar-o-resultado-em-uma-linha). Como são dois layouts, o bloco entra nos dois: o login e as páginas de erro também precisam avisar. No `templates/layout/base_menu.html`, **dentro do `<main>`, antes do bloco `conteudo`**:
 
 ```html
   <main class="container my-4">
@@ -310,6 +329,21 @@ O resultado de cada envio precisa aparecer na tela. Para isso, o `base.html` do 
 
     {% block conteudo %}{% endblock %}
   </main>
+```
+
+E no `templates/layout/base_limpo.html`, **dentro da `<div class="col-12 col-md-8 col-lg-5">`, também antes do bloco `conteudo`**:
+
+```html
+    <div class="col-12 col-md-8 col-lg-5">
+      {% for tipo, mensagem in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+        {{ mensagem }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      {% endfor %}
+
+      {% block conteudo %}{% endblock %}
+    </div>
 ```
 
 O tipo do `flash` (`success`, `danger`, `info`) vira a cor do alerta do Bootstrap.
@@ -336,7 +370,7 @@ def perfil_novo():
 
         flash(f'Recebi o perfil "{nome}" com a descrição "{descricao}".', 'info')
 
-    return render_template('perfil_form.html', nome=nome, descricao=descricao)
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 ```
 
 O `request.form.get('nome', '')` e o `.strip()` são os do Capítulo 9: o campo ausente vira `''` em vez de erro 400, e os espaços das pontas somem. Salve e teste:
@@ -485,11 +519,11 @@ Linha a linha, na ordem em que acontece:
 3. **`execute_insert(sql, params)`**: a função do Capítulo 11. Os `%s` recebem os valores da tupla como **dados**, nunca como pedaço do comando, e a função devolve o `id` que o `AUTO_INCREMENT` gerou.
 4. **`flash` e `redirect`**: é o PRG. Depois de gravar, a rota **não** desenha a página, redireciona para a lista. Se desenhasse, um `F5` reenviaria o formulário e cadastraria o perfil de novo.
 
-Salve e cadastre o primeiro perfil: nome `Administrador`, descrição `Acesso total ao sistema`. Você cai na lista com a faixa verde (`Perfil "Administrador" cadastrado (código 1).`, ou outro número, se o banco já gerou códigos antes) e o perfil na tabela. Aperte `F5`: a faixa some e nada é cadastrado de novo. Volte ao **Início**: o cartão de perfis mostra **1**.
+Salve e cadastre o primeiro perfil: nome `Administrador`, descrição `Acesso total ao sistema`. Você cai na lista com a faixa verde (`Perfil "Administrador" cadastrado (código 1).`, ou outro número, se o banco já gerou códigos antes) e o perfil na tabela. Aperte `F5`: a faixa some e nada é cadastrado de novo. Volte ao **Home** pelo menu: o cartão de perfis mostra **1**.
 
 ### O `None` que aparece na tela
 
-Cadastre o segundo perfil, **deixando a descrição vazia**: nome `Gerente`. Na lista, a célula da descrição mostra a palavra **None**. O Jinja escreve o `None` do Python como texto. Isso não é o que se quer ver na tela. Em `perfis.html`, troque a célula da descrição por um `if`:
+Cadastre o segundo perfil, **deixando a descrição vazia**: nome `Gerente`. Na lista, a célula da descrição mostra a palavra **None**. O Jinja escreve o `None` do Python como texto. Isso não é o que se quer ver na tela. Em `perfis_lista.html`, troque a célula da descrição por um `if`:
 
 ```html
         <td>
@@ -513,7 +547,7 @@ A lista pode mostrar quando o perfil foi criado. Acrescente `criado_em` ao `SELE
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
 ```
 
-No `perfis.html`, a coluna no cabeçalho (`<th>Criado em</th>`, depois de `Descrição`) e, na linha, depois da célula da descrição:
+No `perfis_lista.html`, a coluna no cabeçalho (`<th>Criado em</th>`, depois de `Descrição`) e, na linha, depois da célula da descrição:
 
 ```html
         <td>{{ perfil.criado_em }}</td>
@@ -653,11 +687,21 @@ CSRFProtect(app)
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -670,7 +714,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 @app.route('/perfis/novo', methods=['GET', 'POST'])
@@ -719,7 +763,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', nome=nome, descricao=descricao)
+    return render_template('perfis/perfil_form.html', nome=nome, descricao=descricao)
 
 
 @app.errorhandler(404)
@@ -759,10 +803,10 @@ def validar_descricao_perfil(descricao):
     return None
 ```
 
-O `templates/perfis.html`:
+O `templates/perfis/perfis_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -805,10 +849,10 @@ O `templates/perfis.html`:
 {% endblock %}
 ```
 
-O `templates/perfil_form.html`:
+O `templates/perfis/perfil_form.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo perfil — Sistema de Gestão{% endblock %}
 
@@ -847,13 +891,13 @@ O `templates/perfil_form.html`:
 {% endblock %}
 ```
 
-As mudanças no `base.html` estão nos Tópicos 1 e 4 (o item **Perfis** no menu e o bloco do `flash`). Os demais arquivos (`db.py`, `index.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) não mudaram.
+As mudanças nos layouts estão nos Tópicos 1, 2 e 4 (o menu suspenso **Perfis** no `base_menu.html` e o bloco do `flash` nos dois layouts). Os demais arquivos (`db.py`, `login.html`, `dashboard.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) não mudaram.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual **não** vai no zip, e o **`.env` também não**: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis pelo formulário.
 
 ➡️ [Baixar p2_cap_12.zip](../arquivos/p2_cap_12.zip)
 
