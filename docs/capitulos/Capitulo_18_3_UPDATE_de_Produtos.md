@@ -98,7 +98,7 @@ def produto_editar(id_produto):
     if produto is None:
         abort(404)
 
-    return render_template('produto_form.html', dados=produto, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=produto, categorias=CATEGORIAS)
 ```
 
 O `<int:id_produto>` é a variável de rota: o Flask pega o número do endereço e o entrega à função, com o mesmo nome. O `execute_one` devolve **um** produto (um dicionário) ou `None`, e o `abort(404)` mostra a página 404 quando o código não existe. Salve e abra, pela barra de endereço, `http://127.0.0.1:5000/produtos/` + o código do Notebook (a primeira coluna da lista) + `/editar`. O formulário aparece com o nome, o preço e o estoque, mas com três defeitos:
@@ -147,7 +147,7 @@ Agora a rota monta o dicionário, um valor de cada vez. Na `produto_editar`, **e
 E no `return`, troque `dados=produto` por `dados=dados`:
 
 ```python
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 ```
 
 O `for chave in produto` percorre as **chaves** do dicionário (`nome`, `preco`, `ativo`...), e `dados[chave] = ...` copia cada valor, já convertido em texto. A última linha corrige o preço. Salve, recarregue a edição do Notebook e do Teclado: o preço é `3.499,90`, o interruptor está ligado, e a descrição do teclado está **vazia**.
@@ -157,7 +157,7 @@ O `for chave in produto` percorre as **chaves** do dicionário (`nome`, `preco`,
 O mesmo template precisa saber em qual dos dois modos está, para trocar o título, o botão e o **destino** do formulário (`action`). A solução é uma variável `acao`, que a rota entrega com o valor `'criar'` ou `'editar'`. No `produto_form.html`, troque o começo do arquivo, até a abertura do `<form>`, por:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
 
@@ -187,14 +187,14 @@ O `{% set destino = ... %}` guarda o endereço em uma variável do template. E o
 Agora a rota entrega `acao`, `id_produto` e a foto atual (para o formulário mostrar a foto que o produto já tem). Na `produto_editar`, o `return` fica:
 
 ```python
-    return render_template('produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
+    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])
 ```
 
 E na `produto_novo`, o `return` passa as mesmas variáveis, com valores vazios:
 
 ```python
-    return render_template('produto_form.html', acao='criar', id_produto=None, dados=dados,
+    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
                            categorias=CATEGORIAS, foto_atual=None)
 ```
 
@@ -217,7 +217,7 @@ Na edição, o formulário mostra a foto atual e oferece uma caixa para removê-
             </div>
 ```
 
-O bloco `{% if foto_atual %}` só aparece quando o produto tem foto. Para o botão **Editar** chegar ao formulário, acrescente a coluna **Ações** na lista. No `produtos.html`, acrescente o cabeçalho depois de **Situação** (e acerte o `colspan` da linha da lista vazia para `7`):
+O bloco `{% if foto_atual %}` só aparece quando o produto tem foto. Para o botão **Editar** chegar ao formulário, acrescente a coluna **Ações** na lista. No `produtos_lista.html`, acrescente o cabeçalho depois de **Situação** (e acerte o `colspan` da linha da lista vazia para `7`):
 
 ```html
         <th class="text-end">Ações</th>
@@ -464,10 +464,15 @@ def moeda(valor):
     return 'R$ ' + formatar_numero(valor)
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -489,7 +494,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -504,8 +509,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
-def index():
+@app.route('/dashboard')
+def dashboard():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -514,7 +519,7 @@ def index():
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -531,7 +536,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -593,7 +598,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -643,7 +648,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -688,7 +693,7 @@ def lista_usuarios():
 
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -862,7 +867,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -876,7 +881,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -943,7 +948,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -978,7 +983,7 @@ def lista_produtos():
 
     produtos = execute_query(SELECT_PRODUTO + ' ORDER BY nome', fetch=True)
 
-    return render_template('produtos.html', titulo='Produtos', produtos=produtos)
+    return render_template('produtos/produtos_lista.html', titulo='Produtos', produtos=produtos)
 
 
 def ler_formulario_produto(form):
@@ -1107,7 +1112,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', acao='criar', id_produto=None, dados=dados,
+    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
                            categorias=CATEGORIAS, foto_atual=None)
 
 
@@ -1172,7 +1177,7 @@ def produto_editar(id_produto):
 
         dados = request.form
 
-    return render_template('produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
+    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])
 
 
@@ -1195,10 +1200,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/produto_form.html`, que agora serve para criar e para editar:
+O `templates/produtos/produto_form.html`, que agora serve para criar e para editar:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{% if acao == 'editar' %}Editar produto{% else %}Novo produto{% endif %} — Sistema de Gestão{% endblock %}
 
@@ -1286,10 +1291,10 @@ O `templates/produto_form.html`, que agora serve para criar e para editar:
 {% endblock %}
 ```
 
-O `templates/produtos.html`, com a coluna **Ações**:
+O `templates/produtos/produtos_lista.html`, com a coluna **Ações**:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1357,13 +1362,13 @@ O `templates/produtos.html`, com a coluna **Ações**:
 {% endblock %}
 ```
 
-Os demais arquivos (`validacoes.py`, `db.py`, `base.html`, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.2.
+Os demais arquivos (`validacoes.py`, `db.py`, os layouts, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.2.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do Capítulo 18.4. O zip tem todos os arquivos do projeto, com o `app.py`, o `produto_form.html` e o `produtos.html` atualizados, e a pasta `static/uploads` vazia. O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos acima e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin e cadastre os três perfis e os três usuários pelo formulário. As fotos enviadas também não: a pasta `static/uploads` vem vazia, só com o `.gitkeep`.
+Compare com o seu projeto, ou use como ponto de partida do Capítulo 18.4. O zip tem todos os arquivos do projeto, com o `app.py`, o `produto_form.html` e o `produtos_lista.html` atualizados, e a pasta `static/uploads` vazia. O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos acima e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin e cadastre os três perfis e os três usuários pelo formulário. As fotos enviadas também não: a pasta `static/uploads` vem vazia, só com o `.gitkeep`.
 
 ➡️ [Baixar p2_cap_18_3.zip](../arquivos/p2_cap_18_3.zip)
 
