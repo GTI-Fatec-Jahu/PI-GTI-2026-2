@@ -1,17 +1,17 @@
 {% extends 'layout/base_menu.html' %}
 
-{% block titulo_aba %}{% if acao == 'editar' %}Editar usuário{% else %}Novo usuário{% endif %} — Sistema de Gestão{% endblock %}
+{% block titulo_aba %}{{ 'Editar usuário' if acao == 'editar' else 'Novo usuário' }} — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
   {% if acao == 'editar' %}
     {% set destino = url_for('usuario_editar', id_usuario=id_usuario) %}
   {% else %}
-    {% set destino = url_for('usuario_novo') %}
+    {% set destino = url_for('inserir_usuario') %}
   {% endif %}
 
-  <h1 class="h2 mb-4">{% if acao == 'editar' %}Editar usuário{% else %}Novo usuário{% endif %}</h1>
+  <h1 class="h2 mb-4">{{ 'Editar usuário' if acao == 'editar' else 'Novo usuário' }}</h1>
 
-  <div class="row">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
@@ -33,11 +33,9 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="senha" class="form-label">{% if acao == 'editar' %}Nova senha{% else %}Senha{% endif %}</label>
+                <label for="senha" class="form-label">{{ 'Nova senha' if acao == 'editar' else 'Senha' }}</label>
                 <input type="password" class="form-control" id="senha" name="senha" {% if acao == 'criar' %}required{% endif %} minlength="8" maxlength="128" autocomplete="new-password">
-                <div class="form-text">
-                  {% if acao == 'editar' %}Deixe em branco para manter a senha atual.{% else %}Mínimo de 8 caracteres, com letras e números.{% endif %}
-                </div>
+                <div class="form-text">{{ 'Deixe em branco para manter a senha atual.' if acao == 'editar' else 'Mínimo de 8 caracteres, com letras e números.' }}</div>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="confirmacao" class="form-label">Confirmar a senha</label>
@@ -51,12 +49,12 @@
                 <select class="form-select" id="perfil_id" name="perfil_id" required>
                   <option value="">Selecione...</option>
                   {% for perfil in perfis %}
-                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
+                    <option value="{{ perfil.id_perfil }}" {% if dados.perfil_id|string == perfil.id_perfil|string %}selected{% endif %}>{{ perfil.nome }}</option>
                   {% endfor %}
                 </select>
               {% else %}
                 <div class="alert alert-warning mb-0" role="alert">
-                  Nenhum perfil cadastrado. <a href="{{ url_for('perfil_novo') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
+                  Nenhum perfil cadastrado. <a href="{{ url_for('inserir_perfil') }}" class="alert-link">Cadastre um perfil</a> antes de cadastrar usuários.
                 </div>
               {% endif %}
             </div>
@@ -66,15 +64,15 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="celular" class="form-label">Celular</label>
-                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular }}" maxlength="20">
+                <input type="tel" class="form-control" id="celular" name="celular" placeholder="(14) 99999-9999" value="{{ dados.celular or '' }}" maxlength="20">
               </div>
               <div class="col-md-4 mb-3">
                 <label for="data_nascimento" class="form-label">Data de nascimento</label>
-                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento }}">
+                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ dados.data_nascimento or '' }}">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="cpf" class="form-label">CPF</label>
-                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf }}" maxlength="14">
+                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" value="{{ dados.cpf or '' }}" maxlength="14">
               </div>
             </div>
 
@@ -83,29 +81,29 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="cep" class="form-label">CEP</label>
-                <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep }}" maxlength="9">
+                <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ dados.cep or '' }}" maxlength="9">
               </div>
               <div class="col-md-8 mb-3">
                 <label for="endereco" class="form-label">Endereço</label>
-                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco }}" maxlength="255">
+                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ dados.endereco or '' }}" maxlength="255">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="numero" class="form-label">Número</label>
-                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero }}" maxlength="20">
+                <input type="text" class="form-control" id="numero" name="numero" value="{{ dados.numero or '' }}" maxlength="20">
               </div>
               <div class="col-md-8 mb-3">
                 <label for="complemento" class="form-label">Complemento</label>
-                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento }}" maxlength="100">
+                <input type="text" class="form-control" id="complemento" name="complemento" value="{{ dados.complemento or '' }}" maxlength="100">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-8 mb-4">
                 <label for="cidade" class="form-label">Cidade</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade }}" maxlength="100">
+                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ dados.cidade or '' }}" maxlength="100">
               </div>
               <div class="col-md-4 mb-4">
                 <label for="estado" class="form-label">Estado</label>
@@ -118,9 +116,9 @@
               </div>
             </div>
 
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">{% if acao == 'editar' %}Salvar alterações{% else %}Salvar usuário{% endif %}</button>
-              <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar usuário' }}</button>
             </div>
 
           </form>
