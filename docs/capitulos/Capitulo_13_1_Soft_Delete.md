@@ -110,7 +110,7 @@ Na rota `lista_perfis`, acrescente o filtro ao `SELECT`:
 
 Salve e recarregue: o `Teste` sumiu da lista. Nem toda tela olha para essa lista, e o filtro precisa estar em **todo lugar** que lê perfis. Três lugares do `app.py` ainda não sabem da lixeira:
 
-1. **O cartão do Início**, que conta os perfis. Na rota `index`, troque a contagem por:
+1. **O cartão do dashboard**, que conta os perfis. Na rota `dashboard`, troque a contagem por:
 
     ```python
         perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
@@ -135,7 +135,7 @@ Salve e recarregue: o `Teste` sumiu da lista. Nem toda tela olha para essa lista
         )
     ```
 
-Salve e confira: o cartão **perfis** do Início não conta o `Teste`, e `/perfis/` + o código do `Teste` + `/editar` mostra a página 404, como se o perfil não existisse para o sistema. Para o banco ele continua existindo, e é isso que permite restaurá-lo.
+Salve e confira: o cartão **perfis** do dashboard não conta o `Teste`, e `/perfis/` + o código do `Teste` + `/editar` mostra a página 404, como se o perfil não existisse para o sistema. Para o banco ele continua existindo, e é isso que permite restaurá-lo.
 
 ```bash
 git add .
@@ -160,13 +160,13 @@ def lixeira_perfis():
         fetch=True,
     )
 
-    return render_template('perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
+    return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 ```
 
-Crie o `templates/perfis_lixeira.html`, parecido com o da lista, com a coluna **Excluído em** no lugar de **Criado em** (o `%H:%M` do `strftime` acrescenta a hora, como no [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-coluna-criado-em)):
+Crie o `templates/perfis/perfis_lixeira.html`, parecido com o da lista, com a coluna **Excluído em** no lugar de **Criado em** (o `%H:%M` do `strftime` acrescenta a hora, como no [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md#a-coluna-criado-em)):
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -209,7 +209,7 @@ Crie o `templates/perfis_lixeira.html`, parecido com o da lista, com a coluna **
 {% endblock %}
 ```
 
-Salve e abra **http://127.0.0.1:5000/perfis/lixeira**: o `Teste` aparece, com a data e a hora em que foi excluído. Para chegar à lixeira sem digitar o endereço, acrescente um botão no cabeçalho do `perfis.html`. Troque o botão **Novo perfil** do cabeçalho por este grupo:
+Salve e abra **http://127.0.0.1:5000/perfis/lixeira**: o `Teste` aparece, com a data e a hora em que foi excluído. Para chegar à lixeira sem digitar o endereço, acrescente um botão no cabeçalho do `perfis_lista.html`. Troque o botão **Novo perfil** do cabeçalho por este grupo:
 
 ```html
     <div class="d-flex gap-2">
@@ -218,13 +218,13 @@ Salve e abra **http://127.0.0.1:5000/perfis/lixeira**: o `Teste` aparece, com a 
     </div>
 ```
 
-E, no `base.html`, o item **Perfis** do menu continua destacado na lixeira, acrescentando `'lixeira_perfis'` à lista do `request.endpoint`:
+E, no `base_menu.html`, o menu **Perfis** continua destacado na lixeira, acrescentando `'lixeira_perfis'` à lista do `request.endpoint`, no botão do menu suspenso:
 
 ```html
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar', 'lixeira_perfis'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
 ```
 
-Salve e navegue: **Perfis**, **Lixeira**, **Voltar para os perfis**.
+Salve e navegue: **Perfis > Listar Perfis**, **Lixeira**, **Voltar para os perfis**.
 
 ### Restaurar
 
@@ -265,7 +265,7 @@ def perfil_restaurar(id_perfil):
 
 O `SELECT` procura só entre os que **estão** na lixeira (`IS NOT NULL`): restaurar um perfil que não foi excluído, ou que não existe, responde 404. Salve, abra a lixeira e clique em **Restaurar** no `Teste`: você volta para a lista, com a faixa verde `Perfil "Teste" restaurado.` e o perfil no lugar. A lixeira mostra `A lixeira está vazia.`
 
-Para o texto do modal deixar de prometer uma exclusão sem volta, troque, no `perfis.html`, a frase da janela de confirmação:
+Para o texto do modal deixar de prometer uma exclusão sem volta, troque, no `perfis_lista.html`, a frase da janela de confirmação:
 
 ```html
             <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Ele vai para a lixeira e pode ser restaurado depois.</p>
@@ -334,13 +334,13 @@ git push
 As rotas alteradas ou novas do `app.py` (o resto do arquivo é o do Capítulo 13, sem a contagem de usuários e sem o `1451` na exclusão):
 
 ```python
-@app.route('/')
-def index():
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -354,7 +354,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 @app.route('/perfis/lixeira')
@@ -365,7 +365,7 @@ def lixeira_perfis():
         fetch=True,
     )
 
-    return render_template('perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
+    return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -423,10 +423,10 @@ def perfil_restaurar(id_perfil):
     return redirect(url_for('lista_perfis'))
 ```
 
-Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `SELECT` do começo (Tópico 1). O `templates/perfis_lixeira.html`, com a coluna de ações:
+Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `SELECT` do começo (Tópico 1). O `templates/perfis/perfis_lixeira.html`, com a coluna de ações:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -476,13 +476,13 @@ Na rota `perfil_editar`, o único acréscimo é o `AND deletado_em IS NULL` no `
 {% endblock %}
 ```
 
-No `perfis.html`, as mudanças são o grupo de botões do cabeçalho e a frase do modal (Tópico 2). No `base.html`, o `'lixeira_perfis'` na lista do menu. Os demais arquivos são os do Capítulo 13.
+No `perfis_lista.html`, as mudanças são o grupo de botões do cabeçalho e a frase do modal (Tópico 2). No `base_menu.html`, o `'lixeira_perfis'` na lista do menu. Os demais arquivos são os do Capítulo 13.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 14 não parte deste zip**, e sim do zip do Capítulo 13. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `perfis_lixeira.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
+Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 14 não parte deste zip**, e sim do zip do Capítulo 13. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o novo `perfis/perfis_lixeira.html`) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
 
 ➡️ [Baixar p2_cap_13_1.zip](../arquivos/p2_cap_13_1.zip)
 
@@ -496,7 +496,7 @@ Tente responder mentalmente antes de abrir.
     A física usa `DELETE` e remove a linha, sem volta. A lógica usa `UPDATE ... SET deletado_em = NOW()`: a linha continua no banco, marcada com a data da exclusão, e pode ser restaurada. Em troca, toda consulta precisa filtrar os excluídos.
 
 ??? question "Por que a lista de perfis precisa de `WHERE deletado_em IS NULL`?"
-    Porque o registro excluído logicamente continua na tabela. Sem o filtro, ele apareceria nas listas e nas contagens como se nada tivesse acontecido. O filtro precisa estar em **todo** lugar que lê perfis: a lista, o cartão do Início, a edição e a exclusão.
+    Porque o registro excluído logicamente continua na tabela. Sem o filtro, ele apareceria nas listas e nas contagens como se nada tivesse acontecido. O filtro precisa estar em **todo** lugar que lê perfis: a lista, o cartão do dashboard, a edição e a exclusão.
 
 ??? question "Por que se escreve `IS NULL`, e não `= NULL`?"
     Porque, no MySQL, nada é igual a `NULL`, nem outro `NULL`: `deletado_em = NULL` nunca é verdadeiro. Só `IS NULL` e `IS NOT NULL` perguntam se a coluna está vazia.
@@ -514,7 +514,7 @@ Tente responder mentalmente antes de abrir.
 
 ## 📝 Resumo
 
-A exclusão lógica guarda o registro e marca a data da exclusão em `deletado_em`, coluna que já existia desde o `banco.sql` do Capítulo 11. O `DELETE` da rota virou um `UPDATE ... SET deletado_em = NOW()`, e todo `SELECT` que lê perfis ganhou o filtro `IS NULL`, na lista, no cartão do Início, na edição e na exclusão. A lixeira lista o que foi excluído (`IS NOT NULL`) e restaura com outro `UPDATE`, que devolve o `NULL`. O nome de um perfil excluído continua ocupado, e a conferência avisa isso em vez de uma mensagem que parece errada. Como o `UPDATE` não infringe a chave estrangeira, o banco deixa de recusar a exclusão de um perfil com usuários, e essa decisão passa a ser da rota. O Capítulo 14 continua do código do Capítulo 13, com o cadastro de usuários.
+A exclusão lógica guarda o registro e marca a data da exclusão em `deletado_em`, coluna que já existia desde o `banco.sql` do Capítulo 11. O `DELETE` da rota virou um `UPDATE ... SET deletado_em = NOW()`, e todo `SELECT` que lê perfis ganhou o filtro `IS NULL`, na lista, no cartão do dashboard, na edição e na exclusão. A lixeira lista o que foi excluído (`IS NOT NULL`) e restaura com outro `UPDATE`, que devolve o `NULL`. O nome de um perfil excluído continua ocupado, e a conferência avisa isso em vez de uma mensagem que parece errada. Como o `UPDATE` não infringe a chave estrangeira, o banco deixa de recusar a exclusão de um perfil com usuários, e essa decisão passa a ser da rota. O Capítulo 14 continua do código do Capítulo 13, com o cadastro de usuários.
 
 ---
 

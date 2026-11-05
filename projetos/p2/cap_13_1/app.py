@@ -18,11 +18,21 @@ CSRFProtect(app)
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis WHERE deletado_em IS NULL')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -36,7 +46,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 @app.route('/perfis/lixeira')
@@ -47,7 +57,7 @@ def lixeira_perfis():
         fetch=True,
     )
 
-    return render_template('perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
+    return render_template('perfis/perfis_lixeira.html', titulo='Lixeira de perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -108,7 +118,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -155,7 +165,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
