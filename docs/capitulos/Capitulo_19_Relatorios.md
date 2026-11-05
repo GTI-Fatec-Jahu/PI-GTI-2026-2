@@ -81,7 +81,7 @@ Nos usuários e nos produtos, o `criado_em` está escrito de propósito, espalha
 
 No phpMyAdmin, abra a aba **Importar** (*Import*), escolha o `relatorios_dados.sql` e clique em **Importar**, como no [Capítulo 10](Capitulo_10_Banco_de_Dados.md#importando). Importe o arquivo **uma segunda vez**: nenhum erro, e nada muda, porque o `IGNORE` e o `NOT EXISTS` pularam tudo.
 
-Recarregue **http://127.0.0.1:5000** e olhe os cartões da página inicial: **3** perfis, **27** usuários (os 24 do arquivo mais a Ana, o Bruno e a Carla) e **21** produtos. Se você cadastrou outros usuários ou produtos nos capítulos anteriores, os seus números serão maiores, e as tabelas que aparecem mais adiante vão diferir das do texto. O que importa é entender cada consulta.
+Abra o **Home** pelo menu e olhe os cartões do dashboard: **3** perfis, **27** usuários (os 24 do arquivo mais a Ana, o Bruno e a Carla) e **21** produtos. Se você cadastrou outros usuários ou produtos nos capítulos anteriores, os seus números serão maiores, e as tabelas que aparecem mais adiante vão diferir das do texto. O que importa é entender cada consulta.
 
 ### O mapa do recurso
 
@@ -89,9 +89,9 @@ Os relatórios ficam em três telas, uma de entrada e uma para cada assunto:
 
 | Rota | Método | O que faz | Função no `app.py` | Template | Tópico |
 |---|---|---|---|---|---|
-| `/relatorios` | GET | Entrada, com um cartão por relatório | `relatorios` | `relatorios.html` | 1 |
-| `/relatorios/usuarios` | GET | Usuários por perfil, por estado e por mês | `relatorio_usuarios` | `relatorio_usuarios.html` | 2 e 3 |
-| `/relatorios/produtos` | GET | Resumo, por categoria e estoque baixo | `relatorio_produtos` | `relatorio_produtos.html` | 4 e 5 |
+| `/relatorios` | GET | Entrada, com um cartão por relatório | `relatorios` | `relatorios/relatorios.html` | 1 |
+| `/relatorios/usuarios` | GET | Usuários por perfil, por estado e por mês | `relatorio_usuarios` | `relatorios/relatorio_usuarios.html` | 2 e 3 |
+| `/relatorios/produtos` | GET | Resumo, por categoria e estoque baixo | `relatorio_produtos` | `relatorios/relatorio_produtos.html` | 4 e 5 |
 
 Nenhuma delas grava nada: relatório só lê, por isso só existe `GET`.
 
@@ -106,13 +106,13 @@ def relatorios():
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
-    return render_template('relatorios.html', titulo='Relatórios')
+    return render_template('relatorios/relatorios.html', titulo='Relatórios')
 ```
 
-O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17_Login.md): quem não fez login vai para a tela de entrada. Crie o `templates/relatorios.html`:
+O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17_Login.md): quem não fez login vai para a tela de entrada. Crie a pasta `templates/relatorios` e, dentro dela, o `relatorios.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -125,7 +125,7 @@ O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17
 {% endblock %}
 ```
 
-Agora o menu. No `base.html`, acrescente o item **Relatórios** **depois** do item Produtos e **antes** do item com o nome de quem entrou:
+Agora o menu. No `templates/layout/base_menu.html`, acrescente o item **Relatórios** **depois** do menu Produtos, ainda no primeiro `<ul class="navbar-nav me-auto">`:
 
 ```html
           <li class="nav-item">
@@ -133,13 +133,13 @@ Agora o menu. No `base.html`, acrescente o item **Relatórios** **depois** do it
           </li>
 ```
 
-A lista de endpoints faz o item ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas. Salve, recarregue e clique em **Relatórios**: a página provisória aparece, com o item do menu destacado.
+Ele é um link simples, e não um menu suspenso como os de Perfis, Usuários e Produtos, porque os relatórios têm uma única porta de entrada, a página que você acabou de criar. A lista de endpoints faz o item ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas. Salve, recarregue e clique em **Relatórios**: a página provisória aparece, com o item do menu destacado.
 
 Para registrar este ponto no Git (o `relatorios_dados.sql` entra junto, para o seu repositório guardar de onde vieram os dados de exemplo):
 
 ```bash
 git add .
-git commit -m "Adiciona o relatorios_dados.sql e a página inicial de relatórios"
+git commit -m "Adiciona o relatorios_dados.sql e a página de entrada dos relatórios"
 git push
 ```
 
@@ -149,7 +149,7 @@ git push
 
 ### Contar tudo, e contar por grupo
 
-Você já escreveu `SELECT COUNT(*) AS total FROM usuarios` na página inicial: o `COUNT(*)` **conta as linhas**. Teste no **phpMyAdmin** (banco `gestao`, aba **SQL**), antes de levar a consulta para o Python:
+Você já escreveu `SELECT COUNT(*) AS total FROM usuarios` no dashboard: o `COUNT(*)` **conta as linhas**. Teste no **phpMyAdmin** (banco `gestao`, aba **SQL**), antes de levar a consulta para o Python:
 
 ```sql
 SELECT COUNT(*) AS total FROM usuarios;
@@ -207,14 +207,14 @@ def relatorio_usuarios():
         fetch=True,
     )
 
-    return render_template('relatorio_usuarios.html', titulo='Relatório de usuários',
+    return render_template('relatorios/relatorio_usuarios.html', titulo='Relatório de usuários',
                            por_perfil=por_perfil)
 ```
 
-Cada linha chega ao template como um dicionário, com as chaves `perfil` e `total`: são os apelidos (`AS`) que dão nome às chaves, como no [Capítulo 15](Capitulo_15_SELECT_Relacional_de_Usuario.md). Crie o `templates/relatorio_usuarios.html`:
+Cada linha chega ao template como um dicionário, com as chaves `perfil` e `total`: são os apelidos (`AS`) que dão nome às chaves, como no [Capítulo 15](Capitulo_15_SELECT_Relacional_de_Usuario.md). Crie o `templates/relatorios/relatorio_usuarios.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -285,7 +285,7 @@ Uma linha de total ajuda a conferir o relatório: a soma dos grupos tem de dar o
 !!! note "Jinja: `sum(attribute='total')`"
     O filtro `sum` soma os números de uma lista. Quando a lista é de dicionários, o `attribute='total'` diz **qual chave** somar: `por_perfil|sum(attribute='total')` soma o `total` de cada linha. O `<tfoot>` é o rodapé da tabela, onde ficam os totais.
 
-Salve e recarregue: o total é **27**, igual ao cartão da página inicial. Agora um teste. Cadastre um perfil novo pelo sistema, em **Perfis > Novo perfil** (como no [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md)): nome `Visitante`, descrição `Só consulta`. Confira que ele aparece na lista de `/perfis`, e volte ao relatório.
+Salve e recarregue: o total é **27**, igual ao cartão do dashboard. Agora um teste. Cadastre um perfil novo pelo sistema, em **Perfis > Cadastrar Perfil** (como no [Capítulo 12](Capitulo_12_INSERT_e_SELECT_de_Perfis.md)): nome `Visitante`, descrição `Só consulta`. Confira que ele aparece na lista de `/perfis`, e volte ao relatório.
 
 **O `Visitante` não está lá.** O perfil existe, mas nenhum usuário aponta para ele, e o `JOIN` comum (o `INNER JOIN`) só devolve as linhas que têm **par** nas duas tabelas: sem usuário, sem linha. Para um relatório isso é um defeito, porque "nenhum usuário com este perfil" também é uma informação, e quem lê o relatório quer ver o `0`. A solução é o `LEFT JOIN`, que traz **todas as linhas da tabela da esquerda**, tenham par ou não. Quando não há par, as colunas da outra tabela vêm como `NULL`. A tabela que precisa aparecer sempre é `perfis`, então ela passa a ser a primeira (a da esquerda). Teste no phpMyAdmin:
 
@@ -377,7 +377,7 @@ O estado é um campo **opcional** do cadastro, e quem não o informou tem `NULL`
         fetch=True,
     )
 
-    return render_template('relatorio_usuarios.html', titulo='Relatório de usuários',
+    return render_template('relatorios/relatorio_usuarios.html', titulo='Relatório de usuários',
                            por_perfil=por_perfil, por_estado=por_estado)
 ```
 
@@ -479,7 +479,7 @@ Leve para a rota. Acrescente a consulta depois da de `por_estado` e passe o resu
         fetch=True,
     )
 
-    return render_template('relatorio_usuarios.html', titulo='Relatório de usuários',
+    return render_template('relatorios/relatorio_usuarios.html', titulo='Relatório de usuários',
                            por_perfil=por_perfil, por_estado=por_estado, por_mes=por_mes)
 ```
 
@@ -608,14 +608,14 @@ def relatorio_produtos():
         'FROM produtos'
     )
 
-    return render_template('relatorio_produtos.html', titulo='Relatório de produtos',
+    return render_template('relatorios/relatorio_produtos.html', titulo='Relatório de produtos',
                            contagem=contagem)
 ```
 
-A rota usa o `execute_one` (do [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)), que devolve **uma** linha, e não uma lista: a consulta sem `GROUP BY` sempre devolve exatamente uma. Em vez de percorrer com `for`, o template lê direto `contagem.total` e `contagem.ativos`. Crie o `templates/relatorio_produtos.html`, com o cabeçalho e a primeira tabela:
+A rota usa o `execute_one` (do [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md)), que devolve **uma** linha, e não uma lista: a consulta sem `GROUP BY` sempre devolve exatamente uma. Em vez de percorrer com `for`, o template lê direto `contagem.total` e `contagem.ativos`. Crie o `templates/relatorios/relatorio_produtos.html`, com o cabeçalho e a primeira tabela:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -673,7 +673,7 @@ Salve, abra **http://127.0.0.1:5000/relatorios**, clique em **Abrir relatório**
         'WHERE ativo = 1'
     )
 
-    return render_template('relatorio_produtos.html', titulo='Relatório de produtos',
+    return render_template('relatorios/relatorio_produtos.html', titulo='Relatório de produtos',
                            contagem=contagem, resumo=resumo)
 ```
 
@@ -809,7 +809,7 @@ Na rota, acrescente a consulta depois do `resumo` e passe o resultado ao templat
         fetch=True,
     )
 
-    return render_template('relatorio_produtos.html', titulo='Relatório de produtos',
+    return render_template('relatorios/relatorio_produtos.html', titulo='Relatório de produtos',
                            contagem=contagem, resumo=resumo, por_categoria=por_categoria)
 ```
 
@@ -892,7 +892,7 @@ Na rota, o limite vai por `%s`, como qualquer valor, e **não** colado no texto 
         fetch=True,
     )
 
-    return render_template('relatorio_produtos.html', titulo='Relatório de produtos',
+    return render_template('relatorios/relatorio_produtos.html', titulo='Relatório de produtos',
                            contagem=contagem, resumo=resumo, por_categoria=por_categoria,
                            estoque_baixo=estoque_baixo, limite=LIMITE_ESTOQUE_BAIXO)
 ```
@@ -959,7 +959,7 @@ git push
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. O zip tem o sistema completo, com os relatórios: o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `relatorios_dados.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` e a pasta `static` (com `static/uploads` vazia, só com o `.gitkeep`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos do início, rode `copy .env.example .env` e troque os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` e, depois dele, o `relatorios_dados.sql` no phpMyAdmin.
+Compare com o seu projeto. O zip tem o sistema completo, com os relatórios: o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `relatorios_dados.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com a subpasta `relatorios`) e a pasta `static` (com `static/uploads` vazia, só com o `.gitkeep`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos do início, rode `copy .env.example .env` e troque os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` e, depois dele, o `relatorios_dados.sql` no phpMyAdmin.
 
 ➡️ [Baixar p2_cap_19.zip](../arquivos/p2_cap_19.zip)
 
