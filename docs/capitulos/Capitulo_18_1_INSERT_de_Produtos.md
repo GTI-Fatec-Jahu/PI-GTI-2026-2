@@ -49,7 +49,7 @@ venv\Scripts\activate
 git status
 ```
 
-O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py` e deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git). Abra **http://127.0.0.1:5000**, entre com a Ana (`ana@exemplo.com`, senha `Senha123`) e olhe o cartão **produtos** da página inicial: ele mostra **0**, porque nenhum produto foi cadastrado.
+O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servidor com `python app.py` e deixe esse terminal rodando durante o capítulo (use um segundo terminal, o ícone **+**, para o Git). Abra **http://127.0.0.1:5000**, entre com a Ana (`ana@exemplo.com`, senha `Senha123`) e olhe o cartão **produtos** do dashboard: ele mostra **0**, porque nenhum produto foi cadastrado.
 
 ### A tabela `produtos`
 
@@ -94,9 +94,9 @@ Como em `perfis` e `usuarios`, o recurso `produtos` segue o mesmo molde de nomes
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template |
 |---|---|---|---|---|
-| `/produtos` | GET | Lista os produtos | `lista_produtos` | `produtos.html` |
-| `/produtos/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `produto_novo` | `produto_form.html` |
-| `/produtos/<int:id_produto>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `produto_editar` | `produto_form.html` |
+| `/produtos` | GET | Lista os produtos | `lista_produtos` | `produtos/produtos_lista.html` |
+| `/produtos/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `produto_novo` | `produtos/produto_form.html` |
+| `/produtos/<int:id_produto>/editar` | GET e POST | GET mostra o formulário preenchido, POST confere e atualiza | `produto_editar` | `produtos/produto_form.html` |
 | `/produtos/<int:id_produto>/excluir` | só POST | Exclui o produto e volta para a lista | `produto_excluir` | (nenhum) |
 
 Não há página de detalhe: a lista já mostra o que importa de cada produto, e os botões **Editar** e **Excluir** ficam nela mesma, na linha do produto.
@@ -112,13 +112,13 @@ def lista_produtos():
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
-    return render_template('produtos.html', titulo='Produtos')
+    return render_template('produtos/produtos_lista.html', titulo='Produtos')
 ```
 
-O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17_Login.md): quem não fez login vai para a tela de entrada. Crie o `templates/produtos.html`:
+O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17_Login.md): quem não fez login vai para a tela de entrada. Crie a pasta `templates/produtos` e, dentro dela, o `produtos_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -127,20 +127,23 @@ O `if` do começo é o mesmo das outras rotas desde o [Capítulo 17](Capitulo_17
 
   <div class="alert alert-info" role="alert">
     A lista de produtos chega mais adiante. Por enquanto, confira os cadastros no phpMyAdmin
-    (banco <strong>gestao</strong>, tabela <strong>produtos</strong>) e no contador da página inicial.
+    (banco <strong>gestao</strong>, tabela <strong>produtos</strong>) e no contador do dashboard.
   </div>
 {% endblock %}
 ```
 
-Agora o menu. No `base.html`, acrescente o item **Produtos** **depois** do item Usuários e **antes** do item com o nome de quem entrou:
+Agora o menu. No `templates/layout/base_menu.html`, acrescente o menu suspenso **Produtos** **depois** do menu Usuários, dentro do primeiro `<ul class="navbar-nav me-auto">` (o `<ul>` do **Home**):
 
 ```html
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_produtos', 'produto_novo', 'produto_editar'] %}active{% endif %}" href="{{ url_for('lista_produtos') }}">Produtos</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_produtos', 'produto_novo', 'produto_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_produtos') }}">Listar Produtos</a></li>
+            </ul>
           </li>
 ```
 
-A lista `['lista_produtos', 'produto_novo', 'produto_editar']` faz o item ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas. Salve, recarregue e clique em **Produtos**: a página provisória aparece, com o item do menu destacado. Saia do sistema (**Sair**) e digite `http://127.0.0.1:5000/produtos` na barra de endereço: você volta para a tela de entrada, com a faixa `Entre para continuar.` Entre de novo antes de seguir.
+A lista `['lista_produtos', 'produto_novo', 'produto_editar']` faz o menu ficar destacado em qualquer uma das telas do recurso, inclusive nas que ainda vão ser construídas. Salve, recarregue e use **Produtos > Listar Produtos**: a página provisória aparece, com o menu destacado. Saia do sistema (**Sair**) e digite `http://127.0.0.1:5000/produtos` na barra de endereço: você volta para a tela de entrada, com a faixa `Entre para continuar.` Entre de novo antes de seguir.
 
 Para registrar este ponto no Git:
 
@@ -183,17 +186,17 @@ def produto_novo():
 
     dados = {'estoque': '0', 'ativo': '1'}
 
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 ```
 
 O `dados` é um **dicionário** com os valores que o formulário mostra ao abrir: o estoque começa em `0` e o produto começa ativo (`'1'`). Os valores são textos porque, mais adiante, quando a página voltar com erros, o `dados` será o `request.form`, onde tudo é texto, e o formulário não precisa saber de qual dos dois veio. Os campos que não estão no dicionário (`nome`, `preco`...) aparecem **vazios** no HTML: o Jinja escreve uma chave que não existe como um texto vazio.
 
 ### O formulário, um campo por vez
 
-Crie o `templates/produto_form.html` só com o esqueleto e o campo do nome:
+Crie o `templates/produtos/produto_form.html` só com o esqueleto e o campo do nome:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo produto — Sistema de Gestão{% endblock %}
 
@@ -227,7 +230,7 @@ Crie o `templates/produto_form.html` só com o esqueleto e o campo do nome:
 {% endblock %}
 ```
 
-Antes de testar, o `produtos.html` precisa do botão que leva ao formulário. Troque a linha do título por um cabeçalho com o título e o botão:
+Antes de testar, o `produtos_lista.html` precisa do botão que leva ao formulário. Troque a linha do título por um cabeçalho com o título e o botão:
 
 ```html
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -237,6 +240,14 @@ Antes de testar, o `produtos.html` precisa do botão que leva ao formulário. Tr
 ```
 
 Salve e recarregue **Produtos**: o botão **Novo produto** abre o formulário, com o campo **Nome**. O `required`, o `minlength` e o `maxlength` são os atributos do HTML5 que o navegador confere antes de enviar. O `value="{{ dados.nome }}"` ainda aparece vazio, e vai servir para devolver o que a pessoa digitou. O `csrf_token` é o campo escondido que a proteção `CSRFProtect` exige em todo formulário `POST`, como desde o Capítulo 8.
+
+O menu também precisa do caminho até o formulário, e agora a rota `produto_novo` existe. No `base_menu.html`, acrescente o segundo link do menu **Produtos**, logo depois do **Listar Produtos**:
+
+```html
+              <li><a class="dropdown-item" href="{{ url_for('produto_novo') }}">Cadastrar Produto</a></li>
+```
+
+Salve e confira **Produtos > Cadastrar Produto**.
 
 Agora a **descrição**. É opcional (a coluna aceita `NULL`), então fica sem `required`, e como o texto pode ter várias linhas, usa `<textarea>`. Acrescente **depois** do bloco do nome:
 
@@ -586,7 +597,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 ```
 
 O `methods=['GET', 'POST']` libera o envio do formulário. O `dados = request.form` do final faz o formulário voltar com **o que a pessoa digitou**, tanto quando há erros quanto agora, na mensagem provisória. Salve e teste. Para o navegador deixar passar os valores inválidos, o `pattern` e o `required` atrapalham; use o painel de desenvolvimento (`F12`, aba **Elementos**) para apagar o `pattern` do preço e o `required`, ou envie o formulário errado de propósito:
@@ -687,7 +698,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 ```
 
 A `execute_insert` (a função do `db.py`) executa o comando e devolve o **código** que o `AUTO_INCREMENT` gerou. O `redirect` depois de gravar é o padrão PRG (*Post/Redirect/Get*): a resposta do `POST` não é uma página, e sim um redirecionamento para a lista. Por isso, apertar `F5` depois não envia o formulário de novo, e o produto não é cadastrado em dobro.
@@ -705,7 +716,7 @@ Salve e cadastre estes quatro produtos pelo formulário. Eles também serão usa
 | Fone de Ouvido | Sem fio, com cancelamento de ruído | `249` | `40` | Áudio | sim |
 | Cabo HDMI 2m | (vazia) | `25,00` | `0` | Sem categoria | **não** (desmarque o interruptor) |
 
-Depois de cada **Salvar produto**, você cai na página provisória, com a faixa verde `Produto "Notebook Gamer" cadastrado (código 1).` (ou outro número). Aperte `F5`: a faixa some e nada é cadastrado de novo. Abra o **Início**: o cartão de produtos mostra **4**.
+Depois de cada **Salvar produto**, você cai na página provisória, com a faixa verde `Produto "Notebook Gamer" cadastrado (código 1).` (ou outro número). Aperte `F5`: a faixa some e nada é cadastrado de novo. Abra o **Home**: o cartão de produtos mostra **4**.
 
 Abra o phpMyAdmin, banco `gestao`, tabela `produtos`, aba **Visualizar**, e confira:
 
@@ -889,7 +900,7 @@ def arquivo_grande_demais(erro):
 E crie o `templates/413.html`, no mesmo molde do `404.html` e do `500.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Arquivo grande demais — Sistema de Gestão{% endblock %}
 
@@ -947,7 +958,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 ```
 
 A foto só é gravada em disco **depois** de os dados passarem na conferência: um formulário com erro não deixa arquivo sobrando na pasta.
@@ -1059,10 +1070,15 @@ def cpf_oculto(cpf):
     return '***.' + cpf[4:11] + '-**'
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -1084,7 +1100,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -1099,8 +1115,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
-def index():
+@app.route('/dashboard')
+def dashboard():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -1109,7 +1125,7 @@ def index():
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -1126,7 +1142,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -1188,7 +1204,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -1238,7 +1254,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -1283,7 +1299,7 @@ def lista_usuarios():
 
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -1457,7 +1473,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -1471,7 +1487,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -1538,7 +1554,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -1571,7 +1587,7 @@ def lista_produtos():
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
-    return render_template('produtos.html', titulo='Produtos')
+    return render_template('produtos/produtos_lista.html', titulo='Produtos')
 
 
 def ler_formulario_produto(form):
@@ -1686,7 +1702,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', dados=dados, categorias=CATEGORIAS)
+    return render_template('produtos/produto_form.html', dados=dados, categorias=CATEGORIAS)
 
 
 @app.errorhandler(404)
@@ -2030,7 +2046,7 @@ def validar_extensao_foto(extensao):
     return None
 ```
 
-O `templates/base.html`, com o item **Produtos** no menu:
+O `templates/layout/base_menu.html`, com o menu **Produtos**:
 
 ```html
 <!DOCTYPE html>
@@ -2046,27 +2062,40 @@ O `templates/base.html`, com o item **Produtos** no menu:
 
   <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Sistema de Gestão</a>
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">Sistema de Gestão</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
               aria-label="Abrir o menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          {% if 'id_usuario' in session %}
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Início</a>
+            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_produtos', 'produto_novo', 'produto_editar'] %}active{% endif %}" href="{{ url_for('lista_produtos') }}">Produtos</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_produtos', 'produto_novo'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produtos</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_produtos') }}">Listar Produtos</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('produto_novo') }}">Cadastrar Produto</a></li>
+            </ul>
           </li>
+        </ul>
+        <ul class="navbar-nav align-items-lg-center">
           <li class="nav-item">
             <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
           </li>
@@ -2076,11 +2105,6 @@ O `templates/base.html`, com o item **Produtos** no menu:
               <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
             </form>
           </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Entrar</a>
-          </li>
-          {% endif %}
         </ul>
       </div>
     </div>
@@ -2108,10 +2132,10 @@ O `templates/base.html`, com o item **Produtos** no menu:
 </html>
 ```
 
-O `templates/produtos.html` (a página provisória):
+O `templates/produtos/produtos_lista.html` (a página provisória):
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -2123,15 +2147,15 @@ O `templates/produtos.html` (a página provisória):
 
   <div class="alert alert-info" role="alert">
     A lista de produtos chega mais adiante. Por enquanto, confira os cadastros no phpMyAdmin
-    (banco <strong>gestao</strong>, tabela <strong>produtos</strong>) e no contador da página inicial.
+    (banco <strong>gestao</strong>, tabela <strong>produtos</strong>) e no contador do dashboard.
   </div>
 {% endblock %}
 ```
 
-O `templates/produto_form.html`:
+O `templates/produtos/produto_form.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo produto — Sistema de Gestão{% endblock %}
 
@@ -2207,7 +2231,7 @@ O `templates/produto_form.html`:
 O `templates/413.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Arquivo grande demais — Sistema de Gestão{% endblock %}
 
@@ -2245,13 +2269,13 @@ static/uploads/*
 !static/uploads/.gitkeep
 ```
 
-Os demais arquivos (`db.py`, `testar_conexao.py`, `index.html`, `login.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `banco.sql`, `.env.example` e `requirements.txt`) são os do Capítulo 17.
+Os demais arquivos (`db.py`, `testar_conexao.py`, `base_limpo.html`, `login.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuarios_lista.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `banco.sql`, `.env.example` e `requirements.txt`) são os do Capítulo 17.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do Capítulo 18.2. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `produtos.html` provisório, o `produto_form.html` e o `413.html`) e a pasta `static` (`estilo.css` e a pasta `uploads`, vazia). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos acima e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin e cadastre os três perfis e os três usuários pelo formulário. As fotos enviadas também não: a pasta `static/uploads` vem vazia, só com o `.gitkeep`.
+Compare com o seu projeto, ou use como ponto de partida do Capítulo 18.2. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `produtos/produtos_lista.html` provisório, o `produtos/produto_form.html` e o `413.html`) e a pasta `static` (`estilo.css` e a pasta `uploads`, vazia). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os comandos acima e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no [Capítulo 11](Capitulo_11_Projeto_Novo_e_Banco.md#topico-4-o-arquivo-env). O banco também não vai dentro do zip: importe o `banco.sql` no phpMyAdmin e cadastre os três perfis e os três usuários pelo formulário. As fotos enviadas também não: a pasta `static/uploads` vem vazia, só com o `.gitkeep`.
 
 ➡️ [Baixar p2_cap_18_1.zip](../arquivos/p2_cap_18_1.zip)
 
