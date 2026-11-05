@@ -107,7 +107,7 @@ O terceiro caso é o que mais atrapalha: a resposta **não é um JSON**, e tenta
 
 ### O botão e o espaço do aviso
 
-No `templates/usuario_form.html`, o CEP e o endereço dividiam uma linha. Troque **a linha inteira** do CEP e do endereço (o `<div class="row">` que abre com o campo `cep` e fecha depois do campo `endereco`) por este trecho:
+No `templates/usuarios/usuario_form.html`, o CEP e o endereço dividiam uma linha. Troque **a linha inteira** do CEP e do endereço (o `<div class="row">` que abre com o campo `cep` e fecha depois do campo `endereco`) por este trecho:
 
 ```html
             <div class="row">
@@ -133,7 +133,7 @@ Três detalhes: o botão é `type="button"`, e **não** `type="submit"`, para n�
 
 ### Uma função que lê o CEP
 
-Escreva a função. O `base.html` já tem o `{% block scripts %}`, que o Capítulo 13 usou. No **final** do `usuario_form.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
+Escreva a função. O `base_menu.html` já tem o `{% block scripts %}`, que o Capítulo 13 usou. No **final** do `usuario_form.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
 
 ```html
 {% block scripts %}
@@ -332,10 +332,10 @@ git push
 
 ## O arquivo completo do capítulo
 
-Só o `templates/usuario_form.html` mudou neste capítulo. O `app.py`, o `validacoes.py` e os demais arquivos são os do Capítulo 14.
+Só o `templates/usuarios/usuario_form.html` mudou neste capítulo. O `app.py`, o `validacoes.py` e os demais arquivos são os do Capítulo 14.
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}Novo usuário — Sistema de Gestão{% endblock %}
 
@@ -506,7 +506,7 @@ Só o `templates/usuario_form.html` mudou neste capítulo. O `app.py`, o `valida
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 15 não parte deste zip**, e sim do zip do Capítulo 14. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `usuario_form.html` novo) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
+Compare com o seu projeto. Este capítulo é opcional, então o **Capítulo 15 não parte deste zip**, e sim do zip do Capítulo 14. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (com o `usuarios/usuario_form.html` novo) e a pasta `static`. O ambiente virtual e o `.env` **não** vão no zip: crie-os como no Capítulo 11.
 
 ➡️ [Baixar p2_cap_14_1.zip](../arquivos/p2_cap_14_1.zip)
 
