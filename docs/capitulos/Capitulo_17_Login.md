@@ -128,10 +128,10 @@ Este tópico não mudou o código, então não há commit.
 | `/login` | GET e POST | GET mostra o formulário, POST confere e entra | `login` | `login.html` |
 | `/logout` | só POST | Sai do sistema e volta para o login | `logout` | (nenhum) |
 
-Neste tópico a tela de login ganha o formulário. A rota `login` já existe desde o Capítulo 11 e só mostra a página. No `app.py`, acrescente `session` na linha de importação do Flask, **depois** do `abort` (ele só será usado no Tópico 3):
+Neste tópico a tela de login ganha o formulário. A rota `login` já existe desde o Capítulo 11 e só mostra a página. No `app.py`, acrescente `session` na linha de importação do Flask, na ordem alfabética, entre o `request` e o `url_for` (ele só será usado no Tópico 3):
 
 ```python
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 ```
 
 E troque o `return` da rota `login`, para ela entregar o e-mail ao template:
@@ -145,7 +145,7 @@ def login():
 O `email=''` é o valor que o campo de e-mail mostrará. Ele existe desde já porque, daqui a pouco, o formulário devolverá o e-mail digitado quando a senha estiver errada, como os formulários dos Capítulos 14 e 16. Falta o formulário. Troque o conteúdo do `templates/login.html` (o cartão com o botão **Entrar**, que só levava ao dashboard) por:
 
 ```html
-{% extends 'layout/base_limpo.html' %}
+{% extends 'layout/base_limpa.html' %}
 
 {% block titulo_aba %}Entrar — Sistema de Gestão{% endblock %}
 
@@ -174,7 +174,7 @@ O `email=''` é o valor que o campo de e-mail mostrará. Ele existe desde já po
 {% endblock %}
 ```
 
-O arquivo continua herdando o `base_limpo.html` (o layout sem menu do Capítulo 11) e usa só peças que você já conhece: um `<form>` com `method="post"`, o campo escondido com o token CSRF (Capítulo 8) e um `value` que devolve o e-mail. Os atributos novos são pequenos:
+O arquivo continua herdando o `base_limpa.html` (o layout sem menu do Capítulo 11) e usa só peças que você já conhece: um `<form>` com `method="post"`, o campo escondido com o token CSRF (Capítulo 8) e um `value` que devolve o e-mail. Os atributos novos são pequenos:
 
 | Atributo | O que faz |
 |---|---|
@@ -198,87 +198,20 @@ git push
 
 ## Tópico 3 — Conferir o e-mail e a senha
 
-### A rota passa a receber o POST
+### A rota completa
 
-Troque a rota `login` inteira por esta. Ela aceita os dois métodos e, por enquanto, só lê os dois campos e avisa o que recebeu:
+No `app.py`, acrescente `check_password_hash` à linha de importação do `werkzeug.security` (em ordem alfabética, ele vem antes do `generate_password_hash`):
+
+```python
+from werkzeug.security import check_password_hash, generate_password_hash
+```
+
+E troque a rota `login` inteira por esta:
 
 ```python
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    email = ''
-
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        senha = request.form.get('senha', '')
-
-        flash(f'Recebi o e-mail {email}.', 'info')
-
-    return render_template('login.html', email=email)
-```
-
-O e-mail passa por `strip()` e `lower()`, como no cadastro (Capítulo 14): quem digita `ANA@exemplo.com ` com maiúsculas e um espaço no fim precisa entrar do mesmo jeito. A senha **não** leva `strip()`, porque espaços fazem parte de uma senha. Salve, preencha `ANA@Exemplo.com` e qualquer senha, e envie: a faixa azul `Recebi o e-mail ana@exemplo.com.` aparece, e o campo de e-mail continua preenchido. O campo de senha volta vazio, e é assim que deve ser. A variável `senha` ainda não é usada.
-
-### Buscar o usuário pelo e-mail
-
-Troque a linha do `flash(...)` por uma consulta e por um aviso provisório:
-
-```python
-        usuario = execute_one(
-            'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
-            'FROM usuarios u '
-            'JOIN perfis p ON p.id_perfil = u.perfil_id '
-            'WHERE u.email = %s',
-            (email,),
-        )
-
-        if usuario is None:
-            flash('E-mail ou senha incorretos.', 'danger')
-        else:
-            flash('Encontrei o usuário. Ainda não conferi a senha.', 'info')
-```
-
-Esta é a **consulta própria do login**, a que o [Capítulo 15](Capitulo_15_SELECT_Relacional_de_Usuario.md) prometeu: é a única do sistema que lê a coluna `senha`, por isso não usa o `SELECT_USUARIO`. Ela traz o código, o nome, o hash e, pelo `JOIN`, o nome do perfil, com o apelido `perfil` (o mesmo cuidado do Capítulo 15, para as duas colunas `nome` não se sobrescreverem). O `WHERE` leva o `%s` e o e-mail na tupla, como em todas as consultas do projeto. A consulta busca **só pelo e-mail**: a senha nunca entra no SQL, porque o banco só tem o hash.
-
-Salve e teste:
-
-- `ninguem@exemplo.com` com qualquer senha: faixa vermelha `E-mail ou senha incorretos.`
-- `ana@exemplo.com` com qualquer senha: faixa azul `Encontrei o usuário. Ainda não conferi a senha.` (a senha ainda não é olhada, e é isso que o próximo trecho corrige).
-
-### Conferir a senha
-
-Troque o `if usuario is None ... else ...` provisório por este, e acrescente `check_password_hash` à linha de importação do `werkzeug.security`:
-
-```python
-from werkzeug.security import generate_password_hash, check_password_hash
-```
-
-```python
-        if usuario is not None and check_password_hash(usuario['senha'], senha):
-            flash('Senha correta. Ainda não guardei quem entrou.', 'success')
-        else:
-            flash('E-mail ou senha incorretos.', 'danger')
-```
-
-!!! note "Python: o `and` que para no primeiro `False`"
-    No `and`, se o primeiro lado já é falso, o Python **nem avalia** o segundo. Se o e-mail não existe, `usuario` é `None`, o primeiro lado (`usuario is not None`) dá `False`, e o `check_password_hash(usuario['senha'], ...)` nunca roda. A ordem importa: invertida, `None['senha']` daria erro. O `else` junta os dois casos de fracasso em uma única mensagem.
-
-!!! tip "Por que a mensagem não diz qual dos dois errou"
-    `E-mail ou senha incorretos.` serve para o e-mail que não existe **e** para a senha errada. Se o sistema dissesse "este e-mail não está cadastrado", qualquer pessoa descobriria, testando endereços, quem tem conta no sistema. Com a mensagem única, quem erra fica sem essa pista.
-
-Salve e teste:
-
-- `ana@exemplo.com` com `errada`: faixa vermelha.
-- `ninguem@exemplo.com`: a **mesma** faixa vermelha.
-- `ana@exemplo.com` com `senha123` (minúscula): faixa vermelha, porque a conferência diferencia maiúsculas.
-- `ana@exemplo.com` com `Senha123`: faixa verde `Senha correta. Ainda não guardei quem entrou.`
-
-### Guardar quem entrou
-
-A senha confere, mas o sistema esquece na hora: nada foi guardado. O que lembra a pessoa entre um pedido e outro é a `session`. Troque a rota `login` inteira por esta versão, que também manda para o dashboard quem já está logado:
-
-```python
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+    # Quem já entrou não precisa ver a tela de login
     if 'id_usuario' in session:
         return redirect(url_for('dashboard'))
 
@@ -288,6 +221,7 @@ def login():
         email = request.form.get('email', '').strip().lower()
         senha = request.form.get('senha', '')
 
+        # Só o login lê a coluna senha (o hash)
         usuario = execute_one(
             'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
             'FROM usuarios u '
@@ -297,6 +231,7 @@ def login():
         )
 
         if usuario is not None and check_password_hash(usuario['senha'], senha):
+            # Guarda na session quem entrou (o cookie assinado pela secret_key)
             session.clear()
             session['id_usuario'] = usuario['id_usuario']
             session['nome'] = usuario['nome']
@@ -304,21 +239,45 @@ def login():
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
             return redirect(url_for('dashboard'))
 
+        # A mesma mensagem para e-mail inexistente e senha errada
         flash('E-mail ou senha incorretos.', 'danger')
 
     return render_template('login.html', email=email)
 ```
 
-Três pontos merecem atenção:
+É o caminho do diagrama do Tópico 1, de cima para baixo.
 
-- O `'id_usuario' in session` do começo manda para o dashboard quem já fez login e abriu `/login` de novo. Sem ele, a pessoa veria o formulário estando logada.
+**1. Quem já entrou.** O `'id_usuario' in session` do começo manda para o dashboard quem já fez login e abriu `/login` de novo. Sem ele, a pessoa veria o formulário estando logada.
+
+**2. Ler os campos.** O e-mail passa por `strip()` e `lower()`, como no cadastro (Capítulo 14): quem digita `ANA@exemplo.com ` com maiúsculas e um espaço no fim precisa entrar do mesmo jeito. A senha **não** leva `strip()`, porque espaços fazem parte de uma senha. O `email` é devolvido ao template no `render_template` do fim: quando o login falha, o campo de e-mail continua preenchido, e o de senha volta vazio, como deve ser.
+
+**3. Buscar o usuário pelo e-mail.** Esta é a **consulta própria do login**, a que o [Capítulo 15](Capitulo_15_SELECT_Relacional_de_Usuario.md) prometeu: é a única do sistema que lê a coluna `senha`, por isso não usa o `SELECT_USUARIO`. Ela traz o código, o nome, o hash e, pelo `JOIN`, o nome do perfil, com o apelido `perfil` (o mesmo cuidado do Capítulo 15, para as duas colunas `nome` não se sobrescreverem). O `WHERE` leva o `%s` e o e-mail na tupla, como em todas as consultas do projeto. A consulta busca **só pelo e-mail**: a senha nunca entra no SQL, porque o banco só tem o hash.
+
+**4. Conferir a senha.** O `check_password_hash` do Tópico 1 refaz a conta com o sal guardado no hash e compara. O `if` só é verdadeiro quando as duas condições valem: o usuário existe **e** a senha confere.
+
+!!! note "Python: o `and` que para no primeiro `False`"
+    No `and`, se o primeiro lado já é falso, o Python **nem avalia** o segundo. Se o e-mail não existe, `usuario` é `None`, o primeiro lado (`usuario is not None`) dá `False`, e o `check_password_hash(usuario['senha'], ...)` nunca roda. A ordem importa: invertida, `None['senha']` daria erro. O `flash` de erro, depois do `if`, junta os dois casos de fracasso em uma única mensagem.
+
+!!! tip "Por que a mensagem não diz qual dos dois errou"
+    `E-mail ou senha incorretos.` serve para o e-mail que não existe **e** para a senha errada. Se o sistema dissesse "este e-mail não está cadastrado", qualquer pessoa descobriria, testando endereços, quem tem conta no sistema. Com a mensagem única, quem erra fica sem essa pista.
+
+**5. Guardar quem entrou.** A senha confere, e agora o sistema precisa **lembrar** da pessoa entre um pedido e outro: é a `session` do Capítulo 8.
+
 - A `session` recebe **três** valores: o código, o nome e o perfil. O nome e o perfil serão escritos no menu, e o código identifica a pessoa nas rotas. **A senha, e o hash também, nunca vão para a `session`**: o cookie é assinado, mas qualquer pessoa consegue lê-lo (Capítulo 8).
 - Se o login deu certo, a rota termina no `redirect` (o padrão PRG de sempre), e o `flash(...)` de erro, que está depois do `if`, só roda quando o `if` falha.
 
 !!! note "Flask: `session.clear()`"
     O `session.clear()` esvazia a `session` inteira. Ele roda **antes** de gravar o usuário novo, para que nada de uma visita anterior (de outra pessoa que usou o mesmo navegador, por exemplo) sobreviva ao login. O `flash(...)` vem depois dele, senão a própria mensagem seria apagada.
 
-Salve e entre com `ana@exemplo.com` e `Senha123`. O dashboard abre com a faixa verde `Você entrou como Ana Beatriz Lima.` Tente abrir `/login` de novo: você volta para o dashboard.
+### Testando
+
+Salve e teste:
+
+1. `ninguem@exemplo.com` com qualquer senha: faixa vermelha `E-mail ou senha incorretos.`, e o e-mail continua no campo.
+2. `ana@exemplo.com` com `errada`: a **mesma** faixa vermelha.
+3. `ana@exemplo.com` com `senha123` (minúscula): faixa vermelha, porque a conferência diferencia maiúsculas.
+4. `ANA@Exemplo.com` com `Senha123`: o dashboard abre com a faixa verde `Você entrou como Ana Beatriz Lima.` O e-mail com maiúsculas funcionou por causa do `lower()`.
+5. Com a Ana logada, tente abrir `/login` de novo: você volta para o dashboard.
 
 ### Olhando o cookie por dentro
 
@@ -366,15 +325,23 @@ A rota aceita só `POST`, pelo mesmo motivo da exclusão (Capítulo 13): ela **a
 
 ### O botão Sair
 
-Desde o Capítulo 11 o botão **Sair** é um link que só volta para a tela de login. Como a saída agora é um `POST`, ele precisa virar um formulário, com o token CSRF. No `templates/layout/base_menu.html`, troque o `<li>` do botão **Sair** (no segundo `<ul>`, o `<ul class="navbar-nav align-items-lg-center">`) por:
+Desde o Capítulo 11 o botão **Sair** é um link que só volta para a tela de login. Como a saída agora é um `POST`, ele precisa virar um formulário, com o token CSRF. No `templates/layout/base_menu.html`, procure o segundo `<ul>` do menu, o `<ul class="navbar-nav align-items-lg-center">`, e o `<li>` do botão **Sair** dentro dele:
 
 ```html
-          <li class="nav-item">
-            <form action="{{ url_for('logout') }}" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
-            </form>
-          </li>
+<li class="nav-item">
+  <a class="btn btn-sm btn-outline-light" href="{{ url_for('login') }}">Sair</a>
+</li>
+```
+
+Troque esse `<li>` inteiro por:
+
+```html
+<li class="nav-item">
+  <form action="{{ url_for('logout') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
+  </form>
+</li>
 ```
 
 Salve, entre com a Ana e clique em **Sair**: você cai em `/login`, com a faixa verde `Você saiu do sistema.` O botão tem a mesma cara de antes, mas agora a saída acontece de verdade, porque a `session` é esvaziada.
@@ -384,9 +351,25 @@ Salve, entre com a Ana e clique em **Sair**: você cai em `/login`, com a faixa 
 O menu pode dizer quem está logado. O Jinja enxerga a `session` direto, sem ninguém entregá-la ao template (você usou `session.pop` no `base.html` do Capítulo 8). No `base_menu.html`, no mesmo segundo `<ul>`, **antes** do `<li>` do botão **Sair**, acrescente:
 
 ```html
-          <li class="nav-item">
-            <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
-          </li>
+<li class="nav-item">
+  <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
+</li>
+```
+
+Com as duas mudanças, o segundo `<ul>` inteiro fica assim:
+
+```html
+<ul class="navbar-nav align-items-lg-center">
+  <li class="nav-item">
+    <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
+  </li>
+  <li class="nav-item">
+    <form action="{{ url_for('logout') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
+    </form>
+  </li>
+</ul>
 ```
 
 O `session['nome']` e o `session['perfil']` vêm do que o login gravou. Repare que o sistema **não** precisa de dois desenhos de menu, um para quem entrou e outro para quem não entrou: o menu só aparece nas páginas do sistema, e o login e as páginas de erro usam o layout limpo, que não tem menu. O `align-items-lg-center` só alinha o nome e o botão com os links. Salve e confira:
@@ -409,11 +392,11 @@ git push
 
 ### Uma rota por vez
 
-Esconder o link não protege nada: quem digita o endereço chega do mesmo jeito. A proteção precisa estar **dentro da rota**. A regra é simples: se a `session` não tem o `id_usuario`, a pessoa não entrou, e a rota manda para o login em vez de fazer o que foi pedido. Comece pela `lista_usuarios`. Acrescente, como **primeiras linhas** da função (antes do `SELECT`):
+Esconder o link não protege nada: quem digita o endereço chega do mesmo jeito. A proteção precisa estar **dentro da rota**. A regra é simples: se a `session` não tem o `id_usuario`, a pessoa não entrou, e a rota manda para o login em vez de fazer o que foi pedido. Comece pela `listar_usuarios`. Acrescente, como **primeiras linhas** da função (antes do `SELECT`):
 
 ```python
 @app.route('/usuarios')
-def lista_usuarios():
+def listar_usuarios():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -432,16 +415,16 @@ Salve e teste, com o servidor ligado:
 
 ### As outras nove rotas
 
-Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depois `/usuarios/novo` e, por fim, `/dashboard`. As três **abrem**: só a `lista_usuarios` foi protegida. O sistema tem dez rotas que exigem login, e é preciso o mesmo `if` nas outras nove. Acrescente as **mesmas três linhas**, como primeiras linhas da função, em cada uma destas:
+Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depois `/usuarios/inserir` e, por fim, `/dashboard`. As três **abrem**: só a `listar_usuarios` foi protegida. O sistema tem dez rotas que exigem login, e é preciso o mesmo `if` nas outras nove. Acrescente as **mesmas três linhas**, como primeiras linhas da função, em cada uma destas:
 
 | Rota | Função |
 |---|---|
 | `/dashboard` | `dashboard` |
-| `/perfis` | `lista_perfis` |
-| `/perfis/novo` | `perfil_novo` |
+| `/perfis` | `listar_perfis` |
+| `/perfis/inserir` | `inserir_perfil` |
 | `/perfis/<int:id_perfil>/editar` | `perfil_editar` |
 | `/perfis/<int:id_perfil>/excluir` | `perfil_excluir` |
-| `/usuarios/novo` | `usuario_novo` |
+| `/usuarios/inserir` | `inserir_usuario` |
 | `/usuarios/<int:id_usuario>` | `usuario_detalhe` |
 | `/usuarios/<int:id_usuario>/editar` | `usuario_editar` |
 | `/usuarios/<int:id_usuario>/excluir` | `usuario_excluir` |
@@ -461,6 +444,7 @@ def perfil_editar(id_perfil):
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
@@ -471,7 +455,7 @@ Não esqueça as duas rotas que **só aceitam `POST`**, `perfil_excluir` e `usua
 
 Salve e confira, **sem** estar logado:
 
-- `/dashboard`, `/perfis`, `/perfis/novo`, `/perfis/1/editar`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`, com a faixa amarela.
+- `/dashboard`, `/perfis`, `/perfis/inserir`, `/perfis/1/editar`, `/usuarios`, `/usuarios/inserir`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`, com a faixa amarela.
 - `/` continua levando ao `/login`, que continua aberto, e `/qualquer-coisa` continua dando a página 404.
 
 Agora entre como Ana e percorra o sistema: tudo funciona como no Capítulo 16. A única diferença é que o sistema agora sabe quem está pedindo.
@@ -484,9 +468,10 @@ Agora entre como Ana e percorra o sistema: tudo funciona como no Capítulo 16. A
 Falta um cuidado que só existe agora que o sistema sabe quem está logado. Entre como Ana, abra `/usuarios` e imagine clicar em **Excluir** na linha **dela mesma**: o usuário seria apagado do banco com a `session` ainda dizendo que ele está logado. No `usuario_excluir`, logo **depois** do `if` do login e **antes** do `SELECT`, acrescente:
 
 ```python
+    # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('lista_usuarios'))
+        return redirect(url_for('listar_usuarios'))
 ```
 
 O `id_usuario` do endereço é um número (o Flask o converteu por causa do `<int:id_usuario>`), e o da `session` também, então a comparação funciona. Salve, entre como Ana e clique em **Excluir** na linha dela, e depois em **Excluir** no modal: a faixa vermelha `Você não pode excluir o seu próprio usuário.` aparece, e a Ana continua na lista. Cadastre o **Daniel Teste** (e-mail `daniel@exemplo.com`, perfil **Usuário**, senha `Senha123`) e exclua-o: esse funciona, porque é outro usuário.
@@ -521,24 +506,21 @@ O `app.py`:
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 from flask_wtf.csrf import CSRFProtect
 from mysql.connector import Error
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import execute_query, execute_one, execute_insert
-from validacoes import (
-    UFS, validar_nome_perfil, validar_descricao_perfil,
-    validar_nome_usuario, validar_email, validar_senha, validar_celular,
-    validar_cpf, validar_data_nascimento, validar_cep, validar_estado,
-    validar_tamanho, formatar_celular, formatar_cpf, formatar_cep,
-)
+from db import execute_insert, execute_one, execute_query
+from validacoes.validacoes_perfil import validar_perfil
+from validacoes.validacoes_usuario import UFS, formatar_cep, formatar_celular, formatar_cpf, validar_usuario
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Liga a proteção CSRF: todo formulário POST do sistema vai precisar do token
 CSRFProtect(app)
 
 # As colunas que as telas de usuário leem. A senha fica de fora de propósito: o que não é
@@ -552,8 +534,13 @@ SELECT_USUARIO = (
 )
 
 
+# ==============================================================================
+# FILTROS DO JINJA
+# ==============================================================================
+
 @app.template_filter('data_br')
 def data_br(valor):
+    # date ou datetime vira 14/03/1988; um campo vazio vira um traço
     if valor is None:
         return '—'
 
@@ -570,19 +557,26 @@ def data_hora_br(valor):
 
 @app.template_filter('cpf_oculto')
 def cpf_oculto(cpf):
+    # 529.982.247-25 vira ***.982.247-**: a lista mostra só o meio do CPF
     if cpf is None:
         return '—'
 
     return '***.' + cpf[4:11] + '-**'
 
 
+# ==============================================================================
+# PÁGINAS PRINCIPAIS
+# ==============================================================================
+
 @app.route('/')
 def index():
+    # A raiz não mostra nada: só leva para a tela de login
     return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Quem já entrou não precisa ver a tela de login
     if 'id_usuario' in session:
         return redirect(url_for('dashboard'))
 
@@ -592,6 +586,7 @@ def login():
         email = request.form.get('email', '').strip().lower()
         senha = request.form.get('senha', '')
 
+        # Só o login lê a coluna senha (o hash)
         usuario = execute_one(
             'SELECT u.id_usuario, u.nome, u.senha, p.nome AS perfil '
             'FROM usuarios u '
@@ -601,6 +596,7 @@ def login():
         )
 
         if usuario is not None and check_password_hash(usuario['senha'], senha):
+            # Guarda na session quem entrou (o cookie assinado pela secret_key)
             session.clear()
             session['id_usuario'] = usuario['id_usuario']
             session['nome'] = usuario['nome']
@@ -608,6 +604,7 @@ def login():
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
             return redirect(url_for('dashboard'))
 
+        # A mesma mensagem para e-mail inexistente e senha errada
         flash('E-mail ou senha incorretos.', 'danger')
 
     return render_template('login.html', email=email)
@@ -627,6 +624,7 @@ def dashboard():
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
@@ -637,12 +635,17 @@ def dashboard():
                            total_produtos=produtos['total'])
 
 
+# ==============================================================================
+# PERFIS
+# ==============================================================================
+
 @app.route('/perfis')
-def lista_perfis():
+def listar_perfis():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
         'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
         fetch=True,
@@ -651,65 +654,56 @@ def lista_perfis():
     return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
-def conferir_perfil(nome, descricao, id_perfil):
-    erros = []
-
-    erro = validar_nome_perfil(nome)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_descricao_perfil(descricao)
-    if erro:
-        erros.append(erro)
-
-    if not erros:
-        existente = execute_one(
-            'SELECT id_perfil FROM perfis WHERE nome = %s AND id_perfil <> %s',
-            (nome, id_perfil),
-        )
-        if existente:
-            erros.append('Já existe um perfil com este nome.')
-
-    return erros
-
-
-@app.route('/perfis/novo', methods=['GET', 'POST'])
-def perfil_novo():
+@app.route('/perfis/inserir', methods=['GET', 'POST'])
+def inserir_perfil():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Inicializa variáveis para cada campo do formulário
     nome = ''
     descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, 0)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos
+        erros = validar_perfil(nome, descricao)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
                 novo_id = execute_insert(
                     'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao_gravada),
+                    (nome, descricao),
                 )
+
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
+                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
+                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
+                    # Traceback com o erro real no console/log.
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
@@ -720,46 +714,58 @@ def perfil_editar(id_perfil):
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
         'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # O formulário começa com os valores que estão no banco
     nome = perfil['nome']
     descricao = perfil['descricao']
-    if descricao is None:
-        descricao = ''
 
+    # Executado apenas no envio do formulário (POST)
     if request.method == 'POST':
+        # 1. Coleta os dados do formulário
         nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip()
 
-        erros = conferir_perfil(nome, descricao, id_perfil)
+        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
+        descricao = request.form.get('descricao', '').strip() or None
 
+        # -------------------------------------------------------------------------
+        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
+        erros = validar_perfil(nome, descricao, id_perfil)
+
+        # 3. Se houver erros, exibe as mensagens
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
-        else:
-            if descricao == '':
-                descricao_gravada = None
-            else:
-                descricao_gravada = descricao
 
+        # -------------------------------------------------------------------------
+        # 4. Se não houver erros, tenta salvar no banco
+        else:
             try:
+                # O WHERE garante que só este perfil seja alterado
                 execute_query(
                     'UPDATE perfis SET nome = %s, descricao = %s WHERE id_perfil = %s',
-                    (nome, descricao_gravada, id_perfil),
+                    (nome, descricao, id_perfil),
                 )
+
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('lista_perfis'))
+                return redirect(url_for('listar_perfis'))
+
+            # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um perfil com este nome.', 'danger')
                 else:
                     raise
 
+    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
@@ -770,179 +776,87 @@ def perfil_excluir(id_perfil):
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
         'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
         (id_perfil,),
     )
+
+    # Código que não existe: mostra a página 404
     if perfil is None:
         abort(404)
 
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
     usuarios = execute_one(
         'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
         (id_perfil,),
     )
+
     if usuarios['total'] > 0:
         flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('lista_perfis'))
+        return redirect(url_for('listar_perfis'))
 
     try:
+        # O WHERE garante que só este perfil seja excluído
         execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
         flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
     except Error as erro:
         if erro.errno == 1451:
             flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
         else:
             raise
 
-    return redirect(url_for('lista_perfis'))
+    return redirect(url_for('listar_perfis'))
 
+
+# ==============================================================================
+# USUÁRIOS
+# ==============================================================================
 
 @app.route('/usuarios')
-def lista_usuarios():
+def listar_usuarios():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
     return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
-def vazio_para_none(valor):
-    if valor == '':
-        return None
-
-    return valor
-
-
-def texto_ou_vazio(valor):
-    if valor is None:
-        return ''
-
-    return str(valor)
-
-
-def conferir_perfil_do_usuario(perfil_txt):
-    try:
-        id_perfil = int(perfil_txt)
-    except ValueError:
-        return 'Selecione um perfil.'
-
-    perfil = execute_one(
-        'SELECT id_perfil FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-    if perfil is None:
-        return 'Selecione um perfil válido.'
-
-    return None
-
-
-def ler_formulario(form):
-    campos = {}
-    campos['nome'] = form.get('nome', '').strip()
-    campos['email'] = form.get('email', '').strip().lower()
-    campos['senha'] = form.get('senha', '')
-    campos['confirmacao'] = form.get('confirmacao', '')
-    campos['celular'] = form.get('celular', '').strip()
-    campos['data_nascimento'] = form.get('data_nascimento', '').strip()
-    campos['cpf'] = form.get('cpf', '').strip()
-    campos['perfil_id'] = form.get('perfil_id', '')
-    campos['cep'] = form.get('cep', '').strip()
-    campos['endereco'] = form.get('endereco', '').strip()
-    campos['numero'] = form.get('numero', '').strip()
-    campos['complemento'] = form.get('complemento', '').strip()
-    campos['cidade'] = form.get('cidade', '').strip()
-    campos['estado'] = form.get('estado', '')
-
-    return campos
-
-
-def conferir_usuario(campos, id_usuario):
-    erros = []
-
-    erro = validar_nome_usuario(campos['nome'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_email(campos['email'])
-    if erro:
-        erros.append(erro)
-    else:
-        existente = execute_one(
-            'SELECT id_usuario FROM usuarios WHERE email = %s AND id_usuario <> %s',
-            (campos['email'], id_usuario),
-        )
-        if existente:
-            erros.append('Já existe um usuário com este e-mail.')
-
-    if id_usuario == 0 or campos['senha'] != '' or campos['confirmacao'] != '':
-        erro = validar_senha(campos['senha'], campos['confirmacao'])
-        if erro:
-            erros.append(erro)
-
-    erro = conferir_perfil_do_usuario(campos['perfil_id'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_celular(campos['celular'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cpf(campos['cpf'])
-    if erro:
-        erros.append(erro)
-    else:
-        cpf_formatado = formatar_cpf(campos['cpf'])
-        if cpf_formatado != '':
-            existente = execute_one(
-                'SELECT id_usuario FROM usuarios WHERE cpf = %s AND id_usuario <> %s',
-                (cpf_formatado, id_usuario),
-            )
-            if existente:
-                erros.append('Já existe um usuário com este CPF.')
-
-    erro = validar_data_nascimento(campos['data_nascimento'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_cep(campos['cep'])
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['endereco'], 'endereço', 255)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['numero'], 'número', 20)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['complemento'], 'complemento', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_tamanho(campos['cidade'], 'cidade', 100)
-    if erro:
-        erros.append(erro)
-
-    erro = validar_estado(campos['estado'])
-    if erro:
-        erros.append(erro)
-
-    return erros
-
-
-@app.route('/usuarios/novo', methods=['GET', 'POST'])
-def usuario_novo():
+@app.route('/usuarios/inserir', methods=['GET', 'POST'])
+def inserir_usuario():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        campos = ler_formulario(request.form)
+    # Com muitos campos, o formulário inteiro fica em um dicionário (vazio no GET)
+    dados = {}
 
-        erros = conferir_usuario(campos, 0)
+    if request.method == 'POST':
+        # 1. Coleta os dados do formulário (os opcionais com 'or None')
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),  # a senha não leva strip: espaço pode fazer parte dela
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
+
+        # 2. A validação recebe o dicionário inteiro
+        erros = validar_usuario(dados)
 
         if erros:
             for mensagem in erros:
@@ -954,33 +868,37 @@ def usuario_novo():
                     'perfil_id, cep, endereco, numero, complemento, cidade, estado) '
                     'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                     (
-                        campos['nome'],
-                        campos['email'],
-                        generate_password_hash(campos['senha']),
-                        vazio_para_none(formatar_celular(campos['celular'])),
-                        vazio_para_none(campos['data_nascimento']),
-                        vazio_para_none(formatar_cpf(campos['cpf'])),
-                        int(campos['perfil_id']),
-                        vazio_para_none(formatar_cep(campos['cep'])),
-                        vazio_para_none(campos['endereco']),
-                        vazio_para_none(campos['numero']),
-                        vazio_para_none(campos['complemento']),
-                        vazio_para_none(campos['cidade']),
-                        vazio_para_none(campos['estado']),
+                        dados['nome'],
+                        dados['email'],
+                        generate_password_hash(dados['senha']),  # grava o hash, nunca a senha
+                        formatar_celular(dados['celular']),      # celular, CPF e CEP vão formatados
+                        dados['data_nascimento'],
+                        formatar_cpf(dados['cpf']),
+                        dados['perfil_id'],
+                        formatar_cep(dados['cep']),
+                        dados['endereco'],
+                        dados['numero'],
+                        dados['complemento'],
+                        dados['cidade'],
+                        dados['estado'],
                     ),
                 )
-                flash(f'Usuário "{campos["nome"]}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('lista_usuarios'))
+
+                flash(f'Usuário "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
+                return redirect(url_for('listar_usuarios'))
+
+            # Duas colunas UNIQUE: o 1062 pode ser do e-mail ou do CPF
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
                 else:
                     raise
 
+    # As opções do <select> de perfil vêm da tabela perfis
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
     return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
-                           dados=request.form, perfis=perfis, ufs=UFS)
+                           dados=dados, perfis=perfis, ufs=UFS)
 
 
 @app.route('/usuarios/<int:id_usuario>')
@@ -990,6 +908,7 @@ def usuario_detalhe(id_usuario):
         return redirect(url_for('login'))
 
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
     if usuario is None:
         abort(404)
 
@@ -1003,60 +922,77 @@ def usuario_editar(id_usuario):
         return redirect(url_for('login'))
 
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
+
     if usuario is None:
         abort(404)
 
-    dados = {}
-    for chave in usuario:
-        dados[chave] = texto_ou_vazio(usuario[chave])
+    # No GET, o formulário começa com a linha que veio do banco
+    dados = usuario
 
     if request.method == 'POST':
-        campos = ler_formulario(request.form)
+        dados = {
+            'nome': request.form.get('nome', '').strip(),
+            'email': request.form.get('email', '').strip().lower(),
+            'senha': request.form.get('senha', ''),
+            'confirmacao': request.form.get('confirmacao', ''),
+            'perfil_id': request.form.get('perfil_id', ''),
+            'celular': request.form.get('celular', '').strip() or None,
+            'data_nascimento': request.form.get('data_nascimento', '').strip() or None,
+            'cpf': request.form.get('cpf', '').strip() or None,
+            'cep': request.form.get('cep', '').strip() or None,
+            'endereco': request.form.get('endereco', '').strip() or None,
+            'numero': request.form.get('numero', '').strip() or None,
+            'complemento': request.form.get('complemento', '').strip() or None,
+            'cidade': request.form.get('cidade', '').strip() or None,
+            'estado': request.form.get('estado', '') or None,
+        }
 
-        erros = conferir_usuario(campos, id_usuario)
+        # O id_usuario faz o próprio usuário não contar como repetido e torna a senha opcional
+        erros = validar_usuario(dados, id_usuario)
 
         if erros:
             for mensagem in erros:
                 flash(mensagem, 'danger')
         else:
+            # O UPDATE é montado em partes: a senha só entra se uma nova foi digitada
             sql = (
                 'UPDATE usuarios SET nome = %s, email = %s, celular = %s, '
                 'data_nascimento = %s, cpf = %s, perfil_id = %s, cep = %s, '
                 'endereco = %s, numero = %s, complemento = %s, cidade = %s, estado = %s'
             )
             params = [
-                campos['nome'],
-                campos['email'],
-                vazio_para_none(formatar_celular(campos['celular'])),
-                vazio_para_none(campos['data_nascimento']),
-                vazio_para_none(formatar_cpf(campos['cpf'])),
-                int(campos['perfil_id']),
-                vazio_para_none(formatar_cep(campos['cep'])),
-                vazio_para_none(campos['endereco']),
-                vazio_para_none(campos['numero']),
-                vazio_para_none(campos['complemento']),
-                vazio_para_none(campos['cidade']),
-                vazio_para_none(campos['estado']),
+                dados['nome'],
+                dados['email'],
+                formatar_celular(dados['celular']),
+                dados['data_nascimento'],
+                formatar_cpf(dados['cpf']),
+                dados['perfil_id'],
+                formatar_cep(dados['cep']),
+                dados['endereco'],
+                dados['numero'],
+                dados['complemento'],
+                dados['cidade'],
+                dados['estado'],
             ]
 
-            if campos['senha'] != '':
+            if dados['senha']:
                 sql += ', senha = %s'
-                params.append(generate_password_hash(campos['senha']))
+                params.append(generate_password_hash(dados['senha']))
 
             sql += ' WHERE id_usuario = %s'
             params.append(id_usuario)
 
             try:
                 execute_query(sql, params)
-                flash(f'Usuário "{campos["nome"]}" atualizado.', 'success')
-                return redirect(url_for('lista_usuarios'))
+
+                flash(f'Usuário "{dados["nome"]}" atualizado.', 'success')
+                return redirect(url_for('listar_usuarios'))
+
             except Error as erro:
                 if erro.errno == 1062:
                     flash('Já existe um usuário com este e-mail ou este CPF.', 'danger')
                 else:
                     raise
-
-        dados = request.form
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
@@ -1070,22 +1006,29 @@ def usuario_excluir(id_usuario):
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
 
+    # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('lista_usuarios'))
+        return redirect(url_for('listar_usuarios'))
 
     usuario = execute_one(
         'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
         (id_usuario,),
     )
+
     if usuario is None:
         abort(404)
 
+    # Nenhuma tabela depende de usuarios: não há contagem nem erro 1451
     execute_query('DELETE FROM usuarios WHERE id_usuario = %s', (id_usuario,))
     flash(f'Usuário "{usuario["nome"]}" excluído.', 'success')
 
-    return redirect(url_for('lista_usuarios'))
+    return redirect(url_for('listar_usuarios'))
 
+
+# ==============================================================================
+# TELAS DE ERROS
+# ==============================================================================
 
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
@@ -1111,6 +1054,7 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/layou
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block titulo_aba %}Sistema de Gestão{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
 </head>
 <body>
@@ -1129,17 +1073,17 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/layou
             <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_perfis', 'inserir_perfil', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('listar_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('inserir_perfil') }}">Cadastrar Perfil</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['listar_usuarios', 'inserir_usuario', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('inserir_usuario') }}">Cadastrar Usuário</a></li>
             </ul>
           </li>
         </ul>
@@ -1180,13 +1124,13 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/layou
 </html>
 ```
 
-Os demais arquivos (`db.py`, `validacoes.py`, `base_limpo.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuarios_lista.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 16.
+Os demais arquivos (`db.py`, a pasta `validacoes`, `base_limpa.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuarios_lista.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 16.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis e os três usuários. Como o zip já traz as rotas protegidas, o formulário **Novo usuário** exige login, e, com o banco vazio, ninguém consegue entrar. Se esse for o seu caso, comece pelo zip do Capítulo 16, que ainda não tem login, cadastre os usuários nele e só depois use este.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, a pasta `validacoes`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpa.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis e os três usuários. Como o zip já traz as rotas protegidas, o formulário **Novo usuário** exige login, e, com o banco vazio, ninguém consegue entrar. Se esse for o seu caso, comece pelo zip do Capítulo 16, que ainda não tem login, cadastre os usuários nele e só depois use este.
 
 ➡️ [Baixar p2_cap_17.zip](../arquivos/p2_cap_17.zip)
 
@@ -1255,7 +1199,7 @@ O que o login guarda na `session`?
 </quiz>
 
 <quiz>
-O menu do sistema só aparece para quem entrou, e o login não tem menu. Uma pessoa sem login digita `/usuarios` na barra de endereço, e a rota `lista_usuarios` **não** tem o `if 'id_usuario' not in session`. O que acontece?
+O menu do sistema só aparece para quem entrou, e o login não tem menu. Uma pessoa sem login digita `/usuarios` na barra de endereço, e a rota `listar_usuarios` **não** tem o `if 'id_usuario' not in session`. O que acontece?
 - [ ] O Flask percebe que o link não está no menu e responde 404
 > Não. O Flask não relaciona o menu com as rotas.
 - [x] A lista abre normalmente, com os botões
