@@ -15,7 +15,7 @@ Ao final deste capítulo você deverá ser capaz de:
 - Montar uma consulta própria para o login, a única que lê a coluna `senha`
 - Dar a mesma mensagem de erro para e-mail inexistente e senha errada, e explicar por quê
 - Guardar na `session` quem entrou (`id_usuario`, `nome` e `perfil`), e nunca a senha, limpando a `session` antes
-- Sair do sistema por uma rota `POST` e fazer o menu mudar conforme a pessoa esteja logada ou não
+- Sair do sistema por uma rota `POST` e mostrar no menu o nome e o perfil de quem entrou
 - Proteger cada rota com `if 'id_usuario' not in session`, inclusive as que só aceitam `POST`
 - Impedir que o usuário logado exclua o próprio usuário
 
@@ -58,7 +58,7 @@ O `git status` deve dizer `nothing to commit, working tree clean`. Ligue o servi
 
 Abra **http://127.0.0.1:5000/usuarios**. A lista aparece, com os botões **Editar** e **Excluir**. Agora abra uma **janela anônima** do navegador (`Ctrl + Shift + N` no Chrome e no Edge) e entre no mesmo endereço: a lista aparece igual, com os mesmos botões. **Não clique em Excluir.**
 
-Nada no sistema distingue a Ana, que cadastrou os usuários, de uma pessoa que só descobriu o endereço. Cada pedido chega ao servidor sozinho, sem dizer quem o fez, e o servidor responde a todos do mesmo jeito. Quem sabe o endereço `/usuarios/3/excluir` e consegue um token CSRF (qualquer formulário do sistema entrega um) apaga o usuário que quiser.
+A tela de **login** existe desde o Capítulo 11, mas é de mentira: o botão **Entrar** leva direto ao dashboard, sem perguntar nada, e o botão **Sair** do menu só volta para ela. Nada no sistema distingue a Ana, que cadastrou os usuários, de uma pessoa que só descobriu o endereço. Cada pedido chega ao servidor sozinho, sem dizer quem o fez, e o servidor responde a todos do mesmo jeito. Quem sabe o endereço `/usuarios/3/excluir` e consegue um token CSRF (qualquer formulário do sistema entrega um) apaga o usuário que quiser.
 
 O sistema precisa de duas coisas:
 
@@ -128,11 +128,13 @@ Este tópico não mudou o código, então não há commit.
 | `/login` | GET e POST | GET mostra o formulário, POST confere e entra | `login` | `login.html` |
 | `/logout` | só POST | Sai do sistema e volta para o login | `logout` | (nenhum) |
 
-Neste tópico nasce só o GET do `/login`. No `app.py`, acrescente `login` na linha de importação do Flask, **depois** do `abort`, e escreva a rota logo **acima** da rota `index` (a que começa com `@app.route('/')`):
+Neste tópico a tela de login ganha o formulário. A rota `login` já existe desde o Capítulo 11 e só mostra a página. No `app.py`, acrescente `session` na linha de importação do Flask, **depois** do `abort` (ele só será usado no Tópico 3):
 
 ```python
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
 ```
+
+E troque o `return` da rota `login`, para ela entregar o e-mail ao template:
 
 ```python
 @app.route('/login')
@@ -140,43 +142,39 @@ def login():
     return render_template('login.html', email='')
 ```
 
-O `email=''` é o valor que o campo de e-mail mostrará. Ele existe desde já porque, daqui a pouco, o formulário devolverá o e-mail digitado quando a senha estiver errada, como os formulários dos Capítulos 14 e 16. Falta o template. Crie o arquivo `templates/login.html`:
+O `email=''` é o valor que o campo de e-mail mostrará. Ele existe desde já porque, daqui a pouco, o formulário devolverá o e-mail digitado quando a senha estiver errada, como os formulários dos Capítulos 14 e 16. Falta o formulário. Troque o conteúdo do `templates/login.html` (o cartão com o botão **Entrar**, que só levava ao dashboard) por:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_limpo.html' %}
 
 {% block titulo_aba %}Entrar — Sistema de Gestão{% endblock %}
 
 {% block conteudo %}
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-      <div class="card">
-        <div class="card-body p-4">
-          <h1 class="h2 mb-4">Entrar</h1>
+  <div class="card">
+    <div class="card-body p-4">
+      <h1 class="h2 mb-4">Entrar</h1>
 
-          <form action="{{ url_for('login') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <form action="{{ url_for('login') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="email" name="email" value="{{ email }}" required autofocus autocomplete="username">
-            </div>
-
-            <div class="mb-3">
-              <label for="senha" class="form-label">Senha</label>
-              <input type="password" class="form-control" id="senha" name="senha" required autocomplete="current-password">
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
-          </form>
+        <div class="mb-3">
+          <label for="email" class="form-label">E-mail</label>
+          <input type="email" class="form-control" id="email" name="email" value="{{ email }}" required autofocus autocomplete="username">
         </div>
-      </div>
+
+        <div class="mb-3">
+          <label for="senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="senha" name="senha" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+      </form>
     </div>
   </div>
 {% endblock %}
 ```
 
-O arquivo herda o `base.html` (Capítulo 6) e usa só peças que você já conhece: um `<form>` com `method="post"`, o campo escondido com o token CSRF (Capítulo 8) e um `value` que devolve o e-mail. Os atributos novos são pequenos:
+O arquivo continua herdando o `base_limpo.html` (o layout sem menu do Capítulo 11) e usa só peças que você já conhece: um `<form>` com `method="post"`, o campo escondido com o token CSRF (Capítulo 8) e um `value` que devolve o e-mail. Os atributos novos são pequenos:
 
 | Atributo | O que faz |
 |---|---|
@@ -188,11 +186,11 @@ O arquivo herda o `base.html` (Capítulo 6) e usa só peças que você já conhe
 !!! note "O login também precisa do token CSRF"
     Todo formulário `POST` do sistema passa pelo `CSRFProtect`, e o login não é exceção: sem o campo escondido, o envio recebe o erro 400 do Capítulo 8.
 
-Salve e abra **http://127.0.0.1:5000/login**. O formulário aparece, com o menu de sempre em cima. Preencha qualquer e-mail e uma senha, e clique em **Entrar**: a página mostra **Method Not Allowed** (405). O formulário está certo, mas a rota ainda só aceita `GET`. O próximo tópico a ensina a receber o envio.
+Salve e abra **http://127.0.0.1:5000/login**. O formulário aparece, centralizado e sem menu. Preencha qualquer e-mail e uma senha, e clique em **Entrar**: a página mostra **Method Not Allowed** (405). O formulário está certo, mas a rota ainda só aceita `GET`. O próximo tópico a ensina a receber o envio.
 
 ```bash
 git add .
-git commit -m "Adiciona a página de login"
+git commit -m "Adiciona o formulário da página de login"
 git push
 ```
 
@@ -276,13 +274,13 @@ Salve e teste:
 
 ### Guardar quem entrou
 
-A senha confere, mas o sistema esquece na hora: nada foi guardado. O que lembra a pessoa entre um pedido e outro é a `session`. Troque a rota `login` inteira por esta versão, que também manda para a página inicial quem já está logado:
+A senha confere, mas o sistema esquece na hora: nada foi guardado. O que lembra a pessoa entre um pedido e outro é a `session`. Troque a rota `login` inteira por esta versão, que também manda para o dashboard quem já está logado:
 
 ```python
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -304,7 +302,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -313,14 +311,14 @@ def login():
 
 Três pontos merecem atenção:
 
-- O `'id_usuario' in session` do começo manda para o início quem já fez login e abriu `/login` de novo. Sem ele, a pessoa veria o formulário estando logada.
+- O `'id_usuario' in session` do começo manda para o dashboard quem já fez login e abriu `/login` de novo. Sem ele, a pessoa veria o formulário estando logada.
 - A `session` recebe **três** valores: o código, o nome e o perfil. O nome e o perfil serão escritos no menu, e o código identifica a pessoa nas rotas. **A senha, e o hash também, nunca vão para a `session`**: o cookie é assinado, mas qualquer pessoa consegue lê-lo (Capítulo 8).
 - Se o login deu certo, a rota termina no `redirect` (o padrão PRG de sempre), e o `flash(...)` de erro, que está depois do `if`, só roda quando o `if` falha.
 
 !!! note "Flask: `session.clear()`"
     O `session.clear()` esvazia a `session` inteira. Ele roda **antes** de gravar o usuário novo, para que nada de uma visita anterior (de outra pessoa que usou o mesmo navegador, por exemplo) sobreviva ao login. O `flash(...)` vem depois dele, senão a própria mensagem seria apagada.
 
-Salve e entre com `ana@exemplo.com` e `Senha123`. A página inicial abre com a faixa verde `Você entrou como Ana Beatriz Lima.` Tente abrir `/login` de novo: você volta para o início.
+Salve e entre com `ana@exemplo.com` e `Senha123`. O dashboard abre com a faixa verde `Você entrou como Ana Beatriz Lima.` Tente abrir `/login` de novo: você volta para o dashboard.
 
 ### Olhando o cookie por dentro
 
@@ -368,7 +366,7 @@ A rota aceita só `POST`, pelo mesmo motivo da exclusão (Capítulo 13): ela **a
 
 ### O botão Sair
 
-Como a saída é um `POST`, o botão é um formulário, com o token CSRF. No `templates/base.html`, **dentro** do `<ul class="navbar-nav ms-auto">`, depois do último `</li>`, acrescente:
+Desde o Capítulo 11 o botão **Sair** é um link que só volta para a tela de login. Como a saída agora é um `POST`, ele precisa virar um formulário, com o token CSRF. No `templates/layout/base_menu.html`, troque o `<li>` do botão **Sair** (no segundo `<ul>`, o `<ul class="navbar-nav align-items-lg-center">`) por:
 
 ```html
           <li class="nav-item">
@@ -379,52 +377,29 @@ Como a saída é um `POST`, o botão é um formulário, com o token CSRF. No `te
           </li>
 ```
 
-Salve, recarregue e clique em **Sair**: você cai em `/login`, com a faixa verde `Você saiu do sistema.` Entre de novo com a Ana. O menu, porém, é o mesmo para todos: o botão **Sair** aparece até para quem não entrou. É o que o próximo trecho corrige.
+Salve, entre com a Ana e clique em **Sair**: você cai em `/login`, com a faixa verde `Você saiu do sistema.` O botão tem a mesma cara de antes, mas agora a saída acontece de verdade, porque a `session` é esvaziada.
 
-### O menu depende de quem está logado
+### O menu mostra quem entrou
 
-O menu precisa de dois desenhos: para quem está logado, as páginas do sistema, o nome e o **Sair**; para quem não está, só o **Entrar**. O Jinja enxerga a `session` direto, sem ninguém entregá-la ao template (você usou `session.pop` no `base.html` do Capítulo 8). Troque **todo** o `<ul class="navbar-nav ms-auto">` do `base.html` (do `<ul` ao `</ul>`) por:
+O menu pode dizer quem está logado. O Jinja enxerga a `session` direto, sem ninguém entregá-la ao template (você usou `session.pop` no `base.html` do Capítulo 8). No `base_menu.html`, no mesmo segundo `<ul>`, **antes** do `<li>` do botão **Sair**, acrescente:
 
 ```html
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          {% if 'id_usuario' in session %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Início</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
-          </li>
           <li class="nav-item">
             <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
           </li>
-          <li class="nav-item">
-            <form action="{{ url_for('logout') }}" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
-            </form>
-          </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Entrar</a>
-          </li>
-          {% endif %}
-        </ul>
 ```
 
-O `if 'id_usuario' in session` é o mesmo teste que o Python faz na rota, escrito em Jinja. O `session['nome']` e o `session['perfil']` vêm do que o login gravou. O `align-items-lg-center` só alinha o nome e o botão com os links. Salve e confira os dois desenhos:
+O `session['nome']` e o `session['perfil']` vêm do que o login gravou. Repare que o sistema **não** precisa de dois desenhos de menu, um para quem entrou e outro para quem não entrou: o menu só aparece nas páginas do sistema, e o login e as páginas de erro usam o layout limpo, que não tem menu. O `align-items-lg-center` só alinha o nome e o botão com os links. Salve e confira:
 
-- Logado como Ana: **Início · Perfis · Usuários · Ana Beatriz Lima · Administrador · Sair**.
-- Clique em **Sair**: o menu passa a mostrar só **Entrar**.
-- Entre de novo e, no `F12`, na aba **Application**, dê dois cliques no valor do cookie `session` e troque uma letra do **primeiro pedaço**. Recarregue: o menu volta a mostrar **Entrar**. O Flask recalculou a assinatura, não bateu, e ele descartou o cookie, como no Capítulo 8. Ninguém consegue se fazer passar por outra pessoa trocando o `id_usuario` no cookie, porque não conhece a `secret_key`.
+- Logado como Ana: **Home · Perfis · Usuários · Ana Beatriz Lima · Administrador · Sair**.
+- Clique em **Sair**: o login aparece, sem menu.
+- Entre de novo e, no `F12`, na aba **Application**, dê dois cliques no valor do cookie `session` e troque uma letra do **primeiro pedaço**. Recarregue: o nome e o perfil **somem** do menu. O Flask recalculou a assinatura, não bateu, e ele descartou o cookie, como no Capítulo 8. Ninguém consegue se fazer passar por outra pessoa trocando o `id_usuario` no cookie, porque não conhece a `secret_key`.
 
-Agora, o defeito que sobrou. Saia do sistema e digite, na barra de endereço, `http://127.0.0.1:5000/usuarios`. A lista **abre**, com todos os botões. O menu escondeu o caminho, mas a rota continua aberta a quem souber o endereço. É o assunto do último tópico.
+Agora, o defeito que sobrou. Saia do sistema e digite, na barra de endereço, `http://127.0.0.1:5000/usuarios`. A lista **abre**, com todos os botões, e o menu aparece sem nome, sem ninguém ter entrado. O sistema já sabe quem é a pessoa, mas ainda não **exige** isso para abrir a página. É o assunto do último tópico.
 
 ```bash
 git add .
-git commit -m "Adiciona o logout e o menu que muda conforme o login"
+git commit -m "Adiciona o logout e o nome de quem entrou no menu"
 git push
 ```
 
@@ -445,7 +420,7 @@ def lista_usuarios():
 
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 ```
 
 O `return redirect(...)` encerra a função: o `SELECT` e o `render_template` abaixo nem chegam a rodar para quem não entrou. A conferência vem **antes** de qualquer consulta, para o banco não ser consultado em nome de um desconhecido.
@@ -457,11 +432,11 @@ Salve e teste, com o servidor ligado:
 
 ### As outras nove rotas
 
-Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depois `/usuarios/novo` e, por fim, `/`. As três **abrem**: só a `lista_usuarios` foi protegida. O sistema tem dez rotas que exigem login, e é preciso o mesmo `if` nas outras nove. Acrescente as **mesmas três linhas**, como primeiras linhas da função, em cada uma destas:
+Agora o contrário. Fora do sistema, digite `http://127.0.0.1:5000/perfis`, depois `/usuarios/novo` e, por fim, `/dashboard`. As três **abrem**: só a `lista_usuarios` foi protegida. O sistema tem dez rotas que exigem login, e é preciso o mesmo `if` nas outras nove. Acrescente as **mesmas três linhas**, como primeiras linhas da função, em cada uma destas:
 
 | Rota | Função |
 |---|---|
-| `/` | `index` |
+| `/dashboard` | `dashboard` |
 | `/perfis` | `lista_perfis` |
 | `/perfis/novo` | `perfil_novo` |
 | `/perfis/<int:id_perfil>/editar` | `perfil_editar` |
@@ -492,12 +467,12 @@ def perfil_editar(id_perfil):
     )
 ```
 
-Não esqueça as duas rotas que **só aceitam `POST`**, `perfil_excluir` e `usuario_excluir`. Elas não têm página, e por isso é fácil pensar que ninguém chega até elas. Mas o `POST` pode ser enviado sem passar pelo navegador, e o token CSRF só mostra que o formulário veio do sistema, e **não** que a pessoa fez login (o formulário de login entrega um token a qualquer visitante). Só o `if` impede a exclusão. A rota `login` e a rota `logout` ficam **de fora**: a primeira precisa estar aberta para alguém poder entrar, e a segunda só esvazia a `session`.
+Não esqueça as duas rotas que **só aceitam `POST`**, `perfil_excluir` e `usuario_excluir`. Elas não têm página, e por isso é fácil pensar que ninguém chega até elas. Mas o `POST` pode ser enviado sem passar pelo navegador, e o token CSRF só mostra que o formulário veio do sistema, e **não** que a pessoa fez login (o formulário de login entrega um token a qualquer visitante). Só o `if` impede a exclusão. A rota `/` (a `index`, que só redireciona para o login), a rota `login` e a rota `logout` ficam **de fora**: a primeira não mostra nada, a segunda precisa estar aberta para alguém poder entrar, e a terceira só esvazia a `session`.
 
 Salve e confira, **sem** estar logado:
 
-- `/`, `/perfis`, `/perfis/novo`, `/perfis/1/editar`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`, com a faixa amarela.
-- `/login` continua aberta, e `/qualquer-coisa` continua dando a página 404.
+- `/dashboard`, `/perfis`, `/perfis/novo`, `/perfis/1/editar`, `/usuarios`, `/usuarios/novo`, `/usuarios/1` e `/usuarios/1/editar`: todas levam a `/login`, com a faixa amarela.
+- `/` continua levando ao `/login`, que continua aberto, e `/qualquer-coisa` continua dando a página 404.
 
 Agora entre como Ana e percorra o sistema: tudo funciona como no Capítulo 16. A única diferença é que o sistema agora sabe quem está pedindo.
 
@@ -601,10 +576,15 @@ def cpf_oculto(cpf):
     return '***.' + cpf[4:11] + '-**'
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -626,7 +606,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -641,8 +621,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
-def index():
+@app.route('/dashboard')
+def dashboard():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -651,7 +631,7 @@ def index():
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -668,7 +648,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -730,7 +710,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -780,7 +760,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -825,7 +805,7 @@ def lista_usuarios():
 
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -999,7 +979,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -1013,7 +993,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -1080,7 +1060,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -1121,7 +1101,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/base.html`:
+O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/layout/base_menu.html`:
 
 ```html
 <!DOCTYPE html>
@@ -1137,24 +1117,33 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/base.
 
   <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Sistema de Gestão</a>
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">Sistema de Gestão</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#menu" aria-controls="menu" aria-expanded="false"
               aria-label="Abrir o menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-auto align-items-lg-center">
-          {% if 'id_usuario' in session %}
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Início</a>
+            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="{{ url_for('lista_perfis') }}">Perfis</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_perfis', 'perfil_novo', 'perfil_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfis</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_perfis') }}">Listar Perfis</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('perfil_novo') }}">Cadastrar Perfil</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe', 'usuario_editar'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('lista_usuarios') }}">Listar Usuários</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('usuario_novo') }}">Cadastrar Usuário</a></li>
+            </ul>
           </li>
+        </ul>
+        <ul class="navbar-nav align-items-lg-center">
           <li class="nav-item">
             <span class="navbar-text ms-lg-3 me-lg-3">{{ session['nome'] }} · {{ session['perfil'] }}</span>
           </li>
@@ -1164,11 +1153,6 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/base.
               <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
             </form>
           </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Entrar</a>
-          </li>
-          {% endif %}
         </ul>
       </div>
     </div>
@@ -1196,13 +1180,13 @@ O `templates/login.html` é o do Tópico 2, sem alterações. O `templates/base.
 </html>
 ```
 
-Os demais arquivos (`db.py`, `validacoes.py`, `index.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 16.
+Os demais arquivos (`db.py`, `validacoes.py`, `base_limpo.html`, `dashboard.html`, `perfis_lista.html`, `perfil_form.html`, `usuarios_lista.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 16.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `login.html`, `index.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis e os três usuários. Como o zip já traz as rotas protegidas, o formulário **Novo usuário** exige login, e, com o banco vazio, ninguém consegue entrar. Se esse for o seu caso, comece pelo zip do Capítulo 16, que ainda não tem login, cadastre os usuários nele e só depois use este.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql` e cadastre os três perfis e os três usuários. Como o zip já traz as rotas protegidas, o formulário **Novo usuário** exige login, e, com o banco vazio, ninguém consegue entrar. Se esse for o seu caso, comece pelo zip do Capítulo 16, que ainda não tem login, cadastre os usuários nele e só depois use este.
 
 ➡️ [Baixar p2_cap_17.zip](../arquivos/p2_cap_17.zip)
 
@@ -1271,7 +1255,7 @@ O que o login guarda na `session`?
 </quiz>
 
 <quiz>
-O menu mostra só **Entrar** para quem não fez login. Uma pessoa sem login digita `/usuarios` na barra de endereço, e a rota `lista_usuarios` **não** tem o `if 'id_usuario' not in session`. O que acontece?
+O menu do sistema só aparece para quem entrou, e o login não tem menu. Uma pessoa sem login digita `/usuarios` na barra de endereço, e a rota `lista_usuarios` **não** tem o `if 'id_usuario' not in session`. O que acontece?
 - [ ] O Flask percebe que o link não está no menu e responde 404
 > Não. O Flask não relaciona o menu com as rotas.
 - [x] A lista abre normalmente, com os botões
@@ -1298,7 +1282,7 @@ Por que a rota `/logout` aceita só `POST`?
 
 ## 📝 Resumo
 
-O sistema só passou a distinguir uma pessoa de outra quando ganhou o login. O `SELECT` próprio do login busca o usuário **pelo e-mail** e é o único que lê o hash da senha; a conferência fica com o `check_password_hash`, e a mesma mensagem de erro serve ao e-mail inexistente e à senha errada. Quem entra tem o `id_usuario`, o `nome` e o `perfil` gravados na `session`, depois de um `session.clear()`, e o cookie assinado os devolve a cada pedido (a senha não entra no cookie, que qualquer pessoa consegue ler). O logout é uma rota `POST` que esvazia a `session`, e o menu muda conforme o `'id_usuario' in session`. Esconder o menu não protege nada, então cada uma das dez rotas começa com o `if 'id_usuario' not in session`, até as que só aceitam `POST`, e o usuário logado não consegue excluir o próprio usuário. A repetição desse `if` e o controle do que cada perfil pode fazer ficam para o Capítulo 17.1 (opcional); o Capítulo 18 continua do código deste capítulo, com o cadastro de produtos.
+O sistema só passou a distinguir uma pessoa de outra quando ganhou o login. O `SELECT` próprio do login busca o usuário **pelo e-mail** e é o único que lê o hash da senha; a conferência fica com o `check_password_hash`, e a mesma mensagem de erro serve ao e-mail inexistente e à senha errada. Quem entra tem o `id_usuario`, o `nome` e o `perfil` gravados na `session`, depois de um `session.clear()`, e o cookie assinado os devolve a cada pedido (a senha não entra no cookie, que qualquer pessoa consegue ler). O logout é uma rota `POST` que esvazia a `session`, e o menu mostra o nome e o perfil de quem entrou. Esconder o menu não protege nada, então cada uma das dez rotas começa com o `if 'id_usuario' not in session`, até as que só aceitam `POST`, e o usuário logado não consegue excluir o próprio usuário. A repetição desse `if` e o controle do que cada perfil pode fazer ficam para o Capítulo 17.1 (opcional); o Capítulo 18 continua do código deste capítulo, com o cadastro de produtos.
 
 ---
 
