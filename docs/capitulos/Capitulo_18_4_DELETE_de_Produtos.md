@@ -108,7 +108,7 @@ O `SELECT` inicial responde 404 para um código que não existe, e traz o **nome
 
 ### O modal de confirmação
 
-O botão da lista não pode excluir com um clique só. O desenho é **um único modal** do Bootstrap, reaproveitado por todas as linhas, que uma função JavaScript preenche com o produto clicado. No `produtos.html`, no final do `{% block conteudo %}`, depois da `</table>`, acrescente o HTML do modal:
+O botão da lista não pode excluir com um clique só. O desenho é **um único modal** do Bootstrap, reaproveitado por todas as linhas, que uma função JavaScript preenche com o produto clicado. No `produtos_lista.html`, no final do `{% block conteudo %}`, depois da `</table>`, acrescente o HTML do modal:
 
 ```html
   <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="tituloModalExcluir" aria-hidden="true">
@@ -143,7 +143,7 @@ O `data-bs-toggle` e o `data-bs-target` dizem ao Bootstrap "este botão abre o m
 
 ### A função que recebe o código
 
-A função precisa achar o **nome** do produto. Na lista, o nome já está dentro de um `<span id="nome_produto_{{ produto.id_produto }}">`: para o produto de código 3, o HTML gerado é `<span id="nome_produto_3">Teclado Mecânico</span>`. Por último, a função. O `base.html` já tem o `{% block scripts %}`. No **final** do `produtos.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
+A função precisa achar o **nome** do produto. Na lista, o nome já está dentro de um `<span id="nome_produto_{{ produto.id_produto }}">`: para o produto de código 3, o HTML gerado é `<span id="nome_produto_3">Teclado Mecânico</span>`. Por último, a função. O `base_menu.html` já tem o `{% block scripts %}`. No **final** do `produtos_lista.html`, **depois** do `{% endblock %}` do conteúdo, acrescente:
 
 ```html
 {% block scripts %}
@@ -281,10 +281,15 @@ def moeda(valor):
     return 'R$ ' + formatar_numero(valor)
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'id_usuario' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     email = ''
 
@@ -306,7 +311,7 @@ def login():
             session['nome'] = usuario['nome']
             session['perfil'] = usuario['perfil']
             flash(f'Você entrou como {usuario["nome"]}.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
         flash('E-mail ou senha incorretos.', 'danger')
 
@@ -321,8 +326,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
-def index():
+@app.route('/dashboard')
+def dashboard():
     if 'id_usuario' not in session:
         flash('Entre para continuar.', 'warning')
         return redirect(url_for('login'))
@@ -331,7 +336,7 @@ def index():
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -348,7 +353,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -410,7 +415,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -460,7 +465,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -505,7 +510,7 @@ def lista_usuarios():
 
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -679,7 +684,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='criar', id_usuario=None,
+    return render_template('usuarios/usuario_form.html', acao='criar', id_usuario=None,
                            dados=request.form, perfis=perfis, ufs=UFS)
 
 
@@ -693,7 +698,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
@@ -760,7 +765,7 @@ def usuario_editar(id_usuario):
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', acao='editar', id_usuario=id_usuario,
+    return render_template('usuarios/usuario_form.html', acao='editar', id_usuario=id_usuario,
                            dados=dados, perfis=perfis, ufs=UFS)
 
 
@@ -795,7 +800,7 @@ def lista_produtos():
 
     produtos = execute_query(SELECT_PRODUTO + ' ORDER BY nome', fetch=True)
 
-    return render_template('produtos.html', titulo='Produtos', produtos=produtos)
+    return render_template('produtos/produtos_lista.html', titulo='Produtos', produtos=produtos)
 
 
 def ler_formulario_produto(form):
@@ -924,7 +929,7 @@ def produto_novo():
 
         dados = request.form
 
-    return render_template('produto_form.html', acao='criar', id_produto=None, dados=dados,
+    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
                            categorias=CATEGORIAS, foto_atual=None)
 
 
@@ -989,7 +994,7 @@ def produto_editar(id_produto):
 
         dados = request.form
 
-    return render_template('produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
+    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])
 
 
@@ -1032,10 +1037,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/produtos.html`, com o botão **Excluir**, o modal e a função:
+O `templates/produtos/produtos_lista.html`, com o botão **Excluir**, o modal e a função:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1135,7 +1140,7 @@ O `templates/produtos.html`, com o botão **Excluir**, o modal e a função:
 {% endblock %}
 ```
 
-Os demais arquivos (`validacoes.py`, `db.py`, `produto_form.html`, `base.html`, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.3.
+Os demais arquivos (`validacoes.py`, `db.py`, `produto_form.html`, os layouts, `413.html`, `estilo.css` e os outros) são os do Capítulo 18.3.
 
 ---
 
