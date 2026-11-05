@@ -67,10 +67,10 @@ O molde de nomes do Capítulo 12 vale para `usuarios`. Este capítulo constrói 
 
 | Rota | Métodos | O que faz | Função no `app.py` | Template | Capítulo |
 |---|---|---|---|---|---|
-| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios.html` | **15** |
-| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuario_form.html` | 14 |
-| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuario_detalhe.html` | **15** |
-| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuario_form.html` | 16 |
+| `/usuarios` | GET | Lista os usuários | `lista_usuarios` | `usuarios/usuarios_lista.html` | **15** |
+| `/usuarios/novo` | GET e POST | GET mostra o formulário, POST confere e grava | `usuario_novo` | `usuarios/usuario_form.html` | 14 |
+| `/usuarios/<int:id_usuario>` | GET | Detalhe de um usuário | `usuario_detalhe` | `usuarios/usuario_detalhe.html` | **15** |
+| `/usuarios/<int:id_usuario>/editar` | GET e POST | Edita o usuário | `usuario_editar` | `usuarios/usuario_form.html` | 16 |
 | `/usuarios/<int:id_usuario>/excluir` | só POST | Exclui o usuário | `usuario_excluir` | (nenhum) | 16 |
 
 ### A consulta mais simples
@@ -86,10 +86,10 @@ def lista_usuarios():
         fetch=True,
     )
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 ```
 
-Cada linha do resultado chega ao template como um **dicionário** (o `dictionary=True` do `db.py`, do Capítulo 11), e `usuarios` é a lista desses dicionários. Agora o `templates/usuarios.html`: **apague o aviso azul** (o `<div class="alert alert-info">` inteiro) e coloque no lugar a tabela, só com duas colunas:
+Cada linha do resultado chega ao template como um **dicionário** (o `dictionary=True` do `db.py`, do Capítulo 11), e `usuarios` é a lista desses dicionários. Agora o `templates/usuarios/usuarios_lista.html`: **apague o aviso azul** (o `<div class="alert alert-info">` inteiro) e coloque no lugar a tabela, só com duas colunas:
 
 ```html
   <table class="table table-striped table-hover">
@@ -117,7 +117,7 @@ Cada linha do resultado chega ao template como um **dicionário** (o `dictionary
   </table>
 ```
 
-É o molde da `perfis.html`: um `{% for %}` com o `{% else %}` para a lista vazia (Capítulo 5). Salve e abra **http://127.0.0.1:5000/usuarios**. A tabela mostra o código, o nome e, em letra pequena embaixo, o e-mail de cada usuário.
+É o molde da `perfis_lista.html`: um `{% for %}` com o `{% else %}` para a lista vazia (Capítulo 5). Salve e abra **http://127.0.0.1:5000/usuarios**. A tabela mostra o código, o nome e, em letra pequena embaixo, o e-mail de cada usuário.
 
 ### Mais colunas, uma por vez
 
@@ -230,7 +230,7 @@ O que aconteceu: o resultado tem **duas colunas chamadas `nome`**, a do usuário
         'p.nome AS perfil '
 ```
 
-E, no `usuarios.html`, troque `{{ usuario.perfil_id }}` por:
+E, no `usuarios_lista.html`, troque `{{ usuario.perfil_id }}` por:
 
 ```html
         <td>{{ usuario.perfil }}</td>
@@ -264,7 +264,7 @@ Agora a rota usa a constante, e a consulta que estava dentro dela sai:
 def lista_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 ```
 
 Salve e recarregue: a lista está **igual** à anterior. A mudança foi só de organização, e a lista agora pede mais colunas do que mostra (celular, CEP, endereço e outras), que o detalhe vai usar.
@@ -284,7 +284,7 @@ git push
 
 ### O `None` e o `default`
 
-O Capítulo 5 ensinou o filtro `default`, que mostra um texto quando o valor falta. Experimente-o na cidade. No `usuarios.html`, troque a célula da cidade por:
+O Capítulo 5 ensinou o filtro `default`, que mostra um texto quando o valor falta. Experimente-o na cidade. No `usuarios_lista.html`, troque a célula da cidade por:
 
 ```html
         <td>{{ usuario.cidade|default('—') }}/{{ usuario.estado }}</td>
@@ -339,7 +339,7 @@ Salve e recarregue. O Bruno mostra `14/03/1988`, e a Ana e a Carla mostram `—`
 
 ### O filtro vale para o projeto todo
 
-A lista de **perfis**, do Capítulo 12, escreve o `strftime` direto no template. Agora que existe o filtro, a repetição pode sair. No `perfis.html`, troque a célula do **Criado em**:
+A lista de **perfis**, do Capítulo 12, escreve o `strftime` direto no template. Agora que existe o filtro, a repetição pode sair. No `perfis_lista.html`, troque a célula do **Criado em**:
 
 ```html
         <td>{{ perfil.criado_em|data_br }}</td>
@@ -382,7 +382,7 @@ git push
 
 ### Uma cor para cada perfil
 
-Um **badge** é a etiqueta colorida do Bootstrap (`<span class="badge ...">`). Com ele, o perfil se reconhece de relance, sem ler. Quem decide a cor é um `if/elif/else`, o mesmo do Capítulo 5, que decidia a faixa de preço de um produto. No `usuarios.html`, troque a célula do perfil por:
+Um **badge** é a etiqueta colorida do Bootstrap (`<span class="badge ...">`). Com ele, o perfil se reconhece de relance, sem ler. Quem decide a cor é um `if/elif/else`, o mesmo do Capítulo 5, que decidia a faixa de preço de um produto. No `usuarios_lista.html`, troque a célula do perfil por:
 
 ```html
         <td>
@@ -420,15 +420,15 @@ A lista mostra o essencial de todos. O **detalhe** mostra tudo sobre **um** usu�
 def usuario_detalhe(id_usuario):
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 ```
 
 A rota **reaproveita** o `SELECT_USUARIO`: o mesmo `JOIN`, as mesmas colunas e, de novo, nenhuma senha. O `WHERE` leva um `%s`, e o código vem na tupla `(id_usuario,)`, com a vírgula do Capítulo 13. O parâmetro leva o nome da chave primária, `id_usuario`, como manda o molde do projeto.
 
-Crie o `templates/usuario_detalhe.html`, por enquanto só com o nome e o botão de voltar:
+Crie o `templates/usuarios/usuario_detalhe.html`, por enquanto só com o nome e o botão de voltar:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ usuario.nome }} — Sistema de Gestão{% endblock %}
 
@@ -440,7 +440,7 @@ Crie o `templates/usuario_detalhe.html`, por enquanto só com o nome e o botão 
 {% endblock %}
 ```
 
-Salve e abra **http://127.0.0.1:5000/usuarios/2**: o título é **Bruno Souza**, e o botão volta para a lista. Falta o caminho de clique. No `usuarios.html`, acrescente a coluna **Ações**: no `<thead>`, depois de `<th>Perfil</th>`:
+Salve e abra **http://127.0.0.1:5000/usuarios/2**: o título é **Bruno Souza**, e o botão volta para a lista. Falta o caminho de clique. No `usuarios_lista.html`, acrescente a coluna **Ações**: no `<thead>`, depois de `<th>Perfil</th>`:
 
 ```html
         <th class="text-end">Ações</th>
@@ -582,7 +582,7 @@ Salve e abra de novo `/usuarios/99999`: a página 404 do projeto, a do Capítulo
 
 ### O mesmo `if` em dois arquivos
 
-Há uma repetição que fica: o `if/elif/else` do badge está escrito no `usuarios.html` **e** no `usuario_detalhe.html`. Se uma cor mudar, ou um perfil novo ganhar a sua, será preciso lembrar dos dois. É o mesmo problema que o Capítulo 6 resolveu para a faixa de preço, e a ferramenta é a mesma, o `{% include %}`: um pedaço de HTML guardado em um arquivo próprio. Crie o `templates/_badge_perfil.html`:
+Há uma repetição que fica: o `if/elif/else` do badge está escrito no `usuarios_lista.html` **e** no `usuario_detalhe.html`. Se uma cor mudar, ou um perfil novo ganhar a sua, será preciso lembrar dos dois. É o mesmo problema que o Capítulo 6 resolveu para a faixa de preço, e a ferramenta é a mesma, o `{% include %}`: um pedaço de HTML guardado em um arquivo próprio. Crie o `templates/usuarios/_badge_perfil.html`:
 
 ```html
 {% if usuario.perfil == 'Administrador' %}
@@ -594,26 +594,26 @@ Há uma repetição que fica: o `if/elif/else` do badge está escrito no `usuari
 {% endif %}
 ```
 
-No `usuarios.html`, troque o `<td>` do perfil inteiro por:
+No `usuarios_lista.html`, troque o `<td>` do perfil inteiro por:
 
 ```html
-        <td>{% include '_badge_perfil.html' %}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
 ```
 
 E, no `usuario_detalhe.html`, troque o `if` do perfil (as sete linhas, **sem** a linha da descrição) por:
 
 ```html
-              {% include '_badge_perfil.html' %}
+              {% include 'usuarios/_badge_perfil.html' %}
 ```
 
 O arquivo incluído enxerga a variável `usuario` do lugar onde foi escrito: na lista, é o `usuario` de cada volta do `for`, e, no detalhe, é o `usuario` que a rota entregou. Por isso as **duas** páginas precisam chamar a variável de `usuario`. Salve e confira: as cores continuam as mesmas, e agora há um só lugar para mudá-las.
 
 ### O menu continua aceso
 
-Falta um detalhe do menu. Abra o detalhe de um usuário: o item **Usuários** está **apagado**, porque o `base.html` só o acende nas páginas `lista_usuarios` e `usuario_novo`. No `base.html`, acrescente a nova página à lista do item Usuários:
+Falta um detalhe do menu. Abra o detalhe de um usuário: o menu **Usuários** está **apagado**, porque o `base_menu.html` só o acende nas páginas `lista_usuarios` e `usuario_novo`. No `base_menu.html`, acrescente a nova página à lista do botão do menu Usuários:
 
 ```html
-            <a class="nav-link {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe'] %}active{% endif %}" href="{{ url_for('lista_usuarios') }}">Usuários</a>
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['lista_usuarios', 'usuario_novo', 'usuario_detalhe'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuários</a>
 ```
 
 Salve e recarregue o detalhe: o menu **Usuários** está aceso. Faça agora o caminho completo: **Novo usuário**, cadastre um (o redirect já cai na lista de verdade, com a faixa verde), clique em **Ver** e volte pelo botão. Este capítulo termina sem botões de editar e excluir: eles chegam à lista no Capítulo 16.
@@ -698,11 +698,21 @@ def cpf_oculto(cpf):
 
 @app.route('/')
 def index():
+    return redirect(url_for('login'))
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/dashboard')
+def dashboard():
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('index.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Sistema de Gestão',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -715,7 +725,7 @@ def lista_perfis():
         fetch=True,
     )
 
-    return render_template('perfis.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
 
 
 def conferir_perfil(nome, descricao, id_perfil):
@@ -773,7 +783,7 @@ def perfil_novo():
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='criar', id_perfil=None,
+    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
                            nome=nome, descricao=descricao)
 
 
@@ -819,7 +829,7 @@ def perfil_editar(id_perfil):
                 else:
                     raise
 
-    return render_template('perfil_form.html', acao='editar', id_perfil=id_perfil,
+    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
 
@@ -856,7 +866,7 @@ def perfil_excluir(id_perfil):
 def lista_usuarios():
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 def vazio_para_none(valor):
@@ -1005,7 +1015,7 @@ def usuario_novo():
 
     perfis = execute_query('SELECT id_perfil, nome FROM perfis ORDER BY nome', fetch=True)
 
-    return render_template('usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
+    return render_template('usuarios/usuario_form.html', dados=request.form, perfis=perfis, ufs=UFS)
 
 
 @app.route('/usuarios/<int:id_usuario>')
@@ -1014,7 +1024,7 @@ def usuario_detalhe(id_usuario):
     if usuario is None:
         abort(404)
 
-    return render_template('usuario_detalhe.html', usuario=usuario)
+    return render_template('usuarios/usuario_detalhe.html', usuario=usuario)
 
 
 @app.errorhandler(404)
@@ -1031,10 +1041,10 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-O `templates/usuarios.html`:
+O `templates/usuarios/usuarios_lista.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -1067,7 +1077,7 @@ O `templates/usuarios.html`:
         <td>{{ usuario.cpf|cpf_oculto }}</td>
         <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
-        <td>{% include '_badge_perfil.html' %}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end">
           <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
         </td>
@@ -1082,10 +1092,10 @@ O `templates/usuarios.html`:
 {% endblock %}
 ```
 
-O `templates/usuario_detalhe.html`:
+O `templates/usuarios/usuario_detalhe.html`:
 
 ```html
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ usuario.nome }} — Sistema de Gestão{% endblock %}
 
@@ -1107,7 +1117,7 @@ O `templates/usuario_detalhe.html`:
 
             <dt class="col-sm-4">Perfil</dt>
             <dd class="col-sm-8">
-              {% include '_badge_perfil.html' %}
+              {% include 'usuarios/_badge_perfil.html' %}
               <span class="text-body-secondary">{{ usuario.perfil_descricao|default('', true) }}</span>
             </dd>
 
@@ -1161,7 +1171,7 @@ O `templates/usuario_detalhe.html`:
 {% endblock %}
 ```
 
-O `templates/_badge_perfil.html`:
+O `templates/usuarios/_badge_perfil.html`:
 
 ```html
 {% if usuario.perfil == 'Administrador' %}
@@ -1173,13 +1183,13 @@ O `templates/_badge_perfil.html`:
 {% endif %}
 ```
 
-As mudanças nos outros arquivos são duas linhas: no `perfis.html`, a célula do **Criado em** (`{{ perfil.criado_em|data_br }}`), e, no `base.html`, o item **Usuários** do menu, com o `usuario_detalhe` na lista. Os demais arquivos (`db.py`, `validacoes.py`, `index.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
+As mudanças nos outros arquivos são duas linhas: no `perfis_lista.html`, a célula do **Criado em** (`{{ perfil.criado_em|data_br }}`), e, no `base_menu.html`, o menu **Usuários**, com o `usuario_detalhe` na lista. Os demais arquivos (`db.py`, `validacoes.py`, `login.html`, `dashboard.html`, `perfil_form.html`, `usuario_form.html`, `404.html`, `500.html`, `estilo.css`, `testar_conexao.py`) são os do Capítulo 14.
 
 ---
 
 ## 📦 Código deste capítulo
 
-Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`base.html`, `index.html`, `perfis.html`, `perfil_form.html`, `usuarios.html`, `usuario_form.html`, `usuario_detalhe.html`, `_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e alguns usuários pelo formulário.
+Compare com o seu projeto, ou use como ponto de partida do próximo capítulo. O zip tem o `app.py`, o `db.py`, o `validacoes.py`, o `testar_conexao.py`, o `banco.sql`, o `.env.example`, o `.gitignore`, o `requirements.txt`, a pasta `templates` (`layout/base_menu.html`, `layout/base_limpo.html`, `login.html`, `dashboard.html`, `perfis/perfis_lista.html`, `perfis/perfil_form.html`, `usuarios/usuarios_lista.html`, `usuarios/usuario_form.html`, `usuarios/usuario_detalhe.html`, `usuarios/_badge_perfil.html`, `404.html` e `500.html`) e a pasta `static` (`estilo.css`). O ambiente virtual e o `.env` **não** vão no zip: depois de descompactar, crie o ambiente com os três comandos do Capítulo 3 e rode `copy .env.example .env`, trocando os marcadores `SUA_SENHA_AQUI` e `NOME_BANCO_DADOS` como no Capítulo 11. O banco também não vai dentro do zip: importe o `banco.sql`, cadastre os três perfis e alguns usuários pelo formulário.
 
 ➡️ [Baixar p2_cap_15.zip](../arquivos/p2_cap_15.zip)
 

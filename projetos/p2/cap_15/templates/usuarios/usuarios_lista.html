@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout/base_menu.html' %}
 
 {% block titulo_aba %}{{ titulo }} — Sistema de Gestão{% endblock %}
 
@@ -31,7 +31,7 @@
         <td>{{ usuario.cpf|cpf_oculto }}</td>
         <td>{{ usuario.cidade|default('—', true) }}{% if usuario.estado %}/{{ usuario.estado }}{% endif %}</td>
         <td>{{ usuario.data_nascimento|data_br }}</td>
-        <td>{% include '_badge_perfil.html' %}</td>
+        <td>{% include 'usuarios/_badge_perfil.html' %}</td>
         <td class="text-end">
           <a href="{{ url_for('usuario_detalhe', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-outline-primary">Ver</a>
         </td>
